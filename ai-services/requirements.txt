@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+langchain
+langchain-openai
+langchain-community
+langgraph
+qdrant-client
+redis
+psycopg2-binary
+python-multipart
+pydantic-settings
+kafka-python
