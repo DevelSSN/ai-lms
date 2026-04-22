@@ -186,65 +186,16 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-% ----- Chapters -----
-\chapter{Introduction}
-\section{Overview}
-\section{Motivation}
-\section{Objective}
-\section{Scope}
-\section{SDG Justification}
-\section{Existing System}
-\section{Proposed System}
-\section{Work Plan}
+\input{introduction.tex}
 
-\chapter{Literature Survey}
-% Some information
-
-\section{ Overview}
-
-\section{ Detailed Survey }
-
-\section{Research Gap Identification}
-
-\section{ Mapping of your Objective with Research Gap Identification }
-
-\chapter{Software and Hardware Requirement Specification }
-% Some introduction
-\section{Functional Requirements }
-
-\section{Non-functional Requirements }
-
-\section{Hardware Requirements }
-
-\section{Software Requirements  }
-
-\section{Cost Estimation }
+\input{literature.tex}
 
 
-\chapter{Design}
-% Some Introduction
+\input{design.tex}
 
-\section{ High Level Design }
+\include{implementation.tex}
 
-\section{ System Architecture }
-
-\section{Use-case Diagram }
-
-\section{Class Diagram}
-
-\section{Sequence Diagram}
-Include the Sequence diagram with respect to your project work
-
-\chapter{Implementation}
-%Some Introduction
-\section{Overview of Technologies Used}
-\section{Implementation details of modules}
-\section{Challenges encountered and Strategies used to tackle}
-\chapter{Testing and Experimental Analysis and Results}
-\section{Unit Testing}
-\section{Integration Testing}
-\section{Experimental Dataset}
-\section{Performance Analysis}
+\include{test.tex}
 	
 
 \chapter{Conclusion and Future Work}
