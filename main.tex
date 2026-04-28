@@ -13,10 +13,12 @@
 \usepackage{titlesec}
 \usepackage{etoolbox} % needed for patching TOC entries
 \usepackage{xcolor}
+\usepackage{biblatex}
 
 
 % Line spacing
 \onehalfspacing
+\setlength{\headheight}{15pt}
 
 % Title formatting
 \titleformat{\chapter}[hang]{\bfseries\centering\LARGE}{Chapter \thechapter}{1em}{}
@@ -45,7 +47,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \lhead{\textit{\projecttitle}}
-\lfoot{\textit{Dept. of CSE,BMSCE}}
+\lfoot{\textit{Dept. of CSE, BMSCE}}
 \rfoot{\textit{Page \thepage}}
 
 % Make chapter pages use fancy style
@@ -190,6 +192,7 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 
 \input{literature.tex}
 
+\input{requirements.tex}
 
 \input{design.tex}
 
@@ -197,7 +200,6 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 
 \include{test.tex}
 	
-
 \chapter{Conclusion and Future Work}
 % Future Work
 
@@ -207,10 +209,15 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 % ----- References -----
 \chapter*{REFERENCES}
 \addcontentsline{toc}{chapter}{REFERENCES}
-\begin{thebibliography}{99}
-\bibitem{ref1} Author, \textit{Book Title}, Publisher, Year.
-\bibitem{ref2} Author, "Paper Title", \textit{Journal}, Volume(Issue), Year.
-\end{thebibliography}
+%\begin{thebibliography}{99}
+%	\bibitem{Rida2025} Z. Rida et al., "Dynamic Adaptation in an Intelligent Multi-Tutoring System: A Multi-Agent Approach," in \textit{IEEE Access}, vol. 13, 2025.
+%	\bibitem{Hasan2020} M. A. Hasan et al., "The Transition From Intelligent to Affective Tutoring System: A Review and Open Issues," in \textit{IEEE Access}, vol. 8, 2020.
+%	\bibitem{Zhang2025} Z. Zhang et al., "SPP-L2: A PPO-Enhanced LLM Framework for Student Performance Prediction," in \textit{IEEE Access}, vol. 13, 2025.
+%	\bibitem{Hewedy2025} D. W. Hewedy and A. S. Abdelhady, "PETRA: A Personalized Educational Tutoring Tool," in \textit{Proc. ICEENG}, 2025.
+%	\bibitem{Chaturvedi2026} N. Chaturvedi and A. Gunawardena, "Agentic Orchestration for Adaptive Educational Recommendations," in \textit{Proc. ACM WSDM}, 2026.
+%	\bibitem{bloom} B. S. Bloom,  "The 2 Sigma Problem: The Search for Methods of Group Instruction as Effective as One-to-One Tutoring", in \textit{Educational Researcher}, 1984.
+%\end{thebibliography}
+\printbibliography
 \clearpage
 
 % ----- Appendices -----
@@ -221,10 +228,10 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 \clearpage
 \section {Appendix B: Details of list of publications related to this project}
 \large{Author Names: } \\
-\\large{Paper Title: } \\
-\\large {Name of the Conference or Journal:} \\
-\\large {Place of the conference:}\\ 
-\\large {Date of Conferenc:}
+\large{Paper Title: } \\
+\large {Name of the Conference or Journal:} \\
+\large {Place of the conference:}\\ 
+\large {Date of Conference:}
 \clearpage
 \section {Appendix C: Details of Patent}
 \clearpage

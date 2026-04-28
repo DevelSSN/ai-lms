@@ -5,13 +5,14 @@
 Modern education is shifting from passive learning to active, AI-enhanced discovery. This research introduces an Intelligent Tutoring System (ITS) based on a multi-agent LLM (Large Language Model) architecture. Instead of relying on a single chatbot, the system operates as a digital ecosystem of specialized agents, including Orchestration, Profiling, Content Analysis, and Question Generation. These agents work together to create a learning experience that mimics the responsiveness and adaptability of a human tutor.
 
 \section{Motivation}
-The "Digital Divide" in education now involves more than internet access; it also includes access to quality, personalized instruction. Traditional e-learning platforms often serve as static repositories and do not solve the "Two-Sigma Problem," which shows that students who receive one-on-one tutoring perform much better than those in traditional classrooms. Our motivation stems from the need to provide high-quality, personalized mentorship through an autonomous system that can recall a student's history, understand their uploaded materials, and step in when they face difficulties.
+The "Digital Divide" in education now involves more than internet access; it also includes access to quality, personalized instruction. Traditional e-learning platforms often serve as static repositories and do not solve the "Two-Sigma Problem," \cite{bloom} which shows that students who receive one-on-one tutoring perform much better than those in traditional classrooms. Our motivation stems from the need to provide high-quality, personalized mentorship through an autonomous system that can recall a student's history, understand their uploaded materials, and step in when they face difficulties.
 
 \section{Objective}
 Our main goal is to create a recursive AI framework that goes beyond basic automation. Important milestones include:
 \begin{itemize}
 	\item Contextual Intelligence: Building an LLM Orchestrator that manages state across sessions using short-term cache and long-term vector memory.
 	\item Autonomous Assessment: Creating a pipeline that converts raw media (documents, images, videos) into structured knowledge and generates targeted evaluative questions.
+	\item Automated Feedback: Creating feedback, reports and learning insights based on existing user persona and progress on a topic.
 	\item Behavioral Persistence: Designing a profiling engine that captures and stores user preferences and knowledge gaps, ensuring each interaction builds on prior performance.
 \end{itemize}
 
@@ -21,8 +22,15 @@ This project focuses on designing and implementing a modular backend architectur
 \section{SDG Justification}
 This project supports United Nations Sustainable Development Goal 4 (Quality Education). By automating time-consuming tutoring tasks, such as content summarization, assessment creation, and progress tracking, the system offers an affordable, impactful solution for learners worldwide. It fosters inclusive and equitable quality education by providing a personalized learning companion that is available around the clock, regardless of location or socio-economic status.
 
+Beyond education (SDG 4), this project also aligns with Sustainable Development Goal 9 (Industry, Innovation, and Infrastructure) and Sustainable Development Goal 10 (Reduced Inequalities).
+
+From an industry perspective, the proposed multi-agent architecture contributes to the advancement of intelligent educational technologies by leveraging scalable LLM-based systems, vector databases, and autonomous agents. This reflects the broader shift toward AI-driven knowledge systems in the EdTech industry, where modular and interoperable AI components are becoming essential for building adaptive platforms.
+
+In terms of inequality, traditional tutoring services are often expensive and geographically limited, creating barriers for learners in low-income or remote regions. By contrast, the proposed system aims to reduce educational inequality by providing personalized tutoring capabilities that are accessible anytime and anywhere. The system’s ability to persist user knowledge and adapt to individual learning needs helps bridge gaps in educational quality between different socio-economic groups.
+
 \section{Existing System}
-Current Learning Management Systems (LMS) primarily serve administrative functions. They allow the delivery of PDFs and pre-recorded videos but do not address the learner's actual cognitive state. Features like automated grading often rely on strict multiple-choice formats, and personalization is usually limited to simple "if-then" branching. These systems thus struggle to maintain a coherent conversation over prolonged study periods.
+Current Learning Management Systems (LMS) primarily serve administrative functions. They allow the delivery of PDFs and pre-recorded videos but do not address the learner's actual cognitive state. %Features like automated grading often rely on strict multiple-choice formats, and personalization is usually limited to simple "if-then" branching. 
+These systems thus struggle to maintain a coherent conversation over prolonged study periods.
 
 \section{Proposed System}
 We suggest a "Multi-Agent Orchestration" model. At its center, an LLM Orchestrator functions as the system's hub, directing user inputs to specialized agents based on intent.

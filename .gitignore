@@ -1,3 +1,4 @@
 *
 !*.tex
 !*.jpg
+!build/main.pdf
