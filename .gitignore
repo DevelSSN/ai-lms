@@ -1,4 +1,5 @@
 *
 !*.tex
 !*.jpg
+!*.bib
 !build/main.pdf
