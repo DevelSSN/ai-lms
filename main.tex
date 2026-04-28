@@ -13,7 +13,8 @@
 \usepackage{titlesec}
 \usepackage{etoolbox} % needed for patching TOC entries
 \usepackage{xcolor}
-\usepackage{biblatex}
+\usepackage[style=numeric,backend=biber]{biblatex}
+\addbibresource{citations.bib}
 
 
 % Line spacing
@@ -207,8 +208,8 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 
 \clearpage
 % ----- References -----
-\chapter*{REFERENCES}
-\addcontentsline{toc}{chapter}{REFERENCES}
+%\chapter*{REFERENCES}
+%\addcontentsline{toc}{chapter}{REFERENCES}
 %\begin{thebibliography}{99}
 %	\bibitem{Rida2025} Z. Rida et al., "Dynamic Adaptation in an Intelligent Multi-Tutoring System: A Multi-Agent Approach," in \textit{IEEE Access}, vol. 13, 2025.
 %	\bibitem{Hasan2020} M. A. Hasan et al., "The Transition From Intelligent to Affective Tutoring System: A Review and Open Issues," in \textit{IEEE Access}, vol. 8, 2020.
@@ -217,7 +218,7 @@ Finally, we thank all those who helped, either directly or indirectly, to the su
 %	\bibitem{Chaturvedi2026} N. Chaturvedi and A. Gunawardena, "Agentic Orchestration for Adaptive Educational Recommendations," in \textit{Proc. ACM WSDM}, 2026.
 %	\bibitem{bloom} B. S. Bloom,  "The 2 Sigma Problem: The Search for Methods of Group Instruction as Effective as One-to-One Tutoring", in \textit{Educational Researcher}, 1984.
 %\end{thebibliography}
-\printbibliography
+\printbibliography[heading=bibintoc, title={REFERENCES}]
 \clearpage
 
 % ----- Appendices -----
