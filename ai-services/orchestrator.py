@@ -8,7 +8,14 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 import psycopg2
 import operator
-from prompts import PROFILING_SYSTEM_PROMPT, ANALYSIS_SYSTEM_PROMPT, CONVERSATION_SYSTEM_PROMPT
+from prompts import (
+    PROFILING_SYSTEM_PROMPT, 
+    ANALYSIS_SYSTEM_PROMPT, 
+    CONVERSATION_SYSTEM_PROMPT,
+    QGA_SYSTEM_PROMPT,
+    IRA_SYSTEM_PROMPT,
+    PEA_SYSTEM_PROMPT
+)
 
 # Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -95,17 +102,88 @@ def conversation_agent(state: AgentState):
     
     return {"messages": [response]}
 
+def question_generation_agent(state: AgentState):
+    """Generates assessment items."""
+    print("--- QUESTION GENERATION AGENT ---")
+    
+    messages = [
+        SystemMessage(content=QGA_SYSTEM_PROMPT), 
+        HumanMessage(content=f"Content: {state.get('context', 'No content available')}\nUser Level: {state.get('user_profile', {}).get('knowledge_level', 'unknown')}")
+    ]
+    response = llm.invoke(messages)
+    
+    return {"messages": [response]}
+
+def insight_agent(state: AgentState):
+    """Provides learning insights and recommendations."""
+    print("--- INSIGHT AGENT ---")
+    
+    messages = [
+        SystemMessage(content=IRA_SYSTEM_PROMPT),
+        HumanMessage(content=f"User Profile: {json.dumps(state.get('user_profile', {}))}")
+    ]
+    response = llm.invoke(messages)
+    
+    return {"messages": [response]}
+
+def proactive_agent(state: AgentState):
+    """Triggers proactive interactions."""
+    print("--- PROACTIVE AGENT ---")
+    
+    messages = [
+        SystemMessage(content=PEA_SYSTEM_PROMPT),
+        HumanMessage(content=f"Context: {state.get('context', 'None')}\nLast message: {state['messages'][-1].content}")
+    ]
+    response = llm.invoke(messages)
+    
+    # In a real system, this might trigger a scheduler
+    return {"messages": [response]}
+
 # --- Graph ---
 
 def create_orchestrator():
     workflow = StateGraph(AgentState)
+    
+    # Add Nodes
     workflow.add_node("profiling", profiling_agent)
     workflow.add_node("analysis", content_analysis_agent)
     workflow.add_node("conversation", conversation_agent)
+    workflow.add_node("question_gen", question_generation_agent)
+    workflow.add_node("insights", insight_agent)
+    workflow.add_node("proactive", proactive_agent)
 
+    # Entry point
     workflow.set_entry_point("profiling")
+    
+    # Edges
     workflow.add_edge("profiling", "analysis")
-    workflow.add_edge("analysis", "conversation")
+    
+    # Simple routing based on current_task if provided, else default to conversation
+    def route_tasks(state: AgentState):
+        task = state.get("current_task", "conversation")
+        if task == "quiz":
+            return "question_gen"
+        elif task == "insights":
+            return "insights"
+        elif task == "proactive":
+            return "proactive"
+        else:
+            return "conversation"
+
+    workflow.add_conditional_edges(
+        "analysis",
+        route_tasks,
+        {
+            "question_gen": "question_gen",
+            "insights": "insights",
+            "proactive": "proactive",
+            "conversation": "conversation"
+        }
+    )
+
     workflow.add_edge("conversation", END)
+    workflow.add_edge("question_gen", END)
+    workflow.add_edge("insights", END)
+    workflow.add_edge("proactive", END)
 
     return workflow.compile()
