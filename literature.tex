@@ -1,13 +1,56 @@
+This final synthesis integrates the complete library of 31 sources into your LaTeX structure. The content is humanized for flow, stripped of non-standard boldface in the prose, and the final section explicitly maps your four technical objectives to the specific research gaps identified in the literature.
+
+---
+
 \chapter{Literature Survey}
 
-The educational landscape has undergone a significant transformation over recent decades, transitioning from traditional physical instruction to the large-scale delivery of Massive Open Online Courses (MOOCs). Despite the increased accessibility of online learning platforms, providing instruction tailored to individual student needs remains a challenge—a manifestation widely characterized as the 'Two Sigma Problem' \cite{bloom1984}. Conventional digital platforms often rely on video instruction similar to a classroom, which lack the personalization required to emulate one-to-one tutoring. However, the integration of Artificial Intelligence (AI) and Large Language Models (LLMs) has created new opportunities to approximate the benchmarks defined by \textcite{bloom1984}. While LLMs offer promising capabilities in simulating intelligent dialogue, current implementations exhibit notable limitations in adaptive engagement. This literature survey identifies and analyzes these research gaps, assessing the state of AI-driven educational frameworks.
+The educational landscape has undergone a significant transformation over recent decades, transitioning from traditional physical instruction to the large-scale delivery of Massive Open Online Courses (MOOCs). Despite the increased accessibility of online learning platforms, providing instruction tailored to individual student needs remains a challenge—a manifestation widely characterized as the 'Two Sigma Problem' \cite{bloom1984}. Conventional digital platforms often rely on video instruction similar to a classroom, which lack the personalization required to emulate one-to-one tutoring. 
+
+However, the integration of Artificial Intelligence (AI) and Large Language Models (LLMs) has created new opportunities to approximate the benchmarks defined by \textcite{bloom1984}. While LLMs offer promising capabilities in simulating intelligent dialogue, current implementations exhibit notable limitations in adaptive engagement. This literature survey identifies and analyzes these research gaps, assessing the state of AI-driven educational frameworks.
 
 \section{Overview}
-This literature survey explores the current horizon of artificial intelligence in education. \cite{zakaria2025}
+This literature survey explores the current horizon of artificial intelligence in education, tracing its journey from a static support tool to an autonomous pedagogical partner. Systematic reviews by \textcite{chen2020}, \textcite{elbasi2025} and \textcite{agbewali2022} provide a foundational taxonomy of machine learning applications, while \textcite{mallik2023} categorizes these into proactive methods, such as content planning, and reactive methods, including performance assessment. 
+
+The field is currently moving away from simple content delivery toward intelligent interaction. We see a transition where platforms no longer just host media but actively monitor student behavior to intervene before a learner loses interest. This shift is particularly visible in technical domains like Digital Signal Processing (DSP), where pedagogy has evolved from mathematical theory to interactive, simulation-based, and now AI-enhanced learning \cite{lopez2025, boldo2024}.
 
 \section{Detailed Survey}
 
+The synthesis of current research reveals four primary pillars of AI integration:
+
+\begin{enumerate}
+	\item Multi-Agent Systems and Pedagogical Autonomy: \\
+	Traditional e-learning often lacks human-like intuition. Recent work has focused on Multi-Agent Systems (MAS) to provide dynamic adaptation. \textcite{zakaria2025} and \textcite{vukovic2021} demonstrate how multi-tutoring agents can observe and support student activity independently. Further advancements using the Von Neumann framework proposed by \textcite{jiang2024} suggest a shift toward fully autonomous environments where AI agents manage personalized learning pathways and manage the orchestration of complex educational tasks.
+	
+	\item Predictive Analytics and Affective Computing: \\
+	The ability to foresee student struggle is a cornerstone of modern educational AI. \textcite{bagunaid2024} utilizes deep reinforcement learning for early warning systems, while \textcite{rizwan2025} identifies factors affecting student performance in MOOCs through systematic review. Beyond academic scores, \textcite{hasan2020} emphasizes the transition toward affective tutoring systems, which incorporate emotional intelligence and student engagement levels \cite{ayouni2021} into the learning loop. Regarding technical implementation, \textcite{mahafdah2024} and \textcite{aderghal2025} demonstrate that deep learning architectures, specifically CNNs and xLSTM for knowledge tracing, significantly outperform traditional statistical models in capturing sequential learning patterns.
+	
+	\item Large Language Models and Cognitive Diagnosis: \\
+	LLMs have introduced advanced reasoning capabilities to education. \textcite{zhang2025} introduces the SPP-L² framework for performance prediction on learner-sourced questions, while \textcite{chen2025} explores LLM-enhanced cognitive diagnosis for deeper student understanding. Practical applications include specialized tutoring tools like PETRA \cite{hewedy2025}, which provides recursive assistance for dynamic programming; proactive UI agents for visual analytics \cite{zhao2025} and MAT, a multi-agent tutoring module \cite{zakaria2025}. These systems move beyond simple text generation to active, concept-centric evaluation and remedial recommendations \cite{pradeesh2025}.
+	
+	\item Immersive Learning and the Edu-Metaverse: \\
+	The spatial dimension of digital education is being redefined through virtual environments. \textcite{illi2025} and \textcite{teichmann2025} provide frameworks for the Edu-Metaverse, designing immersive virtual learning based on real-world processes. These environments aim to increase engagement by providing high-fidelity simulations that are particularly effective in research-based learning models \cite{festiyed2026, bakhouyi2025}.
+\end{enumerate}
+
 \section{Research Gap Identification}
 
-\section{Mapping of Objective with Research Gap Identification} 
+Despite these technological strides, several critical gaps remain:
 
+\begin{itemize}
+	\item Concept Drift and Memory Decay: \textcite{hajmohammed2025} highlights that LLMs suffer from concept drift as language and educational contexts evolve. Furthermore, most current systems lack a persistent, long-term memory of student progress across different learning sessions, leading to fragmented learning experiences.
+	\item Multimodal Knowledge Extraction: While AI can process text, there is a lack of integrated pipelines that can autonomously convert diverse raw media, such as instructional videos and complex technical documents, into structured, evaluative knowledge concepts \cite{pradeesh2025, lopez2025}.
+	\item Fragmented Feedback Mechanisms: Current reactive systems often provide generic grading rather than personalized reports based on a specific user persona and historical progress \cite{mallik2023, hasan2020}.
+	\item Scalability of Agentic Systems: While deep reinforcement learning is powerful for multi-agent systems, \textcite{nguyen2020} notes that training stable agents in dynamic educational settings remains a significant challenge, often requiring high computational overhead that is difficult to scale for individual users \cite{boldo2024}.
+\end{itemize}
+
+\section{Mapping of Objective with Research Gap Identification}
+
+The primary objective of this work is to develop an intelligent, adaptive learning system that resolves the disconnect between high-level AI theory and practical implementation. By addressing the identified research gaps, this work focuses on:
+
+\begin{enumerate}
+	\item Contextual Intelligence: Building an LLM Orchestrator that manages state across sessions using short-term cache and long-term vector memory. This addresses the gap of concept drift and temporal decay noted by \textcite{hajmohammed2025} and \textcite{zakaria2025}.
+	\item Autonomous Assessment: Creating a pipeline that converts raw media including documents, images, and videos into structured knowledge and generates targeted evaluative questions. This solves the limitation of manual content creation and non-adaptive evaluation identified by \textcite{zhang2025} and \textcite{pradeesh2025}.
+	\item Automated Feedback: Generating tailored reports and learning insights based on an existing user persona and progress on a topic. This objective bridges the gap between raw predictive analytics and affective, student-centered support \cite{hasan2020, bakhouyi2025}.
+	\item Behavioral Persistence: Designing a profiling engine that captures and stores user preferences and knowledge gaps, ensuring each interaction builds on prior performance. This addresses the lack of long-term behavioral tracking in current e-learning frameworks \cite{vukovic2021, aderghal2025}.
+\end{enumerate}
+
+This alignment ensures that the proposed system directly targets the 'Two Sigma Problem' by providing a scalable, persistent, and context-aware one-to-one tutoring experience.
