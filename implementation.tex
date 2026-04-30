@@ -1,5 +1,27 @@
 \chapter{Implementation}
-%Some Introduction
+
 \section{Overview of Technologies Used}
+The proposed system shall be built on a modern AI stack: \textbf{FastAPI} for the backend, \textbf{LangGraph} for agent orchestration, \textbf{Pinecone} for vector storage, \textbf{PostgreSQL} for user metadata, and \textbf{Redis} for session caching.
+
 \section{Implementation details of modules}
-\section{Challenges encountered and Strategies used to tackle}
+
+\subsection{AI Orchestrator}
+The AI Orchestrator is implemented as a state-driven workflow using \textbf{LangGraph}. It manages execution flow by maintaining a global \texttt{AgentState}, which encapsulates message history, user profiles, and task metadata.
+\begin{itemize}
+	\item \textbf{State Management:} Uses \texttt{TypedDict} to ensure each agent has access to the necessary context (e.g., knowledge level, retrieved documents).
+	\item \textbf{Conditional Routing:} Employs routing logic that dynamically directs the workflow based on the \texttt{current\_task} (e.g., switching to \texttt{question\_gen} for assessments).
+	\item \textbf{Asynchronous Integration:} Interfaces with \textbf{Redis} for short-term session memory to ensure low-latency response times.
+\end{itemize}
+
+\subsection{User Profiling Module}
+Implemented via a dedicated \texttt{profiling\_agent} that maintains a persistent understanding of the learner:
+\begin{itemize}
+	\item \textbf{Dynamic Extraction:} Uses LLM function calling to analyze interactions and update the \texttt{knowledge\_level} attribute.
+	\item \textbf{Persistence Layer:} Updates the \textbf{PostgreSQL} \texttt{user\_profiles} table using \texttt{UPSERT} operations to maintain a single source of truth.
+\end{itemize}
+
+%\subsection{Content Analysis \& Question Generation}
+%\begin{itemize}
+%	\item \textbf{Content Analysis Agent (CAA):} Uses \textbf{Unstructured.io} to parse uploaded PDFs/Media from \textbf{S3 Object Storage}, generating embeddings stored in \textbf{Pinecone}.
+%	\item \textbf{Question Generation Agent (QGA):} Implements a Retrieval-Augmented Generation (RAG) pipeline to pull context from the Vector DB and generate difficulty-adjusted questions based on the User Profile.
+%\end{itemize}
