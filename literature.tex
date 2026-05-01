@@ -1,6 +1,3 @@
-This final synthesis integrates the complete library of 31 sources into your LaTeX structure. The content is humanized for flow, stripped of non-standard boldface in the prose, and the final section explicitly maps your four technical objectives to the specific research gaps identified in the literature.
-
-
 \chapter{Literature Survey}
 
 The educational landscape has undergone a significant transformation over recent decades, transitioning from traditional physical instruction to the large-scale delivery of Massive Open Online Courses (MOOCs). Despite the increased accessibility of online learning platforms, providing instruction tailored to individual student needs remains a challenge—a manifestation widely characterized as the 'Two Sigma Problem' \cite{bloom1984}. Conventional digital platforms often rely on video instruction similar to a classroom, which lack the personalization required to emulate one-to-one tutoring. 
@@ -14,14 +11,16 @@ The field is currently moving away from simple content delivery toward intellige
 
 \section{Detailed Survey}
 
-The synthesis of current research reveals four primary pillars of AI integration:
+%\subsubsection{Classification of Survey}
+
+The literature survey reveals four primary pillars of AI integration:
 
 \begin{enumerate}
 	\item Multi-Agent Systems and Pedagogical Autonomy: \\
 	Traditional e-learning often lacks human-like intuition. Recent work has focused on Multi-Agent Systems (MAS) to provide dynamic adaptation. \textcite{zakaria2025} and \textcite{vukovic2021} demonstrate how multi-tutoring agents can observe and support student activity independently. Further advancements using the Von Neumann framework proposed by \textcite{jiang2024} suggest a shift toward fully autonomous environments where AI agents manage personalized learning pathways and manage the orchestration of complex educational tasks.
 	
 	\item Predictive Analytics and Affective Computing: \\
-	The ability to foresee student struggle is a cornerstone of modern educational AI. \textcite{bagunaid2024} utilizes deep reinforcement learning for early warning systems, while \textcite{rizwan2025} identifies factors affecting student performance in MOOCs through systematic review. Beyond academic scores, \textcite{hasan2020} emphasizes the transition toward affective tutoring systems, which incorporate emotional intelligence and student engagement levels \cite{ayouni2021} into the learning loop. Regarding technical implementation, \textcite{mahafdah2024} and \textcite{aderghal2025} demonstrate that deep learning architectures, specifically CNNs and xLSTM for knowledge tracing, significantly outperform traditional statistical models in capturing sequential learning patterns.
+	The ability to foresee student struggle is a cornerstone of modern educational AI. \textcite{bagunaid2024} utilizes deep reinforcement learning for early warning systems, while \textcite{rizwan2025} identifies factors affecting student performance in MOOCs through systematic review. Beyond academic scores, \textcite{hasan2020} and  emphasizes the transition toward affective tutoring systems, which incorporate emotional intelligence and student engagement levels \cite{ayouni2021} into the learning loop. Regarding technical implementation, \textcite{mahafdah2024} and \textcite{aderghal2025} demonstrate that deep learning architectures, specifically CNNs and xLSTM for knowledge tracing, significantly outperform traditional statistical models in capturing sequential learning patterns.
 	
 	\item Large Language Models and Cognitive Diagnosis: \\
 	LLMs have introduced advanced reasoning capabilities to education. \textcite{zhang2025} introduces the SPP-L² framework for performance prediction on learner-sourced questions, while \textcite{chen2025} explores LLM-enhanced cognitive diagnosis for deeper student understanding. Practical applications include specialized tutoring tools like PETRA \cite{hewedy2025}, which provides recursive assistance for dynamic programming; proactive UI agents for visual analytics \cite{zhao2025} and MAT, a multi-agent tutoring module \cite{zakaria2025}. These systems move beyond simple text generation to active, concept-centric evaluation and remedial recommendations \cite{pradeesh2025}.
@@ -29,6 +28,9 @@ The synthesis of current research reveals four primary pillars of AI integration
 	\item Immersive Learning and the Edu-Metaverse: \\
 	The spatial dimension of digital education is being redefined through virtual environments. \textcite{illi2025} and \textcite{teichmann2025} provide frameworks for the Edu-Metaverse, designing immersive virtual learning based on real-world processes. These environments aim to increase engagement by providing high-fidelity simulations that are particularly effective in research-based learning models \cite{festiyed2026, bakhouyi2025}.
 \end{enumerate}
+
+%\subsubsection{Differences in papers}
+
 
 \section{Research Gap Identification}
 
@@ -45,11 +47,18 @@ Despite these technological strides, several critical gaps remain:
 
 The primary objective of this work is to develop an intelligent, adaptive learning system that resolves the disconnect between high-level AI theory and practical implementation. By addressing the identified research gaps, this work focuses on:
 
-\begin{enumerate}
-	\item Contextual Intelligence: Building an LLM Orchestrator that manages state across sessions using short-term cache and long-term vector memory. This addresses the gap of concept drift and temporal decay noted by \textcite{hajmohammed2025} and \textcite{zakaria2025}.
-	\item Autonomous Assessment: Creating a pipeline that converts raw media including documents, images, and videos into structured knowledge and generates targeted evaluative questions. This solves the limitation of manual content creation and non-adaptive evaluation identified by \textcite{zhang2025} and \textcite{pradeesh2025}.
-	\item Automated Feedback: Generating tailored reports and learning insights based on an existing user persona and progress on a topic. This objective bridges the gap between raw predictive analytics and affective, student-centered support \cite{hasan2020, bakhouyi2025}.
-	\item Behavioral Persistence: Designing a profiling engine that captures and stores user preferences and knowledge gaps, ensuring each interaction builds on prior performance. This addresses the lack of long-term behavioral tracking in current e-learning frameworks \cite{vukovic2021, aderghal2025}.
-\end{enumerate}
+\begin{table}[htbp]
+	\centering
+	\caption{Mapping of Research Objectives to Identified Literature Gaps}
+	\label{tab:gap_mapping}
+	\begin{tabularx}{\textwidth}{@{} l X X l @{}}
+		\toprule
+		\textbf{Objective} & \textbf{Proposed Implementation} & \textbf{Addressed Research Gap} & \textbf{Key References} \\ \midrule
+		\textbf{1. Contextual Intelligence} & LLM Orchestrator with short-term cache and long-term vector memory. & Mitigation of concept drift and temporal memory decay across sessions. & \cite{hajmohammed2025, zakaria2025} \\ \addlinespace
+		\textbf{2. Autonomous Assessment} & Multimodal pipeline converting raw media into structured knowledge and questions. & Manual content bottlenecks and non-adaptive evaluation methods. & \cite{zhang2025, pradeesh2025} \\ \addlinespace
+		\textbf{3. Automated Feedback} & Persona-based report generation and affective learning insights. & Disconnect between raw predictive analytics and student-centered support. & \cite{hasan2020, bakhouyi2025} \\ \addlinespace
+		\textbf{4. Behavioral Persistence} & Profiling engine for tracking preferences and cumulative knowledge gaps. & Lack of persistent, long-term behavioral tracking in e-learning frameworks. & \cite{vukovic2021, aderghal2025} \\ \bottomrule
+	\end{tabularx}
+\end{table}
 
-This alignment ensures that the proposed system directly targets the 'Two Sigma Problem' by providing a scalable, persistent, and context-aware one-to-one tutoring experience.
+The proposed solution thus aims to directly target the 'Two Sigma Problem' by providing a scalable, persistent, and context-aware one-to-one tutoring experience.
