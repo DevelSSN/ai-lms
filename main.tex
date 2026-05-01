@@ -1,0 +1,82 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[style=ieee,backend=biber]{biblatex}
+
+\addbibresource{citations.bib}
+
+\onehalfspacing
+
+\title{Literature Survey}
+\author{Prakrithi Jain}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\chapter{Literature Survey}
+
+The increasing adoption of online learning platforms has improved access to education, but it has also introduced challenges in maintaining student engagement and delivering personalized learning experiences. Traditional systems often provide the same content to all learners, which limits adaptability and reduces effectiveness. To address these issues, researchers have explored the use of Artificial Intelligence (AI) and Machine Learning (ML) to create more intelligent and responsive learning environments.
+
+\section{Mallik and Gangopadhyay (2023)}
+
+Mallik and Gangopadhyay \cite{mallik2023} present a comprehensive review of AI applications in education over the past two decades. The study categorizes approaches into proactive methods, such as content recommendation, and reactive methods, such as performance analysis. While this classification helps understand AI-based learning systems, these approaches are often not well integrated, which limits continuous adaptation and personalization.
+
+\textbf{Research Gaps:}
+\begin{itemize}
+    \item Lack of integration between proactive and reactive learning approaches
+    \item Difficulty in achieving personalization at scale
+    \item Limited real-time adaptability
+\end{itemize}
+
+\section{Bagunaid et al. (2024)}
+
+Bagunaid \cite{bagunaid2024} proposes a deep reinforcement learning (DRL)-based early warning system to predict student performance. The system analyzes student data to identify learners at risk and enables early intervention. While effective, the model requires high computational resources and large datasets, making real-world deployment challenging.
+
+\textbf{Research Gaps:}
+\begin{itemize}
+    \item High computational complexity
+    \item Dependence on large datasets
+    \item Limited scalability
+\end{itemize}
+
+\section{Ayouni et al. (2021)}
+
+Ayouni \cite{ayouni2021} focuses on improving student engagement using machine learning techniques. The system analyzes interaction data to detect disengaged students and supports timely intervention. Although effective, challenges remain in handling diverse learning behaviors and scaling the system.
+
+\textbf{Research Gaps:}
+\begin{itemize}
+    \item Dependence on high-quality data
+    \item Limited scalability
+    \item Difficulty adapting to dynamic student behavior
+\end{itemize}
+
+\section{Summary of Research Gaps}
+
+\begin{itemize}
+    \item Lack of integration between AI approaches
+    \item High computational requirements
+    \item Data dependency
+    \item Limited scalability
+    \item Poor adaptability
+\end{itemize}
+
+\section{Mapping of Objective with Research Gap Identification}
+
+The objective of this work is to develop an intelligent and adaptive learning system that improves student engagement and performance. The identified gaps highlight the need for scalable, efficient, and integrated solutions that can adapt to real-time student behavior.
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Keywords:} artificial intelligence in education; machine learning; deep reinforcement learning; student engagement; personalized learning
+
+\printbibliography
+
+\end{document}
