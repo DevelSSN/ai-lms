@@ -23,12 +23,53 @@ The central coordinator using \textbf{LangGraph} to route requests between agent
 \end{itemize}
 
 \section{Data Layer}
-The architecture utilizes a tri-tier storage strategy: \textbf{PostgreSQL} for relational user data, \textbf{Pinecone} for semantic vector search, and \textbf{Redis} for high-speed session caching.
+The architecture utilizes a tri-tier storage strategy: \textbf{PostgreSQL} for relational user data, \textbf{Qdrant} for semantic vector search, and \textbf{Redis} for high-speed session caching.
 
 \section{System Architecture}
+The system architecture transitions from a linear request-response model to a state-aware, agentic ecosystem. This design ensures that the Large Language Model (LLM) is not merely a generator, but a central processor that interacts with specialized microservices and persistent data layers to deliver a personalized learning path.
+
+\subsection{Ingress and Data Handling}
+The entry point of the system is a high-performance \textbf{API Gateway} implemented via \textbf{FastAPI}. It manages asynchronous request handling and implements OAuth2-based JWT authentication. To ensure system scalability, the gateway utilizes a decoupled file handling strategy:
+\begin{itemize}
+	\item \textbf{Object Storage Integration:} Large binary objects (PDFs, media files) are offloaded directly to \textbf{AWS S3} or \textbf{MinIO}.
+	\item \textbf{Metadata Routing:} Only the metadata and object references are passed to the downstream agents, reducing the memory footprint of the orchestrator.
+\end{itemize}
+
+\subsection{Stateful Agentic Orchestration}
+At the core of the intelligence layer lies the \textbf{LLM Orchestrator}, built using \textbf{LangGraph}. Unlike standard chain-based architectures, this graph-based approach allows for cyclic transitions and complex decision-making.
+
+The orchestrator maintains a state object, $S$, defined as:
+\[ S = \{ H_c, U_p, C_{ret}, T_{meta} \} \]
+Where $H_c$ represents the conversation history, $U_p$ the user profile attributes, $C_{ret}$ the context retrieved from vector storage, and $T_{meta}$ the task-specific metadata. To maintain low-latency interactions, the \textbf{Short-Term Memory (STM)} is persisted in \textbf{Redis}, allowing the orchestrator to resume states across different API calls without re-processing the entire history.
+
+\subsection{Micro-Agent Interactions}
+The architecture employs a \textit{Specialized Agent Cluster} where each node is a fine-tuned or prompt-engineered LLM instance:
+\begin{itemize}
+	\item \textbf{Profiling Agent (PA):} Executes latent trait extraction. It monitors interactions for shifts in user proficiency and updates the \textbf{PostgreSQL} database via atomic \texttt{UPSERT} operations to ensure data integrity.
+	\item \textbf{Content Analysis Agent (CAA):} Triggers a Retrieval-Augmented Generation (RAG) pipeline. It extracts text from S3 objects, performs semantic chunking, and generates high-dimensional embeddings for storage in \textbf{Qdrant}.
+	\item \textbf{Question Generation Agent (QGA):} Synthesizes assessments by performing a semantic query on the \textbf{Vector DB} and cross-referencing the user's current knowledge level from the \textbf{User Profile DB}.
+\end{itemize}
+
+\subsection{The Tri-Tier Data Persistence Strategy}
+The system architecture utilizes three distinct storage paradigms to optimize for consistency, speed, and semantic relevance:
+\begin{table}[h]
+	\centering
+	\begin{tabular}{@{}lll@{}}
+		\toprule
+		\textbf{Layer} & \textbf{Technology} & \textbf{Technical Utility} \\ \midrule
+		Cache / STM & Redis & Session persistence and graph state management. \\
+		Relational / LTM & PostgreSQL & ACID-compliant storage for user metrics and profiles. \\
+		Vector Knowledge & Qdrant & HNSW-indexed semantic search for educational content. \\ \bottomrule
+	\end{tabular}
+	\caption{System Data Persistence Layers}
+\end{table}
+
+This modular decoupling ensures that individual agents can be scaled or updated independently without disrupting the global orchestration logic, fulfilling the requirement for a resilient and adaptive learning environment.
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[scale=0.30]{arch.png}
 	\caption{System Architecture}
 	\label{fig:arch}
 \end{figure}
+
