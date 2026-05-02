@@ -15,6 +15,7 @@
 \usepackage{xcolor}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{csquotes}
 \usepackage[style=ieee,backend=biber]{biblatex}
 \addbibresource{citations.bib}
 
@@ -103,7 +104,7 @@
 \chapter*{Certificate}
 \thispagestyle{empty}
 \vspace{2cm}
-This is to certify that the project report entitled \textbf{"\projecttitle"} is a bonafide work carried out by \textbf{
+This is to certify that the project report entitled \textbf{\enquote{\projecttitle}} is a bonafide work carried out by \textbf{
 	\firststudentname\ (\firststudentusn),
 	\secondstudentname\ (\secondstudentusn),
 	\thirdstudentname\ (\thirdstudentusn),
@@ -126,15 +127,10 @@ Examiner 2 \\
 \end{flushleft}
 
 
-
-% ----- Abstract -----
-\chapter*{Abstract}
-\thispagestyle{empty}
-\input{abstract.tex}
 %-------------Declaration ----------
 \chapter*{DECLARATION}
 \thispagestyle{empty}
-We, hereby declare that the Major Project Phase-1 work entitled “\projecttitle” is a bonafide work and has been carried out  by us under the guidance of \guide, \guidedesignation, Department of  Computer Science and Engineering, B.M.S. College of Engineering, Bengaluru, in partial  fulfillment of the requirements of the degree of Bachelor of Engineering in Computer Science  and Engineering of Visvesvaraya Technological University, Belagavi. 
+We, hereby declare that the Major Project Phase-1 work entitled \enquote{\projecttitle} is a bonafide work and has been carried out  by us under the guidance of \guide, \guidedesignation, Department of  Computer Science and Engineering, B.M.S. College of Engineering, Bengaluru, in partial  fulfillment of the requirements of the degree of Bachelor of Engineering in Computer Science  and Engineering of Visvesvaraya Technological University, Belagavi. 
 We further declare that, to the best of our knowledge and belief, this project has not been submitted either in part or in full to any other university for the award of any degree. 
 \vspace{0.3cm}
 \begin{flushleft}
@@ -160,7 +156,7 @@ Candidate details:
 Place: Bengaluru \\
 Date: \\
 \end{flushleft}
-Certified that these candidates are students of Computer Science and Engineering Department  of B.M.S. College of Engineering. They have carried out the project work of titled “\projecttitle” as Major Project Phase-1  work. It is in partial fulfillment for completing the requirement for the award of B.E. degree  by VTU. The work is original and duly certify the same.  
+Certified that these candidates are students of Computer Science and Engineering Department  of B.M.S. College of Engineering. They have carried out the project work of titled \enquote{\projecttitle} as Major Project Phase-1  work. It is in partial fulfillment for completing the requirement for the award of B.E. degree by VTU. The work is original and I duly certify the same.  
 \vspace{1cm}
 \begin{flushleft}
 Guide Name: \\
@@ -192,6 +188,10 @@ Finally, we are grateful to our families, friends, and all those who contributed
 \listoftables
 \thispagestyle{empty}
 
+% ----- Abstract -----
+\chapter*{Abstract}
+\thispagestyle{empty}
+\input{abstract.tex}
 
 % ---------- MAIN MATTER: ARABIC NUMBERS ----------
 
@@ -214,7 +214,7 @@ Finally, we are grateful to our families, friends, and all those who contributed
 %\chapter{Conclusion and Future Work}
 % Future Work
 
-
+\include{conclusion.tex}
 
 \clearpage
 % ----- References -----
