@@ -1,23 +1,23 @@
 \chapter{Implementation}
 
-\section{Overview of Technologies Used}
-The proposed system shall be built on a modern AI stack: \textbf{FastAPI} for the backend, \textbf{LangGraph} for agent orchestration, \textbf{Qdrant} for vector storage, \textbf{PostgreSQL} for user metadata, and \textbf{Redis} for session caching.
+\section{Technologies Used}
+The suggested implementation will leverage an advanced AI stack consisting of \textbf{FastAPI}, a high-performance Python framework for building APIs; \textbf{LangGraph}, a language model orchestration tool; \textbf{Qdrant}, a high-performance vector database; \textbf{PostgreSQL}, a robust relational database for user metadata; and \textbf{Redis}, a high-performance key-value store for session caching.
 
-\section{Implementation details of modules}
+\section{Details of Implementation}
 
 \subsection{AI Orchestrator}
-The AI Orchestrator is implemented as a state-driven workflow using \textbf{LangGraph}. It manages execution flow by maintaining a global \texttt{AgentState}, which encapsulates message history, user profiles, and task metadata.
+The AI Orchestrator module can be considered a state-driven workflow managed by \textbf{LangGraph}. The main purpose of this component is to control the execution flow by utilizing the global \texttt{AgentState}. This object contains the message history, user profiles, and other information needed by agents to complete their tasks.
 \begin{itemize}
-	\item \textbf{State Management:} Uses \texttt{TypedDict} to ensure each agent has access to the necessary context (e.g., knowledge level, retrieved documents).
-	\item \textbf{Conditional Routing:} Employs routing logic that dynamically directs the workflow based on the \texttt{current\_task} (e.g., switching to \texttt{question\_gen} for assessments).
-	\item \textbf{Asynchronous Integration:} Interfaces with \textbf{Redis} for short-term session memory to ensure low-latency response times.
+	\item \textbf{State Management:} Implements a \texttt{TypedDict} structure that guarantees the availability of required data (e.g., knowledge level, retrieved documents) in every agent.
+	\item \textbf{Routing Logic:} Leverages conditional routing techniques, which dynamically adjust the workflow depending on the \texttt{current\_task} (e.g., switching to \texttt{question\_gen} for assessments).
+	\item \textbf{Integration with External Systems:} Uses \textbf{Redis} to store session-related information for low-latency response generation.
 \end{itemize}
 
 \subsection{User Profiling Module}
-Implemented via a dedicated \texttt{profiling\_agent} that maintains a persistent understanding of the learner:
+The above module is implemented via the \texttt{profiling\_agent}, which offers a standardized model for the learner at all times.
 \begin{itemize}
-	\item \textbf{Dynamic Extraction:} Uses LLM function calling to analyze interactions and update the \texttt{knowledge\_level} attribute.
-	\item \textbf{Persistence Layer:} Updates the \textbf{PostgreSQL} \texttt{user\_profiles} table using \texttt{UPSERT} operations to maintain a single source of truth.
+	\item \textbf{Dynamic Profiling:} It relies on function calling within LLMs to interpret interactions and change the \texttt{knowledge\_level}.
+	\item \textbf{Persistence Mechanism:} The \texttt{user\_profiles} PostgreSQL table is updated with \texttt{UPSERT} statements for unified management.
 \end{itemize}
 
 %\subsection{Content Analysis \& Question Generation}

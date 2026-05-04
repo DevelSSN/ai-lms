@@ -1,66 +1,66 @@
 \chapter{Software and Hardware Requirement Specification}
-The successful implementation of an AI-driven educational framework requires a robust technical foundation that balances high-performance training capabilities with lightweight, accessible production environments. This chapter details the technical specifications and resource estimations necessary to support the multi-agent architecture and Large Language Model (LLM) workflows.
+For the successful implementation of an AI-enabled education system, it is important to develop a solid technical base which balances out the need for high-performance training and low-weight production. This chapter discusses the technical requirements needed for supporting the multi-agent system and the LLM-based pipeline.
 
 \section{Functional Requirements}
-The system must satisfy the following core functionalities to meet the objectives of SDG 4, 9, and 10:
+In order to meet the goals relating to SDG 4, 9, and 10, the system will adhere to the following key functionalities:
 \begin{itemize}
-	\item \textbf{Real-time Tutoring:} The system shall provide immediate, context-aware responses to student queries using LLM-based agents.
-	\item \textbf{Adaptive Learning Pathways:} The multi-agent framework shall analyze student performance to dynamically adjust the difficulty and type of remedial content.
-	\item \textbf{User Profiling:} The system shall maintain a persistent record of student interactions to track progress over multiple sessions.
-	\item \textbf{Knowledge Retrieval:} The backend must support vector-based searches to retrieve relevant educational materials from a central database.
+	\item \textbf{Real-time Tutoring:} The system will provide instant responses to students' queries by deploying agents that utilize large language models (LLMs).
+	\item \textbf{Personalized Learning Paths:} The multi-agent architecture will evaluate student learning outcomes and modify the complexity of the learning content accordingly.
+	\item \textbf{User Profiling:} The system will keep track of the activities of users in every session, ensuring that there is always a current profile. 
+	\item \textbf{Information Retrieval:} he system will provide a function that allows for searching for and retrieving relevant information using vector-based search queries.
 \end{itemize}
 
 \section{Non-functional Requirements}
 \begin{itemize}
-	\item \textbf{Scalability:} The software architecture should be capable of handling an increasing number of concurrent users without significant degradation in response time.
-	\item \textbf{Latency:} To ensure an effective pedagogical experience, agent response times should ideally remain below 2 seconds.
-	\item \textbf{Availability:} The production system must be accessible via a stable internet connection with minimal downtime.
-	\item \textbf{Cost-Efficiency:} The system should leverage open-source libraries and free-tier cloud services to minimize the financial barrier for educational institutions.
+	\item \textbf{Scalability:} The software architecture must be able to handle an increase in the number of simultaneous users without sacrificing performance.
+	\item \textbf{Latency:} For an efficient learning experience, the agent latency must, wherever possible, remain below two seconds.
+	\item \textbf{Availability:} The production environment will be accessible through Internet connectivity and have limited downtime.
+	\item \textbf{Cost Efficiency:} The development process will employ open-source architectures and cloud computing systems that can be supported by free-tier accounts.
 \end{itemize}
 
 \section{Hardware Requirements}
-The hardware is categorized into two phases: the resource-intensive training/development phase and the optimized production/inference phase.
+Hardware requirements are categorized into two different stages: The demanding training stage, and the well-optimized production stage.
 
 \subsection{For Training and Development}
 \begin{itemize}
-	\item \textbf{Processor:} Intel Core i5/i7 (8th Gen+) or AMD Ryzen 5/7 for efficient multi-threaded processing.
-	\item \textbf{RAM:} Minimum 8GB required; 16GB highly recommended for handling large NLP models.
-	\item \textbf{GPU:} NVIDIA GTX 1650+ with CUDA support for accelerated model training, or the use of Google Colab T4/L4 GPUs.
-	\item \textbf{Storage:} Minimum 200GB free disk space for datasets and model weights.
-	\item \textbf{Connectivity:} Stable high-speed internet for downloading pre-trained model weights.
+	\item \textbf{Processor:} Intel Core i5 or i7 series (8th gen or above) or AMD Ryzen 5 or 7 series.
+	\item \textbf{RAM:} A minimum requirement of 8 GB RAM is needed; 16 GB RAM is highly recommended to facilitate the processing of complex natural language processing models.
+	\item \textbf{Graphics Card:} An NVIDIA graphics card of GTX 1650 or higher version is recommended, which supports CUDA operations to enhance the efficiency of model training, or else Google Colab GPU of T4/L4 version can be used.
+	\item \textbf{Disk Storage:} The disk storage should be at least 200 GB.
+	\item \textbf{Internet Connection:} A fast and stable internet connection is necessary to download pre-trained weights of model files.
 \end{itemize}
 
-\subsection{For Production and Deployment}
+\subsection{Production and Deployment}
 \begin{itemize}
-	\item \textbf{Internet:} Stable connection for uninterrupted API calls and user access.
-	\item \textbf{Storage:} 10GB free disk space for lightweight containerized deployment.
+	\item \textbf{Internet:} A reliable internet connection is necessary to maintain seamless API requests and users' usage.
+	\item \textbf{Disk Storage:} Disk storage needs to be at least 10 GB.
 \end{itemize}
 
 \section{Software Requirements}
-The software stack is designed around Python’s ecosystem for AI and modern microservices frameworks for the backend.
+The software architecture revolves around the AI software stack in the Python ecosystem and modern microservices software stack for the backend.
 
 \subsection{Development and Machine Learning}
 \begin{itemize}
-	\item \textbf{Language:} Python 3.12+ for Machine Learning; Java and Python for Backend services.
-	\item \textbf{IDE:} VS Code, Jupyter Notebook, or Google Colab.
-	\item \textbf{ML/DL Libraries:} TensorFlow, and Scikit-learn for model building and evaluation.
-	\item \textbf{NLP Frameworks:} HuggingFace Transformers, spaCy, and NLTK for natural language understanding.
-	\item \textbf{Data Handling:} Pandas and NumPy for preprocessing and matrix operations.
+	\item \textbf{Programming Language:} Python 3.12 or above for machine learning projects; Java and Python for backend.
+	\item \textbf{IDE:} Visual Studio Code, Jupyter Notebook, Google Colab.
+	\item \textbf{Machine Learning / Deep Learning Libraries:} TensorFlow, scikit-learn for modeling.
+	\item \textbf{NLP Libraries:} Huggingface, SpaCy, and NLTK for natural language processing.
+	\item \textbf{Preprocessing / Data Libraries:} Pandas, NumPy.
 \end{itemize}
 
 \subsection{System Design and Orchestration}
 \begin{itemize}
-	\item \textbf{Multi-agent Frameworks:} LangChain, CrewAI, or AutoGen for orchestrating complex agent interactions.
-	\item \textbf{Database:} MongoDB (NoSQL) or PostgreSQL (Relational), with Vector DBs such as FAISS or Qdrant for RAG (Retrieval-Augmented Generation).
-	\item \textbf{Backend:} FastAPI or Quarkus for high-performance API endpoints.
-	\item \textbf{Deployment:} Docker for containerization and Hugging Face Spaces for hosting the live application.
+	\item \textbf{Multi-Agent Systems:} Consider using LangChain, CrewAI, or AutoGen.
+	\item \textbf{Database:} Adopt either NoSQL (MongoDB) or Relational (PostgreSQL) database systems alongside vector databases like FAISS or Qdrant for Retrieval-Augmented Generation (RAG).
+	\item \textbf{Backend:} Develop high-performing API endpoints using FastAPI or Quarkus.
+	\item \textbf{Deployment:} Create Docker containers and deploy the working model using Hugging Face Spaces.
 \end{itemize}
 
 \section{Cost Estimation}
-The financial strategy for this project focuses on accessibility and sustainability. By utilizing modern open-source ecosystems, the project maintains a low cost-entry:
+The economic approach taken in this project focuses on maximizing efficiency and sustainability by leveraging modern open-source technologies to ensure that initial investments are kept to a minimum. Expected costs include the following:
 \begin{enumerate}
-	\item \textbf{Compute:} Primary development utilizes institutional computing resources and the free-tier of Google Colab.
-	\item \textbf{Hosting:} Lightweight deployment is managed via Hugging Face Spaces (Free Tier).
-	\item \textbf{Software:} Exclusively utilizes open-source libraries (e.g., Python, FastAPI, LangChain), eliminating licensing fees.
+	\item \textbf{Compute:} Code development is done using institution-based systems, as well as Google Colab, which has a free tier option.
+	\item \textbf{Hosting:} Hosting is kept light by utilizing the free tier of Hugging Face Spaces.
+	\item \textbf{Software:} ll software requirements are covered by open-source software (Python, FastAPI, LangChain).
 \end{enumerate}
-\textbf{Total Estimated Cost:} Minimal to Zero. Expenses are limited to optional cloud scaling if user demand exceeds free-tier thresholds.
+\textbf{Estimated Total Cost:} Minimal, if any. Costs will be incurred for computing power in case of an increase in users beyond what is available in the free tier.

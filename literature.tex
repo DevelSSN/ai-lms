@@ -1,67 +1,81 @@
 \chapter{Literature Survey}
 
-The educational landscape has undergone a significant transformation over recent decades, transitioning from traditional physical instruction, the large-scale delivery of Massive Open Online Courses (MOOCs) to the current AI era. Despite the increased accessibility of online learning platforms, providing instruction tailored to individual student needs remains a challenge—a manifestation widely characterized as the \enquote{Two Sigma Problem} \cite{bloom1984}. Conventional digital platforms often rely on video instruction similar to a classroom, which lack the personalization required to emulate one-to-one tutoring. 
+A great deal of change has occurred in the education field in recent years; while the conventional way of learning is replaced by MOOCs in the AI era. While it seems easy to access online courses, the problem of personalizing instruction according to the requirements of individual students, “Two Sigma Problem,” remains \cite{bloom1984}. Traditionally, digital technologies include videos that are much like those used in the classroom environment, thus lack personalization required for one-to-one tuition. Meanwhile, the implementation of AI and Large Language Models (LLM) can enable the achievement of goals set by \textcite{bloom1984}. Despite the good performance demonstrated by LLM in intelligent conversation simulation, its usage currently lacks flexibility. The following literature review will address existing research gaps related to AI education solutions.
 
-However, the integration of Artificial Intelligence (AI) and Large Language Models (LLMs) has created new opportunities to approximate the benchmarks defined by \textcite{bloom1984}. While LLMs offer promising capabilities in simulating intelligent dialogue, current implementations showcase notable limitations in adaptive behavior. This literature survey identifies and analyzes these research gaps, assessing the state of AI-driven educational frameworks.
+This literature review will explore and analyze the existing research gaps regarding AI-based education solutions.
 
 \section{Overview}
-This literature survey explores the current horizon of artificial intelligence in education, passing thorugh from a static tool to modern dynamic support systems. Systematic reviews by \textcite{chen2020}, \textcite{elbasi2025} and \textcite{agbewali2022} provide a foundational taxonomy of machine learning and deep learning applications, while \textcite{mallik2023} categorizes these into proactive methods, such as content planning, and reactive methods, including performance assessment. 
 
-The field is currently moving away from simple content delivery toward intelligent interaction. We see a transition where platforms no longer just host media but actively monitor student behavior to intervene before a learner loses interest. This shift is particularly visible in technical domains like Digital Signal Processing (DSP), where pedagogy has evolved from mathematical theory to interactive, simulation-based, and now AI-enhanced learning \cite{lopez2025, boldo2024}.
+The literature review highlights the current status of artificial intelligence in education, evolving from its passive form into a dynamic system. Systematic studies by \textcite{chen2020}, \textcite{elbasi2025} and \textcite{agbewali2022} offer the basis for a taxonomy on machine learning and deep learning approaches. The former can be categorized into proactive approaches, for example, content creation and the latter into reactive approaches, such as performance evaluation \cite{mallik2023}. 
 
-In this literature survey, we filtered research studies using subsets of the following keywords: artificial intelligence in education; machine learning; deep reinforcement learning; student engagement; personalized learning; digital signal processing; education; pedagogy; teaching methods; Active learning (AL), edge AI, edge training, online distillation,
-real-time training; educational data mining; engaged learning; intelligent tutoring systems; multi-agent system; smart education; hybrid system; large language models
+It is observed that the research is shifting away from simple content delivery towards intelligent interactions. The current state reveals that platforms are not only acting as hosts for media but also as systems that monitor students' activities to prevent them from losing interest in their learning process. This evolution of pedagogy becomes clear in the area of technology, where traditional mathematical models have developed into simulation-based, and now into AI-enabled learning approaches \cite{lopez2025, boldo2024}.
+
+In the present literature review, the selected papers have been sieved through the following keywords in combination: artificial intelligence in education, machine learning, deep reinforcement learning, student engagement, personalized learning, digital signal processing, education, pedagogy, teaching methods, active learning (AL), edge AI, edge training, online distillation, real-time training, educational data mining, engaged learning, intelligent tutoring systems, multi-agent system, smart education, hybrid system, large language models.
 
 \section{Detailed Survey}
 
 %\subsubsection{Classification of Survey}
 
-The literature survey reveals four primary pillars of AI integration:
+The literature survey reveals four primary paths of research in the field:
 
 \begin{enumerate}
-	\item Multi-Agent Systems and autonomy: \\
-	Traditional e-learning often lacks human intuition. Recent work has focused on Multi-Agent Systems (MAS) to provide dynamic adaptation. \textcite{zakaria2025} explains how a multi-agent module (MAT) designed using the Markovian process as the differentiator between different modules. \textcite{vukovic2021} demonstrates a passive observer that studies the activities of a user. % Further advancement using the Von Neumann framework proposed by \textcite{jiang2024} suggest a shift toward fully autonomous environments where AI agents manage personalized learning pathways and manage the orchestration of complex educational tasks.
+	\item Multi Agent Systems: \\
+	Traditional e-learning are static in nature. Recent work has focused on Multi-Agent Systems (MAS) to provide dynamic adaptation. \textcite{zakaria2025} explains how a multi-agent module (MAT) designed using the Markovian process as the differentiator between different modules. \textcite{vukovic2021} demonstrates a passive observer that studies the activities of a user. % Further advancement using the Von Neumann framework proposed by \textcite{jiang2024} suggest a shift toward fully autonomous environments where AI agents manage personalized learning pathways and manage the orchestration of complex educational tasks.
 	
 	\item Predictive Analytics and Affective Computing: \\
 	The ability to foresee where a student may struggle is actively researched upon in the field of educational A. \textcite{bagunaid2024} utilizes deep reinforcement learning model to create early warning systems for student performance, while \textcite{rizwan2025} identifies factors affecting student performance in MOOCs through systematic review. Beyond academic scores, \textcite{hasan2020} emphasizes the transition toward affective tutoring systems, which incorporate emotional intelligence and student engagement levels \cite{ayouni2021} into the learning loop. These systems, while computationally expensive to run, provide a framework upon which to build emotionally aware LLMs. 
-	\textcite{mahafdah2024} uses the data generated through current LMS systems to produce student insights by utilizing ML models like Random Forest, XGBoost, and RNN among many others. \textcite{aderghal2025} demonstrates that deep learning architectures, specifically CNNs and xLSTM for knowledge tracing, significantly outperform traditional statistical models in capturing sequential learning patterns.
+	\textcite{mahafdah2024} uses the data generated through current LMS systems to produce student insights by utilizing ML models like Random Forest, XGBoost, and RNN among many others. \textcite{aderghal2025} demonstrates that deep learning architectures, like CNNs and xLSTM, significantly outperform traditional statistical models in capturing sequential learning patterns.
 	
 	\item Large Language Models and Cognitive Diagnosis: \\
-	LLMs have introduced advanced reasoning capabilities to education. \textcite{zhang2025} introduces the SPP-L² framework for performance prediction on learner-sourced questions, using a mixture of graphs, LLMs and RL models to make feedback reward based, producing better results than its peers. \textcite{chen2025} explores LLM-enhanced cognitive diagnosis for deeper student understanding, creating a Q-matrix from the hidden information the LLM (Llama3-70B) extracts in the user prompts. Other practical applications include specialized tutoring tools like PETRA \cite{hewedy2025}, which provides recursive assistance for dynamic programming; proactive UI agents for visual analytics \cite{zhao2025} and MAT, a multi-agent tutoring module \cite{zakaria2025}. These systems move beyond simple text generation to active, concept-centric evaluation and remedial recommendations \cite{pradeesh2025}.
+    Another important contribution of LLMs in learning environments is reasoning ability. \textcite{zhang2025} proposes SPP-L², which is an efficient approach for performance prediction using learner-generated queries. The proposed framework uses a mixed approach using graph, LLM, and RL models to ensure that the feedback rewards are maximized. The result is better than competing approaches. Similarly, \textcite{chen2025} discuss advanced cognitive diagnosis using LLMs to ensure that there is improved understanding by the learners. The authors build a Q-matrix for cognitive diagnosis using the latent knowledge generated by LLM (Llama3-70B). Some of the other prominent real-world use cases of LLMs include tutoring applications like PETRA \cite{hewedy2025}, which can be used for recursion in dynamic programming problems.
 	
 	\item Immersive Learning and the Edu-Metaverse: \\
-	The spatial dimension of digital education is being redefined through virtual environments. \textcite{illi2025} and \textcite{teichmann2025} provide frameworks for the Edu-Metaverse, designing immersive virtual learning based on real-world processes. These environments aim to increase engagement by providing high-fidelity simulations. Other research papers measure the effectiveness of AI in research-based learning models \cite{festiyed2026} and big data \cite{bakhouyi2025}.
+	The notion of space in digital education is evolving with the use of virtual spaces. \textcite{illi2025} and \textcite{teichmann2025} have introduced concepts regarding the Edu-Metaverse, which creates immersive virtual learning from physical activities. Such a model seeks to enhance learning by simulating real experiences with high fidelity. Other articles evaluate the efficacy of AI in research-oriented learning approaches \cite{festiyed2026} and big data \cite{bakhouyi2025}.
 \end{enumerate}
 
 %\subsubsection{Differences in papers}
 
 
-\section{Research Gap Identification}
+\subsection{Identification of Research Gaps}
 
-Despite these technological strides, several critical gaps remain:
+Despite this progress, several notable gaps remain:
 
 \begin{itemize}
-	\item Concept Drift and Memory Decay: \textcite{hajmohammed2025} highlights that LLMs suffer from concept drift as language and educational contexts evolve. Furthermore, most current systems stand at risk of fragmented learning experiences due to lack of a persistent, long-term memory of student progress across different learning sessions.
-	\item Multimodal Knowledge Extraction: While AI can process text, there is a lack of integration that can autonomously convert diverse raw media, such as instructional videos and complex technical documents, into structured, evaluative knowledge concepts \cite{pradeesh2025, lopez2025}.
-	\item Fragmented Feedback Mechanisms: Current reactive systems often provide generic grading \cite{mallik2023} rather than personalized reports based on a specific user persona and historical progress \cite{hasan2020}.
-	\item Scalability of Agentic Systems: While deep reinforcement learning is powerful for multi-agent systems, \textcite{nguyen2020} notes that training stable agents in dynamic educational settings remains a significant challenge, often requiring high computational overhead that is difficult to scale for individual users \cite{boldo2024}.
+    \item Concept Drift and Memory Loss: According to \textcite{hajmohammed2025}, LLMs usually suffer from concept drift because of evolving language use and education environment. Besides, most currently used learning platforms are susceptible to fractured learning because they cannot create persistent memory about students’ achievements throughout multiple learning sessions.
+    \item Knowledge Extraction Using Multiple Types of Input: Although AI technology allows for analysis of text input, there is no possibility to automate extraction of various types of data including instructional videos and scientific materials, and further transformation of that data into evaluative concepts \cite{pradeesh2025, lopez2025}.
+    \item Fragmented Feedback System: Although current feedback systems provide general calculation of grades \cite{mallik2023}, they cannot generate individualized recommendation and analysis in relation to specific user personas and previous experience \cite{hasan2020}.
+    \item Scaling Problem of Agent-Based Learning Model: Even though reinforcement learning algorithms function effectively in multiple agents, \textcite{nguyen2020} shows that designing stable agents in changing education context is a big challenge that requires substantial computation capacity \cite{boldo2024}.
 \end{itemize}
 
 \section{Mapping of Objective with Research Gap Identification}
 
 The primary objective of this work is to develop an intelligent, adaptive learning system that resolves the disconnect between high-level AI theory and practical implementation. By addressing the identified research gaps, this work focuses on:
 
+% \begin{table}[htbp]
+% 	\centering
+% 	\caption{Mapping of Research Objectives to Identified Literature Gaps}
+% 	\label{tab:gap_mapping}
+% 	\begin{tabularx}{\textwidth}{@{} l X X l @{}}
+% 		\toprule
+% 		\textbf{Objective} & \textbf{Proposed Implementation} & \textbf{Addressed Research Gap} & \textbf{Key References} \\ \midrule
+% 		\textbf{1. Contextual Intelligence} & LLM Orchestrator with short-term cache and long-term vector memory. & Mitigation of concept drift and temporal memory decay across sessions. & \cite{hajmohammed2025, zakaria2025} \\ \addlinespace
+% 		\textbf{2. Autonomous Assessment} & Multimodal pipeline converting raw media into structured knowledge and questions. & Manual content bottlenecks and non-adaptive evaluation methods. & \cite{zhang2025, pradeesh2025} \\ \addlinespace
+% 		\textbf{3. Automated Feedback} & Persona-based report generation and affective learning insights. & Disconnect between raw predictive analytics and student-centered support. & \cite{hasan2020, bakhouyi2025} \\ \addlinespace
+% 		\textbf{4. Behavioral Persistence} & Profiling engine for tracking preferences and cumulative knowledge gaps. & Lack of persistent, long-term behavioral tracking in e-learning frameworks. & \cite{vukovic2021, aderghal2025} \\ \bottomrule
+% 	\end{tabularx}
+% \end{table}
+
 \begin{table}[htbp]
 	\centering
-	\caption{Mapping of Research Objectives to Identified Literature Gaps}
+	\caption{Research Objectives and Corresponding Literature Gaps Mapped}
 	\label{tab:gap_mapping}
 	\begin{tabularx}{\textwidth}{@{} l X X l @{}}
 		\toprule
-		\textbf{Objective} & \textbf{Proposed Implementation} & \textbf{Addressed Research Gap} & \textbf{Key References} \\ \midrule
-		\textbf{1. Contextual Intelligence} & LLM Orchestrator with short-term cache and long-term vector memory. & Mitigation of concept drift and temporal memory decay across sessions. & \cite{hajmohammed2025, zakaria2025} \\ \addlinespace
-		\textbf{2. Autonomous Assessment} & Multimodal pipeline converting raw media into structured knowledge and questions. & Manual content bottlenecks and non-adaptive evaluation methods. & \cite{zhang2025, pradeesh2025} \\ \addlinespace
-		\textbf{3. Automated Feedback} & Persona-based report generation and affective learning insights. & Disconnect between raw predictive analytics and student-centered support. & \cite{hasan2020, bakhouyi2025} \\ \addlinespace
-		\textbf{4. Behavioral Persistence} & Profiling engine for tracking preferences and cumulative knowledge gaps. & Lack of persistent, long-term behavioral tracking in e-learning frameworks. & \cite{vukovic2021, aderghal2025} \\ \bottomrule
+		\textbf{Objective} & \textbf{Proposed Implementation} & \textbf{Mitigated Research Gap} & \textbf{Key References} \\ \midrule
+		\textbf{1. Contextual Intelligence} & LLM Orchestrator with short-term caching and long-term vector memory. & Concept drift and temporal memory degradation. & \cite{hajmohammed2025, zakaria2025} \\ \addlinespace
+		\textbf{2. Autonomous Assessment} & Pipeline that takes raw media as input and outputs knowledge and questions. & Content bottlenecks and static assessment techniques. & \cite{zhang2025, pradeesh2025} \\ \addlinespace
+		\textbf{3. Automated Feedback} & Report generation based on persona and affective feedback. & Failure to connect raw analytics and student support. & \cite{hasan2020, bakhouyi2025} \\ \addlinespace
+        \textbf{4. Behavioral Persistence} & Profiling engine for tracking user preferences and knowledge gaps. & Lack of persistent, long-term behavioral tracking in e-learning frameworks. & \cite{vukovic2021, aderghal2025} \\ \bottomrule
 	\end{tabularx}
 \end{table}
 

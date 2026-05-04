@@ -2,53 +2,50 @@
 \chapter{Introduction}
 
 \section{Overview}
-Modern education is shifting from passive learning to active, AI-enhanced discovery. This research introduces an Intelligent Tutoring System (ITS) based on a multi-agent LLM (Large Language Model) architecture. Instead of relying on a single chatbot, the system operates as a digital ecosystem of specialized agents, including Orchestration, Profiling, Content Analysis, and Question Generation. These agents work together to create a learning experience that mimics the responsiveness and adaptability of a human tutor.
+Contemporary learning systems are changing from a passive approach to an active one with the assistance of Artificial Intelligence. In the study, we present an Intelligent Tutoring System (ITS) using a Multi-Agent Architecture. The proposed system consists of a multiple agents rather than employing a single chatbot. These agents are designed to simulate a one-on-one tutoring session like a private tutor.
 
 \section{Motivation}
-The digital divide in education now involves more than internet access; it also includes access to quality, personalized instruction. Traditional e-learning platforms often serve as static repositories and do not solve the Two Sigma Problem, \cite{bloom1984} which shows that students who receive one-on-one tutoring perform much better than those in traditional classrooms. Our motivation stems from the need to provide high-quality, personalized mentorship through an autonomous system that can recall a student's history, understand their uploaded materials, and step in when they face difficulties.
+The divide in education technology is no longer just about having access to the internet; it is also about having access to quality, personalized education. E-learning systems have been used traditionally as content management systems but fail to address the Two Sigma Problem \cite{bloom1984}, whereby students receiving individual tutoring outperform those taught in classrooms. We are motivated to provide personalized education by means of autonomous agents that will be able to remember the learner’s past, understand what they upload, and help them when problems arise.
 
 \section{Objectives}
-Our main goal is to create a recursive AI framework that goes beyond basic automation. Important milestones include:
+Our main goal is to create a system that adheres to the following objectives:
 \begin{itemize}
-	\item Contextual Intelligence: Building an LLM Orchestrator that manages state across sessions using short-term cache and long-term vector memory.
-	\item Autonomous Assessment: Creating a pipeline that converts raw media (documents, images, videos) into structured knowledge and generates targeted evaluative questions.
-	\item Automated Feedback: Creating feedback, reports and learning insights based on existing user persona and progress on a topic.
-	\item Behavioral Persistence: Designing a profiling engine that captures and stores user preferences and knowledge gaps, ensuring each interaction builds on prior performance.
+	\item Contextual Intelligence: Build an LLM Orchestration Layer that manages state across sessions using cache and long-term vector memory.
+	\item Autonomous Assessment: Create a pipeline that converts raw media (documents, images, videos) into chunked information and generates evaluative questions based on the document.
+	\item Automated Feedback: Create a feedback mechanism that produces reports and learning insights based on existing progress in a topic.
+	\item Behavioral Persistence: Design a profiling engine that stores information about the users and their knowledge gaps. This ensures a reduction in the loss of context for the LLM.
 \end{itemize}
 
 \section{Scope}
-This project focuses on designing and implementing a modular backend architecture. This involves developing an API Gateway for secure communication, a specialized data layer using Vector Databases for semantic search, and an \enquote{Agentic} layer where different LLMs perform specific tasks, such as the Insight Agent for reporting and the Proactive Agent for scheduling. The research emphasizes the technical integration of these components to create a seamless, real-time learning loop.
+The current study is concentrated on developing a backend system based on the above objectives.
+
+The system will consist of an API Gateway that ensures secure communication,a data layer based on Vector Databases, and an orchestration layer, where different LLMs will fulfill various functions.
 
 \section{SDG Justification}
-This project supports United Nations Sustainable Development Goal 4 (Quality Education). By automating time-consuming tutoring tasks, such as content summarization, assessment creation, and progress tracking, the system offers an affordable, impactful solution for learners worldwide. It fosters inclusive and equitable quality education by providing a personalized learning companion that is available around the clock, regardless of location or socio-economic status.
-
-Beyond education (SDG 4), this project also aligns with Sustainable Development Goal 9 (Industry, Innovation, and Infrastructure) and Sustainable Development Goal 10 (Reduced Inequalities).
-
-From an industry perspective, the proposed multi-agent architecture contributes to the advancement of intelligent educational technologies by leveraging scalable LLM-based systems, vector databases, and autonomous agents. This reflects the broader shift toward AI-driven knowledge systems in the EdTech industry, where modular and interoperable AI components are becoming essential for building adaptive platforms.
-
-In terms of inequality, traditional tutoring services are often expensive and geographically limited, creating barriers for learners in low-income or remote regions. By contrast, the proposed system aims to reduce educational inequality by providing personalized tutoring capabilities that are accessible anytime and anywhere. The system’s ability to persist user knowledge and adapt to individual learning needs helps bridge gaps in educational quality between different socio-economic groups.
+This project supports United Nations Sustainable Development Goal 4 (Quality Education), SDG 9 (Industry, Innovation and Infrastructure) and SDG 10 (Reduced Inequalities). By using automation for working on time-consuming tasks such as progress tracking, the system offers an affordable, impctful solution for learners worldwide. It tries to balance the inequalities of society in obtaining quality education by providing a personalized learning companion that is available around the clock. Traditional tutoring services can be costly, posing challenges for learners in low-income communities. To alleviate this, the proposed system provides personalized tutoring capabilities that can be accessed anywhere and anytime.
 
 \section{Existing System}
-Current Learning Management Systems (LMS) primarily serve administrative functions. They allow the delivery of PDFs and pre-recorded videos but do not address the learner's actual state of mind. %Features like automated grading often rely on strict multiple-choice formats, and personalization is usually limited to simple "if-then" branching. 
-These systems thus struggle to maintain a coherent conversation over prolonged study periods.
+Current Learning Management Systems (LMS) are mostly static. They may not understand the state of mind of the learner, because they cannot perform one-on-one tutoring. MOOC platforms can only imitate classroom-based learning in an online setting.
+
+Thus, current systems struggle to maintain a coherent conversation over prolonged study periods.
 
 \section{Proposed System}
-We suggest a Multi-Agent Orchestration model. At its center, an LLM Orchestrator functions as the system's hub, directing user inputs to specialized agents based on intent.
+We propose that a Multi-Agent Orchestration system be adopted. In the center of this system, an LLM Orchestrator will direct user inputs towards specific agents according to their intents.
 
 \begin{itemize}
-	\item The Content Analysis Agent works on parsing documents to process study materials.
-	\item The Profiling Agent updates a persistent User Profile Database, reflecting the learner's growth.
-	\item The Question Generation Agent aligns content with the user's level of difficulty.
+	\item The Content Analysis Agent is concerned with parsing of documents, which are needed for processing of study materials.
+	\item The Profiling Agent updates the persistent User Profile Database, accounting for the progress that the learner makes.
+	\item The Question Generation Agent aligns the content with the level of difficulty of the user.
+    \item The Insight Agent recommends the following actions.
+    \item The Proactive Agent interacts with the user via a scheduling capability.
 \end{itemize}
 
-This modularity means the system is not just reactive but also predictive. An Insight Agent generates data-driven recommendations, while a Proactive Agent re-engages users through a scheduling feature.
-
 \section{Work Plan}
-The project is divided into four phases:
+The process of implementation is planned to follow the following stages:
 
 \begin{enumerate}
-	\item Phase I (Conceptualization): Establishing inter-agent communication protocols and user data memory schema.
-	\item Phase II (Core Scaffolding): Creating the API Gateway and the central Orchestrator to handle request-response cycles and maintain state.
-	\item Phase III (Specialization): Developing and fine-tuning the specialized agents (Profiling, CAA, QGA) and integrating the Vector Database for semantic content retrieval.
-	\item Phase IV (Refinement): Implementing the Proactive Scheduler and conducting thorough testing to ensure the Response Composer provides effective and user-friendly feedback.
+	\item Stage I: Interagent communication and storage schemas of user data development.
+	\item Stage II: The creation of the API Gateway and Orchestrator.
+	\item Stage III: Specialized agents' and Vector Database's development and calibration.
+	\item Stage IV (Improvement): Implementation of the Proactive Scheduler and testing of the system as a whole.
 \end{enumerate}
