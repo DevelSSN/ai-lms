@@ -1,0 +1,103 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{bloom1984}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=ddc586c6eb221cd90bc71bc15c3e6fc1}{%
+           family={Bloom},
+           familyi={B\bibinitperiod},
+           given={Benjamin\bibnamedelima S},
+           giveni={B\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Sage Publications Sage CA: Thousand Oaks, CA}%
+      }
+      \strng{namehash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{fullhash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{fullhashraw}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{bibnamehash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{authorbibnamehash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{authornamehash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{authorfullhash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \strng{authorfullhashraw}{ddc586c6eb221cd90bc71bc15c3e6fc1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Educational researcher}
+      \field{number}{6}
+      \field{title}{The 2 sigma problem: The search for methods of group instruction as effective as one-to-one tutoring}
+      \field{volume}{13}
+      \field{year}{1984}
+      \field{pages}{4\bibrangedash 16}
+      \range{pages}{13}
+    \endentry
+    \entry{zakaria2025}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=4fce17f5566e1cdd8a13b1d5df0d17af}{%
+           family={Zakaria},
+           familyi={Z\bibinitperiod},
+           given={Rida},
+           giveni={R\bibinitperiod}}}%
+        {{hash=e37f77e326af912ccdcecfcfe7a0009e}{%
+           family={Hadhoum},
+           familyi={H\bibinitperiod},
+           given={Boukachour},
+           giveni={B\bibinitperiod}}}%
+        {{hash=d8c15df4d033f46027975a5b6ee376f3}{%
+           family={Mourad},
+           familyi={M\bibinitperiod},
+           given={Ennaji},
+           giveni={E\bibinitperiod}}}%
+        {{hash=abe7e45e84c9febdeeee0887210020a9}{%
+           family={Mustapha},
+           familyi={M\bibinitperiod},
+           given={Machkour},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{38dde0f5f683533bb7720a07107862c3}
+      \strng{fullhash}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \strng{fullhashraw}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \strng{bibnamehash}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \strng{authorbibnamehash}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \strng{authornamehash}{38dde0f5f683533bb7720a07107862c3}
+      \strng{authorfullhash}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \strng{authorfullhashraw}{d83b257c9fe3cc01b56f2bd87278cdc9}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Dynamic adaptation in an intelligent multi-tutoring system: A multi-agent approach}
+      \field{year}{2025}
+    \endentry
+  \enddatalist
+  \missing{b3}
+  \missing{b4}
+  \missing{b5}
+  \missing{b6}
+  \missing{b7}
+\endrefsection
+\endinput
+
