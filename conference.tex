@@ -11,8 +11,6 @@
 \usepackage{lipsum}
 \addbibresource{references.bib}
 
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
 \title{Conference Paper Title*}
@@ -56,7 +54,10 @@
 \maketitle
 
 \begin{abstract}
-\lipsum[1]
+Due to the rapid evolution of AI and LLMs, there is a rising necessity to create highly adaptive and intelligent systems, which can not only respond to user requests but also engage them in proactive and personalized way. Traditionally, AI systems use single model solutions. Such systems provide static response options, have very limited ability to adapt, do not
+remember any specifics about the user over time. All these factors limit the effectiveness of traditional AI in situations requiring prolonged interaction, personalization and smart decisions.
+
+In this project, we propose creating a proactive multi-agent orchestration solution based on LLMs to engage users in intelligent context-aware communication. This solution will involve several special-purpose agents, including conversational, analytic, recommendation and evaluation agents. They will be part of a system designed to perform specific tasks and then communicate through an orchestration layer, allowing to implement dynamic task management and coordination. An important component of the system will be the user profiling process, which involves capturing user preferences and behavioral characteristics that can be used for providing personalized response options. Our solution will allow proactively initiating interaction with the user, analyzing generated content, such as documents and text data, among others.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -64,16 +65,164 @@
 \end{IEEEkeywords}
 
 \section{Introduction}
-\lipsum[3][1-2]
+Contemporary learning systems are changing from a passive approach to an active one with the assistance of Artificial Intelligence. In the study, we present an Intelligent Tutoring System (ITS) using a Multi-Agent Architecture. The proposed system consists of a multiple agents rather than employing a single chatbot. These agents are designed to simulate a one-on-one tutoring session like a private tutor.
+
+\subsection{Motivation}
+The divide in education technology is no longer just about having access to the internet; it is also about having access to quality, personalized education. E-learning systems have been used traditionally as content management systems but fail to address the Two Sigma Problem \cite{bloom1984}, whereby students receiving individual tutoring outperform those taught in classrooms. We are motivated to provide personalized education by means of autonomous agents that will be able to remember the learner’s past, understand what they upload, and help them when problems arise.
+
+\subsection{Objectives}
+Our main goal is to create a system that adheres to the following objectives:
+\begin{enumerate}
+	\item Contextual Intelligence: Build an LLM Orchestration Layer that manages state across sessions using cache and long-term vector memory.
+	\item Autonomous Assessment: Create a pipeline that converts raw media (documents, images, videos) into chunked information and generates evaluative questions based on the document.
+	\item Automated Feedback: Create a feedback mechanism that produces reports and learning insights based on existing progress in a topic.
+	\item Behavioral Persistence: Design a profiling engine that stores information about the users and their knowledge gaps. This ensures a reduction in the loss of context for the LLM.
+\end{enumerate}
+
+\subsection{Scope}
+The current study is concentrated on developing a backend system based on the above objectives.
+
+The system will consist of an API Gateway that ensures secure communication,a data layer based on Vector Databases, and an orchestration layer, where different LLMs will fulfill various functions.
+
 
 \section{Literature Survey}
-\lipsum[5-7]
+
+The literature review highlights the current status of artificial intelligence in education, evolving from its passive form into a dynamic system. Systematic studies by \textcite{chen2020}, \textcite{elbasi2025} and \textcite{agbewali2022} offer the basis for a taxonomy on machine learning and deep learning approaches. The former can be categorized into proactive approaches, for example, content creation and the latter into reactive approaches, such as performance evaluation \cite{mallik2023}. 
+
+It is observed that the research is shifting away from simple content delivery towards intelligent interactions. The current state reveals that platforms are not only acting as hosts for media but also as systems that monitor students' activities to prevent them from losing interest in their learning process. This evolution of pedagogy becomes clear in the area of technology, where traditional mathematical models have developed into simulation-based, and now into AI-enabled learning approaches \cite{lopez2025, boldo2024}.
+
+In the present literature review, the selected papers have been sieved through the following keywords in combination: artificial intelligence in education, machine learning, deep reinforcement learning, student engagement, personalized learning, digital signal processing, education, pedagogy, teaching methods, active learning (AL), edge AI, edge training, online distillation, real-time training, educational data mining, engaged learning, intelligent tutoring systems, multi-agent system, smart education, hybrid system, large language models.
+
+\subsection{Detailed Survey}
+
+%\subsubsection{Classification of Survey}
+
+The literature survey reveals four primary paths of research in the field:
+
+\begin{enumerate}
+	\item Multi Agent Systems: \\
+	Traditional e-learning are static in nature. Recent work has focused on Multi-Agent Systems (MAS) to provide dynamic adaptation. \textcite{zakaria2025} explains how a multi-agent module (MAT) designed using the Markovian process as the differentiator between different modules. \textcite{vukovic2021} demonstrates a passive observer that studies the activities of a user.
+	
+	\item Predictive Analytics and Affective Computing: \\
+	The ability to foresee where a student may struggle is actively researched upon in the field of educational A. \textcite{bagunaid2024} utilizes deep reinforcement learning model to create early warning systems for student performance, while \textcite{rizwan2025} identifies factors affecting student performance in MOOCs through systematic review. Beyond academic scores, \textcite{hasan2020} emphasizes the transition toward affective tutoring systems, which incorporate emotional intelligence and student engagement levels \cite{ayouni2021} into the learning loop. These systems, while computationally expensive to run, provide a framework upon which to build emotionally aware LLMs. 
+	\textcite{mahafdah2024} uses the data generated through current LMS systems to produce student insights by utilizing ML models like Random Forest, XGBoost, and RNN among many others. \textcite{aderghal2025} demonstrates that deep learning architectures, like CNNs and xLSTM, significantly outperform traditional statistical models in capturing sequential learning patterns.
+	
+	\item Large Language Models and Cognitive Diagnosis: \\
+	Another important contribution of LLMs in learning environments is reasoning ability. \textcite{zhang2025} proposes SPP-L², which is an efficient approach for performance prediction using learner-generated queries. The proposed framework uses a mixed approach using graph, LLM, and RL models to ensure that the feedback rewards are maximized. The result is better than competing approaches. Similarly, \textcite{chen2025} discuss advanced cognitive diagnosis using LLMs to ensure that there is improved understanding by the learners. The authors build a Q-matrix for cognitive diagnosis using the latent knowledge generated by LLM (Llama3-70B). Some of the other prominent real-world use cases of LLMs include tutoring applications like PETRA \cite{hewedy2025}, which can be used for recursion in dynamic programming problems.
+	
+	\item Immersive Learning and the Edu-Metaverse: \\
+	The notion of space in digital education is evolving with the use of virtual spaces. \textcite{illi2025} and \textcite{teichmann2025} have introduced concepts regarding the Edu-Metaverse, which creates immersive virtual learning from physical activities. Such a model seeks to enhance learning by simulating real experiences with high fidelity. Other articles evaluate the efficacy of AI in research-oriented learning approaches \cite{festiyed2026} and big data \cite{bakhouyi2025}.
+\end{enumerate}
+
+\subsection{Identification of Research Gaps}
+
+Despite this progress, several notable gaps remain:
+
+\begin{itemize}
+	\item Concept Drift and Memory Loss: According to \textcite{hajmohammed2025}, LLMs usually suffer from concept drift because of evolving language use and education environment. Besides, most currently used learning platforms are susceptible to fractured learning because they cannot create persistent memory about students’ achievements throughout multiple learning sessions.
+	\item Knowledge Extraction Using Multiple Types of Input: Although AI technology allows for analysis of text input, there is no possibility to automate extraction of various types of data including instructional videos and scientific materials, and further transformation of that data into evaluative concepts \cite{pradeesh2025, lopez2025}.
+	\item Fragmented Feedback System: Although current feedback systems provide general calculation of grades \cite{mallik2023}, they cannot generate individualized recommendation and analysis in relation to specific user personas and previous experience \cite{hasan2020}.
+	\item Scaling Problem of Agent-Based Learning Model: Even though reinforcement learning algorithms function effectively in multiple agents, \textcite{nguyen2020} shows that designing stable agents in changing education context is a big challenge that requires substantial computation capacity \cite{boldo2024}.
+\end{itemize}
+
+\section{Mapping of Objective with Research Gap Identification}
+
+\begin{table*}[htbp]
+	\caption{Research Objectives and Corresponding Literature Gaps Mapped}
+	\begin{center}
+		\begin{tabular}{|p{2.5cm}|p{4cm}|p{4cm}|p{2.5cm}|}
+			\hline
+			\textbf{Research}&\multicolumn{3}{|c|}{\textbf{Mapping of Objectives to Gaps}} \\
+			\cline{2-4} 
+			\textbf{Objective} & \textbf{\textit{Proposed Implementation}}& \textbf{\textit{Mitigated Research Gap}}& \textbf{\textit{Key References}} \\
+			\hline
+			\textbf{1. Contextual Intelligence} & LLM Orchestrator with short-term caching and long-term vector memory. & Concept drift and temporal memory degradation. & \cite{hajmohammed2025, zakaria2025} \\
+			\hline
+			\textbf{2. Autonomous Assessment} & Pipeline that takes raw media as input and outputs knowledge and questions. & Content bottlenecks and static assessment techniques. & \cite{zhang2025, pradeesh2025} \\
+			\hline
+			\textbf{3. Automated Feedback} & Report generation based on persona and affective feedback. & Failure to connect raw analytics and student support. & \cite{hasan2020, bakhouyi2025} \\
+			\hline
+			\textbf{4. Behavioral Persistence} & Profiling engine for tracking user preferences and knowledge gaps. & Lack of persistent, long-term behavioral tracking in e-learning frameworks. & \cite{vukovic2021, aderghal2025} \\
+			\hline
+		\end{tabular}
+		\label{tab:gap_mapping}
+	\end{center}
+\end{table*}
+
+The primary objective of this work is to develop an intelligent, adaptive learning system that resolves the disconnect between high-level AI theory and practical implementation. Table \ref{tab:gap_mapping} shows the research gap identified and potential mitigation solutions.
+
 
 \section{Proposed Framework}
-\lipsum[9-11]
+\begin{figure}[htbp]
+	\centerline{\includegraphics[scale=0.25 ]{design.png}}
+	\caption{High Level Design}
+	\label{fig:high}
+\end{figure}
 
-\section*{Acknowledgment}
-\lipsum[7-9]
+\subsection{System Architecture}
+
+\begin{figure}[htbp]
+	\centerline{\includegraphics[scale=0.15]{arch.png}}
+	\caption{System Architecture}
+	\label{fig:arch}
+\end{figure}
+
+The shift in the system architecture from a traditional request-response interaction to a
+stateful agency-based interaction ensures that the Large Language Model (LLM)
+provides not just generated output, but also acts as the processing center interacting
+with microservices and data layers to deliver the customized learning pathway.
+
+\subsubsection{Ingress and Data Handling}
+The entry point of the system is a high-performance API Gateway. It manages asynchronous request handling and implements OAuth2-based JWT authentication. To ensure system scalability, the gateway utilizes a decoupled file handling strategy:
+\begin{itemize}
+	\item Object Storage Integration: Large binary objects (PDFs, media files) are offloaded directly to object storage archival services.
+	\item Metadata Routing: Only the metadata and object references are passed to the downstream agents, reducing the memory footprint of the orchestrator.
+\end{itemize}
+
+\subsubsection{Stateful Agentic Orchestration}
+At the core of the intelligence layer lies the LLM Orchestrator. Unlike standard chain-based architectures, our graph-based approach allows for cyclic transitions and complex decision-making.
+
+The orchestrator maintains a state object, $S$, defined as:
+\[ S = \{ H_c, U_p, C_{ret}, T_{meta} \} \]
+Where $H_c$ represents the conversation history, $U_p$ the user profile attributes, $C_{ret}$ the context retrieved from vector storage, and $T_{meta}$ the task-specific metadata. To maintain low-latency interactions, the Short-Term Memory (STM) is persisted in RAM, allowing the orchestrator to resume states across different API calls without re-processing the entire history.
+
+\subsubsection{Micro-Agent Interactions}
+The architecture employs a Specialized Agent Cluster where each node is a fine-tuned or prompt-engineered LLM instance:
+\begin{itemize}
+	\item Profiling Agent (PA): Executes latent trait extraction. It monitors interactions for shifts in user proficiency and updates the SQL database via atomic UPSERT operations to ensure data integrity.
+	\item Content Analysis Agent (CAA): Triggers a Retrieval-Augmented Generation (RAG) pipeline. It extracts text from the stored objects, performs semantic chunking, and generates high-dimensional embeddings for storage in the vector database.
+	\item Question Generation Agent (QGA): Synthesizes assessments by performing a semantic query on the vector database and cross-referencing the user's current knowledge level from the user profile database.
+\end{itemize}
+
+\subsubsection{The Tri-Tier Data Persistence Strategy}
+The system architecture utilizes three distinct storage paradigms to optimize for consistency, speed, and semantic relevance, as Table \ref{tab:persistence} shows.
+\begin{table}[htbp]
+	\caption{System Data Persistence Layers}
+	\begin{center}
+		\begin{tabular}{|c|c|p{4cm}|}
+			\hline
+			\textbf{Data}&\multicolumn{2}{|c|}{\textbf{Technology and Utility}} \\
+			\cline{2-3} 
+			\textbf{Layer} & \textbf{\textit{Technology}}& \textbf{\textit{Technical Utility}} \\
+			\hline
+			Cache / STM & Redis & Session persistence and graph state management. \\
+			\hline
+			Relational / LTM$^{\mathrm{a}}$ & PostgreSQL & ACID-compliant storage for user metrics and profiles. \\
+			\hline
+			Vector Knowledge & Qdrant & HNSW-indexed semantic search for educational content. \\
+			\hline
+			\multicolumn{3}{l}{$^{\mathrm{a}}$Long Term Memory storage.}
+		\end{tabular}
+		\label{tab:persistence}
+	\end{center}
+\end{table}
+
+This modular decoupling ensures that individual agents can be scaled or updated independently without disrupting the global orchestration logic, fulfilling the requirement for a resilient and adaptive learning environment.
+
+
+
+\section*{Conclusion}
+Two Sigma problem constitutes the height of education, however, as we have gone away from conventional classrooms to contemporary LLMs, it turns out to be quite disjointed. There have been efforts made to come up with solutions that although are very effective, suffer from drift in context and are incapable of remembering the particularities of each individual student once the session is over. This survey makes it clear that although Multi-Agent Systems and LLMs have helped to reach places never imagined before, the most crucial task now is the one that involves the connection between the user and AI.
 
 \printbibliography
 

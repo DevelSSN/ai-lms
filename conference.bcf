@@ -2374,6 +2374,43 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">references.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
+    <bcf:citekey order="1" intorder="1">bloom1984</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">chen2020</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">elbasi2025</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">agbewali2022</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">mallik2023</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">lopez2025</bcf:citekey>
+    <bcf:citekey order="6" intorder="2">boldo2024</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">zakaria2025</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">vukovic2021</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">bagunaid2024</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">rizwan2025</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">hasan2020</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">ayouni2021</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">mahafdah2024</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">aderghal2025</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">zhang2025</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">chen2025</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">hewedy2025</bcf:citekey>
+    <bcf:citekey order="18" intorder="1">illi2025</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">teichmann2025</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">festiyed2026</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">bakhouyi2025</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">hajmohammed2025</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">pradeesh2025</bcf:citekey>
+    <bcf:citekey order="23" intorder="2">lopez2025</bcf:citekey>
+    <bcf:citekey order="24" intorder="1">mallik2023</bcf:citekey>
+    <bcf:citekey order="25" intorder="1">hasan2020</bcf:citekey>
+    <bcf:citekey order="26" intorder="1">nguyen2020</bcf:citekey>
+    <bcf:citekey order="27" intorder="1">boldo2024</bcf:citekey>
+    <bcf:citekey order="28" intorder="1">hajmohammed2025</bcf:citekey>
+    <bcf:citekey order="28" intorder="2">zakaria2025</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">zhang2025</bcf:citekey>
+    <bcf:citekey order="29" intorder="2">pradeesh2025</bcf:citekey>
+    <bcf:citekey order="30" intorder="1">hasan2020</bcf:citekey>
+    <bcf:citekey order="30" intorder="2">bakhouyi2025</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">vukovic2021</bcf:citekey>
+    <bcf:citekey order="31" intorder="2">aderghal2025</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

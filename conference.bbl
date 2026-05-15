@@ -38,8 +38,8 @@
       \strng{authornamehash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
       \strng{authorfullhash}{ddc586c6eb221cd90bc71bc15c3e6fc1}
       \strng{authorfullhashraw}{ddc586c6eb221cd90bc71bc15c3e6fc1}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Educational researcher}
@@ -49,6 +49,264 @@
       \field{year}{1984}
       \field{pages}{4\bibrangedash 16}
       \range{pages}{13}
+    \endentry
+    \entry{chen2020}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=1015eddf57af875874176f0bb5324c60}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Lijia},
+           giveni={L\bibinitperiod}}}%
+        {{hash=b330243c81db782bffc41df984fe8078}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Pingping},
+           giveni={P\bibinitperiod}}}%
+        {{hash=d153e9dcac181db5dce5de79f7949d90}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Zhijian},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{f2fb7f41f8b6c225a1b117ac81d0c686}
+      \strng{fullhash}{a5314e9ec00bf05be87ce63733e1d76e}
+      \strng{fullhashraw}{a5314e9ec00bf05be87ce63733e1d76e}
+      \strng{bibnamehash}{a5314e9ec00bf05be87ce63733e1d76e}
+      \strng{authorbibnamehash}{a5314e9ec00bf05be87ce63733e1d76e}
+      \strng{authornamehash}{f2fb7f41f8b6c225a1b117ac81d0c686}
+      \strng{authorfullhash}{a5314e9ec00bf05be87ce63733e1d76e}
+      \strng{authorfullhashraw}{a5314e9ec00bf05be87ce63733e1d76e}
+      \field{extraname}{1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Artificial intelligence in education: A review}
+      \field{volume}{8}
+      \field{year}{2020}
+      \field{pages}{75264\bibrangedash 75278}
+      \range{pages}{15}
+    \endentry
+    \entry{elbasi2025}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=3ff2bfea1047c8b817ff8d29db5f956b}{%
+           family={Elbasi},
+           familyi={E\bibinitperiod},
+           given={Ersin},
+           giveni={E\bibinitperiod}}}%
+        {{hash=ff02b6bf1b20e8a4784132d14697773b}{%
+           family={Nadeem},
+           familyi={N\bibinitperiod},
+           given={Muhammad},
+           giveni={M\bibinitperiod}}}%
+        {{hash=1b122f5ad799a1b7b1dfc41c9f0b021d}{%
+           family={Alzoubi},
+           familyi={A\bibinitperiod},
+           given={Yehia\bibnamedelima Ibrahim},
+           giveni={Y\bibinitperiod\bibinitdelim I\bibinitperiod}}}%
+        {{hash=51bb9ac8120a5c4036c6915dc0e47ec3}{%
+           family={Topcu},
+           familyi={T\bibinitperiod},
+           given={Ahmet\bibnamedelima E},
+           giveni={A\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=4d25b86ef9a61f6ac0671028a9d76b5c}{%
+           family={Varghese},
+           familyi={V\bibinitperiod},
+           given={Greeshma},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{f46ca8e8887d8423a14811ca9206af13}
+      \strng{fullhash}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \strng{fullhashraw}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \strng{bibnamehash}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \strng{authorbibnamehash}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \strng{authornamehash}{f46ca8e8887d8423a14811ca9206af13}
+      \strng{authorfullhash}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \strng{authorfullhashraw}{591ed7078d83bd7afaf1a9e44a874f9f}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Machine learning in education: Innovations, impacts, and ethical considerations}
+      \field{year}{2025}
+    \endentry
+    \entry{agbewali2022}{inproceedings}{}{}
+      \name{author}{6}{}{%
+        {{hash=88c97fad79651d8a01e99cc49e963206}{%
+           family={Agbewali-Koku},
+           familyi={A\bibinithyphendelim K\bibinitperiod},
+           given={Cyril\bibnamedelimb Elorm\bibnamedelima Kodjo},
+           giveni={C\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=b3ac2e25bd0e1861bc7b5d9f09bc8c83}{%
+           family={Rahman},
+           familyi={R\bibinitperiod},
+           given={Md\bibnamedelima Atiqur},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=1f024b0c16198e3221588550b2963757}{%
+           family={Hamada},
+           familyi={H\bibinitperiod},
+           given={Mohamed},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f01d68c042f8c0b1e4d01b9b63d279f5}{%
+           family={Ali},
+           familyi={A\bibinitperiod},
+           given={Mohammad\bibnamedelima Ameer},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=90e926f4e023a42570a60e59630cb633}{%
+           family={Oysharja},
+           familyi={O\bibinitperiod},
+           given={Lutfun\bibnamedelima Nahar},
+           giveni={L\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=b2d60dbd63ae786b53b5a4a9c678e1ce}{%
+           family={Hossain},
+           familyi={H\bibinitperiod},
+           given={Md\bibnamedelima Tazmim},
+           giveni={M\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{921f8f9193a46a698c0e82727e72d231}
+      \strng{fullhash}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \strng{fullhashraw}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \strng{bibnamehash}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \strng{authorbibnamehash}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \strng{authornamehash}{921f8f9193a46a698c0e82727e72d231}
+      \strng{authorfullhash}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \strng{authorfullhashraw}{b5d1240b19668abfbeb1f9ac18ba5037}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2022 IEEE 15th International Symposium on Embedded Multicore/Many-core Systems-on-Chip (MCSoC)}
+      \field{title}{A systematic review of machine learning techniques in online learning platforms}
+      \field{year}{2022}
+      \field{pages}{247\bibrangedash 250}
+      \range{pages}{4}
+    \endentry
+    \entry{mallik2023}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=6c569b60ff80349019c347bf8241f753}{%
+           family={Mallik},
+           familyi={M\bibinitperiod},
+           given={Sruti},
+           giveni={S\bibinitperiod}}}%
+        {{hash=41d7082a95f1188564d7b77229013623}{%
+           family={Gangopadhyay},
+           familyi={G\bibinitperiod},
+           given={Ahana},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Frontiers Media SA}%
+      }
+      \strng{namehash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{fullhash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{fullhashraw}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{bibnamehash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{authorbibnamehash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{authornamehash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{authorfullhash}{52b2a563a0718832b0a9ceff20e665bd}
+      \strng{authorfullhashraw}{52b2a563a0718832b0a9ceff20e665bd}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Frontiers in Artificial Intelligence}
+      \field{title}{Proactive and reactive engagement of artificial intelligence methods for education: a review}
+      \field{volume}{6}
+      \field{year}{2023}
+      \field{pages}{1151391}
+      \range{pages}{1}
+    \endentry
+    \entry{lopez2025}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=90043d424c3ff2e92a59d89ce498e0d4}{%
+           family={López},
+           familyi={L\bibinitperiod},
+           given={Miguel\bibnamedelima Bordallo},
+           giveni={M\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{fullhash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{fullhashraw}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{bibnamehash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{authorbibnamehash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{authornamehash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{authorfullhash}{90043d424c3ff2e92a59d89ce498e0d4}
+      \strng{authorfullhashraw}{90043d424c3ff2e92a59d89ce498e0d4}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Evolving Pedagogy in Digital Signal Processing Education: AI-Assisted Review and Analysis}
+      \field{volume}{13}
+      \field{year}{2025}
+      \field{pages}{45559\bibrangedash 45567}
+      \range{pages}{9}
+    \endentry
+    \entry{boldo2024}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=ffa1ecc2321ffe16bb12a7a5254111f6}{%
+           family={Boldo},
+           familyi={B\bibinitperiod},
+           given={Michele},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ba0d3dfc60ec7d858417a5d155099b0e}{%
+           family={De\bibnamedelima Marchi},
+           familyi={D\bibinitperiod\bibinitdelim M\bibinitperiod},
+           given={Mirco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=bf4b1738c264eebeed3f99ed30e730b6}{%
+           family={Martini},
+           familyi={M\bibinitperiod},
+           given={Enrico},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b30bf7c656ae29fb66c9918079cd2c93}{%
+           family={Aldegheri},
+           familyi={A\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=060a639a43f5f3f19ff975bcafa0e256}{%
+           family={Bombieri},
+           familyi={B\bibinitperiod},
+           given={Nicola},
+           giveni={N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{4006031062cc8cc89e76f5ec3ce4d8e6}
+      \strng{fullhash}{2927dfb1c36ad02597e8b13edb04adb5}
+      \strng{fullhashraw}{2927dfb1c36ad02597e8b13edb04adb5}
+      \strng{bibnamehash}{2927dfb1c36ad02597e8b13edb04adb5}
+      \strng{authorbibnamehash}{2927dfb1c36ad02597e8b13edb04adb5}
+      \strng{authornamehash}{4006031062cc8cc89e76f5ec3ce4d8e6}
+      \strng{authorfullhash}{2927dfb1c36ad02597e8b13edb04adb5}
+      \strng{authorfullhashraw}{2927dfb1c36ad02597e8b13edb04adb5}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems}
+      \field{number}{11}
+      \field{title}{Domain-adaptive online active learning for real-time intelligent video analytics on edge devices}
+      \field{volume}{43}
+      \field{year}{2024}
+      \field{pages}{4105\bibrangedash 4116}
+      \range{pages}{12}
     \endentry
     \entry{zakaria2025}{article}{}{}
       \name{author}{4}{}{%
@@ -84,20 +342,740 @@
       \strng{authornamehash}{38dde0f5f683533bb7720a07107862c3}
       \strng{authorfullhash}{d83b257c9fe3cc01b56f2bd87278cdc9}
       \strng{authorfullhashraw}{d83b257c9fe3cc01b56f2bd87278cdc9}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Access}
       \field{title}{Dynamic adaptation in an intelligent multi-tutoring system: A multi-agent approach}
       \field{year}{2025}
     \endentry
+    \entry{vukovic2021}{article}{}{}
+      \name{author}{7}{}{%
+        {{hash=59014be4388e323990ae3ce428c12995}{%
+           family={Vuković},
+           familyi={V\bibinitperiod},
+           given={Igor},
+           giveni={I\bibinitperiod}}}%
+        {{hash=a8a952e8a5aa56b74b812a3211cdef3f}{%
+           family={Kuk},
+           familyi={K\bibinitperiod},
+           given={Kristijan},
+           giveni={K\bibinitperiod}}}%
+        {{hash=141522429a38eb2b0b373b6496fa7e3a}{%
+           family={Čisar},
+           familyi={Č\bibinitperiod},
+           given={Petar},
+           giveni={P\bibinitperiod}}}%
+        {{hash=a541191e4d4765ede2eaec285a0f5914}{%
+           family={Ban{đ}ur},
+           familyi={B\bibinitperiod},
+           given={Miloš},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ebc858d5d7f38237a09d10f81ac7b773}{%
+           family={Ban{đ}ur},
+           familyi={B\bibinitperiod},
+           given={{Đ}oko},
+           giveni={Đ\bibinitperiod}}}%
+        {{hash=22ac76ef6b068399ee16c1fd1f6ff230}{%
+           family={Milić},
+           familyi={M\bibinitperiod},
+           given={Nenad},
+           giveni={N\bibinitperiod}}}%
+        {{hash=7cfdbe8a00231353128bceb796af386f}{%
+           family={Popović},
+           familyi={P\bibinitperiod},
+           given={Brankica},
+           giveni={B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {MDPI}%
+      }
+      \strng{namehash}{319592df2981dc275bb9ca2620f3e2e4}
+      \strng{fullhash}{3e242c24554df47ab129a19ce11eb66c}
+      \strng{fullhashraw}{3e242c24554df47ab129a19ce11eb66c}
+      \strng{bibnamehash}{319592df2981dc275bb9ca2620f3e2e4}
+      \strng{authorbibnamehash}{319592df2981dc275bb9ca2620f3e2e4}
+      \strng{authornamehash}{319592df2981dc275bb9ca2620f3e2e4}
+      \strng{authorfullhash}{3e242c24554df47ab129a19ce11eb66c}
+      \strng{authorfullhashraw}{3e242c24554df47ab129a19ce11eb66c}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Electronics}
+      \field{number}{12}
+      \field{title}{Multi-agent system observer: Intelligent support for engaged e-learning}
+      \field{volume}{10}
+      \field{year}{2021}
+      \field{pages}{1370}
+      \range{pages}{1}
+    \endentry
+    \entry{bagunaid2024}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=7814727a5ba17a7d48611c70b881f6f2}{%
+           family={Bagunaid},
+           familyi={B\bibinitperiod},
+           given={Wala},
+           giveni={W\bibinitperiod}}}%
+        {{hash=ec9ad8b92552727daac65d614934fd7e}{%
+           family={Chilamkurti},
+           familyi={C\bibinitperiod},
+           given={Naveen},
+           giveni={N\bibinitperiod}}}%
+        {{hash=a1ef2e7251f69df7cdb0443e6be0db76}{%
+           family={Shahraki},
+           familyi={S\bibinitperiod},
+           given={Ahmad\bibnamedelima Salehi},
+           giveni={A\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=d57da602b5de317981d3767175f0c9ed}{%
+           family={Bamashmos},
+           familyi={B\bibinitperiod},
+           given={Saeed},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {MDPI}%
+      }
+      \strng{namehash}{e89a68102d319c4b114eb310c74fd07d}
+      \strng{fullhash}{3ca9750ede9b4f8da42eeee31c681064}
+      \strng{fullhashraw}{3ca9750ede9b4f8da42eeee31c681064}
+      \strng{bibnamehash}{3ca9750ede9b4f8da42eeee31c681064}
+      \strng{authorbibnamehash}{3ca9750ede9b4f8da42eeee31c681064}
+      \strng{authornamehash}{e89a68102d319c4b114eb310c74fd07d}
+      \strng{authorfullhash}{3ca9750ede9b4f8da42eeee31c681064}
+      \strng{authorfullhashraw}{3ca9750ede9b4f8da42eeee31c681064}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Future Internet}
+      \field{number}{6}
+      \field{title}{Visual data and pattern analysis for smart education: a robust DRL-based early warning system for student performance prediction}
+      \field{volume}{16}
+      \field{year}{2024}
+      \field{pages}{206}
+      \range{pages}{1}
+    \endentry
+    \entry{rizwan2025}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=dc36466a56be94a858db4edf9b16f830}{%
+           family={Rizwan},
+           familyi={R\bibinitperiod},
+           given={Shahzad},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bd75f682a1c4205a94a758adcbdd1a5f}{%
+           family={Nee},
+           familyi={N\bibinitperiod},
+           given={Chee\bibnamedelima Ken},
+           giveni={C\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=795145216c5154515a3d11ee12cfa10f}{%
+           family={Garfan},
+           familyi={G\bibinitperiod},
+           given={Salem},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{e103073da2264715c17acc06af58e696}
+      \strng{fullhash}{27800b444189b21ab6485a4aa3402f9a}
+      \strng{fullhashraw}{27800b444189b21ab6485a4aa3402f9a}
+      \strng{bibnamehash}{27800b444189b21ab6485a4aa3402f9a}
+      \strng{authorbibnamehash}{27800b444189b21ab6485a4aa3402f9a}
+      \strng{authornamehash}{e103073da2264715c17acc06af58e696}
+      \strng{authorfullhash}{27800b444189b21ab6485a4aa3402f9a}
+      \strng{authorfullhashraw}{27800b444189b21ab6485a4aa3402f9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Identifying the factors affecting student academic performance and engagement prediction in mooc using deep learning: A systematic literature review}
+      \field{volume}{13}
+      \field{year}{2025}
+      \field{pages}{18952\bibrangedash 18982}
+      \range{pages}{31}
+    \endentry
+    \entry{hasan2020}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=277efdb9a7a29551f881b99b719d90c5}{%
+           family={Hasan},
+           familyi={H\bibinitperiod},
+           given={Muhammad\bibnamedelima Asif},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=a84e5fa46332a81b7ea18cb45671e1e7}{%
+           family={Noor},
+           familyi={N\bibinitperiod},
+           given={Nurul\bibnamedelimb Fazmidar\bibnamedelima Mohd},
+           giveni={N\bibinitperiod\bibinitdelim F\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=f4e4a78e06ba71b16d86da421fe8afd1}{%
+           family={Rahman},
+           familyi={R\bibinitperiod},
+           given={Siti\bibnamedelimb Soraya\bibnamedelima Abdul},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=37037fa2a1808f94bfde4e5bf08894fe}{%
+           family={Rahman},
+           familyi={R\bibinitperiod},
+           given={Mohammad\bibnamedelima Mustaneer},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{7fe2313f2ae3dd19e1e5397b752a0f88}
+      \strng{fullhash}{382ef592c13e56c264114786881e39dd}
+      \strng{fullhashraw}{382ef592c13e56c264114786881e39dd}
+      \strng{bibnamehash}{382ef592c13e56c264114786881e39dd}
+      \strng{authorbibnamehash}{382ef592c13e56c264114786881e39dd}
+      \strng{authornamehash}{7fe2313f2ae3dd19e1e5397b752a0f88}
+      \strng{authorfullhash}{382ef592c13e56c264114786881e39dd}
+      \strng{authorfullhashraw}{382ef592c13e56c264114786881e39dd}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{number}{8}
+      \field{title}{The Transition From Intelligent to Affective Tutoring System: A Review and Open Issues.}
+      \field{volume}{8}
+      \field{year}{2020}
+      \field{pages}{204612\bibrangedash 204638}
+      \range{pages}{27}
+    \endentry
+    \entry{ayouni2021}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=427ba6ae665bda24c06583c91fe4ae38}{%
+           family={Ayouni},
+           familyi={A\bibinitperiod},
+           given={Sarra},
+           giveni={S\bibinitperiod}}}%
+        {{hash=0fe792f9691af8417cd4bb18c4feba6d}{%
+           family={Hajjej},
+           familyi={H\bibinitperiod},
+           given={Fahima},
+           giveni={F\bibinitperiod}}}%
+        {{hash=2c10c7a1864032d872564e853e247ddb}{%
+           family={Maddeh},
+           familyi={M\bibinitperiod},
+           given={Mohamed},
+           giveni={M\bibinitperiod}}}%
+        {{hash=619248f5bbd1dc91e9286daac0643b2e}{%
+           family={Al-Otaibi},
+           familyi={A\bibinithyphendelim O\bibinitperiod},
+           given={Shaha},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Public Library of Science San Francisco, CA USA}%
+      }
+      \strng{namehash}{e6e088be87ce17f542d921f8c9292e7d}
+      \strng{fullhash}{3b2b0cb6ee311a267d8a07de45559505}
+      \strng{fullhashraw}{3b2b0cb6ee311a267d8a07de45559505}
+      \strng{bibnamehash}{3b2b0cb6ee311a267d8a07de45559505}
+      \strng{authorbibnamehash}{3b2b0cb6ee311a267d8a07de45559505}
+      \strng{authornamehash}{e6e088be87ce17f542d921f8c9292e7d}
+      \strng{authorfullhash}{3b2b0cb6ee311a267d8a07de45559505}
+      \strng{authorfullhashraw}{3b2b0cb6ee311a267d8a07de45559505}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Plos one}
+      \field{number}{11}
+      \field{title}{A new ML-based approach to enhance student engagement in online environment}
+      \field{volume}{16}
+      \field{year}{2021}
+      \field{pages}{e0258788}
+      \range{pages}{-1}
+    \endentry
+    \entry{mahafdah2024}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=939f7af6d496f240262b0cb55aaf8349}{%
+           family={Mahafdah},
+           familyi={M\bibinitperiod},
+           given={Rund},
+           giveni={R\bibinitperiod}}}%
+        {{hash=e71d62d46a18e67b1830a5d438d57a24}{%
+           family={Bouallegue},
+           familyi={B\bibinitperiod},
+           given={Seifeddine},
+           giveni={S\bibinitperiod}}}%
+        {{hash=4e301784b355e4fd8c668c58f68b7ed3}{%
+           family={Bouallegue},
+           familyi={B\bibinitperiod},
+           given={Ridha},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {PeerJ Inc.}%
+      }
+      \strng{namehash}{37cff1d52982b4d82bbb9993535a8972}
+      \strng{fullhash}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \strng{fullhashraw}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \strng{bibnamehash}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \strng{authorbibnamehash}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \strng{authornamehash}{37cff1d52982b4d82bbb9993535a8972}
+      \strng{authorfullhash}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \strng{authorfullhashraw}{53d4b31c7da7e6f87b7befdb8e2335aa}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PeerJ Computer Science}
+      \field{title}{Enhancing e-learning through AI: advanced techniques for optimizing student performance}
+      \field{volume}{10}
+      \field{year}{2024}
+      \field{pages}{e2576}
+      \range{pages}{-1}
+    \endentry
+    \entry{aderghal2025}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=e71ca2dc22f7b735cf8915d19da1ca92}{%
+           family={Aderghal},
+           familyi={A\bibinitperiod},
+           given={Yasser},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=8cb8361147c213458bc9b78190279503}{%
+           family={Hafidi},
+           familyi={H\bibinitperiod},
+           given={Hakim},
+           giveni={H\bibinitperiod}}}%
+        {{hash=f46b63e4a88fc86ae7b8a7a29ccbba4a}{%
+           family={El\bibnamedelima Ghazi},
+           familyi={E\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={Abdellatif},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{4fee400985259a16fbb61db688fc3b18}
+      \strng{fullhash}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \strng{fullhashraw}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \strng{bibnamehash}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \strng{authorbibnamehash}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \strng{authornamehash}{4fee400985259a16fbb61db688fc3b18}
+      \strng{authorfullhash}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \strng{authorfullhashraw}{079daa10aa8b7eb6e4faa6f3538fa154}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{xLSTMKT: xLSTM for knowledge tracing}
+      \field{year}{2025}
+    \endentry
+    \entry{zhang2025}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=09117a8400f001e5bd131a64efe7948f}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Zhedong},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=5ca5eefe97141a92dff9eb1a1b3e0d49}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Xi},
+           giveni={X\bibinitperiod}}}%
+        {{hash=cef32e1c2bef00875c50d63149275cc3}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Yingjiao},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{0d151359f80d6e3192db9f33d37b51b4}
+      \strng{fullhash}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \strng{fullhashraw}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \strng{bibnamehash}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \strng{authorbibnamehash}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \strng{authornamehash}{0d151359f80d6e3192db9f33d37b51b4}
+      \strng{authorfullhash}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \strng{authorfullhashraw}{4593d6ae298ca38fd11d5ccd55f2f226}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{SPP-L$^2$: A PPO-Enhanced Large Language Model Framework for Student Performance Prediction on Learnersourced Questions}
+      \field{year}{2025}
+    \endentry
+    \entry{chen2025}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=c6b0b16d268b7266380aa15c23031fcf}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Xin},
+           giveni={X\bibinitperiod}}}%
+        {{hash=eb96d0b531eeac5c6b8b186634522d92}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Jin},
+           giveni={J\bibinitperiod}}}%
+        {{hash=6313f415f8d9f5227e532960387cd7fa}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Tong},
+           giveni={T\bibinitperiod}}}%
+        {{hash=65afd11c8e50cacdbd6ae4f35d03e308}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Feng},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{085cfce00b750fcaacd150ed73f7a77a}
+      \strng{fullhash}{7f1d3db25837585e1af6989bcfe602d1}
+      \strng{fullhashraw}{7f1d3db25837585e1af6989bcfe602d1}
+      \strng{bibnamehash}{7f1d3db25837585e1af6989bcfe602d1}
+      \strng{authorbibnamehash}{7f1d3db25837585e1af6989bcfe602d1}
+      \strng{authornamehash}{085cfce00b750fcaacd150ed73f7a77a}
+      \strng{authorfullhash}{7f1d3db25837585e1af6989bcfe602d1}
+      \strng{authorfullhashraw}{7f1d3db25837585e1af6989bcfe602d1}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{LLM-CDM: a large language model enhanced cognitive diagnosis for intelligent education}
+      \field{year}{2025}
+    \endentry
+    \entry{hewedy2025}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=cde84312bcabfa897a84e0da69ca1af2}{%
+           family={Hewedy},
+           familyi={H\bibinitperiod},
+           given={Dalia\bibnamedelima Walid},
+           giveni={D\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=03f080696b2e8292beff0f7fcabd0b92}{%
+           family={Abdelhady},
+           familyi={A\bibinitperiod},
+           given={Aya\bibnamedelima Salama},
+           giveni={A\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{fullhash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{fullhashraw}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{bibnamehash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{authorbibnamehash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{authornamehash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{authorfullhash}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \strng{authorfullhashraw}{d4ba3ac7096a8e0b9280d72ded3ae2d3}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2025 15th International Conference on Electrical Engineering (ICEENG)}
+      \field{title}{PETRA: A personalized educational tutoring tool for recursive assistance leveraging multi-model LLMs for dynamic programming learning}
+      \field{year}{2025}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+    \endentry
+    \entry{illi2025}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=4f545db50934f6ab6a8f168577d937df}{%
+           family={Illi},
+           familyi={I\bibinitperiod},
+           given={Chaimae},
+           giveni={C\bibinitperiod}}}%
+        {{hash=d616deec663307cc4fcdcc987f182f0a}{%
+           family={Elhassouny},
+           familyi={E\bibinitperiod},
+           given={Azeddine},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{fullhash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{fullhashraw}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{bibnamehash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{authorbibnamehash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{authornamehash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{authorfullhash}{116fcd08b69c7dc25091800958bc1be9}
+      \strng{authorfullhashraw}{116fcd08b69c7dc25091800958bc1be9}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Edu-metaverse: A comprehensive review of virtual learning environments}
+      \field{year}{2025}
+    \endentry
+    \entry{teichmann2025}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=859f3d4642c34fba71432c1114167c2f}{%
+           family={Teichmann},
+           familyi={T\bibinitperiod},
+           given={Malte\bibnamedelima Rolf},
+           giveni={M\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{fullhash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{fullhashraw}{859f3d4642c34fba71432c1114167c2f}
+      \strng{bibnamehash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{authorbibnamehash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{authornamehash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{authorfullhash}{859f3d4642c34fba71432c1114167c2f}
+      \strng{authorfullhashraw}{859f3d4642c34fba71432c1114167c2f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Learning Technologies}
+      \field{title}{How to Design Immersive Virtual Learning Environments Based on Real-World Processes for the Edu-Metaverse—A Design Process Framework}
+      \field{volume}{18}
+      \field{year}{2025}
+      \field{pages}{100\bibrangedash 118}
+      \range{pages}{19}
+    \endentry
+    \entry{festiyed2026}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=7cad9806c2a88ee9d60ccd7cfe6941cd}{%
+           family={Festiyed},
+           familyi={F\bibinitperiod},
+           given={Festiyed},
+           giveni={F\bibinitperiod}}}%
+        {{hash=78e94ce6d346705ffcc6b1bb726dbefc}{%
+           family={Desnita},
+           familyi={D\bibinitperiod},
+           given={Desnita},
+           giveni={D\bibinitperiod}}}%
+        {{hash=91e1467bad240f88baa6f2153e552c17}{%
+           family={Natasya},
+           familyi={N\bibinitperiod},
+           given={Ziola},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=d3759d7daedf306f70f7235edc358118}{%
+           family={Fadillah},
+           familyi={F\bibinitperiod},
+           given={Muhammad\bibnamedelima Aizri},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=ab4ef8474a6f3629dd7333495fac9646}{%
+           family={Novitra},
+           familyi={N\bibinitperiod},
+           given={Fuja},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Academic Conferences & Publishing International}%
+      }
+      \strng{namehash}{06a5c22836729c33e53980598b6521bf}
+      \strng{fullhash}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \strng{fullhashraw}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \strng{bibnamehash}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \strng{authorbibnamehash}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \strng{authornamehash}{06a5c22836729c33e53980598b6521bf}
+      \strng{authorfullhash}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \strng{authorfullhashraw}{ab5c6312ed227efe0b70e8c466e04d6f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Electronic Journal of e-Learning}
+      \field{number}{1}
+      \field{title}{From Assistance to Autonomy: AI Integration in Structured Research-Based Learning for Higher Education}
+      \field{volume}{24}
+      \field{year}{2026}
+      \field{pages}{109\bibrangedash 124}
+      \range{pages}{16}
+    \endentry
+    \entry{bakhouyi2025}{article}{}{}
+      \name{author}{6}{}{%
+        {{hash=b8ebd88f7df48074d842d750f7f3c460}{%
+           family={Bakhouyi},
+           familyi={B\bibinitperiod},
+           given={Abdellah},
+           giveni={A\bibinitperiod}}}%
+        {{hash=1d9a17dc3f0c3c6df75a34cd92d7c75b}{%
+           family={Dehbi},
+           familyi={D\bibinitperiod},
+           given={Amine},
+           giveni={A\bibinitperiod}}}%
+        {{hash=753a2872b77e7a93740508cf6b584c83}{%
+           family={Amhaimar},
+           familyi={A\bibinitperiod},
+           given={Lahcen},
+           giveni={L\bibinitperiod}}}%
+        {{hash=2987b7e1a73d01079dac2a94f9d20ef1}{%
+           family={Broumi},
+           familyi={B\bibinitperiod},
+           given={Said},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5eb551a711e00846f1ec96c1e466d5ea}{%
+           family={Talea},
+           familyi={T\bibinitperiod},
+           given={Mohamed},
+           giveni={M\bibinitperiod}}}%
+        {{hash=4893325a1fbbca64334fd87bd39fa257}{%
+           family={Khalidi},
+           familyi={K\bibinitperiod},
+           given={Abderrahim},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier}%
+      }
+      \strng{namehash}{1a291294a28cb7f1da23da214c4e6321}
+      \strng{fullhash}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \strng{fullhashraw}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \strng{bibnamehash}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \strng{authorbibnamehash}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \strng{authornamehash}{1a291294a28cb7f1da23da214c4e6321}
+      \strng{authorfullhash}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \strng{authorfullhashraw}{4f95874f8fd3ff1ee39c2e2e81fb6e32}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Telematics and Informatics Reports}
+      \field{title}{Improving SMART learning: Course completion via AI-driven hybrid system integration in big data}
+      \field{volume}{18}
+      \field{year}{2025}
+      \field{pages}{100199}
+      \range{pages}{1}
+    \endentry
+    \entry{hajmohammed2025}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=670c02cd069f945556f50eb4444f3a65}{%
+           family={Hajmohammed},
+           familyi={H\bibinitperiod},
+           given={Mustafa},
+           giveni={M\bibinitperiod}}}%
+        {{hash=2cb81eb606110f8461e14621544dfc98}{%
+           family={Chountas},
+           familyi={C\bibinitperiod},
+           given={Panagiotis},
+           giveni={P\bibinitperiod}}}%
+        {{hash=28333d7f5662a06be7bae9e506962769}{%
+           family={Chaussalet},
+           familyi={C\bibinitperiod},
+           given={Thierry\bibnamedelima J},
+           giveni={T\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{f877a9656c343584e688044dc1594d1e}
+      \strng{fullhash}{bed563ee0887165877f55ed3002ced8f}
+      \strng{fullhashraw}{bed563ee0887165877f55ed3002ced8f}
+      \strng{bibnamehash}{bed563ee0887165877f55ed3002ced8f}
+      \strng{authorbibnamehash}{bed563ee0887165877f55ed3002ced8f}
+      \strng{authornamehash}{f877a9656c343584e688044dc1594d1e}
+      \strng{authorfullhash}{bed563ee0887165877f55ed3002ced8f}
+      \strng{authorfullhashraw}{bed563ee0887165877f55ed3002ced8f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2025 1st International Conference on Computational Intelligence Approaches and Applications (ICCIAA)}
+      \field{title}{Concept Drift in Large Language Models: Challenges of Evolving Language, Contexts, and the Web}
+      \field{year}{2025}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+    \endentry
+    \entry{pradeesh2025}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=93cbdb98e4d42dd31ffc528e5f17bbf3}{%
+           family={Pradeesh},
+           familyi={P\bibinitperiod},
+           given={N},
+           giveni={N\bibinitperiod}}}%
+        {{hash=1aeac18fa836120aef52f583a73e2df0}{%
+           family={Thushara},
+           familyi={T\bibinitperiod},
+           given={MG},
+           giveni={M\bibinitperiod}}}%
+        {{hash=0f2a0b6c47919edc52c85b8c98be4a53}{%
+           family={Krishna},
+           familyi={K\bibinitperiod},
+           given={K\bibnamedelima Arun},
+           giveni={K\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=c97193d027452e19c2d2dfc892c1701a}{%
+           family={Pranav},
+           familyi={P\bibinitperiod},
+           given={V},
+           giveni={V\bibinitperiod}}}%
+        {{hash=0d0a4a70702aa398f0f33c46ee1e5424}{%
+           family={Krishnamoorthy},
+           familyi={K\bibinitperiod},
+           given={Shivsubramani},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{3b5aceb980f5a30062f5e519e5d14a92}
+      \strng{fullhash}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \strng{fullhashraw}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \strng{bibnamehash}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \strng{authorbibnamehash}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \strng{authornamehash}{3b5aceb980f5a30062f5e519e5d14a92}
+      \strng{authorfullhash}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \strng{authorfullhashraw}{6cd81b1cf8ae808a1e3a352b8a159bca}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{AI-Driven Personalized Learning and Remedial Recommendation Through Knowledge Concept-Centric Evaluation}
+      \field{year}{2025}
+    \endentry
+    \entry{nguyen2020}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=6c66ef72a75b2366367041cec372fe92}{%
+           family={Nguyen},
+           familyi={N\bibinitperiod},
+           given={Thanh\bibnamedelima Thi},
+           giveni={T\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=eb3b47df160ec1e0c12bced2d9a9437f}{%
+           family={Nguyen},
+           familyi={N\bibinitperiod},
+           given={Ngoc\bibnamedelima Duy},
+           giveni={N\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=5345efddc35011fcd0912e307fa90dab}{%
+           family={Nahavandi},
+           familyi={N\bibinitperiod},
+           given={Saeid},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{7929bfac414f70f412dee9316697c210}
+      \strng{fullhash}{208ee58a482e10888d772974a2d3a214}
+      \strng{fullhashraw}{208ee58a482e10888d772974a2d3a214}
+      \strng{bibnamehash}{208ee58a482e10888d772974a2d3a214}
+      \strng{authorbibnamehash}{208ee58a482e10888d772974a2d3a214}
+      \strng{authornamehash}{7929bfac414f70f412dee9316697c210}
+      \strng{authorfullhash}{208ee58a482e10888d772974a2d3a214}
+      \strng{authorfullhashraw}{208ee58a482e10888d772974a2d3a214}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Cybernetics}
+      \field{number}{9}
+      \field{title}{Deep reinforcement learning for multiagent systems: A review of challenges, solutions, and applications}
+      \field{volume}{50}
+      \field{year}{2020}
+      \field{pages}{3826\bibrangedash 3839}
+      \range{pages}{14}
+    \endentry
   \enddatalist
-  \missing{b3}
-  \missing{b4}
-  \missing{b5}
-  \missing{b6}
-  \missing{b7}
 \endrefsection
 \endinput
 
