@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.5.8)  15 MAY 2026 13:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.5.8)  17 MAY 2026 12:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**conference.tex
-(./conference.tex
+**paper.tex
+(./paper.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 (./IEEEtran.cls
@@ -571,23 +571,23 @@ Package: lipsum 2021-09-20 v2.7 150 paragraphs of Lorem Ipsum dummy text
 (/usr/share/texmf-dist/tex/latex/lipsum/lipsum.ltd.tex))
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... none found.
- (./conference.aux)
-\openout1 = `conference.aux'.
+ (./paper.aux)
+\openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
 
 -- Lines per column: 56 (exact).
 (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -621,46 +621,42 @@ File: english.lbx 2025/07/10 v3.21 biblatex localization (PK/MW)
 Package biblatex Info: Input encoding 'utf8' detected.
 Package biblatex Info: Automatic encoding selection.
 (biblatex)             Assuming data encoding 'utf8'.
-\openout3 = `conference.bcf'.
+\openout3 = `paper.bcf'.
 
 Package biblatex Info: Trying to load bibliographic data...
-Package biblatex Info: ... file 'conference.bbl' found.
- (./conference.bbl)
-Package biblatex Info: Reference section=0 on input line 14.
-Package biblatex Info: Reference segment=0 on input line 14.
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 54.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 54.
+Package biblatex Info: ... file 'paper.bbl' found.
+ (./paper.bbl)
+Package biblatex Info: Reference section=0 on input line 22.
+Package biblatex Info: Reference segment=0 on input line 22.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 62.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 62.
 
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 54.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 62.
 
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-
-Package lipsum Warning: Unknown language 'latin'. Hyphenation patterns for
-(lipsum)                'english' will be used instead.
-
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fon
-ts/enc/dvips/base/8r.enc}
+) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/f
+onts/enc/dvips/base/8r.enc}
 
 
 ]
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
-11.
- (/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+19.
+
+(/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 10000) in paragraph at lines 139--139
+Underfull \hbox (badness 10000) in paragraph at lines 147--147
 \OT1/ptm/m/n/8 caching and long-term vec-tor
  []
 
 
-Underfull \hbox (badness 6493) in paragraph at lines 145--145
+Underfull \hbox (badness 6493) in paragraph at lines 153--153
 \OT1/ptm/m/n/8 hav-ioral track-ing in e-learning
  []
 
@@ -668,19 +664,19 @@ Underfull \hbox (badness 6493) in paragraph at lines 145--145
 <design.png, id=14, 851.18pt x 864.22874pt>
 File: design.png Graphic file (type png)
 <use design.png>
-Package pdftex.def Info: design.png  used on input line 157.
+Package pdftex.def Info: design.png  used on input line 165.
 (pdftex.def)             Requested size: 212.79446pt x 216.05666pt.
 <arch.png, id=16, 1413.28pt x 770.88pt>
 File: arch.png Graphic file (type png)
 <use arch.png>
-Package pdftex.def Info: arch.png  used on input line 165.
+Package pdftex.def Info: arch.png  used on input line 173.
 (pdftex.def)             Requested size: 211.98285pt x 115.627pt.
- [3 <./design.png> <./arch.png>]
-Underfull \hbox (badness 4518) in paragraph at lines 212--213
+
+Underfull \hbox (badness 4518) in paragraph at lines 220--221
 []\OT1/ptm/m/n/8 HNSW-indexed se-man-tic search
  []
 
-[4]
+[3 <./design.png> <./arch.png>] [4]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -694,23 +690,23 @@ Before submitting the final camera ready copy, remember to:
 
 [5
 
-] (./conference.aux)
+] (./paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-Package logreq Info: Writing requests to 'conference.run.xml'.
-\openout1 = `conference.run.xml'.
+Package logreq Info: Writing requests to 'paper.run.xml'.
+\openout1 = `paper.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 13488 strings out of 469515
- 249587 string characters out of 5470808
- 1196280 words of memory out of 5000000
- 41991 multiletter control sequences out of 15000+600000
+ 13489 strings out of 469515
+ 249504 string characters out of 5470808
+ 1200318 words of memory out of 5000000
+ 41992 multiletter control sequences out of 15000+600000
  670548 words of font info for 127 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 63i,12n,70p,920b,1234s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 63i,12n,70p,915b,1234s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/font
 s/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/
@@ -720,7 +716,7 @@ re/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/f
 onts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/ut
 mbi8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/t
 exmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on conference.pdf (5 pages, 961604 bytes).
+Output written on paper.pdf (5 pages, 961202 bytes).
 PDF statistics:
  81 PDF objects out of 1000 (max. 8388607)
  47 compressed objects within 1 object stream

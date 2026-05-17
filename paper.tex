@@ -11,9 +11,17 @@
 \usepackage{lipsum}
 \addbibresource{references.bib}
 
+\makeatletter
+\newcommand{\linebreakand}{%
+\end{@IEEEauthorhalign}
+\hfill\mbox{}\par
+\mbox{}\hfill\begin{@IEEEauthorhalign}
+}
+\makeatother
+
 \begin{document}
 
-\title{Conference Paper Title*}
+\title{Proactive Multi-agent Orchestration for Intelligent Engagement on Education}
 %{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and should not be used}
 %\thanks{Identify applicable funding agency here. If none, delete this.}
 
@@ -31,7 +39,7 @@
 		\textit{Department of CSE} \\
 		\textit{B.M.S. College of Engineering}\\
 		Bengaluru, India \\
-		email
+		saienjeti2005@gmail.com	
 	}
 \and
 	\IEEEauthorblockN{3\textsuperscript{rd} Siddharth Arya}
@@ -39,15 +47,15 @@
 		\textit{Department of CSE} \\
 		\textit{B.M.S. College of Engineering}\\
 		Bengaluru, India \\
-		email
+		sidda2428@gmail.com
 	}
-\and
+\linebreakand
 	\IEEEauthorblockN{4\textsuperscript{th} Prakrithi Jain}
 	\IEEEauthorblockA{
 		\textit{Department of CSE} \\
 		\textit{B.M.S. College of Engineering}\\
 		Bengaluru, India \\
-		email
+		prakrithiii07@gmail.com
 	}
 }
 
@@ -55,13 +63,13 @@
 
 \begin{abstract}
 Due to the rapid evolution of AI and LLMs, there is a rising necessity to create highly adaptive and intelligent systems, which can not only respond to user requests but also engage them in proactive and personalized way. Traditionally, AI systems use single model solutions. Such systems provide static response options, have very limited ability to adapt, do not
-remember any specifics about the user over time. All these factors limit the effectiveness of traditional AI in situations requiring prolonged interaction, personalization and smart decisions.
+remember any specifics about the user over time. All these factors limit the effectiveness of AI in situations requiring prolonged interaction, personalization and smart decisions.
 
-In this project, we propose creating a proactive multi-agent orchestration solution based on LLMs to engage users in intelligent context-aware communication. This solution will involve several special-purpose agents, including conversational, analytic, recommendation and evaluation agents. They will be part of a system designed to perform specific tasks and then communicate through an orchestration layer, allowing to implement dynamic task management and coordination. An important component of the system will be the user profiling process, which involves capturing user preferences and behavioral characteristics that can be used for providing personalized response options. Our solution will allow proactively initiating interaction with the user, analyzing generated content, such as documents and text data, among others.
+In this review, we propose creating a proactive multi-agent orchestration solution based on LLMs to engage users in intelligent context-aware communication. This solution will involve several special-purpose agents, including conversational, analytic, recommendation and evaluation agents. They will be part of a system designed to perform specific tasks and then communicate through an orchestration layer, allowing to implement dynamic task management and coordination. An important component of the system will be the user profiling process, which involves capturing user preferences and behavioral characteristics that can be used for providing personalized response options. Our solution will allow proactively initiating interaction with the user, analyzing generated content, such as documents and text data, among others.
 \end{abstract}
 
 \begin{IEEEkeywords}
-\lipsum[2][1]
+Intelligent Tutoring System, Artificial Intelligence, Large Language Models, Education, Multi-agent System.
 \end{IEEEkeywords}
 
 \section{Introduction}
