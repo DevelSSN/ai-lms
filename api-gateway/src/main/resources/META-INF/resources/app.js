@@ -1,5 +1,10 @@
 const API_BASE_URL = "/api";
 
+const KEYCLOAK_URL = document.querySelector('meta[name="keycloak-url"]')?.content
+  || (window.location.hostname === "localhost"
+    ? "http://localhost:10081"
+    : `${window.location.protocol}//${window.location.hostname}:10081`);
+
 let keycloak = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,13 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initKeycloak() {
   keycloak = new Keycloak({
-    url: "http://localhost:10081",
+    url: KEYCLOAK_URL,
     realm: "ailms",
     clientId: "ailms-frontend",
   });
 
   try {
-    const authenticated = await keycloak.init({ onLoad: "login-required" });
+    const authenticated = await keycloak.init({ 
+      onLoad: "login-required",
+      checkLoginIframe: false,
+    });
     if (!authenticated) {
       window.location.reload();
       return;

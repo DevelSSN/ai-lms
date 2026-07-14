@@ -57,10 +57,12 @@
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
       "redirectUris": [
-        "http://localhost:10080/*"
+        "http://localhost:10080/*",
+        "https://*.trycloudflare.com/*"
       ],
       "webOrigins": [
-        "http://localhost:10080"
+        "http://localhost:10080",
+        "https://*.trycloudflare.com"
       ],
       "defaultClientScopes": [
         "openid",
