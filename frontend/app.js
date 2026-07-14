@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("theme-toggle");
   const body = document.body;
 
-  const API_BASE_URL = "http://localhost:8080/api";
+  const API_BASE_URL = "http://localhost:10080/api";
 
   // 1. Initialize EventSource for Real-time SSE Updates from Quarkus
   const eventSource = new EventSource(`${API_BASE_URL}/updates`);

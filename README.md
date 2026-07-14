@@ -52,3 +52,13 @@ mvn quarkus:dev
 
 ### 5. Open Frontend
 Open `frontend/index.html` in browser.
+
+## Ports
+
+| Service | Port |
+|---------|------|
+| API Gateway | http://localhost:10080 |
+| Orchestrator | http://localhost:10082 |
+| Keycloak | http://localhost:10081 |
+| Kafka | localhost:11092 |
+| Qdrant | http://localhost:10633 |
