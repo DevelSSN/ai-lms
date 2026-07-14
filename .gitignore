@@ -1,1 +1,6 @@
 .env
+.project
+.settings/
+target/
+*.iml
+.idea/

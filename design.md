@@ -11,7 +11,7 @@ API --> ORCH[LLM Orchestrator]
 
 ORCH --> CA[Conversation Agent]
 ORCH --> PA[Profiling Agent]
-ORCH --> CAA[Content Analysis Agent]
+ORCH --> CAA[Context Analysis Agent]
 ORCH --> QGA[Question Generation Agent]
 ORCH --> IRA[Insight Agent]
 ORCH --> PEA[Proactive Agent]
@@ -40,39 +40,52 @@ API --> OBJ[(Object Storage)]
 CAA --> OBJ
 ```
 
-## AI LMS Project Structure
+## Tech Stack
+- **Runtime:** Java 25 (GraalVM CE) + Quarkus 3.37.2
+- **Build:** Maven 3.9+ multi-module
+- **DB:** PostgreSQL 18 (User Profile DB) + pgvector
+- **Vector DB:** Qdrant
+- **Cache:** Redis 8
+- **Messaging:** Apache Kafka 4.3
+- **Auth:** Keycloak 26 + OIDC
+- **Container:** Docker Compose
 
-### Core Objectives
-- **Dynamic Interaction:** Initiate and adapt interactions dynamically based on user context.
-- **Persistent Profiling:** Build and maintain a persistent user profile from interactions.
-- **Personalized Insights:** Generate personalized feedback, reports, and learning insights.
-- **Content Analysis:** Analyze user-provided content (e.g., documents, text, media) to generate relevant questions and associated topic mappings.
-- **Scalable Deployment:** Implement a scalable and modular deployment pipeline and system for real-time user interaction.
+## Project Modules
+
+| Module | Artifact | Port | Description |
+|--------|----------|------|-------------|
+| `common` | `ailms-common` | — | Shared entities, DTOs, constants |
+| `api-gateway` | `ailms-api-gateway` | 8080 | REST API, auth, file upload, routing |
+| `orchestrator` | `ailms-orchestrator` | 8082 | LLM orchestration + 6 specialized agents |
 
 ### System Components
 
-#### 1. API Gateway
-The entry point for all client-side applications. Handles authentication, request routing, and serves as the interface for file uploads (Object Storage) and real-time messaging.
+#### 1. API Gateway (`api-gateway/`)
+Entry point for all clients. Handles auth (OIDC/Keycloak), request routing, file uploads, and proxies to Orchestrator.
 
-#### 2. LLM Orchestrator
-The central intelligence coordinator that:
-- Manages state via **Cache Memory (STM)**.
-- Routes tasks to specialized agents.
-- Aggregates context from the **Vector DB** and **User Profile DB**.
+#### 2. LLM Orchestrator (`orchestrator/`)
+Central coordinator that:
+- Routes tasks to specialized agents via intent classification
+- Manages session state via Redis cache
+- Aggregates context from Vector DB and User Profile DB
 
-#### 3. Specialized Agents
-- **Conversation Agent (CA):** Handles natural language dialogue and interaction flow.
-- **Profiling Agent (PA):** Extracts user preferences, knowledge levels, and behaviors to update the **User Profile DB**.
-- **Content Analysis Agent (CAA):** Processes uploaded media/documents, performs OCR/parsing, and maps content to topics.
-- **Question Generation Agent (QGA):** Creates assessment items based on analyzed content and user level.
-- **Insight Agent (IRA):** Analyzes historical data to generate progress reports and learning recommendations.
-- **Proactive Agent (PEA):** Triggers scheduled interactions (e.g., reminders, follow-ups) via the **Scheduler**.
+#### 3. Specialized Agents (inside `orchestrator/`)
+- **Conversation Agent (CA):** Dialogue flow, conversation logging
+- **Profiling Agent (PA):** User preference extraction, knowledge level tracking
+- **Content Analysis Agent (CAA):** Document processing, OCR, topic mapping
+- **Question Generation Agent (QGA):** Assessment creation from content
+- **Insight Agent (IRA):** Progress reports, learning recommendations
+- **Proactive Agent (PEA):** Scheduled follow-ups via Scheduler
 
 #### 4. Data Layer
-- **User Profile DB (MEM):** Persistent storage for long-term user data and behavioral patterns.
-- **Vector DB (VDB):** Stores embeddings for semantic search and content retrieval.
-- **Object Storage (OBJ):** Stores raw user-provided files (PDFs, images, videos).
-- **Cache Memory (STM):** High-speed storage for session-specific context.
+- **User Profile DB (PostgreSQL):** Persistent user data, behavioral patterns
+- **Vector DB (Qdrant):** Embeddings for semantic search
+- **Object Storage:** Raw user files (PDFs, images, videos)
+- **Cache Memory (Redis):** Session context, high-speed storage
+
+#### 5. Supporting Components
+- **Scheduler:** Time-based events (reminders, follow-ups) via Quarkus Scheduler
+- **Response Composer:** Formats agent output for API Gateway
 
 ### Interaction Workflow
 1. **Input:** User submits text or content through the API Gateway.

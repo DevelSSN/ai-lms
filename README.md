@@ -1,37 +1,54 @@
 # AI-LMS: Event-Driven Microservices
 
-This project is an AI-powered Learning Management System using a modern event-driven architecture.
+AI-powered Learning Management System. Quarkus 3.37.2 + Java 25.
 
 ## Project Structure
 
-- `api-gateway/`: Java Quarkus service handling authentication and request routing.
-- `ai-services/`: Python FastAPI services for LLM orchestration and specialized agents.
-- `infra/`: Docker Compose for PostgreSQL, Redis, Qdrant, Redpanda, and Keycloak.
-- `frontend/`: A premium, minimalistic chat interface with video embedding support.
+- `api-gateway/`: Quarkus REST API — auth, chat, content upload, profile
+- `orchestrator/`: Quarkus service — LLM orchestration + specialized agents
+- `common/`: Shared entities, DTOs, constants
+- `infra/`: Podman Compose for PostgreSQL, Redis, Kafka, Qdrant, Keycloak
+- `frontend/`: HTML/CSS/JS chat interface
+
+## Architecture
+
+```
+User → API Gateway → Orchestrator → Agents (Conversation, Profiling, Content Analysis, Question Generation, Insight, Proactive)
+         ↓                ↓
+    Object Storage    DBs (PostgreSQL, Redis, Qdrant)
+```
+
+## Prerequisites
+
+- Java 25 (GraalVM CE)
+- Maven 3.9+
+- Podman 5+
 
 ## Getting Started
 
-### 1. Spin up Infrastructure
+### 1. Start Infrastructure
 ```bash
 cd infra
-docker-compose up -d
+cp ../.env.example .env   # first time only, edit passwords
+podman compose up -d
 ```
 
-### 2. Run Python AI Services
+### 2. Build All Modules
 ```bash
-cd ai-services
-pip install -r requirements.txt
-python main.py
+mvn clean install
 ```
 
-### 3. Run Quarkus API Gateway
+### 3. Run API Gateway
 ```bash
 cd api-gateway
 mvn quarkus:dev
 ```
 
-### 4. Open Frontend
-Simply open `frontend/index.html` in your browser.
+### 4. Run Orchestrator
+```bash
+cd orchestrator
+mvn quarkus:dev
+```
 
-## Architecture Details
-See [proposed_architecture.md](file:///home/archdev/.gemini/antigravity/brain/1b85b8fe-b2dd-41fe-bf46-9bf1b061c78b/proposed_architecture.md) for the full design.
+### 5. Open Frontend
+Open `frontend/index.html` in browser.
