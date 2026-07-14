@@ -32,12 +32,16 @@ public class InteractResource {
         String userId = body.get("user_id");
         String threadId = body.get("thread_id");
 
-        ChatRequest request = new ChatRequest(message, threadId, userId);
-        ChatResponse response = orchestrator.processMessage(request);
-
-        sse.broadcast(userId, response.message());
-
-        return Response.ok().build();
+        try {
+            ChatRequest request = new ChatRequest(message, threadId, userId);
+            ChatResponse response = orchestrator.processMessage(request);
+            sse.broadcast(userId, response.message());
+            return Response.ok(response).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_GATEWAY)
+                    .entity(Map.of("error", "Orchestrator unavailable", "detail", e.getMessage()))
+                    .build();
+        }
     }
 
     @GET
