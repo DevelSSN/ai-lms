@@ -16,7 +16,7 @@ services:
       - ssl=off
 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 
     healthcheck:
