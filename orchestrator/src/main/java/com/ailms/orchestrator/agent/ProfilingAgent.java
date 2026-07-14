@@ -16,7 +16,9 @@ public class ProfilingAgent {
   public void analyze(ChatRequest request) {
     if (request.userId() == null) return;
 
-    UserProfile profile = em.find(UserProfile.class, request.userId());
+    UserProfile profile = em.createQuery("SELECT p FROM UserProfile p WHERE p.externalId = :extId", UserProfile.class)
+            .setParameter("extId", request.userId())
+            .getResultStream().findFirst().orElse(null);
     if (profile == null) {
       profile = new UserProfile();
       profile.externalId = request.userId();
