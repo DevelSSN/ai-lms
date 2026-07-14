@@ -12,6 +12,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -22,6 +23,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 public class ChatResource {
 
   @Inject @RestClient OrchestratorClient orchestrator;
+
+  @Inject JsonWebToken jwt;
 
   @POST
   public Response sendMessage(ChatRequest request) {

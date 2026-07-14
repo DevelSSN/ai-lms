@@ -26,15 +26,15 @@ public class OrchestratorService {
 
   @Inject ProactiveAgent proactiveAgent;
 
-  public ChatResponse route(ChatRequest request) {
-    profilingAgent.analyze(request);
+  public ChatResponse route(ChatRequest request, String userId) {
+    profilingAgent.analyze(request, userId);
     String intent = classifyIntent(request.message());
 
     return switch (intent) {
       case "content_analysis" -> contentAnalysisAgent.process(request);
       case "assessment" -> questionGenerationAgent.process(request);
       case "insight" -> insightAgent.process(request);
-      default -> conversationAgent.process(request);
+      default -> conversationAgent.process(request, userId);
     };
   }
 

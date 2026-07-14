@@ -1,5 +1,6 @@
 package com.ailms.gateway.resource;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -8,6 +9,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -18,10 +20,13 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ContentResource {
 
+  @Inject JsonWebToken jwt;
+
   @POST
   @Path("/upload")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response uploadFile(@RestForm("file") FileUpload file, @RestForm("userId") String userId) {
+  public Response uploadFile(@RestForm("file") FileUpload file) {
+    String userId = jwt.getSubject();
     return Response.ok().build();
   }
 
@@ -32,8 +37,9 @@ public class ContentResource {
   }
 
   @GET
-  @Path("/insights/{userId}")
-  public Response getInsights(@PathParam("userId") String userId) {
+  @Path("/insights")
+  public Response getInsights() {
+    String userId = jwt.getSubject();
     return Response.ok().build();
   }
 }

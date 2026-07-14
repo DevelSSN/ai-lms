@@ -13,9 +13,9 @@ public class ConversationAgent {
   @Inject jakarta.persistence.EntityManager em;
 
   @Transactional
-  public ChatResponse process(ChatRequest request) {
+  public ChatResponse process(ChatRequest request, String userId) {
     ConversationLog log = new ConversationLog();
-    log.userId = request.userId();
+    log.userId = userId;
     log.sessionId = request.sessionId();
     log.role = "user";
     log.message = request.message();

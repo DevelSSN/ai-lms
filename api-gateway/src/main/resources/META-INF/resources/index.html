@@ -20,14 +20,15 @@
                     <span class="moon-icon">🌙</span>
                 </button>
                 <div class="user-profile">
-                    <div class="avatar">JD</div>
+                    <div class="avatar" id="user-avatar">--</div>
                 </div>
+                <button id="logout-btn" class="logout-btn" title="Logout">⏻</button>
             </div>
         </header>
 
         <main id="chat-container">
             <div class="welcome-screen">
-                <h2>Hello, John.</h2>
+                <h2 id="welcome-name">Hello.</h2>
                 <p>What would you like to learn today?</p>
                 <div class="quick-actions">
                     <button class="action-btn">Explain Neural Networks</button>
@@ -35,7 +36,6 @@
                     <button class="action-btn">Quantum Physics 101</button>
                 </div>
             </div>
-            <!-- Messages will be injected here -->
         </main>
 
         <footer>
@@ -48,6 +48,7 @@
             <p class="footer-note">AI-LMS can make mistakes. Verify important information.</p>
         </footer>
     </div>
+    <script src="keycloak.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

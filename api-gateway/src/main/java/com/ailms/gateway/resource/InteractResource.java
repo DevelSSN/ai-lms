@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.Map;
@@ -23,17 +24,20 @@ public class InteractResource {
     @Inject
     SseBroadcastService sse;
 
+    @Inject
+    JsonWebToken jwt;
+
     @POST
     @Path("/interact")
     @jakarta.ws.rs.Consumes(MediaType.APPLICATION_JSON)
     @jakarta.ws.rs.Produces(MediaType.APPLICATION_JSON)
     public Response interact(Map<String, String> body) {
         String message = body.get("message");
-        String userId = body.get("user_id");
         String threadId = body.get("thread_id");
+        String userId = jwt.getSubject();
 
         try {
-            ChatRequest request = new ChatRequest(message, threadId, userId);
+            ChatRequest request = new ChatRequest(message, threadId);
             ChatResponse response = orchestrator.processMessage(request);
             sse.broadcast(userId, response.message());
             return Response.ok(response).build();

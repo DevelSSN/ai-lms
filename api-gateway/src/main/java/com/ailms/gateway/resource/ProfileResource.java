@@ -7,10 +7,10 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/api/v1/profile")
@@ -21,15 +21,17 @@ public class ProfileResource {
 
   @Inject EntityManager em;
 
+  @Inject JsonWebToken jwt;
+
   @GET
-  @Path("/{userId}")
-  public Response getProfile(@PathParam("userId") String userId) {
+  public Response getProfile() {
+    String userId = jwt.getSubject();
     return Response.ok().build();
   }
 
   @PUT
-  @Path("/{userId}")
-  public Response updateProfile(@PathParam("userId") String userId, UserProfile profile) {
+  public Response updateProfile(UserProfile profile) {
+    String userId = jwt.getSubject();
     return Response.ok().build();
   }
 }

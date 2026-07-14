@@ -4,6 +4,7 @@ import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.orchestrator.service.OrchestratorService;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
@@ -19,8 +20,8 @@ public class OrchestratorResource {
   @Inject OrchestratorService orchestratorService;
 
   @POST
-  public Response processMessage(ChatRequest request) {
-    ChatResponse response = orchestratorService.route(request);
+  public Response processMessage(ChatRequest request, @HeaderParam("X-User-Id") String userId) {
+    ChatResponse response = orchestratorService.route(request, userId);
     return Response.ok(response).build();
   }
 }

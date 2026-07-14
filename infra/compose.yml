@@ -101,7 +101,7 @@ services:
     container_name: keycloak
     restart: unless-stopped
 
-    command: start
+    command: start --import-realm
 
     depends_on:
       postgres:
@@ -121,6 +121,9 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_PROXY_HEADERS: xforwarded
+
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:Z
 
     healthcheck:
       test:
