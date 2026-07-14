@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-LMS | Intelligent Learning Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">✨</span>
+                <h1>AI-LMS</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" title="Toggle Theme">
+                    <span class="sun-icon">☀️</span>
+                    <span class="moon-icon">🌙</span>
+                </button>
+                <div class="user-profile">
+                    <div class="avatar">JD</div>
+                </div>
+            </div>
+        </header>
+
+        <main id="chat-container">
+            <div class="welcome-screen">
+                <h2>Hello, John.</h2>
+                <p>What would you like to learn today?</p>
+                <div class="quick-actions">
+                    <button class="action-btn">Explain Neural Networks</button>
+                    <button class="action-btn">History of Rome</button>
+                    <button class="action-btn">Quantum Physics 101</button>
+                </div>
+            </div>
+            <!-- Messages will be injected here -->
+        </main>
+
+        <footer>
+            <div class="input-wrapper">
+                <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
+                <button id="send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+            <p class="footer-note">AI-LMS can make mistakes. Verify important information.</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
