@@ -69,7 +69,7 @@ function setupTokenRefresh() {
 function startSSE() {
   const chatContainer = document.getElementById("chat-container");
   const parsed = keycloak.tokenParsed;
-  const currentUsername = parsed.preferred_username || "";
+  const currentUsername = parsed.sub || "";
 
   const eventSource = new EventSource(
     `${API_BASE_URL}/updates?token=${encodeURIComponent(keycloak.token)}`,
