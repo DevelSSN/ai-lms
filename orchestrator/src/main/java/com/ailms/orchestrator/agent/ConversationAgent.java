@@ -16,13 +16,14 @@ public class ConversationAgent {
 
   @Transactional
   public ChatResponse process(ChatRequest request, String userId) {
-    log.debug("Processing conversation for user={}", userId);
+    log.info("Processing conversation for user={}", userId);
     ConversationLog logEntry = new ConversationLog();
     logEntry.userId = userId;
     logEntry.sessionId = request.sessionId();
     logEntry.role = "user";
     logEntry.message = request.message();
     em.persist(logEntry);
+    log.info("Conversation persisted for user={}", userId);
 
     return new ChatResponse(
         "I understand your message. Let me help you with that.", request.sessionId(), "conversation");
