@@ -149,7 +149,7 @@ function setupEventListeners() {
       if (!response.ok) throw new Error("Gateway unreachable");
 
       const data = await response.json();
-      appendMessage("bot", data.response);
+      appendMessage("bot", data.message);
     } catch (error) {
       console.warn("API Error, falling back to mock:", error);
       setTimeout(() => {
