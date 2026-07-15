@@ -148,9 +148,8 @@ function setupEventListeners() {
 
       if (!response.ok) throw new Error("Gateway unreachable");
 
-      console.log(
-        "Request sent to gateway, waiting for async response via SSE...",
-      );
+      const data = await response.json();
+      appendMessage("bot", data.response);
     } catch (error) {
       console.warn("API Error, falling back to mock:", error);
       setTimeout(() => {
