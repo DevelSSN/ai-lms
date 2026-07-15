@@ -33,14 +33,15 @@ public class OrchestratorService {
     String intent = classifyIntent(request.message());
     log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
-    ChatResponse response = switch (intent) {
-      case "content_analysis" -> contentAnalysisAgent.process(request);
-      case "assessment" -> questionGenerationAgent.process(request);
-      case "insight" -> insightAgent.process(request);
-      default -> conversationAgent.process(request, userId);
-    };
+    ChatResponse response =
+        switch (intent) {
+          case "content_analysis" -> contentAnalysisAgent.process(request);
+          case "assessment" -> questionGenerationAgent.process(request);
+          case "insight" -> insightAgent.process(request);
+          default -> conversationAgent.process(request, userId);
+        };
 
-    log.info("Response ready for user={} type={}", userId, response.type());
+    log.info("Response ready for user={} type={}", userId, response.agentType());
     return response;
   }
 
