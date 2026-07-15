@@ -10,7 +10,9 @@ import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class OrchestratorService {
 
@@ -29,6 +31,7 @@ public class OrchestratorService {
   public ChatResponse route(ChatRequest request, String userId) {
     profilingAgent.analyze(request, userId);
     String intent = classifyIntent(request.message());
+    log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
     return switch (intent) {
       case "content_analysis" -> contentAnalysisAgent.process(request);

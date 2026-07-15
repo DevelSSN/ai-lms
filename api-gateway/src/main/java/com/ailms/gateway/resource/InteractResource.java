@@ -9,11 +9,13 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.Map;
 
+@Slf4j
 @Path("/api")
 public class InteractResource {
 
@@ -36,12 +38,16 @@ public class InteractResource {
         String threadId = body.get("thread_id");
         String userId = jwt.getSubject();
 
+        log.info("Interact request from user={} thread={}", userId, threadId);
+
         try {
             ChatRequest request = new ChatRequest(message, threadId);
             ChatResponse response = orchestrator.processMessage(request);
             sse.broadcast(userId, response.message());
+            log.debug("Interact response sent to user={}", userId);
             return Response.ok(response).build();
         } catch (Exception e) {
+            log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());
             return Response.status(Response.Status.BAD_GATEWAY)
                     .entity(Map.of("error", "Orchestrator unavailable", "detail", e.getMessage()))
                     .build();

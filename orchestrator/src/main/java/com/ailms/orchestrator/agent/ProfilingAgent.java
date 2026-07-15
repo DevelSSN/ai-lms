@@ -6,7 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class ProfilingAgent {
 
@@ -23,6 +25,7 @@ public class ProfilingAgent {
       profile = new UserProfile();
       profile.externalId = userId;
       em.persist(profile);
+      log.debug("Created new profile for user={}", userId);
     }
   }
 }

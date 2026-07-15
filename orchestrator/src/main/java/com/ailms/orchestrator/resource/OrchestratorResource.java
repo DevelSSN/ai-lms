@@ -9,8 +9,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@Slf4j
 @Path("/api/v1/orchestrate")
 @Tag(name = "Orchestrator", description = "LLM Orchestrator endpoints")
 @jakarta.ws.rs.Produces(MediaType.APPLICATION_JSON)
@@ -21,7 +23,9 @@ public class OrchestratorResource {
 
   @POST
   public Response processMessage(ChatRequest request, @HeaderParam("X-User-Id") String userId) {
+    log.info("Orchestrate request from user={} session={}", userId, request.sessionId());
     ChatResponse response = orchestratorService.route(request, userId);
+    log.debug("Orchestrate response sent to user={}", userId);
     return Response.ok(response).build();
   }
 }
