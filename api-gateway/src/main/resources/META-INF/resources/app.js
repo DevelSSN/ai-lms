@@ -1,9 +1,9 @@
 const API_BASE_URL = "/api";
 
-const KEYCLOAK_URL = document.querySelector('meta[name="keycloak-url"]')?.content
-  || (window.location.hostname === "localhost"
-    ? "http://localhost:10081"
-    : `${window.location.protocol}//${window.location.hostname}:10081`);
+const KEYCLOAK_URL = document.querySelector('meta[name="keycloak-url"]')?.content;
+if (!KEYCLOAK_URL) {
+  console.error("Missing keycloak-url meta tag");
+}
 
 let keycloak = null;
 
