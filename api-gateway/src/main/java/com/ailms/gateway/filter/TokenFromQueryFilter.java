@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
-@Priority(Priorities.AUTHENTICATION)
+@Priority(1900)
 public class TokenFromQueryFilter implements ContainerRequestFilter {
 
     @Override
