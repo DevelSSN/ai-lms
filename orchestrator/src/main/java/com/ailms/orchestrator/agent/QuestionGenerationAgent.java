@@ -21,6 +21,6 @@ public interface QuestionGenerationAgent {
       name = "QuestionGenerationAgent",
       description = "Generates assessment questions and quiz items based on educational content",
       outputKey = "assessment")
-  @UserMessage("Generate assessment questions for the following content: {{content}}")
-  String process(@MemoryId String sessionId, @V("content") String content);
+  @UserMessage("Generate assessment questions based on: {{message}}")
+  String process(@MemoryId String sessionId, @V("message") String message);
 }

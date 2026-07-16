@@ -21,13 +21,6 @@ public interface ContentAnalysisAgent {
       name = "ContentAnalysisAgent",
       description = "Analyzes educational content to identify topics, concepts, and learning objectives",
       outputKey = "analysis")
-  @UserMessage("""
-      {{#if context}}
-      Relevant context from knowledge base:
-      {{context}}
-      
-      {{/if}}
-      Analyze the following content: {{content}}
-      """)
-  String process(@MemoryId String sessionId, @V("content") String content, @V("context") String context);
+  @UserMessage("Analyze the following content: {{message}}")
+  String process(@MemoryId String sessionId, @V("message") String message);
 }

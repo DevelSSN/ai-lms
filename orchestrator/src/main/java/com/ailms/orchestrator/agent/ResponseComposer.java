@@ -1,7 +1,7 @@
 package com.ailms.orchestrator.agent;
 
 import com.ailms.common.dto.ChatResponse;
-import dev.langchain4j.agentic.AgenticScope;
+import dev.langchain4j.agentic.scope.AgenticScope;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped

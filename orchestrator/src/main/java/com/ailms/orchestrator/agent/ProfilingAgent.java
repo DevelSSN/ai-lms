@@ -20,6 +20,6 @@ public interface ProfilingAgent {
       name = "ProfilingAgent",
       description = "Extracts and updates student learning profiles based on interaction data",
       outputKey = "profileUpdate")
-  @UserMessage("Analyze student behavior and update profile: {{interactionData}}")
-  String process(@MemoryId String sessionId, @V("interactionData") String interactionData);
+  @UserMessage("Analyze student behavior and update profile: {{message}}")
+  String process(@MemoryId String sessionId, @V("message") String message);
 }

@@ -5,9 +5,11 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.OrchestratorRouter;
+import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
-import dev.langchain4j.agentic.AgenticScope;
+import dev.langchain4j.agentic.scope.AgenticScope;
+import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,9 @@ public class OrchestratorService {
 
   @Inject IntentClassifier intentClassifier;
 
-  @Inject OrchestratorRouter orchstratorRouter;
+  @Inject OrchestratorRouter orchestratorRouter;
+
+  @Inject ProfilingAgent profilingAgent;
 
   @Inject ResponseComposer responseComposer;
 
@@ -34,10 +38,12 @@ public class OrchestratorService {
     String intent = intentClassifier.classify(request.message());
     log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
-    AgenticScope scope = AgenticScope.create();
+    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", intent);
 
-    String agentResponse = orchstratorRouter.route(request.sessionId(), request.message());
+    String agentResponse = orchestratorRouter.route(request.sessionId(), request.message());
+
+    profilingAgent.process(request.sessionId(), request.message());
 
     scope.writeState("response", agentResponse);
     ChatResponse response = responseComposer.compose(scope, request.sessionId());

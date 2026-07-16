@@ -16,6 +16,6 @@ public interface AnalysisPipeline {
         ProfilingAgent.class,
         InsightAgent.class
       })
-  @UserMessage("Analyze content and generate insights: {{content}}")
-  String analyze(@MemoryId String sessionId, @V("content") String content);
+  @UserMessage("Analyze content and generate insights: {{message}}")
+  String analyze(@MemoryId String sessionId, @V("message") String message);
 }

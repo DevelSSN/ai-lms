@@ -20,6 +20,6 @@ public interface InsightAgent {
       name = "InsightAgent",
       description = "Generates learning insights and progress reports for students",
       outputKey = "insights")
-  @UserMessage("Generate learning insights based on: {{data}}")
-  String process(@MemoryId String sessionId, @V("data") String data);
+  @UserMessage("Generate learning insights based on: {{message}}")
+  String process(@MemoryId String sessionId, @V("message") String message);
 }

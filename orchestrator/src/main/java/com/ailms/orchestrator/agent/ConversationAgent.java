@@ -20,6 +20,6 @@ public interface ConversationAgent {
       name = "ConversationAgent",
       description = "Handles general conversation and tutoring with students",
       outputKey = "response")
-  @UserMessage("Student message: {{message}}")
+  @UserMessage("{{message}}")
   String process(@MemoryId String sessionId, @V("message") String message);
 }

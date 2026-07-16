@@ -1,14 +1,14 @@
 package com.ailms.orchestrator.agent;
 
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.orchestrator.repository.ConversationRepository;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.reactive.messaging.Channel;
-import org.eclipse.reactive.messaging.Emitter;
-import org.eclipse.reactive.messaging.Outgoing;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,8 +22,8 @@ public class ProactiveAgent {
 
   @Inject ConversationAgent conversationAgent;
 
-  @Channel("proactive-followups")
-  Emitter<ProactiveFollowUp> followUpEmitter;
+  @Channel("proactive-events")
+  Emitter<ProactiveEvent> eventEmitter;
 
   @Scheduled(every = "24h")
   @Transactional
@@ -37,9 +37,9 @@ public class ProactiveAgent {
     for (String userId : inactiveUsers) {
       try {
         String followUpMessage = generateFollowUp(userId);
-        ProactiveFollowUp followUp = new ProactiveFollowUp(userId, followUpMessage);
-        followUpEmitter.send(followUp);
-        log.info("Sent follow-up to user={}", userId);
+        ProactiveEvent event = new ProactiveEvent(userId, followUpMessage, "FOLLOW_UP");
+        eventEmitter.send(event);
+        log.info("Sent follow-up event for user={}", userId);
       } catch (Exception e) {
         log.error("Failed to generate follow-up for user={}: {}", userId, e.getMessage());
       }
@@ -64,4 +64,6 @@ public class ProactiveAgent {
   }
 
   public record ProactiveFollowUp(String userId, String message) {}
+
+  public record ProactiveEvent(String userId, String context, String eventType) {}
 }
