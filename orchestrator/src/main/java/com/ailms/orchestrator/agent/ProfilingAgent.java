@@ -1,34 +1,25 @@
 package com.ailms.orchestrator.agent;
 
-import com.ailms.common.dto.ChatRequest;
-import com.ailms.common.entity.UserProfile;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
+import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.service.MemoryId;
+import io.quarkiverse.langchain4j.RegisterAiService;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 
-@Slf4j
-@ApplicationScoped
-public class ProfilingAgent {
+@RegisterAiService
+public interface ProfilingAgent {
 
-  @Inject EntityManager em;
-
-  @Transactional
-  public void analyze(ChatRequest request, String userId) {
-    if (userId == null) return;
-
-    UserProfile profile =
-        em.createQuery("SELECT p FROM UserProfile p WHERE p.externalId = :extId", UserProfile.class)
-            .setParameter("extId", userId)
-            .getResultStream()
-            .findFirst()
-            .orElse(null);
-    if (profile == null) {
-      profile = new UserProfile();
-      profile.externalId = userId;
-      em.persist(profile);
-      log.debug("Created new profile for user={}", userId);
-    }
-  }
+  @SystemMessage("""
+      You are a student profiling expert for an AI-powered Learning Management System.
+      Analyze student interactions, responses, and learning patterns to build comprehensive learner profiles.
+      Identify learning preferences, strengths, weaknesses, and optimal study strategies.
+      Provide structured profile updates that help personalize the learning experience.
+      """)
+  @Agent(
+      name = "ProfilingAgent",
+      description = "Extracts and updates student learning profiles based on interaction data",
+      outputKey = "profileUpdate")
+  @UserMessage("Analyze student behavior and update profile: {{interactionData}}")
+  String process(@MemoryId String sessionId, @V("interactionData") String interactionData);
 }

@@ -1,17 +1,25 @@
 package com.ailms.orchestrator.agent;
 
-import com.ailms.common.dto.ChatRequest;
-import com.ailms.common.dto.ChatResponse;
-import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
+import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.service.MemoryId;
+import io.quarkiverse.langchain4j.RegisterAiService;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 
-@Slf4j
-@ApplicationScoped
-public class InsightAgent {
+@RegisterAiService
+public interface InsightAgent {
 
-  public ChatResponse process(ChatRequest request) {
-    log.debug("Generating insights session={}", request.sessionId());
-    return new ChatResponse(
-        "Here are your learning insights and progress report.", request.sessionId(), "insight");
-  }
+  @SystemMessage("""
+      You are a learning analytics expert for an AI-powered Learning Management System.
+      Generate meaningful insights about student progress, learning patterns, and areas for improvement.
+      Analyze performance data to provide actionable recommendations for enhancing learning outcomes.
+      Present insights in a clear and encouraging manner that motivates continued learning.
+      """)
+  @Agent(
+      name = "InsightAgent",
+      description = "Generates learning insights and progress reports for students",
+      outputKey = "insights")
+  @UserMessage("Generate learning insights based on: {{data}}")
+  String process(@MemoryId String sessionId, @V("data") String data);
 }

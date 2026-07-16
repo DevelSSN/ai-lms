@@ -1,33 +1,25 @@
 package com.ailms.orchestrator.agent;
 
-import com.ailms.common.dto.ChatRequest;
-import com.ailms.common.dto.ChatResponse;
-import com.ailms.common.entity.ConversationLog;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
+import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.service.MemoryId;
+import io.quarkiverse.langchain4j.RegisterAiService;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 
-@Slf4j
-@ApplicationScoped
-public class ConversationAgent {
+@RegisterAiService
+public interface ConversationAgent {
 
-  @Inject jakarta.persistence.EntityManager em;
-
-  @Transactional
-  public ChatResponse process(ChatRequest request, String userId) {
-    log.info("Processing conversation for user={}", userId);
-    ConversationLog logEntry = new ConversationLog();
-    logEntry.userId = userId;
-    logEntry.sessionId = request.sessionId();
-    logEntry.role = "user";
-    logEntry.message = request.message();
-    em.persist(logEntry);
-    log.info("Conversation persisted for user={}", userId);
-
-    return new ChatResponse(
-        "I understand your message. Let me help you with that.",
-        request.sessionId(),
-        "conversation");
-  }
+  @SystemMessage("""
+      You are a friendly and knowledgeable AI tutor for an AI-powered Learning Management System.
+      Help students with their questions, provide clear and educational explanations,
+      and guide them through their learning journey. Be concise but thorough.
+      Always respond in a helpful and encouraging tone.
+      """)
+  @Agent(
+      name = "ConversationAgent",
+      description = "Handles general conversation and tutoring with students",
+      outputKey = "response")
+  @UserMessage("Student message: {{message}}")
+  String process(@MemoryId String sessionId, @V("message") String message);
 }
