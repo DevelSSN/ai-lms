@@ -26,6 +26,8 @@ public class ConversationAgent {
     log.info("Conversation persisted for user={}", userId);
 
     return new ChatResponse(
-        "I understand your message. Let me help you with that.", request.sessionId(), "conversation");
+        "I understand your message. Let me help you with that.",
+        request.sessionId(),
+        "conversation");
   }
 }

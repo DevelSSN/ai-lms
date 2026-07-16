@@ -14,14 +14,13 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Priority(Priorities.AUTHENTICATION)
 public class UserHeaderFilter implements ClientRequestFilter {
 
-    @Inject
-    JsonWebToken jwt;
+  @Inject JsonWebToken jwt;
 
-    @Override
-    public void filter(ClientRequestContext ctx) {
-        if (jwt != null && jwt.getSubject() != null) {
-            ctx.getHeaders().putSingle("X-User-Id", jwt.getSubject());
-            log.debug("Injected X-User-Id={} for {}", jwt.getSubject(), ctx.getUri().getPath());
-        }
+  @Override
+  public void filter(ClientRequestContext ctx) {
+    if (jwt != null && jwt.getSubject() != null) {
+      ctx.getHeaders().putSingle("X-User-Id", jwt.getSubject());
+      log.debug("Injected X-User-Id={} for {}", jwt.getSubject(), ctx.getUri().getPath());
     }
+  }
 }

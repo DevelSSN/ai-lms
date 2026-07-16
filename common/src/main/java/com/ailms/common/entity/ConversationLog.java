@@ -7,24 +7,30 @@ import java.time.Instant;
 @Table(name = "conversation_logs")
 public class ConversationLog {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public String id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  public String id;
 
-    public String userId;
-    public String sessionId;
-    public String role;
+  public String userId;
+  public String sessionId;
+  public String role;
 
-    @Column(columnDefinition = "TEXT")
-    public String message;
+  @Column(columnDefinition = "TEXT")
+  public String message;
 
-    @Column(columnDefinition = "TEXT")
-    public String metadata;
+  @Column(columnDefinition = "TEXT")
+  public String metadata;
 
-    public Instant timestamp;
+  public Instant timestamp;
 
-    @PrePersist
-    void onCreate() {
-        timestamp = Instant.now();
-    }
+  @Column(columnDefinition = "TEXT")
+  public String assistantMessage;
+
+  @Column(columnDefinition = "TEXT")
+  public String agentType;
+
+  @PrePersist
+  void onCreate() {
+    timestamp = Instant.now();
+  }
 }

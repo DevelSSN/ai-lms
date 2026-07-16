@@ -11,5 +11,4 @@ public record InsightReport(
     List<String> weaknesses,
     List<String> recommendations,
     Map<String, Object> metrics,
-    String generatedAt
-) {}
+    String generatedAt) {}
