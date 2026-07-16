@@ -1,5 +1,6 @@
 package com.ailms.gateway.resource;
 
+import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.gateway.service.OrchestratorClient;
@@ -45,6 +46,13 @@ public class ChatResource {
   @GET
   @Path("/history/{sessionId}")
   public Response getHistory(@PathParam("sessionId") String sessionId) {
-    return Response.ok().build();
+    log.info("History request for session={}", sessionId);
+    try {
+      ChatHistory history = orchestrator.getHistory(sessionId);
+      return Response.ok(history).build();
+    } catch (Exception e) {
+      log.error("Failed to fetch history for session={}: {}", sessionId, e.getMessage());
+      return Response.serverError().build();
+    }
   }
 }
