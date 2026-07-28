@@ -2,6 +2,7 @@ package com.ailms.orchestrator.repository;
 
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.orchestrator.service.ChatHistoryCacheService;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +14,8 @@ import java.util.List;
 public class ConversationRepository implements PanacheRepository<ConversationLog> {
 
   @Inject EntityManager em;
+
+  @Inject ChatHistoryCacheService historyCache;
 
   public void logMessage(String userId, String sessionId, String role, String message) {
     logMessage(userId, sessionId, role, message, null);
@@ -27,20 +30,24 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     logEntry.message = message;
     logEntry.agentType = agentType;
     persist(logEntry);
+
+    historyCache.cacheMessage(sessionId, role, message, agentType);
   }
 
   public ChatHistory getHistory(String sessionId) {
+    ChatHistory cached = historyCache.getCachedHistory(sessionId);
+    if (cached != null) return cached;
+
     List<ConversationLog> logs =
         find("sessionId = ?1 ORDER BY timestamp ASC", sessionId).list();
 
     List<ChatHistory.ChatMessage> messages =
         logs.stream()
-            .map(
-                log ->
-                    new ChatHistory.ChatMessage(
-                        log.role,
-                        "user".equals(log.role) ? log.message : log.assistantMessage,
-                        log.agentType))
+            .map(log ->
+                new ChatHistory.ChatMessage(
+                    log.role,
+                    "user".equals(log.role) ? log.message : log.assistantMessage,
+                    log.agentType))
             .toList();
 
     return new ChatHistory(sessionId, messages);
