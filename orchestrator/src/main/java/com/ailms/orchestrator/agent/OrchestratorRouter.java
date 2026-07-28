@@ -17,8 +17,8 @@ public interface OrchestratorRouter {
       outputKey = "response",
       subAgents = {
         ConversationAgent.class,
-        ContentAnalysisAgent.class,
-        QuestionGenerationAgent.class,
+        AnalysisPipeline.class,
+        QuestionGenerationPipeline.class,
         InsightAgent.class
       })
   @UserMessage("Route to appropriate agent: {{message}}")
@@ -33,7 +33,7 @@ public interface OrchestratorRouter {
   }
 
   @ActivationCondition(
-      value = ContentAnalysisAgent.class,
+      value = AnalysisPipeline.class,
       description = "Intent is CONTENT_ANALYSIS - analyze, explain, summarize content")
   static boolean activateContentAnalysis(AgenticScope agenticScope) {
     String intent = agenticScope.readState("intent", "CONVERSATION");
@@ -41,7 +41,7 @@ public interface OrchestratorRouter {
   }
 
   @ActivationCondition(
-      value = QuestionGenerationAgent.class,
+      value = QuestionGenerationPipeline.class,
       description = "Intent is ASSESSMENT - quizzes, tests, practice questions")
   static boolean activateAssessment(AgenticScope agenticScope) {
     String intent = agenticScope.readState("intent", "CONVERSATION");
