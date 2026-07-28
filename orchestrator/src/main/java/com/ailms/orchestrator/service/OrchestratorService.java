@@ -14,6 +14,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @ApplicationScoped
 public class OrchestratorService {
@@ -32,18 +34,22 @@ public class OrchestratorService {
 
   @Inject ConversationRepository conversationRepository;
 
+  @Inject VectorDBService vectorDBService;
+
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
     String intent = intentClassifier.classify(request.message());
     log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
+    String enrichedMessage = enrichWithContext(intent, request.message(), userId);
+
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", intent);
 
-    String agentResponse = orchestratorRouter.route(request.sessionId(), request.message());
+    String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage);
 
-    profilingAgent.process(request.sessionId(), request.message());
+    profilingAgent.process(request.sessionId(), enrichedMessage);
 
     scope.writeState("response", agentResponse);
     ChatResponse response = responseComposer.compose(scope, request.sessionId());
@@ -52,8 +58,33 @@ public class OrchestratorService {
     conversationRepository.logMessage(
         userId, request.sessionId(), "assistant", response.message(), response.agentType());
 
+    ingestIfContent(intent, request.message(), userId);
+
     log.info("Response ready for user={} type={}", userId, intent);
     return response;
+  }
+
+  private String enrichWithContext(String intent, String message, String userId) {
+    if (!"CONTENT_ANALYSIS".equals(intent)) return message;
+    try {
+      List<String> context = vectorDBService.retrieveRelevantContext(message, 3);
+      if (!context.isEmpty()) {
+        String ctx = String.join("\n---\n", context);
+        return "Relevant context:\n" + ctx + "\n\nContent to analyze: " + message;
+      }
+    } catch (Exception e) {
+      log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
+    }
+    return message;
+  }
+
+  private void ingestIfContent(String intent, String message, String userId) {
+    if (!"CONTENT_ANALYSIS".equals(intent)) return;
+    try {
+      vectorDBService.ingestDocument(message, "user-" + userId, "conversation");
+    } catch (Exception e) {
+      log.warn("Qdrant ingestion failed for user={}: {}", userId, e.getMessage());
+    }
   }
 
   public String generateProactiveMessage(String userId, String context) {
