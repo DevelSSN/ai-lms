@@ -1,5 +1,8 @@
 package com.ailms.orchestrator.service;
 
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageDeserializer;
+import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
@@ -7,7 +10,6 @@ import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class RedisChatMemoryStore implements ChatMemoryStore {
@@ -25,16 +27,17 @@ public class RedisChatMemoryStore implements ChatMemoryStore {
   }
 
   @Override
-  public List<Map<String, Object>> getMessages(Object memoryId) {
+  public List<ChatMessage> getMessages(Object memoryId) {
     String raw = values.get(KEY_PREFIX + memoryId);
     if (raw == null || raw.isBlank()) return List.of();
-    return List.of(Map.of("content", raw));
+    return ChatMessageDeserializer.messagesFromJson(raw);
   }
 
   @Override
-  public void updateMessages(Object memoryId, List<Map<String, Object>> messages) {
+  public void updateMessages(Object memoryId, List<ChatMessage> messages) {
     String key = KEY_PREFIX + memoryId;
-    values.set(key, messages.toString());
+    String json = ChatMessageSerializer.messagesToJson(messages);
+    values.set(key, json);
     keys.expire(key, TTL_SECONDS);
   }
 
