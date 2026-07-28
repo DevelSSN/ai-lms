@@ -1,6 +1,11 @@
 package com.ailms.orchestrator.agent;
 
+import dev.langchain4j.agentic.agent.ErrorContext;
+import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
+import dev.langchain4j.agentic.declarative.ErrorHandler;
+import dev.langchain4j.agentic.declarative.ExitCondition;
 import dev.langchain4j.agentic.declarative.LoopAgent;
+import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.service.MemoryId;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
@@ -35,5 +40,22 @@ public interface QuestionGenerationPipeline {
         outputKey = "qualityScore")
     @UserMessage("Evaluate this assessment: {{message}}")
     Integer evaluate(@V("message") String assessment);
+  }
+
+  @ExitCondition(
+      testExitAtLoopEnd = true,
+      description = "Exit when quality score >= 85")
+  static boolean isQualityMet(AgenticScope scope) {
+    String scoreStr = scope.readState("qualityScore", "0");
+    try {
+      return Integer.parseInt(scoreStr) >= 85;
+    } catch (NumberFormatException e) {
+      return false;
+    }
+  }
+
+  @ErrorHandler
+  static ErrorRecoveryResult onError(ErrorContext ctx) {
+    return ErrorRecoveryResult.result("Assessment generation encountered an error. Please try again.");
   }
 }

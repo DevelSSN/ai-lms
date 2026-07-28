@@ -1,6 +1,9 @@
 package com.ailms.orchestrator.agent;
 
 import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.agentic.agent.ErrorContext;
+import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
+import dev.langchain4j.agentic.declarative.ErrorHandler;
 import dev.langchain4j.service.MemoryId;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
@@ -21,6 +24,11 @@ public interface ContentAnalysisAgent {
       name = "ContentAnalysisAgent",
       description = "Analyzes educational content to identify topics, concepts, and learning objectives",
       outputKey = "analysis")
-  @UserMessage("Analyze the following content: {{message}}")
+  @UserMessage("{{message}}")
   String process(@MemoryId String sessionId, @V("message") String message);
+
+  @ErrorHandler
+  static ErrorRecoveryResult onError(ErrorContext ctx) {
+    return ErrorRecoveryResult.result("Content analysis is temporarily unavailable. Please try again.");
+  }
 }

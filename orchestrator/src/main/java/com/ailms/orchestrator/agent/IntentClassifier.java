@@ -1,6 +1,9 @@
 package com.ailms.orchestrator.agent;
 
 import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.agentic.agent.ErrorContext;
+import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
+import dev.langchain4j.agentic.declarative.ErrorHandler;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
@@ -16,7 +19,7 @@ public interface IntentClassifier {
       - CONTENT_ANALYSIS: Requests to analyze, explain, summarize, or review educational content
       - ASSESSMENT: Requests for quizzes, tests, practice questions, or evaluations
       - INSIGHT: Requests for progress reports, analytics, learning insights, or recommendations
-      
+
       Respond with ONLY the intent label (e.g., CONVERSATION, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.
       """)
@@ -26,4 +29,9 @@ public interface IntentClassifier {
       outputKey = "intent")
   @UserMessage("Classify this message: {{message}}")
   String classify(@V("message") String message);
+
+  @ErrorHandler
+  static ErrorRecoveryResult onError(ErrorContext ctx) {
+    return ErrorRecoveryResult.result("CONVERSATION");
+  }
 }
