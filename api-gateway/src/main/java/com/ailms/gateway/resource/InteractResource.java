@@ -5,6 +5,8 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.gateway.service.OrchestratorClient;
 import com.ailms.gateway.service.SseBroadcastService;
 import io.smallrye.mutiny.Multi;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -26,6 +28,7 @@ public class InteractResource {
 
   @POST
   @Path("/interact")
+  @RolesAllowed({"student", "teacher", "admin"})
   @jakarta.ws.rs.Consumes(MediaType.APPLICATION_JSON)
   @jakarta.ws.rs.Produces(MediaType.APPLICATION_JSON)
   public Response interact(Map<String, String> body) {
@@ -50,6 +53,7 @@ public class InteractResource {
 
   @GET
   @Path("/updates")
+  @PermitAll
   @Produces(MediaType.SERVER_SENT_EVENTS)
   public Multi<String> stream() {
     return sse.subscribe();

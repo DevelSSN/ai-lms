@@ -2,6 +2,7 @@ package com.ailms.gateway.resource;
 
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.gateway.service.OrchestratorClient;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -20,6 +21,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 @Tag(name = "Profile", description = "User profile endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RolesAllowed({"student", "teacher", "admin"})
 public class ProfileResource {
 
   @Inject @RestClient OrchestratorClient orchestrator;
