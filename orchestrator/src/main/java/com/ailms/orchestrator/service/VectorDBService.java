@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.entity.ContentEmbedding;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -8,10 +9,12 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
+import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -32,6 +35,7 @@ public class VectorDBService {
 
   @Inject EmbeddingModel embeddingModel;
 
+  @Transactional
   public void ingestDocument(String content, String source, String contentType) {
     java.util.Map<String, Object> meta = java.util.Map.of("source", source, "type", contentType);
     TextSegment segment =
@@ -40,7 +44,14 @@ public class VectorDBService {
     Embedding embedding = embeddingModel.embed(segment).content();
     embeddingStore.add(embedding, segment);
 
-    log.info("Ingested document from source={} type={}", source, contentType);
+    ContentEmbedding pgv = new ContentEmbedding();
+    pgv.source = source;
+    pgv.contentType = contentType;
+    pgv.embedding = embedding.vector();
+    pgv.textSegment = content;
+    Panache.getEntityManager().persist(pgv);
+
+    log.info("Ingested document from source={} type={} (Qdrant + pgvector)", source, contentType);
   }
 
   public List<String> retrieveRelevantContext(String query, int maxResults) {
