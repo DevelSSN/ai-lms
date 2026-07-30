@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Map;
 
 class ChatRequestTest {
 
@@ -82,10 +83,16 @@ class InsightReportTest {
 
   @Test
   void create() {
-    InsightReport r = new InsightReport("user-1", "Excellent progress", "math", List.of("topic1"));
+    InsightReport r = new InsightReport("user-1", "2026-Q1", 85.0,
+        List.of("algebra"), List.of("geometry"),
+        List.of("Practice more"), Map.of("sessions", 10), "2026-01-01");
     assertEquals("user-1", r.userId());
-    assertEquals("Excellent progress", r.summary());
-    assertEquals("math", r.focusArea());
+    assertEquals("2026-Q1", r.period());
+    assertEquals(85.0, r.progressScore());
+    assertEquals(1, r.strengths().size());
+    assertEquals(1, r.weaknesses().size());
     assertEquals(1, r.recommendations().size());
+    assertNotNull(r.metrics());
+    assertNotNull(r.generatedAt());
   }
 }

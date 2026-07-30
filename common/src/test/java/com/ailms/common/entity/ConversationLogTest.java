@@ -29,7 +29,7 @@ class ConversationLogTest {
     log.agentType = "CONVERSATION";
     assertEquals("assistant", log.role);
     assertEquals("Hi there!", log.assistantMessage);
-    assertEquals("CONVERSATION", log.agentType());
+    assertEquals("CONVERSATION", log.agentType);
   }
 
   @Test
