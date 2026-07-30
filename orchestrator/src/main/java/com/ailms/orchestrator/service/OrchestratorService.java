@@ -41,6 +41,8 @@ public class OrchestratorService {
 
   @Inject ObjectStorageService objectStorage;
 
+  @Inject DocumentParserService documentParser;
+
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
@@ -109,8 +111,26 @@ public class OrchestratorService {
       if (doc == null || doc.storagePath == null) return null;
       byte[] fileBytes = objectStorage.readFile(doc.storagePath);
       if (fileBytes == null) return null;
-      String content = new String(fileBytes, StandardCharsets.UTF_8);
-      log.info("Resolved file content from docId={} size={}B", docId, fileBytes.length);
+
+      String content;
+      if (documentParser.isSupported(doc.fileType)) {
+        DocumentParserService.ParseResult result = documentParser.parse(fileBytes, doc.fileName, doc.fileType);
+        if (result.isSuccess()) {
+          content = result.text();
+          doc.extractedText = content;
+          doc.status = "PARSED";
+          doc.processedAt = java.time.Instant.now();
+          Panache.getEntityManager().merge(doc);
+          log.info("Parsed document docId={} type={} textLength={}", docId, doc.fileType, content.length());
+        } else {
+          content = new String(fileBytes, StandardCharsets.UTF_8);
+          log.warn("Parse failed for docId={}: {}, falling back to raw bytes", docId, result.error());
+        }
+      } else {
+        content = new String(fileBytes, StandardCharsets.UTF_8);
+        log.info("Unsupported type={} for docId={}, using raw bytes", doc.fileType, docId);
+      }
+
       return "File: " + doc.fileName + "\n\nContent:\n" + content;
     } catch (Exception e) {
       log.warn("Failed to resolve file content for docId={}: {}", docId, e.getMessage());
