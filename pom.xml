@@ -119,4 +119,34 @@
       </plugins>
     </pluginManagement>
   </build>
+  <profiles>
+    <profile>
+      <id>native</id>
+      <properties>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
+        <quarkus.native.container-build>true</quarkus.native.container-build>
+        <quarkus.native.container-runtime>docker</quarkus.native.container-runtime>
+        <quarkus.native.builder-image>graalvm-ce:latest</quarkus.native.builder-image>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>${quarkus.platform.group-id}</groupId>
+            <artifactId>quarkus-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>native-image</id>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <configuration>
+                  <nativeImage>true</nativeImage>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
