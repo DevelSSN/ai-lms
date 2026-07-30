@@ -1,0 +1,76 @@
+package com.ailms.orchestrator.service;
+
+import com.ailms.common.dto.ChatHistory;
+import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.keys.KeyCommands;
+import io.quarkus.redis.datasource.list.ListCommands;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ChatHistoryCacheServiceTest {
+
+  @Mock RedisDataSource redisDS;
+  @Mock ListCommands<String, String> lists;
+  @Mock KeyCommands<String> keys;
+
+  @Test
+  void cacheMessage() {
+    when(redisDS.list(String.class)).thenReturn(lists);
+    when(redisDS.key()).thenReturn(keys);
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    cache.cacheMessage("sess-1", "user", "hello", null);
+
+    verify(lists).rpush("history:sess-1", "user||hello||");
+    verify(keys).expire(eq("history:sess-1"), anyLong());
+  }
+
+  @Test
+  void cacheMessageWithAgentType() {
+    when(redisDS.list(String.class)).thenReturn(lists);
+    when(redisDS.key()).thenReturn(keys);
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    cache.cacheMessage("sess-1", "assistant", "hi there", "CONVERSATION");
+
+    verify(lists).rpush("history:sess-1", "assistant||hi there||CONVERSATION");
+  }
+
+  @Test
+  void getCachedHistory_returnsMessages() {
+    when(redisDS.list(String.class)).thenReturn(lists);
+    when(redisDS.key()).thenReturn(keys);
+    when(lists.lrange("history:sess-1", 0, -1))
+        .thenReturn(List.of("user||hello||", "assistant||hi||CONVERSATION"));
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    ChatHistory history = cache.getCachedHistory("sess-1");
+
+    assertNotNull(history);
+    assertEquals("sess-1", history.sessionId());
+    assertEquals(2, history.messages().size());
+    assertEquals("user", history.messages().get(0).role());
+    assertEquals("CONVERSATION", history.messages().get(1).agentType());
+  }
+
+  @Test
+  void getCachedHistory_emptyReturnsNull() {
+    when(redisDS.list(String.class)).thenReturn(lists);
+    when(redisDS.key()).thenReturn(keys);
+    when(lists.lrange("history:sess-1", 0, -1)).thenReturn(List.of());
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    assertNull(cache.getCachedHistory("sess-1"));
+  }
+}
