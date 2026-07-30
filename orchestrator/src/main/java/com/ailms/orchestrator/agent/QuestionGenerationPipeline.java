@@ -20,10 +20,18 @@ public interface QuestionGenerationPipeline {
       subAgents = {QuestionGenerationAgent.class, QualityEvaluator.class},
       maxIterations = 3)
   @UserMessage("""
-      Generate and refine assessment questions until quality threshold is met:
+      Generate and refine assessment questions until quality threshold is met.
+      Use analysis context below if provided to focus on key topics.
+
+      Analysis context:
+      {{analysisContext}}
+
+      Content:
       {{message}}
       """)
-  String generateUntilQuality(@MemoryId String sessionId, @V("message") String message);
+  String generateUntilQuality(@MemoryId String sessionId,
+                              @V("message") String message,
+                              @V("analysisContext") String analysisContext);
 
   @RegisterAiService
   interface QualityEvaluator {
