@@ -3,8 +3,12 @@ package com.ailms.gateway.resource;
 import com.ailms.common.dto.AssessmentRequest;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.entity.ContentDocument;
 import com.ailms.gateway.service.OrchestratorClient;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -18,6 +22,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Path("/api/v1/content")
@@ -30,21 +41,55 @@ public class ContentResource {
 
   @Inject JsonWebToken jwt;
 
+  @Inject S3Client s3;
+
+  @Inject ContentDocumentRepository contentDocRepo;
+
+  static final String BUCKET = "ailms-content";
+
   @POST
   @Path("/upload")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Transactional
   public Response uploadFile(@RestForm("file") FileUpload file) {
     String userId = jwt.getSubject();
     log.info("File upload from user={} fileName={}", userId, file.fileName());
     try {
-      ChatRequest request = new ChatRequest("Analyze the uploaded file: " + file.fileName(), "upload-" + userId);
+      String storagePath = "uploads/" + userId + "/" + UUID.randomUUID() + "_" + file.fileName();
+      byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
+
+      PutObjectRequest putReq = PutObjectRequest.builder()
+          .bucket(BUCKET)
+          .key(storagePath)
+          .contentType(file.contentType())
+          .build();
+      s3.putObject(putReq, RequestBody.fromBytes(fileBytes));
+
+      ContentDocument doc = new ContentDocument();
+      doc.userId = userId;
+      doc.fileName = file.fileName();
+      doc.fileType = file.contentType();
+      doc.fileSize = (long) fileBytes.length;
+      doc.storagePath = storagePath;
+      doc.uploadedAt = Instant.now();
+      doc.status = "UPLOADED";
+      contentDocRepo.persist(doc);
+
+      ChatRequest request = new ChatRequest(
+          "Analyze the uploaded file: " + doc.id, "upload-" + userId);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {
-      log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());
-      return Response.status(Response.Status.BAD_GATEWAY).build();
+      log.error("Upload failed for user={}: {}", userId, e.getMessage());
+      return Response.status(Response.Status.BAD_GATEWAY)
+          .entity(java.util.Map.of("error", "Upload failed", "detail", e.getMessage()))
+          .build();
     }
   }
+
+  @ApplicationScoped
+  static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {}<｜｜DSML｜｜parameter>
+
 
   @POST
   @Path("/assess")
