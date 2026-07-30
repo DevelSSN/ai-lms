@@ -30,7 +30,7 @@ public class ObjectStorageService {
     } catch (NoSuchKeyException e) {
       log.warn("File not found in S3: {}", storagePath);
       return null;
-    } catch (IOException e) {
+    } catch (IOException | RuntimeException e) {
       log.error("Failed to read file from S3: {}", storagePath, e);
       return null;
     }

@@ -21,16 +21,18 @@ class TokenFromQueryFilterTest {
 
   @Test
   void extractsTokenFromUpdatesPath() {
-    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+    MultivaluedHashMap<String, String> params = new MultivaluedHashMap<>();
     params.putSingle("token", "test-token");
 
     when(ctx.getUriInfo()).thenReturn(uriInfo);
+    when(ctx.getHeaders()).thenReturn(params);
     when(uriInfo.getPath()).thenReturn("/api/updates");
     when(uriInfo.getQueryParameters()).thenReturn(params);
 
     filter.filter(ctx);
 
-    verify(ctx.getHeaders()).putSingle("Authorization", "Bearer test-token");
+    verify(ctx).getHeaders();
+    assert params.getFirst("Authorization").equals("Bearer test-token");
   }
 
   @Test

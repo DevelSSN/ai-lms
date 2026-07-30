@@ -230,6 +230,30 @@ footer {
     max-height: 200px;
 }
 
+#attach-btn {
+    width: 40px;
+    height: 40px;
+    background: none;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#attach-btn:hover {
+    color: var(--accent-color);
+    background-color: var(--message-bot-bg);
+}
+
+#attach-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
 #send-btn {
     width: 40px;
     height: 40px;

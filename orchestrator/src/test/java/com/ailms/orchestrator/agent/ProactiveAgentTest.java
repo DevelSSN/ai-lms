@@ -34,7 +34,6 @@ class ProactiveAgentTest {
   void checkFollowUps_withInactiveUser() {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
-    when(conversationAgent.process(anyString(), anyString())).thenReturn("Follow up message");
 
     ProactiveAgent agent = new ProactiveAgent();
     agent.conversationRepository = conversationRepository;
@@ -48,11 +47,18 @@ class ProactiveAgentTest {
   @Test
   void checkFollowUps_withRecentActivity() {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
+    com.ailms.common.entity.ConversationLog log = new com.ailms.common.entity.ConversationLog();
+    log.role = "user";
+    log.message = "hello";
+    when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of(log));
+    when(conversationAgent.process(anyString(), anyString())).thenReturn("Follow up message");
 
     ProactiveAgent agent = new ProactiveAgent();
     agent.conversationRepository = conversationRepository;
+    agent.conversationAgent = conversationAgent;
     agent.eventEmitter = eventEmitter;
 
     agent.checkFollowUps();
+    verify(eventEmitter).send(any(ProactiveAgent.ProactiveEvent.class));
   }
 }

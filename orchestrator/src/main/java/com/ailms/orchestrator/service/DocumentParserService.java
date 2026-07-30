@@ -4,8 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.langdetect.OptimaizeLangDetector;
-import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -41,7 +39,7 @@ public class DocumentParserService {
 
     try (InputStream is = new ByteArrayInputStream(fileBytes)) {
       Metadata metadata = new Metadata();
-      metadata.set(Metadata.RESOURCE_NAME_KEY, fileName);
+      metadata.set("resourceName", fileName);
 
       AutoDetectParser parser = new AutoDetectParser();
       ToTextContentHandler handler = new ToTextContentHandler();
@@ -56,7 +54,7 @@ public class DocumentParserService {
 
       log.info("Parsed document fileName={} type={} textLength={}", fileName, contentType, text.length());
       return new ParseResult(text, null);
-    } catch (TikaException | IOException e) {
+    } catch (TikaException | IOException | org.xml.sax.SAXException e) {
       log.error("Failed to parse document fileName={}: {}", fileName, e.getMessage());
       return new ParseResult(null, "Failed to parse document: " + e.getMessage());
     }

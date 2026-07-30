@@ -90,7 +90,7 @@ public class ContentResource {
   }
 
   @ApplicationScoped
-  static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {}<｜｜DSML｜｜parameter>
+  static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {}
 
 
   @POST

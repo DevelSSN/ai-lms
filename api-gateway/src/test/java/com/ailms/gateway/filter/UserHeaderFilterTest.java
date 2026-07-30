@@ -1,6 +1,8 @@
 package com.ailms.gateway.filter;
 
 import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +23,15 @@ class UserHeaderFilterTest {
   void injectsUserHeaderWhenJwtPresent() throws Exception {
     when(jwt.getSubject()).thenReturn("user-1");
     when(ctx.getUri()).thenReturn(new URI("http://localhost/api/test"));
+    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+    when(ctx.getHeaders()).thenReturn(headers);
 
     UserHeaderFilter filter = new UserHeaderFilter();
     filter.jwt = jwt;
     filter.filter(ctx);
 
-    verify(ctx.getHeaders()).putSingle("X-User-Id", "user-1");
+    verify(ctx).getHeaders();
+    assert headers.getFirst("X-User-Id").equals("user-1");
   }
 
   @Test

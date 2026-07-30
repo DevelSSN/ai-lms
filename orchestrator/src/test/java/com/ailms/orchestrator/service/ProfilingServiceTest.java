@@ -16,8 +16,6 @@ class ProfilingServiceTest {
 
   @Test
   void ensureProfile_createsIfMissing() {
-    when(repo.findByExternalId("user-1")).thenReturn(null);
-
     ProfilingService svc = new ProfilingService();
     svc.userProfileRepository = repo;
 
@@ -27,8 +25,6 @@ class ProfilingServiceTest {
 
   @Test
   void ensureProfile_skipsIfExists() {
-    when(repo.findByExternalId("user-1")).thenReturn(new UserProfile());
-
     ProfilingService svc = new ProfilingService();
     svc.userProfileRepository = repo;
 

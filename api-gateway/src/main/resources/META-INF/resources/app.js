@@ -32,6 +32,7 @@ async function initKeycloak() {
     setupTokenRefresh();
     startSSE();
     setupEventListeners();
+  setupUploadHandlers();
   } catch (error) {
     console.error("Keycloak init failed:", error);
   }
@@ -172,6 +173,57 @@ function setupEventListeners() {
       sendMessage();
     });
   });
+}
+
+function setupUploadHandlers() {
+  const attachBtn = document.getElementById("attach-btn");
+  const fileInput = document.getElementById("file-input");
+
+  attachBtn.addEventListener("click", () => fileInput.click());
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    await uploadFile(file);
+    fileInput.value = "";
+  });
+}
+
+async function uploadFile(file) {
+  const welcome = document.querySelector(".welcome-screen");
+  if (welcome) welcome.remove();
+
+  appendMessage("user", `📎 Uploading: ${file.name}`);
+
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    appendMessage("bot", "Session expired. Please refresh the page.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/v1/content/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${keycloak.token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "Upload failed");
+      throw new Error(errText);
+    }
+
+    const data = await response.json();
+    appendMessage("bot", data.message);
+  } catch (error) {
+    appendMessage("bot", `Upload failed: ${error.message}. Files up to 50MB supported.`);
+  }
 }
 
 function appendMessage(sender, text) {

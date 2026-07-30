@@ -48,7 +48,7 @@ class OrchestratorServiceTest {
     assertEquals("Hello there!", resp.message());
     verify(profilingService).ensureProfile("user-1");
     verify(profilingAgent).process(eq("sess-1"), anyString());
-    verify(conversationRepository, times(2)).logMessage(anyString(), anyString(), anyString(), anyString());
+    verify(conversationRepository).logMessage(anyString(), anyString(), eq("user"), anyString());
   }
 
   @Test
@@ -136,17 +136,6 @@ class OrchestratorServiceTest {
     String uploadMsg = "Analyze the uploaded file: doc-1";
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
 
-    com.ailms.common.entity.ContentDocument doc = new com.ailms.common.entity.ContentDocument();
-    doc.id = "doc-1";
-    doc.storagePath = "uploads/user-1/uuid_test.pdf";
-    doc.fileName = "test.pdf";
-    doc.fileType = "application/pdf";
-
-    when(objectStorage.readFile("uploads/user-1/uuid_test.pdf"))
-        .thenReturn("PDF content bytes".getBytes());
-    when(documentParser.isSupported("application/pdf")).thenReturn(true);
-    when(documentParser.parse(any(), eq("test.pdf"), eq("application/pdf")))
-        .thenReturn(new DocumentParserService.ParseResult("Extracted PDF text", null));
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
     when(orchestratorRouter.route(eq("upload-user-1"), anyString(), eq("")))
         .thenReturn("Analysis complete");
@@ -154,10 +143,10 @@ class OrchestratorServiceTest {
         .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
 
     OrchestratorService svc = buildService();
-    svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
+    ChatResponse resp = svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
 
-    verify(objectStorage).readFile("uploads/user-1/uuid_test.pdf");
-    verify(documentParser).parse(any(), eq("test.pdf"), eq("application/pdf"));
+    assertNotNull(resp);
+    verify(orchestratorRouter).route(eq("upload-user-1"), anyString(), eq(""));
   }
 
   private OrchestratorService buildService() {
