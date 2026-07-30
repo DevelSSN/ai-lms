@@ -21,8 +21,18 @@ public interface OrchestratorRouter {
         QuestionGenerationPipeline.class,
         InsightAgent.class
       })
-  @UserMessage("Route to appropriate agent: {{message}}")
-  String route(@MemoryId String sessionId, @V("message") String message);
+  @UserMessage("""
+      Route to appropriate agent based on intent.
+
+      Analysis context (if available):
+      {{analysisContext}}
+
+      Message:
+      {{message}}
+      """)
+  String route(@MemoryId String sessionId,
+               @V("message") String message,
+               @V("analysisContext") String analysisContext);
 
   @ActivationCondition(
       value = ConversationAgent.class,

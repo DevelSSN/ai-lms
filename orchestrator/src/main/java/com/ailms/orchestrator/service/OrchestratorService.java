@@ -52,7 +52,8 @@ public class OrchestratorService {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", intent);
 
-    String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage);
+    String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
+    String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage, analysisCtx);
 
     profilingAgent.process(request.sessionId(), enrichedMessage);
 
@@ -85,6 +86,19 @@ public class OrchestratorService {
       log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
     }
     return enriched;
+  }
+
+  private String resolveAnalysisContext(String intent, String message, String userId) {
+    if (!"ASSESSMENT".equals(intent)) return "";
+    try {
+      List<String> context = vectorDBService.retrieveRelevantContext(message, 3);
+      if (!context.isEmpty()) {
+        return String.join("\n---\n", context);
+      }
+    } catch (Exception e) {
+      log.warn("Context retrieval failed for user={}: {}", userId, e.getMessage());
+    }
+    return "";
   }
 
   private String resolveFileContent(String message) {
