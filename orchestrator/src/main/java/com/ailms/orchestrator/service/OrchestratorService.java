@@ -43,6 +43,8 @@ public class OrchestratorService {
 
   @Inject DocumentParserService documentParser;
 
+  @Inject KafkaEventPublisher kafkaEventPublisher;
+
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
@@ -68,8 +70,22 @@ public class OrchestratorService {
 
     ingestIfContent(intent, request.message(), userId);
 
+    publishAgentEvent(intent, userId, request.sessionId(), response.message());
+
     log.info("Response ready for user={} type={}", userId, intent);
     return response;
+  }
+
+  private void publishAgentEvent(String intent, String userId, String sessionId, String message) {
+    try {
+      switch (intent) {
+        case "CONTENT_ANALYSIS" -> kafkaEventPublisher.publishContentAnalysisComplete(userId, sessionId, message);
+        case "INSIGHT" -> kafkaEventPublisher.publishInsightGenerated(userId, sessionId, message);
+        default -> {}
+      }
+    } catch (Exception e) {
+      log.warn("Failed to publish event for intent={} user={}: {}", intent, userId, e.getMessage());
+    }
   }
 
   private String enrichWithContext(String intent, String message, String userId) {
