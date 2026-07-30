@@ -1,0 +1,18 @@
+# Stage 1: Build native image
+FROM ghcr.io/graalvm/graalvm-ce:latest AS builder
+WORKDIR /workspace
+
+COPY . .
+RUN ./mvnw package -Pnative -DskipTests
+
+# Stage 2: Minimal runtime
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+WORKDIR /work
+RUN chown 1001:1001 /work && chmod 755 /work
+
+COPY --from=builder /workspace/orchestrator/target/*-runner /work/orchestrator
+COPY --from=builder /workspace/api-gateway/target/*-runner /work/api-gateway
+
+EXPOSE 10080 10082
+
+CMD ["/work/orchestrator"]
