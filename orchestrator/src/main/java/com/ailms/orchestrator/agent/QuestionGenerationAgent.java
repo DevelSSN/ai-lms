@@ -24,8 +24,19 @@ public interface QuestionGenerationAgent {
       name = "QuestionGenerationAgent",
       description = "Generates assessment questions and quiz items based on educational content",
       outputKey = "assessment")
-  @UserMessage("Generate assessment questions based on: {{message}}")
-  String process(@MemoryId String sessionId, @V("message") String message);
+  @UserMessage("""
+      Generate assessment questions based on the content below.
+      Use the analysis context if provided to focus on key topics.
+
+      Analysis context:
+      {{analysisContext}}
+
+      Content:
+      {{message}}
+      """)
+  String process(@MemoryId String sessionId,
+                 @V("message") String message,
+                 @V("analysisContext") String analysisContext);
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
