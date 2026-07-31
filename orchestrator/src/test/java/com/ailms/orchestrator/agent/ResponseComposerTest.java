@@ -34,6 +34,17 @@ class ResponseComposerTest {
   }
 
   @Test
+  void composeAnalysis_prefersRouterResponse() {
+    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
+    scope.writeState("intent", "CONTENT_ANALYSIS");
+    scope.writeState("response", "The uploaded notes cover neural networks.");
+
+    ChatResponse res = composer.compose(scope, "sess-1");
+    assertEquals("The uploaded notes cover neural networks.", res.message());
+    assertEquals("CONTENT_ANALYSIS", res.agentType());
+  }
+
+  @Test
   void composeAssessment() {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", "ASSESSMENT");

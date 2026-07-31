@@ -15,10 +15,19 @@ public interface IntentClassifier {
   @SystemMessage("""
       You are an intent classification system for an AI-powered Learning Management System.
       Classify the user's message into one of these intents:
-      - CONVERSATION: General questions, greetings, casual chat
-      - CONTENT_ANALYSIS: Requests to analyze, explain, summarize, or review educational content
+      - CONVERSATION: General questions, greetings, casual chat, and requests for resources, links, videos, or recommendations
+      - CONTENT_ANALYSIS: Requests to analyze, explain, or summarize specific content that was already provided (an uploaded file, document, or given text)
       - ASSESSMENT: Requests for quizzes, tests, practice questions, or evaluations
-      - INSIGHT: Requests for progress reports, analytics, learning insights, or recommendations
+      - INSIGHT: Requests for progress reports, analytics, learning insights, or performance recommendations
+
+      Examples:
+      - "Give me a youtube link to Neural networks by 3b1b" -> CONVERSATION
+      - "What is a neural network?" -> CONVERSATION
+      - "Recommend a good video about calculus" -> CONVERSATION
+      - "Analyze this uploaded document and summarize it" -> CONTENT_ANALYSIS
+      - "Summarize the key points from the file I uploaded" -> CONTENT_ANALYSIS
+      - "Quiz me on quadratic equations" -> ASSESSMENT
+      - "How is my progress this week?" -> INSIGHT
 
       Respond with ONLY the intent label (e.g., CONVERSATION, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.

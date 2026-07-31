@@ -15,13 +15,14 @@ public class ResponseComposer {
   }
 
   private String extractResponse(AgenticScope agenticScope, String intent) {
+    String primary = agenticScope.readState("response", "");
+    if (primary != null && !primary.isBlank()) return primary;
+
     return switch (intent) {
       case "CONTENT_ANALYSIS" -> fallback(agenticScope.readState("analysis", ""), "Analysis not available");
       case "ASSESSMENT" -> fallback(agenticScope.readState("assessment", ""), "Assessment not available");
       case "INSIGHT" -> fallback(agenticScope.readState("insights", ""), "Insights not available");
-      default -> fallback(
-          agenticScope.readState("response", ""),
-          "I couldn't generate a response. Please try rephrasing your question.");
+      default -> fallback(primary, "I couldn't generate a response. Please try rephrasing your question.");
     };
   }
 
