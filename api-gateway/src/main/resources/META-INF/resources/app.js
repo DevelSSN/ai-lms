@@ -276,24 +276,41 @@ async function uploadFile(file) {
   }
 }
 
+function renderMarkdown(text) {
+  if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
+    return escapeHtml(text);
+  }
+  return DOMPurify.sanitize(marked.parse(text || ""));
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
 function appendMessage(sender, text) {
   const chatContainer = document.getElementById("chat-container");
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", `${sender}-message`);
 
   const videoId = extractYouTubeId(text);
-  let content = text;
+  const content = text.replace(
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    "",
+  );
 
   if (videoId) {
-    content = text.replace(
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-      "",
-    );
-    messageDiv.innerHTML = `<div>${content}</div>`;
+    const contentDiv = document.createElement("div");
+    if (sender === "bot") contentDiv.innerHTML = renderMarkdown(content);
+    else contentDiv.textContent = content;
+    messageDiv.appendChild(contentDiv);
     const videoContainer = document.createElement("div");
     videoContainer.classList.add("video-container");
     videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
     messageDiv.appendChild(videoContainer);
+  } else if (sender === "bot") {
+    messageDiv.innerHTML = renderMarkdown(text);
   } else {
     messageDiv.textContent = text;
   }
