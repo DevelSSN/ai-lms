@@ -11,6 +11,7 @@ import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
+import dev.langchain4j.invocation.LangChain4jManaged;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @ApplicationScoped
@@ -50,32 +52,37 @@ public class OrchestratorService {
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
-    String intent = intentClassifier.classify(request.message());
-    log.info("Intent={} for user={} message={}", intent, userId, request.message());
-
-    String enrichedMessage = enrichWithContext(intent, request.message(), userId);
-
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", intent);
+    LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
+    try {
+      String intent = intentClassifier.classify(request.message());
+      log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
-    String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
-    String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage, analysisCtx);
+      String enrichedMessage = enrichWithContext(intent, request.message(), userId);
 
-    profilingAgent.process(request.sessionId(), enrichedMessage);
+      scope.writeState("intent", intent);
 
-    scope.writeState("response", agentResponse);
-    ChatResponse response = responseComposer.compose(scope, request.sessionId());
+      String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
+      String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage, analysisCtx);
 
-    conversationRepository.logMessage(userId, request.sessionId(), "user", request.message());
-    conversationRepository.logMessage(
-        userId, request.sessionId(), "assistant", response.message(), response.agentType());
+      profilingAgent.process(request.sessionId(), enrichedMessage);
 
-    ingestIfContent(intent, request.message(), userId);
+      scope.writeState("response", agentResponse);
+      ChatResponse response = responseComposer.compose(scope, request.sessionId());
 
-    publishAgentEvent(intent, userId, request.sessionId(), response.message());
+      conversationRepository.logMessage(userId, request.sessionId(), "user", request.message());
+      conversationRepository.logMessage(
+          userId, request.sessionId(), "assistant", response.message(), response.agentType());
 
-    log.info("Response ready for user={} type={}", userId, intent);
-    return response;
+      ingestIfContent(intent, request.message(), userId);
+
+      publishAgentEvent(intent, userId, request.sessionId(), response.message());
+
+      log.info("Response ready for user={} type={}", userId, intent);
+      return response;
+    } finally {
+      LangChain4jManaged.removeCurrent();
+    }
   }
 
   private void publishAgentEvent(String intent, String userId, String sessionId, String message) {
@@ -166,8 +173,14 @@ public class OrchestratorService {
   }
 
   public String generateProactiveMessage(String userId, String context) {
-    return conversationAgent.process(
-        "proactive-" + userId,
-        "Generate a brief encouraging follow-up message for a student who hasn't been active. Context: " + context);
+    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
+    LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
+    try {
+      return conversationAgent.process(
+          "proactive-" + userId,
+          "Generate a brief encouraging follow-up message for a student who hasn't been active. Context: " + context);
+    } finally {
+      LangChain4jManaged.removeCurrent();
+    }
   }
 }
