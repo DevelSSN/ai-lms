@@ -42,6 +42,8 @@ public class OrchestratorService {
 
   @Inject ContentDocumentService contentDocumentService;
 
+  @Inject YouTubeLinkValidator youTubeLinkValidator;
+
   private static final Set<String> KNOWN_INTENTS =
       Set.of("CONVERSATION", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
 
@@ -63,6 +65,7 @@ public class OrchestratorService {
       String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
       String agentResponse = orchestratorRouter.route(
           "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
+      agentResponse = youTubeLinkValidator.sanitize(agentResponse);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);

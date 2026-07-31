@@ -8,6 +8,7 @@ import com.ailms.orchestrator.agent.OrchestratorRouter;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
+
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class OrchestratorServiceTest {
   @Mock VectorDBService vectorDBService;
   @Mock ContentDocumentService contentDocumentService;
   @Mock KafkaEventPublisher kafkaEventPublisher;
+  @Mock YouTubeLinkValidator youTubeLinkValidator;
 
   @Test
   void route_conversationIntent() {
@@ -130,6 +132,21 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_sanitizesAgentResponseLinks() {
+    String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
+    when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");
+    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+        .thenReturn(raw);
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse(raw, "sess-1", "CONVERSATION"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest("link please", "sess-1"), "user-1");
+
+    verify(youTubeLinkValidator).sanitize(raw);
+  }
+
+  @Test
   void route_handlesVectorDbFailureGracefully() {
     when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
@@ -192,6 +209,9 @@ class OrchestratorServiceTest {
     svc.vectorDBService = vectorDBService;
     svc.contentDocumentService = contentDocumentService;
     svc.kafkaEventPublisher = kafkaEventPublisher;
+    svc.youTubeLinkValidator = youTubeLinkValidator;
+    lenient().when(youTubeLinkValidator.sanitize(anyString()))
+        .thenAnswer(inv -> inv.getArgument(0));
     return svc;
   }
 }
