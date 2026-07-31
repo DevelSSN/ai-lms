@@ -30,8 +30,7 @@ class OrchestratorServiceTest {
   @Mock ProfilingService profilingService;
   @Mock ConversationRepository conversationRepository;
   @Mock VectorDBService vectorDBService;
-  @Mock ObjectStorageService objectStorage;
-  @Mock DocumentParserService documentParser;
+  @Mock ContentDocumentService contentDocumentService;
   @Mock KafkaEventPublisher kafkaEventPublisher;
 
   @Test
@@ -165,6 +164,7 @@ class OrchestratorServiceTest {
   void route_uploadFile_resolvesContent() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveContent("doc-1")).thenReturn("File: notes.pdf\n\nContent:\nsample text");
 
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
     when(orchestratorRouter.route(eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
@@ -176,6 +176,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
 
     assertNotNull(resp);
+    verify(contentDocumentService).resolveContent("doc-1");
     verify(orchestratorRouter).route(eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS"));
   }
 
@@ -189,8 +190,7 @@ class OrchestratorServiceTest {
     svc.profilingService = profilingService;
     svc.conversationRepository = conversationRepository;
     svc.vectorDBService = vectorDBService;
-    svc.objectStorage = objectStorage;
-    svc.documentParser = documentParser;
+    svc.contentDocumentService = contentDocumentService;
     svc.kafkaEventPublisher = kafkaEventPublisher;
     return svc;
   }

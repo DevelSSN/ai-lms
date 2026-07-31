@@ -7,6 +7,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 
@@ -17,10 +18,12 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
 
   @Inject ChatHistoryCacheService historyCache;
 
+  @Transactional
   public void logMessage(String userId, String sessionId, String role, String message) {
     logMessage(userId, sessionId, role, message, null);
   }
 
+  @Transactional
   public void logMessage(
       String userId, String sessionId, String role, String message, String agentType) {
     ConversationLog logEntry = new ConversationLog();
