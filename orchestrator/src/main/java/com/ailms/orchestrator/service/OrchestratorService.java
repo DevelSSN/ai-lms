@@ -75,7 +75,7 @@ public class OrchestratorService {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
       }
 
-      profilingAgent.process(request.sessionId(), enrichedMessage);
+      profilingAgent.process("profiling:" + request.sessionId(), enrichedMessage);
 
       scope.writeState("response", agentResponse);
       ChatResponse response = responseComposer.compose(scope, request.sessionId());
