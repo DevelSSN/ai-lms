@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.agent;
 
+import com.ailms.orchestrator.service.YouTubeSearchService;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.agent.ErrorContext;
@@ -10,6 +11,7 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.util.List;
 
@@ -49,9 +51,16 @@ public interface ConversationAgent {
         + "Please try again in a moment.");
   }
 
-  @Tool("Searches the web for the given query and returns relevant result links. "
-      + "Returns an empty list when web search is currently unavailable.")
+  @Tool("Searches YouTube for the given query and returns relevant result links. "
+      + "Returns an empty list when YouTube search is currently unavailable.")
   default List<String> searchWeb(String query) {
-    return List.of();
+    try {
+      YouTubeSearchService service = CDI.current().select(YouTubeSearchService.class).get();
+      return service.search(query).stream()
+          .map(result -> result.title() + " — https://www.youtube.com/watch?v=" + result.videoId())
+          .toList();
+    } catch (Exception e) {
+      return List.of();
+    }
   }
 }

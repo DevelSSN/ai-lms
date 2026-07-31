@@ -34,6 +34,7 @@ class OrchestratorServiceTest {
   @Mock ContentDocumentService contentDocumentService;
   @Mock KafkaEventPublisher kafkaEventPublisher;
   @Mock YouTubeLinkValidator youTubeLinkValidator;
+  @Mock YouTubeSearchService youTubeSearchService;
 
   @Test
   void route_conversationIntent() {
@@ -132,6 +133,50 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_videoSearchIntent_returnsRealLinksWithoutRouter() {
+    when(intentClassifier.classify("Give me a youtube link to Neural networks by 3b1b"))
+        .thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
+        .thenReturn("Neural networks by 3b1b");
+    when(youTubeSearchService.search("Neural networks by 3b1b"))
+        .thenReturn(java.util.List.of(
+            new YouTubeSearchService.VideoResult("But what is a neural network?", "aircAruvnKk")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(inv -> {
+          AgenticScope scope = inv.getArgument(0);
+          String msg = scope.readState("response", "");
+          return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+        });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(
+        new ChatRequest("Give me a youtube link to Neural networks by 3b1b", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=aircAruvnKk"));
+    assertEquals("VIDEO_SEARCH", resp.agentType());
+    verify(orchestratorRouter, never()).route(anyString(), anyString(), anyString(), anyString());
+    verify(profilingAgent).process(eq("profiling:sess-1"), anyString());
+  }
+
+  @Test
+  void route_videoSearchIntent_emptyResults_fallsBackToConversation() {
+    when(intentClassifier.classify("video please")).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("video please")).thenReturn("video please");
+    when(youTubeSearchService.search("video please")).thenReturn(java.util.List.of());
+    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+        .thenReturn("Fallback answer");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Fallback answer", "sess-1", "CONVERSATION"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("video please", "sess-1"), "user-1");
+
+    assertEquals("Fallback answer", resp.message());
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(orchestratorRouter).route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+  }
+
+  @Test
   void route_sanitizesAgentResponseLinks() {
     String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
     when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");
@@ -210,6 +255,7 @@ class OrchestratorServiceTest {
     svc.contentDocumentService = contentDocumentService;
     svc.kafkaEventPublisher = kafkaEventPublisher;
     svc.youTubeLinkValidator = youTubeLinkValidator;
+    svc.youTubeSearchService = youTubeSearchService;
     lenient().when(youTubeLinkValidator.sanitize(anyString()))
         .thenAnswer(inv -> inv.getArgument(0));
     return svc;

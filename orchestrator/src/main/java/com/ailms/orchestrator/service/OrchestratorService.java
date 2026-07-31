@@ -44,8 +44,10 @@ public class OrchestratorService {
 
   @Inject YouTubeLinkValidator youTubeLinkValidator;
 
+  @Inject YouTubeSearchService youTubeSearchService;
+
   private static final Set<String> KNOWN_INTENTS =
-      Set.of("CONVERSATION", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
+      Set.of("CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
 
   @Inject KafkaEventPublisher kafkaEventPublisher;
 
@@ -63,8 +65,18 @@ public class OrchestratorService {
       scope.writeState("intent", intent);
 
       String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
-      String agentResponse = orchestratorRouter.route(
-          "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
+      String agentResponse = null;
+      if ("VIDEO_SEARCH".equals(intent)) {
+        agentResponse = tryVideoSearch(request.message());
+        if (agentResponse == null) {
+          intent = "CONVERSATION";
+          scope.writeState("intent", intent);
+        }
+      }
+      if (agentResponse == null) {
+        agentResponse = orchestratorRouter.route(
+            "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
+      }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
 
       if (agentResponse == null || agentResponse.isBlank()) {
@@ -142,6 +154,19 @@ public class OrchestratorService {
       log.warn("Context retrieval failed for user={}: {}", userId, e.getMessage());
     }
     return "";
+  }
+
+  private String tryVideoSearch(String message) {
+    String query = youTubeSearchService.extractQuery(message);
+    List<YouTubeSearchService.VideoResult> results = youTubeSearchService.search(query);
+    if (results.isEmpty()) return null;
+    StringBuilder sb = new StringBuilder("Here's what I found on YouTube:");
+    int n = 1;
+    for (YouTubeSearchService.VideoResult result : results) {
+      sb.append('\n').append(n++).append(". https://www.youtube.com/watch?v=")
+          .append(result.videoId()).append(" — ").append(result.title());
+    }
+    return sb.toString();
   }
 
   private String resolveUploadedContent(String message) {
