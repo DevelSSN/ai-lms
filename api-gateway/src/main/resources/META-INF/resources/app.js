@@ -293,12 +293,9 @@ function appendMessage(sender, text) {
   messageDiv.classList.add("message", `${sender}-message`);
 
   const videoId = extractYouTubeId(text);
-  const content = text.replace(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-    "",
-  );
 
   if (videoId) {
+    const content = text.replace(YOUTUBE_URL_RE, "");
     const contentDiv = document.createElement("div");
     if (sender === "bot") contentDiv.innerHTML = renderMarkdown(content);
     else contentDiv.textContent = content;
@@ -317,9 +314,15 @@ function appendMessage(sender, text) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+const YOUTUBE_URL_RE =
+  /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})(?=[\s&]|$)/;
+
+const PLACEHOLDER_ID_RE = /your|video|link|sample|example|placeholder/i;
+
 function extractYouTubeId(text) {
-  const regex =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = text.match(regex);
-  return match ? match[1] : null;
+  const match = text.match(YOUTUBE_URL_RE);
+  if (!match) return null;
+  const videoId = match[1];
+  if (PLACEHOLDER_ID_RE.test(videoId)) return null;
+  return videoId;
 }
