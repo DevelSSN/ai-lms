@@ -1,5 +1,15 @@
 const API_BASE_URL = "/api";
 
+const THREAD_ID_KEY = "ailms_thread_id";
+function getThreadId() {
+  let id = localStorage.getItem(THREAD_ID_KEY);
+  if (!id) {
+    id = "default_session";
+    localStorage.setItem(THREAD_ID_KEY, id);
+  }
+  return id;
+}
+
 const KEYCLOAK_URL = document.querySelector('meta[name="keycloak-url"]')?.content;
 if (!KEYCLOAK_URL) {
   console.error("Missing keycloak-url meta tag");
@@ -30,6 +40,7 @@ async function initKeycloak() {
 
     setupUI();
     setupTokenRefresh();
+    loadHistory();
     startSSE();
     setupEventListeners();
   setupUploadHandlers();
@@ -65,6 +76,39 @@ function setupTokenRefresh() {
       keycloak.login();
     }
   }, 30000);
+}
+
+async function loadHistory() {
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    console.error("Token refresh failed before history fetch:", err);
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/v1/chat/history/${encodeURIComponent(getThreadId())}`,
+      {
+        headers: { Authorization: `Bearer ${keycloak.token}` },
+      },
+    );
+    if (!response.ok) throw new Error("History fetch failed");
+
+    const history = await response.json();
+    const messages = history?.messages || [];
+    if (!messages.length) return;
+
+    const welcome = document.querySelector(".welcome-screen");
+    if (welcome) welcome.remove();
+
+    for (const message of messages) {
+      if (message.role === "user") appendMessage("user", message.content);
+      else if (message.role === "assistant") appendMessage("bot", message.content);
+    }
+  } catch (error) {
+    console.warn("Could not restore conversation history:", error);
+  }
 }
 
 function startSSE() {
@@ -143,7 +187,7 @@ function setupEventListeners() {
         },
         body: JSON.stringify({
           message: text,
-          thread_id: "default_session",
+          thread_id: getThreadId(),
         }),
       });
 
