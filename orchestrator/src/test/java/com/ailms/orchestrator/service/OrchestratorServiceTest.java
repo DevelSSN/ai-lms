@@ -47,7 +47,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Hello there!", resp.message());
     verify(profilingService).ensureProfile("user-1");
-    verify(profilingAgent).process(eq("sess-1"), anyString());
+    verify(profilingAgent).process(eq("profiling:sess-1"), anyString());
     verify(conversationRepository).logMessage(anyString(), anyString(), eq("user"), anyString());
   }
 
