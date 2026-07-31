@@ -202,10 +202,8 @@ function setupEventListeners() {
       const data = await response.json();
       appendMessage("bot", data.message);
     } catch (error) {
-      console.warn("API Error, falling back to mock:", error);
-      setTimeout(() => {
-        appendMessage("bot", generateMockResponse(text));
-      }, 1000);
+      console.error("API Error:", error);
+      appendMessage("bot", "⚠️ Backend unavailable — your message wasn't processed. Please try again.");
     }
   };
 
@@ -324,11 +322,4 @@ function extractYouTubeId(text) {
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = text.match(regex);
   return match ? match[1] : null;
-}
-
-function generateMockResponse(query) {
-  if (query.toLowerCase().includes("neural network")) {
-    return "Neural networks are inspired by the human brain. Here's a great visual explanation: https://www.youtube.com/watch?v=aircAruvnKk";
-  }
-  return "Backend is currently in mock mode. Please ensure all microservices are running for real-time AI responses.";
 }
