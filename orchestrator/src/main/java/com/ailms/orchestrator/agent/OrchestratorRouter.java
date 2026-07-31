@@ -32,7 +32,8 @@ public interface OrchestratorRouter {
       """)
   String route(@MemoryId String sessionId,
                @V("message") String message,
-               @V("analysisContext") String analysisContext);
+               @V("analysisContext") String analysisContext,
+               @V("intent") String intent);
 
   @ActivationCondition(
       value = ConversationAgent.class,

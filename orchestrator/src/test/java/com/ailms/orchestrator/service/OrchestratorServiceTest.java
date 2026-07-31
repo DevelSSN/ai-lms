@@ -37,7 +37,7 @@ class OrchestratorServiceTest {
   @Test
   void route_conversationIntent() {
     when(intentClassifier.classify("hello")).thenReturn("CONVERSATION");
-    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq("")))
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
@@ -55,7 +55,7 @@ class OrchestratorServiceTest {
   void route_contentAnalysisIntent() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
-    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq("")))
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Analysis result", "sess-1", "CONTENT_ANALYSIS"));
@@ -73,7 +73,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
         .thenReturn(java.util.List.of("context from qdrant"));
-    when(orchestratorRouter.route(eq("sess-1"), anyString(), contains("context from qdrant")))
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), contains("context from qdrant"), eq("ASSESSMENT")))
         .thenReturn("Assessment result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));
@@ -88,7 +88,7 @@ class OrchestratorServiceTest {
   @Test
   void route_insightIntent() {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
-    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq("")))
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("INSIGHT")))
         .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
@@ -107,7 +107,7 @@ class OrchestratorServiceTest {
         .thenThrow(new RuntimeException("Qdrant down"));
     doThrow(new RuntimeException("Qdrant down"))
         .when(vectorDBService).ingestDocument(anyString(), anyString(), anyString());
-    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq("")))
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis result (no context)");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Analysis result (no context)", "sess-1", "CONTENT_ANALYSIS"));
@@ -137,7 +137,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
 
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
-    when(orchestratorRouter.route(eq("upload-user-1"), anyString(), eq("")))
+    when(orchestratorRouter.route(eq("upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis complete");
     when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
         .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
@@ -146,7 +146,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
 
     assertNotNull(resp);
-    verify(orchestratorRouter).route(eq("upload-user-1"), anyString(), eq(""));
+    verify(orchestratorRouter).route(eq("upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS"));
   }
 
   private OrchestratorService buildService() {

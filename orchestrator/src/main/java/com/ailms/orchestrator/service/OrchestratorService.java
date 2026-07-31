@@ -63,7 +63,8 @@ public class OrchestratorService {
       scope.writeState("intent", intent);
 
       String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
-      String agentResponse = orchestratorRouter.route(request.sessionId(), enrichedMessage, analysisCtx);
+      String agentResponse = orchestratorRouter.route(
+          request.sessionId(), enrichedMessage, analysisCtx, intent);
 
       profilingAgent.process(request.sessionId(), enrichedMessage);
 
