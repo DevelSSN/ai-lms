@@ -14,6 +14,7 @@ import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
@@ -45,6 +46,7 @@ public class OrchestratorService {
 
   @Inject KafkaEventPublisher kafkaEventPublisher;
 
+  @Transactional
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
