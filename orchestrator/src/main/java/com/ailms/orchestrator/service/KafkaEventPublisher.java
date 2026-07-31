@@ -11,15 +11,15 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 public class KafkaEventPublisher {
 
   @Inject
-  @Channel("content-analysis-complete")
+  @Channel("content-analysis-complete-out")
   Emitter<AgentEvent> contentAnalysisEmitter;
 
   @Inject
-  @Channel("profile-updated")
+  @Channel("profile-updated-out")
   Emitter<AgentEvent> profileUpdatedEmitter;
 
   @Inject
-  @Channel("insight-generated")
+  @Channel("insight-generated-out")
   Emitter<AgentEvent> insightGeneratedEmitter;
 
   public void publishContentAnalysisComplete(String userId, String sessionId, String analysis) {

@@ -23,7 +23,7 @@ public class ProactiveAgent {
   @Inject ConversationAgent conversationAgent;
 
   @Inject
-  @Channel("proactive-events")
+  @Channel("proactive-events-out")
   Emitter<ProactiveEvent> eventEmitter;
 
   @Scheduled(every = "24h")
