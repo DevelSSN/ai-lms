@@ -6,7 +6,7 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ContentDocument;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import jakarta.annotation.security.RolesAllowed;
+import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -36,7 +36,7 @@ import java.util.UUID;
 @Tag(name = "Content", description = "Content analysis and assessment endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RolesAllowed({"student", "teacher", "admin"})
+@Authenticated
 public class ContentResource {
 
   @Inject @RestClient OrchestratorClient orchestrator;

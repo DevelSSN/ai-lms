@@ -4,9 +4,9 @@ import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.gateway.service.OrchestratorClient;
 import com.ailms.gateway.service.SseBroadcastService;
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
 import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -28,7 +28,7 @@ public class InteractResource {
 
   @POST
   @Path("/interact")
-  @RolesAllowed({"student", "teacher", "admin"})
+  @Authenticated
   @jakarta.ws.rs.Consumes(MediaType.APPLICATION_JSON)
   @jakarta.ws.rs.Produces(MediaType.APPLICATION_JSON)
   public Response interact(Map<String, String> body) {
