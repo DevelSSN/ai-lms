@@ -69,7 +69,7 @@ public class OrchestratorService {
 
       String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
       String agentResponse = orchestratorRouter.route(
-          request.sessionId(), enrichedMessage, analysisCtx, intent);
+          "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
