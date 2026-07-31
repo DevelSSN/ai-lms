@@ -28,6 +28,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     logEntry.sessionId = sessionId;
     logEntry.role = role;
     logEntry.message = message;
+    logEntry.assistantMessage = "assistant".equals(role) ? message : null;
     logEntry.agentType = agentType;
     persist(logEntry);
 
@@ -46,7 +47,9 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
             .map(log ->
                 new ChatHistory.ChatMessage(
                     log.role,
-                    "user".equals(log.role) ? log.message : log.assistantMessage,
+                    "user".equals(log.role)
+                        ? log.message
+                        : log.assistantMessage != null ? log.assistantMessage : log.message,
                     log.agentType))
             .toList();
 
