@@ -21,7 +21,7 @@ public class ContentEmbedding {
   public String source;
   public String contentType;
 
-  @Column(columnDefinition = "vector(384)")
+  @Column(columnDefinition = "vector(768)")
   public float[] embedding;
 
   @Column(columnDefinition = "TEXT")

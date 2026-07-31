@@ -75,7 +75,7 @@
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": true,
-      "secret": "${oidc.gateway.secret:ailms-gateway-secret}",
+      "secret": "ailms-gateway-secret",
       "redirectUris": [],
       "webOrigins": [],
       "defaultClientScopes": [

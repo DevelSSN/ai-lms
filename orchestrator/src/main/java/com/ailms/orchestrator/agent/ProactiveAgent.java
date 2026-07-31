@@ -22,6 +22,7 @@ public class ProactiveAgent {
 
   @Inject ConversationAgent conversationAgent;
 
+  @Inject
   @Channel("proactive-events")
   Emitter<ProactiveEvent> eventEmitter;
 
