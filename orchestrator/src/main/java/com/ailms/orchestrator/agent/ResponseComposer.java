@@ -16,10 +16,16 @@ public class ResponseComposer {
 
   private String extractResponse(AgenticScope agenticScope, String intent) {
     return switch (intent) {
-      case "CONTENT_ANALYSIS" -> agenticScope.readState("analysis", "Analysis not available");
-      case "ASSESSMENT" -> agenticScope.readState("assessment", "Assessment not available");
-      case "INSIGHT" -> agenticScope.readState("insights", "Insights not available");
-      default -> agenticScope.readState("response", "No response generated");
+      case "CONTENT_ANALYSIS" -> fallback(agenticScope.readState("analysis", ""), "Analysis not available");
+      case "ASSESSMENT" -> fallback(agenticScope.readState("assessment", ""), "Assessment not available");
+      case "INSIGHT" -> fallback(agenticScope.readState("insights", ""), "Insights not available");
+      default -> fallback(
+          agenticScope.readState("response", ""),
+          "I couldn't generate a response. Please try rephrasing your question.");
     };
+  }
+
+  private String fallback(String value, String fallback) {
+    return value == null || value.isBlank() ? fallback : value;
   }
 }

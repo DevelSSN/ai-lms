@@ -52,6 +52,36 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_normalizesClassifierOutput() {
+    when(intentClassifier.classify("hi")).thenReturn("\nconversation. ");
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+        .thenReturn("Hello there!");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("hi", "sess-1"), "user-1");
+
+    assertEquals("Hello there!", resp.message());
+    verify(orchestratorRouter).route(eq("sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+  }
+
+  @Test
+  void route_defaultsUnrecognizedIntentToConversation() {
+    when(intentClassifier.classify("huh")).thenReturn("SOMETHING_ELSE");
+    when(orchestratorRouter.route(eq("sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+        .thenReturn("Hello there!");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("huh", "sess-1"), "user-1");
+
+    assertEquals("Hello there!", resp.message());
+    verify(orchestratorRouter).route(eq("sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+  }
+
+  @Test
   void route_contentAnalysisIntent() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());

@@ -20,7 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @ApplicationScoped
@@ -44,6 +46,9 @@ public class OrchestratorService {
 
   @Inject ObjectStorageService objectStorage;
 
+  private static final Set<String> KNOWN_INTENTS =
+      Set.of("CONVERSATION", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
+
   @Inject DocumentParserService documentParser;
 
   @Inject KafkaEventPublisher kafkaEventPublisher;
@@ -55,7 +60,7 @@ public class OrchestratorService {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
     try {
-      String intent = intentClassifier.classify(request.message());
+      String intent = normalizeIntent(intentClassifier.classify(request.message()));
       log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
       String enrichedMessage = enrichWithContext(intent, request.message(), userId);
@@ -65,6 +70,10 @@ public class OrchestratorService {
       String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
       String agentResponse = orchestratorRouter.route(
           request.sessionId(), enrichedMessage, analysisCtx, intent);
+
+      if (agentResponse == null || agentResponse.isBlank()) {
+        log.warn("Router returned blank response for intent={} user={}", intent, userId);
+      }
 
       profilingAgent.process(request.sessionId(), enrichedMessage);
 
@@ -84,6 +93,16 @@ public class OrchestratorService {
     } finally {
       LangChain4jManaged.removeCurrent();
     }
+  }
+
+  private String normalizeIntent(String raw) {
+    if (raw == null) return "CONVERSATION";
+    String normalized = raw.trim().toUpperCase(Locale.ROOT).replaceFirst("\\.$", "");
+    if (!KNOWN_INTENTS.contains(normalized)) {
+      log.warn("Unrecognized classifier output '{}', defaulting to CONVERSATION", raw);
+      return "CONVERSATION";
+    }
+    return normalized;
   }
 
   private void publishAgentEvent(String intent, String userId, String sessionId, String message) {

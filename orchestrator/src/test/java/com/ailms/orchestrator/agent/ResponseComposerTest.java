@@ -61,7 +61,7 @@ class ResponseComposerTest {
     scope.writeState("intent", "UNKNOWN");
 
     ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("No response generated", res.message());
+    assertEquals("I couldn't generate a response. Please try rephrasing your question.", res.message());
   }
 
   @Test
@@ -69,7 +69,7 @@ class ResponseComposerTest {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
 
     ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("No response generated", res.message());
+    assertEquals("I couldn't generate a response. Please try rephrasing your question.", res.message());
   }
 
   @Test
