@@ -61,7 +61,8 @@
       "defaultClientScopes": [
         "openid",
         "profile",
-        "email"
+        "email",
+        "roles"
       ]
     },
     {
@@ -81,7 +82,8 @@
       "defaultClientScopes": [
         "openid",
         "profile",
-        "email"
+        "email",
+        "roles"
       ]
     }
   ],
@@ -251,7 +253,7 @@
             "multivalued": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
-            "claim.name": "roles",
+            "claim.name": "realm_access.roles",
             "jsonType.label": "String",
             "usermodel.realmRoleMapping.clientRole": "false",
             "userinfo.token.claim": "true"
