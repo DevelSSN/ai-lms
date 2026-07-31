@@ -159,6 +159,20 @@ main {
     transform: translateY(-2px);
 }
 
+#history-spinner {
+    width: 32px;
+    height: 32px;
+    margin: auto;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .message {
     max-width: 80%;
     padding: 1rem 1.25rem;

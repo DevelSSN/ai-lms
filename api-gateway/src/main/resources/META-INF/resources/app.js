@@ -79,10 +79,14 @@ function setupTokenRefresh() {
 }
 
 async function loadHistory() {
+  const spinner = document.getElementById("history-spinner");
+  if (spinner) spinner.hidden = false;
+
   try {
     await keycloak.updateToken(5);
   } catch (err) {
     console.error("Token refresh failed before history fetch:", err);
+    if (spinner) spinner.hidden = true;
     return;
   }
 
@@ -108,6 +112,8 @@ async function loadHistory() {
     }
   } catch (error) {
     console.warn("Could not restore conversation history:", error);
+  } finally {
+    if (spinner) spinner.hidden = true;
   }
 }
 
