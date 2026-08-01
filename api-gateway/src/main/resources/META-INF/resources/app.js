@@ -292,21 +292,21 @@ function appendMessage(sender, text) {
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", `${sender}-message`);
 
-  const videoIds = extractYouTubeIds(text);
+  const tokens = tokenizeYouTubeLinks(text);
 
-  if (videoIds.length) {
-    const content = stripYouTubeLinks(text);
-    if (content.trim()) {
-      const contentDiv = document.createElement("div");
-      if (sender === "bot") contentDiv.innerHTML = renderMarkdown(content);
-      else contentDiv.textContent = content;
-      messageDiv.appendChild(contentDiv);
-    }
-    for (const videoId of videoIds) {
-      const videoContainer = document.createElement("div");
-      videoContainer.classList.add("video-container");
-      videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-      messageDiv.appendChild(videoContainer);
+  if (tokens.some((token) => token.type === "video")) {
+    for (const token of tokens) {
+      if (token.type === "video") {
+        const videoContainer = document.createElement("div");
+        videoContainer.classList.add("video-container");
+        videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${token.videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+        messageDiv.appendChild(videoContainer);
+      } else if (token.content.trim()) {
+        const contentDiv = document.createElement("div");
+        if (sender === "bot") contentDiv.innerHTML = renderMarkdown(token.content);
+        else contentDiv.textContent = token.content;
+        messageDiv.appendChild(contentDiv);
+      }
     }
   } else if (sender === "bot") {
     messageDiv.innerHTML = renderMarkdown(text);
@@ -324,6 +324,8 @@ const YOUTUBE_URL_RE =
 const YOUTUBE_MARKDOWN_RE =
   /\[([^\]]*)\]\((https?:\/\/[^)\s]*youtube\.com\/[^)\s]*|https?:\/\/[^)\s]*youtu\.be\/[^)\s]*)\)/g;
 
+const YOUTUBE_TOKEN_RE = /\u0000([A-Za-z0-9_-]{11})\u0000/g;
+
 const PLACEHOLDER_ID_RE = /your|video|link|sample|example|placeholder/i;
 
 function extractYouTubeIds(text) {
@@ -336,10 +338,25 @@ function extractYouTubeIds(text) {
   return ids;
 }
 
-function stripYouTubeLinks(text) {
-  text = text.replace(
-    YOUTUBE_MARKDOWN_RE,
-    (match, label, url) => (extractYouTubeIds(url).length ? label : match),
+function tokenizeYouTubeLinks(text) {
+  const seen = new Set();
+  const markerFor = (match, videoId) => {
+    if (PLACEHOLDER_ID_RE.test(videoId)) return match;
+    if (seen.has(videoId)) return match;
+    seen.add(videoId);
+    return `\u0000${videoId}\u0000`;
+  };
+
+  text = text.replace(YOUTUBE_MARKDOWN_RE, (match, label, url) =>
+    extractYouTubeIds(url).length ? `${label}\u0000${extractYouTubeIds(url)[0]}\u0000` : match,
   );
-  return text.replace(YOUTUBE_URL_RE, "");
+  text = text.replace(YOUTUBE_URL_RE, (match, videoId) => markerFor(match, videoId));
+
+  const tokens = [];
+  const parts = text.split(YOUTUBE_TOKEN_RE);
+  parts.forEach((part, i) => {
+    if (i % 2 === 1) tokens.push({ type: "video", videoId: part });
+    else if (part) tokens.push({ type: "text", content: part });
+  });
+  return tokens;
 }
