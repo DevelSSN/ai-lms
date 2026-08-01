@@ -124,8 +124,7 @@ class OrchestratorServiceTest {
   @Test
   void route_insightIntent() {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
-    when(insightAgent.process(eq("conversation:sess-1"), anyString()))
-        .thenReturn("Insight result");
+    when(insightAgent.process(eq("conversation:sess-1"), anyString())).thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
 

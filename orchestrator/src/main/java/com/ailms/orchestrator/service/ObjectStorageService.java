@@ -46,12 +46,18 @@ public class ObjectStorageService {
         } catch (Exception createErr) {
           log.warn(
               "Failed to create S3 bucket {} (attempt {}/{}): {}",
-              BUCKET, attempt, MAX_ATTEMPTS, createErr.getMessage());
+              BUCKET,
+              attempt,
+              MAX_ATTEMPTS,
+              createErr.getMessage());
         }
       } catch (Exception e) {
         log.warn(
             "S3 headBucket failed for {} (attempt {}/{}): {}",
-            BUCKET, attempt, MAX_ATTEMPTS, e.getMessage());
+            BUCKET,
+            attempt,
+            MAX_ATTEMPTS,
+            e.getMessage());
       }
       if (attempt < MAX_ATTEMPTS) {
         try {

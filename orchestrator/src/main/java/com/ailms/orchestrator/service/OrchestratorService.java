@@ -130,7 +130,8 @@ public class OrchestratorService {
     return normalized;
   }
 
-  private String dispatchAgent(String intent, String sessionId, String message, String analysisCtx) {
+  private String dispatchAgent(
+      String intent, String sessionId, String message, String analysisCtx) {
     String memoryId = "conversation:" + sessionId;
     return switch (intent) {
       case "CONTENT_ANALYSIS" -> contentAnalysisAgent.process(memoryId, message);

@@ -51,7 +51,6 @@ public class ContentResource {
   @POST
   @Path("/upload")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  @Transactional
   public Response uploadFile(@RestForm("file") FileUpload file) {
     String userId = jwt.getSubject();
     log.info("File upload from user={} fileName={}", userId, file.fileName());
@@ -75,7 +74,7 @@ public class ContentResource {
       doc.storagePath = storagePath;
       doc.uploadedAt = Instant.now();
       doc.status = "UPLOADED";
-      contentDocRepo.persist(doc);
+      contentDocRepo.save(doc);
 
       ChatRequest request =
           new ChatRequest("Analyze the uploaded file: " + doc.id, "upload-" + userId);
@@ -90,7 +89,13 @@ public class ContentResource {
   }
 
   @ApplicationScoped
-  static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {}
+  static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {
+
+    @Transactional
+    public void save(ContentDocument doc) {
+      persist(doc);
+    }
+  }
 
   @POST
   @Path("/assess")
