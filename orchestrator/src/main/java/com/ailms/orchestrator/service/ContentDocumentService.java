@@ -41,6 +41,20 @@ public class ContentDocumentService {
   }
 
   @Transactional
+  public java.util.Set<String> resolveIndexedDocumentIds(String userId) {
+    @SuppressWarnings("unchecked")
+    java.util.List<String> ids =
+        Panache.getEntityManager()
+            .createQuery(
+                "select d.id from ContentDocument d where d.userId = :uid and d.status ="
+                    + " 'INDEXED'",
+                String.class)
+            .setParameter("uid", userId)
+            .getResultList();
+    return new java.util.HashSet<>(ids);
+  }
+
+  @Transactional
   public List<String> chunkContent(String docId, int chunkSize, int overlap) {
     String content = extractContent(docId);
     if (content == null) return List.of();

@@ -77,7 +77,7 @@ public class ContentResource {
       contentDocRepo.save(doc);
 
       ChatRequest request =
-          new ChatRequest("Analyze the uploaded file: " + doc.id, "upload-" + userId);
+          new ChatRequest("Analyze the uploaded file: " + doc.id, "upload:" + doc.id);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {

@@ -15,6 +15,7 @@ import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import dev.langchain4j.agentic.scope.AgenticScope;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -88,7 +89,7 @@ class OrchestratorServiceTest {
   @Test
   void route_contentAnalysisIntent() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), any(Predicate.class)))
         .thenReturn(java.util.List.of());
     when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Analysis result");
@@ -99,13 +100,13 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("analyze this", "sess-1"), "user-1");
 
     assertEquals("Analysis result", resp.message());
-    verify(vectorDBService).retrieveRelevantContext(anyString(), eq(8));
+    verify(vectorDBService).retrieveRelevantContext(anyString(), eq(8), any(Predicate.class));
   }
 
   @Test
   void route_assessmentIntent_enrichesWithContext() {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), any(Predicate.class)))
         .thenReturn(java.util.List.of("context from qdrant"));
     when(questionGenerationAgent.process(
             eq("conversation:sess-1"), anyString(), contains("context from qdrant")))
@@ -117,7 +118,28 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
     assertEquals("Assessment result", resp.message());
-    verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3));
+    verify(vectorDBService, times(2))
+        .retrieveRelevantContext(anyString(), eq(3), any(Predicate.class));
+  }
+
+  @Test
+  void route_assessmentIntent_scopesToExplicitContentId() {
+    String msg = "Generate assessment for content doc-9";
+    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("rome content"));
+    when(questionGenerationAgent.process(
+            eq("conversation:sess-1"), anyString(), contains("rome content")))
+        .thenReturn("Rome assessment");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Rome assessment", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("Rome assessment", resp.message());
+    verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
+    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
   }
 
   @Test
@@ -200,7 +222,7 @@ class OrchestratorServiceTest {
   @Test
   void route_handlesVectorDbFailureGracefully() {
     when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), any(Predicate.class)))
         .thenThrow(new RuntimeException("Qdrant down"));
     when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Analysis result (no context)");

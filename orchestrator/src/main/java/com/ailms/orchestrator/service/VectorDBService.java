@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -83,13 +84,20 @@ public class VectorDBService {
   }
 
   public List<String> retrieveRelevantContext(String query, int maxResults) {
-    return retrieveRelevantContext(query, maxResults, null);
+    return retrieveRelevantContext(query, maxResults, (Predicate<String>) null);
   }
 
   public List<String> retrieveRelevantContext(String query, int maxResults, String sourcePrefix) {
+    Predicate<String> filter =
+        sourcePrefix == null ? null : source -> source != null && source.startsWith(sourcePrefix);
+    return retrieveRelevantContext(query, maxResults, filter);
+  }
+
+  public List<String> retrieveRelevantContext(
+      String query, int maxResults, Predicate<String> sourceFilter) {
     Embedding queryEmbedding = embeddingModel.embed(query).content();
 
-    int fetchSize = sourcePrefix == null ? maxResults : maxResults * 3;
+    int fetchSize = sourceFilter == null ? maxResults : maxResults * 3;
     EmbeddingSearchRequest request =
         EmbeddingSearchRequest.builder()
             .queryEmbedding(queryEmbedding)
@@ -100,11 +108,9 @@ public class VectorDBService {
 
     return matches.stream()
         .filter(
-            m -> {
-              if (sourcePrefix == null) return true;
-              String src = m.embedded().metadata().getString("source");
-              return src != null && src.startsWith(sourcePrefix);
-            })
+            m ->
+                sourceFilter == null
+                    || sourceFilter.test(m.embedded().metadata().getString("source")))
         .limit(maxResults)
         .map(match -> match.embedded().text())
         .toList();

@@ -63,6 +63,8 @@ public class OrchestratorService {
 
   private static final String UPLOAD_PREFIX = "Analyze the uploaded file: ";
 
+  private static final String ASSESS_PREFIX = "Generate assessment for content ";
+
   private static final int CHUNK_SIZE = 800;
 
   private static final int CHUNK_OVERLAP = 100;
@@ -80,11 +82,13 @@ public class OrchestratorService {
       String intent = normalizeIntent(intentClassifier.classify(request.message()));
       log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
-      String enrichedMessage = enrichWithContext(intent, request.message(), userId);
+      String enrichedMessage =
+          enrichWithContext(intent, request.message(), request.sessionId(), userId);
 
       scope.writeState("intent", intent);
 
-      String analysisCtx = resolveAnalysisContext(intent, request.message(), userId);
+      String analysisCtx =
+          resolveAnalysisContext(intent, request.message(), request.sessionId(), userId);
       String agentResponse = null;
       if ("VIDEO_SEARCH".equals(intent)) {
         agentResponse = tryVideoSearch(request.message());
@@ -160,35 +164,30 @@ public class OrchestratorService {
     }
   }
 
-  private String enrichWithContext(String intent, String message, String userId) {
+  private String enrichWithContext(String intent, String message, String sessionId, String userId) {
     if (!"CONTENT_ANALYSIS".equals(intent) && !"ASSESSMENT".equals(intent)) return message;
 
     if ("CONTENT_ANALYSIS".equals(intent)) {
       if (message.startsWith(UPLOAD_PREFIX)) return enrichUploadAnalysis(message, userId);
-      try {
-        List<String> context = vectorDBService.retrieveRelevantContext(message, ANALYSIS_TOP_K);
-        if (!context.isEmpty()) {
-          return "Relevant context:\n"
-              + String.join("\n---\n", context)
-              + "\n\nUser message: "
-              + message;
-        }
-      } catch (Exception e) {
-        log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
-      }
-      return message;
-    }
-
-    try {
-      List<String> context = vectorDBService.retrieveRelevantContext(message, 3);
+      String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+      List<String> context =
+          retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
       if (!context.isEmpty()) {
         return "Relevant context:\n"
             + String.join("\n---\n", context)
             + "\n\nUser message: "
             + message;
       }
-    } catch (Exception e) {
-      log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
+      return message;
+    }
+
+    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+    List<String> context = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
+    if (!context.isEmpty()) {
+      return "Relevant context:\n"
+          + String.join("\n---\n", context)
+          + "\n\nUser message: "
+          + message;
     }
     return message;
   }
@@ -217,17 +216,59 @@ public class OrchestratorService {
     return contentBody != null ? contentBody : message;
   }
 
-  private String resolveAnalysisContext(String intent, String message, String userId) {
+  private String resolveAnalysisContext(
+      String intent, String message, String sessionId, String userId) {
     if (!"ASSESSMENT".equals(intent)) return "";
-    try {
-      List<String> context = vectorDBService.retrieveRelevantContext(message, 3);
-      if (!context.isEmpty()) {
-        return String.join("\n---\n", context);
-      }
-    } catch (Exception e) {
-      log.warn("Context retrieval failed for user={}: {}", userId, e.getMessage());
+    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+    List<String> context = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
+    if (!context.isEmpty()) {
+      return String.join("\n---\n", context);
     }
     return "";
+  }
+
+  private String resolveActiveDocumentId(String message, String sessionId, String userId) {
+    if (message.startsWith(ASSESS_PREFIX)) {
+      String docId = message.substring(ASSESS_PREFIX.length()).trim();
+      if (!docId.isEmpty()) return docId;
+    }
+    if (sessionId != null) {
+      try {
+        String fromHistory = conversationRepository.lastUploadedDocumentId(userId, sessionId);
+        if (fromHistory != null && !fromHistory.isEmpty()) return fromHistory;
+      } catch (Exception e) {
+        log.warn(
+            "Failed to resolve active document for session={} user={}: {}",
+            sessionId,
+            userId,
+            e.getMessage());
+      }
+    }
+    return null;
+  }
+
+  private List<String> retrieveScopedContext(
+      String userId, String sessionId, String message, String activeDocId, int topK) {
+    try {
+      if (activeDocId != null) {
+        return vectorDBService.retrieveRelevantContext(message, topK, "doc:" + activeDocId);
+      }
+      Set<String> docIds = contentDocumentService.resolveIndexedDocumentIds(userId);
+      return vectorDBService.retrieveRelevantContext(
+          message, topK, source -> isUserDocument(source, docIds));
+    } catch (Exception e) {
+      log.warn(
+          "Scoped context retrieval failed for user={} session={}: {}",
+          userId,
+          sessionId,
+          e.getMessage());
+      return List.of();
+    }
+  }
+
+  private boolean isUserDocument(String source, Set<String> docIds) {
+    if (docIds.isEmpty() || source == null || !source.startsWith("doc:")) return false;
+    return docIds.contains(source.substring("doc:".length()));
   }
 
   private String tryVideoSearch(String message) {

@@ -145,6 +145,18 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
         .firstResult();
   }
 
+  public String lastUploadedDocumentId(String userId, String sessionId) {
+    ConversationLog log =
+        find(
+                "userId = ?1 AND sessionId = ?2 AND role = 'user' "
+                    + "AND message LIKE 'Analyze the uploaded file: %' "
+                    + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp DESC",
+                userId, sessionId)
+            .firstResult();
+    if (log == null) return null;
+    return log.message.substring("Analyze the uploaded file: ".length()).trim();
+  }
+
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(

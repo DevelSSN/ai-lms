@@ -114,6 +114,31 @@ class VectorDBServiceTest {
   }
 
   @Test
+  void retrieveRelevantContext_filtersByPredicate() {
+    when(embeddingModel.embed(any(String.class)))
+        .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
+
+    EmbeddingMatch<TextSegment> match =
+        new EmbeddingMatch<>(
+            0.95,
+            "id-1",
+            new Embedding(new float[] {0.1f, 0.2f, 0.3f}),
+            TextSegment.from("doc text", Metadata.from(java.util.Map.of("source", "doc:abc"))));
+    when(embeddingStore.search(any(EmbeddingSearchRequest.class)))
+        .thenReturn(new EmbeddingSearchResult<>(List.of(match)));
+
+    Instance<EmbeddingStore<TextSegment>> stores = mock(Instance.class);
+    when(stores.stream()).thenReturn(Stream.of(embeddingStore));
+
+    VectorDBService svc = new VectorDBService(stores);
+    svc.embeddingModel = embeddingModel;
+
+    List<String> results =
+        svc.retrieveRelevantContext("test query", 3, s -> s != null && s.equals("doc:abc"));
+    assertEquals(List.of("doc text"), results);
+  }
+
+  @Test
   void retrieveRelevantContext_emptyResults() {
     when(embeddingModel.embed(any(String.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
