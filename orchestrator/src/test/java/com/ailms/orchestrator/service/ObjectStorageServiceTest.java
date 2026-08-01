@@ -11,14 +11,45 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @ExtendWith(MockitoExtension.class)
 class ObjectStorageServiceTest {
 
   @Mock S3Client s3;
+
+  @Test
+  void ensureBucket_createsWhenMissing() {
+    when(s3.headBucket(any(HeadBucketRequest.class)))
+        .thenThrow(NoSuchBucketException.builder().build());
+    when(s3.createBucket(any(CreateBucketRequest.class)))
+        .thenReturn(CreateBucketResponse.builder().build());
+
+    ObjectStorageService service = new ObjectStorageService();
+    service.s3 = s3;
+    service.ensureBucket();
+
+    verify(s3).createBucket(any(CreateBucketRequest.class));
+  }
+
+  @Test
+  void ensureBucket_keepsExisting() {
+    when(s3.headBucket(any(HeadBucketRequest.class)))
+        .thenReturn(HeadBucketResponse.builder().build());
+
+    ObjectStorageService service = new ObjectStorageService();
+    service.s3 = s3;
+    service.ensureBucket();
+
+    verify(s3, never()).createBucket(any(CreateBucketRequest.class));
+  }
 
   @Test
   void readFile_returnsBytes() throws Exception {

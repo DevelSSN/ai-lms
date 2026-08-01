@@ -1,24 +1,20 @@
-package com.ailms.orchestrator.service;
+package com.ailms.gateway.service;
 
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @Slf4j
 @ApplicationScoped
 @Startup
-public class ObjectStorageService {
+public class S3BucketInitializer {
 
   static final String BUCKET = "ailms-content";
 
@@ -61,21 +57,6 @@ public class ObjectStorageService {
           return;
         }
       }
-    }
-  }
-
-  public byte[] readFile(String storagePath) {
-    try {
-      GetObjectRequest req = GetObjectRequest.builder().bucket(BUCKET).key(storagePath).build();
-      try (ResponseInputStream<?> is = s3.getObject(req)) {
-        return is.readAllBytes();
-      }
-    } catch (NoSuchKeyException e) {
-      log.warn("File not found in S3: {}", storagePath);
-      return null;
-    } catch (IOException | RuntimeException e) {
-      log.error("Failed to read file from S3: {}", storagePath, e);
-      return null;
     }
   }
 }
