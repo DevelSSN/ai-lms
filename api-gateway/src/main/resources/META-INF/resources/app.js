@@ -278,7 +278,7 @@ function renderMarkdown(text) {
   if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
     return escapeHtml(text);
   }
-  return DOMPurify.sanitize(marked.parse(text || ""));
+  return DOMPurify.sanitize(marked.parse(text || "", { breaks: true }));
 }
 
 function escapeHtml(text) {
