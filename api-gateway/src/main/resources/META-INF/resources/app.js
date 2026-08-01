@@ -292,18 +292,22 @@ function appendMessage(sender, text) {
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", `${sender}-message`);
 
-  const videoId = extractYouTubeId(text);
+  const videoIds = extractYouTubeIds(text);
 
-  if (videoId) {
-    const content = text.replace(YOUTUBE_URL_RE, "");
-    const contentDiv = document.createElement("div");
-    if (sender === "bot") contentDiv.innerHTML = renderMarkdown(content);
-    else contentDiv.textContent = content;
-    messageDiv.appendChild(contentDiv);
-    const videoContainer = document.createElement("div");
-    videoContainer.classList.add("video-container");
-    videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-    messageDiv.appendChild(videoContainer);
+  if (videoIds.length) {
+    const content = stripYouTubeLinks(text);
+    if (content.trim()) {
+      const contentDiv = document.createElement("div");
+      if (sender === "bot") contentDiv.innerHTML = renderMarkdown(content);
+      else contentDiv.textContent = content;
+      messageDiv.appendChild(contentDiv);
+    }
+    for (const videoId of videoIds) {
+      const videoContainer = document.createElement("div");
+      videoContainer.classList.add("video-container");
+      videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      messageDiv.appendChild(videoContainer);
+    }
   } else if (sender === "bot") {
     messageDiv.innerHTML = renderMarkdown(text);
   } else {
@@ -315,14 +319,27 @@ function appendMessage(sender, text) {
 }
 
 const YOUTUBE_URL_RE =
-  /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})(?=[\s&]|$)/;
+  /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[&?][^\s]*)?(?=[\s&?)"'\]<]|$)/g;
+
+const YOUTUBE_MARKDOWN_RE =
+  /\[([^\]]*)\]\((https?:\/\/[^)\s]*youtube\.com\/[^)\s]*|https?:\/\/[^)\s]*youtu\.be\/[^)\s]*)\)/g;
 
 const PLACEHOLDER_ID_RE = /your|video|link|sample|example|placeholder/i;
 
-function extractYouTubeId(text) {
-  const match = text.match(YOUTUBE_URL_RE);
-  if (!match) return null;
-  const videoId = match[1];
-  if (PLACEHOLDER_ID_RE.test(videoId)) return null;
-  return videoId;
+function extractYouTubeIds(text) {
+  const ids = [];
+  for (const match of text.matchAll(YOUTUBE_URL_RE)) {
+    const videoId = match[1];
+    if (PLACEHOLDER_ID_RE.test(videoId)) continue;
+    if (!ids.includes(videoId)) ids.push(videoId);
+  }
+  return ids;
+}
+
+function stripYouTubeLinks(text) {
+  text = text.replace(
+    YOUTUBE_MARKDOWN_RE,
+    (match, label, url) => (extractYouTubeIds(url).length ? label : match),
+  );
+  return text.replace(YOUTUBE_URL_RE, "");
 }
