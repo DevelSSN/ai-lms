@@ -1,13 +1,18 @@
 const API_BASE_URL = "/api";
 
-const THREAD_ID_KEY = "ailms_thread_id";
-function getThreadId() {
-  let id = localStorage.getItem(THREAD_ID_KEY);
-  if (!id) {
-    id = "default_session";
-    localStorage.setItem(THREAD_ID_KEY, id);
-  }
-  return id;
+let currentThreadId = null;
+let currentUserSub = null;
+
+function threadIdKey() {
+  return `ailms_thread_id_${currentUserSub || "anon"}`;
+}
+
+function saveThreadId() {
+  localStorage.setItem(threadIdKey(), currentThreadId);
+}
+
+function newThreadId() {
+  return crypto.randomUUID();
 }
 
 const KEYCLOAK_URL = document.querySelector('meta[name="keycloak-url"]')?.content;
@@ -40,13 +45,25 @@ async function initKeycloak() {
 
     setupUI();
     setupTokenRefresh();
-    loadHistory();
+    initThread();
     startSSE();
     setupEventListeners();
   setupUploadHandlers();
   } catch (error) {
     console.error("Keycloak init failed:", error);
   }
+}
+
+function initThread() {
+  currentUserSub = keycloak.tokenParsed?.sub || "";
+  currentThreadId = localStorage.getItem(threadIdKey());
+  if (currentThreadId) {
+    loadHistory(currentThreadId);
+  } else {
+    clearChat();
+    showWelcome();
+  }
+  loadThreads();
 }
 
 function setupUI() {
@@ -78,7 +95,7 @@ function setupTokenRefresh() {
   }, 30000);
 }
 
-async function loadHistory() {
+async function loadHistory(threadId) {
   const spinner = document.getElementById("history-spinner");
   if (spinner) spinner.hidden = false;
 
@@ -92,7 +109,7 @@ async function loadHistory() {
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/v1/chat/history/${encodeURIComponent(getThreadId())}`,
+      `${API_BASE_URL}/v1/chat/history/${encodeURIComponent(threadId)}`,
       {
         headers: { Authorization: `Bearer ${keycloak.token}` },
       },
@@ -101,11 +118,11 @@ async function loadHistory() {
 
     const history = await response.json();
     const messages = history?.messages || [];
-    if (!messages.length) return;
-
-    const welcome = document.querySelector(".welcome-screen");
-    if (welcome) welcome.remove();
-
+    clearChat();
+    if (!messages.length) {
+      showWelcome();
+      return;
+    }
     for (const message of messages) {
       if (message.role === "user") appendMessage("user", message.content);
       else if (message.role === "assistant") appendMessage("bot", message.content);
@@ -115,6 +132,121 @@ async function loadHistory() {
   } finally {
     if (spinner) spinner.hidden = true;
   }
+}
+
+function clearChat() {
+  const chatContainer = document.getElementById("chat-container");
+  chatContainer.innerHTML = "";
+}
+
+function showWelcome() {
+  const chatContainer = document.getElementById("chat-container");
+  if (document.querySelector(".welcome-screen")) return;
+  const welcome = document.createElement("div");
+  welcome.classList.add("welcome-screen");
+  welcome.innerHTML = `
+    <h2 id="welcome-name">Hello.</h2>
+    <p>What would you like to learn today?</p>
+    <div class="quick-actions">
+      <button class="action-btn">Explain Neural Networks</button>
+      <button class="action-btn">History of Rome</button>
+      <button class="action-btn">Quantum Physics 101</button>
+    </div>`;
+  chatContainer.appendChild(welcome);
+  const nameEl = welcome.querySelector("#welcome-name");
+  const username = keycloak.tokenParsed?.preferred_username || "friend";
+  nameEl.textContent = `Hello, ${username}.`;
+  welcome.querySelectorAll(".action-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById("user-input").value = btn.textContent;
+      sendMessage();
+    });
+  });
+}
+
+function openThreadsPanel() {
+  document.getElementById("threads-panel").classList.add("open");
+  document.getElementById("threads-backdrop").classList.add("open");
+}
+
+function closeThreadsPanel() {
+  document.getElementById("threads-panel").classList.remove("open");
+  document.getElementById("threads-backdrop").classList.remove("open");
+}
+
+async function loadThreads() {
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    console.error("Token refresh failed before thread fetch:", err);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/v1/chat/threads`, {
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    });
+    if (!response.ok) throw new Error("Thread list fetch failed");
+    const threads = await response.json();
+    renderThreadList(threads || []);
+  } catch (error) {
+    console.warn("Could not load thread list:", error);
+  }
+}
+
+function renderThreadList(threads) {
+  const list = document.getElementById("thread-list");
+  list.innerHTML = "";
+  for (const thread of threads) {
+    const item = document.createElement("li");
+    item.classList.add("thread-item");
+    if (thread.sessionId === currentThreadId) item.classList.add("active");
+
+    const title = document.createElement("div");
+    title.classList.add("thread-item-title");
+    title.textContent = thread.title || "New chat";
+
+    const meta = document.createElement("div");
+    meta.classList.add("thread-item-meta");
+    const count = thread.messageCount ?? 0;
+    const when = formatRelativeTime(thread.lastActive);
+    meta.textContent = count ? `${count} messages · ${when}` : when;
+
+    item.appendChild(title);
+    item.appendChild(meta);
+    item.addEventListener("click", () => switchThread(thread.sessionId));
+    list.appendChild(item);
+  }
+}
+
+function formatRelativeTime(iso) {
+  if (!iso) return "";
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+function newChat() {
+  currentThreadId = newThreadId();
+  saveThreadId();
+  clearChat();
+  showWelcome();
+  closeThreadsPanel();
+  renderThreadList([]);
+}
+
+async function switchThread(threadId) {
+  if (threadId === currentThreadId) {
+    closeThreadsPanel();
+    return;
+  }
+  currentThreadId = threadId;
+  saveThreadId();
+  closeThreadsPanel();
+  await loadHistory(threadId);
+  loadThreads();
 }
 
 function startSSE() {
@@ -169,6 +301,11 @@ function setupEventListeners() {
     const text = userInput.value.trim();
     if (!text) return;
 
+    if (!currentThreadId) {
+      currentThreadId = newThreadId();
+      saveThreadId();
+    }
+
     const welcome = document.querySelector(".welcome-screen");
     if (welcome) welcome.remove();
 
@@ -193,7 +330,7 @@ function setupEventListeners() {
         },
         body: JSON.stringify({
           message: text,
-          thread_id: getThreadId(),
+          thread_id: currentThreadId,
         }),
       });
 
@@ -201,6 +338,7 @@ function setupEventListeners() {
 
       const data = await response.json();
       appendMessage("bot", data.message);
+      loadThreads();
     } catch (error) {
       console.error("API Error:", error);
       appendMessage("bot", "⚠️ Backend unavailable — your message wasn't processed. Please try again.");
@@ -215,12 +353,10 @@ function setupEventListeners() {
     }
   });
 
-  document.querySelectorAll(".action-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      userInput.value = btn.textContent;
-      sendMessage();
-    });
-  });
+  document.getElementById("threads-toggle").addEventListener("click", openThreadsPanel);
+  document.getElementById("threads-close").addEventListener("click", closeThreadsPanel);
+  document.getElementById("threads-backdrop").addEventListener("click", closeThreadsPanel);
+  document.getElementById("new-chat-btn").addEventListener("click", newChat);
 }
 
 function setupUploadHandlers() {
@@ -240,6 +376,11 @@ function setupUploadHandlers() {
 async function uploadFile(file) {
   const welcome = document.querySelector(".welcome-screen");
   if (welcome) welcome.remove();
+
+  if (!currentThreadId) {
+    currentThreadId = newThreadId();
+    saveThreadId();
+  }
 
   appendMessage("user", `📎 Uploading: ${file.name}`);
 
@@ -269,6 +410,7 @@ async function uploadFile(file) {
 
     const data = await response.json();
     appendMessage("bot", data.message);
+    loadThreads();
   } catch (error) {
     appendMessage("bot", `Upload failed: ${error.message}. Files up to 50MB supported.`);
   }

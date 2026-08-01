@@ -57,4 +57,16 @@ public class ChatResource {
       return Response.serverError().build();
     }
   }
+
+  @GET
+  @Path("/threads")
+  public Response getThreads() {
+    log.info("Thread list request for user={}", jwt.getSubject());
+    try {
+      return Response.ok(orchestrator.getThreads()).build();
+    } catch (Exception e) {
+      log.error("Failed to fetch threads: {}", e.getMessage());
+      return Response.serverError().build();
+    }
+  }
 }

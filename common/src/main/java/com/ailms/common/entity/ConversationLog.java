@@ -29,6 +29,9 @@ public class ConversationLog {
   @Column(columnDefinition = "TEXT")
   public String agentType;
 
+  @Column(columnDefinition = "TEXT")
+  public String title;
+
   @PrePersist
   void onCreate() {
     timestamp = Instant.now();

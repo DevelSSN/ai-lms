@@ -30,7 +30,7 @@ class ConversationRepositoryTest {
     repo.historyCache = historyCache;
 
     repo.logMessage("user-1", "sess-1", "user", "hello");
-    verify(historyCache).cacheMessage("sess-1", "user", "hello", null);
+    verify(historyCache).cacheMessage("user-1", "sess-1", "user", "hello", null);
   }
 
   @Test
@@ -40,18 +40,18 @@ class ConversationRepositoryTest {
     repo.historyCache = historyCache;
 
     repo.logMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
-    verify(historyCache).cacheMessage("sess-1", "assistant", "Hello!", "CONVERSATION");
+    verify(historyCache).cacheMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
   }
 
   @Test
   void getHistory_fromCache() {
-    when(historyCache.getCachedHistory("sess-1"))
+    when(historyCache.getCachedHistory("user-1", "sess-1"))
         .thenReturn(new ChatHistory("sess-1", List.of()));
 
     ConversationRepository repo = new ConversationRepository();
     repo.historyCache = historyCache;
 
-    ChatHistory history = repo.getHistory("sess-1");
+    ChatHistory history = repo.getHistory("user-1", "sess-1");
     assertNotNull(history);
     assertEquals("sess-1", history.sessionId());
     verify(em, never()).createQuery(anyString());
@@ -59,7 +59,7 @@ class ConversationRepositoryTest {
 
   @Test
   void getHistory_fallbackToDb() {
-    when(historyCache.getCachedHistory("sess-1")).thenReturn(null);
+    when(historyCache.getCachedHistory("user-1", "sess-1")).thenReturn(null);
 
     java.util.List<ConversationLog> dbLogs = List.of();
     var query = mock(jakarta.persistence.TypedQuery.class);
@@ -70,7 +70,7 @@ class ConversationRepositoryTest {
     repo.em = em;
     repo.historyCache = historyCache;
 
-    ChatHistory history = repo.getHistory("sess-1");
+    ChatHistory history = repo.getHistory("user-1", "sess-1");
     assertNotNull(history);
     assertTrue(history.messages().isEmpty());
   }

@@ -24,15 +24,16 @@ public class ChatHistoryCacheService {
     this.keys = redisDS.key();
   }
 
-  public void cacheMessage(String sessionId, String role, String message, String agentType) {
-    String key = PREFIX + sessionId;
+  public void cacheMessage(
+      String userId, String sessionId, String role, String message, String agentType) {
+    String key = PREFIX + userId + ":" + sessionId;
     String entry = String.join("||", role, message != null ? message : "", agentType != null ? agentType : "");
     lists.rpush(key, entry);
     keys.expire(key, TTL_SECONDS);
   }
 
-  public ChatHistory getCachedHistory(String sessionId) {
-    String key = PREFIX + sessionId;
+  public ChatHistory getCachedHistory(String userId, String sessionId) {
+    String key = PREFIX + userId + ":" + sessionId;
     List<String> entries = lists.lrange(key, 0, -1);
     if (entries.isEmpty()) return null;
 

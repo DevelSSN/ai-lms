@@ -2,11 +2,13 @@ package com.ailms.orchestrator.service;
 
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.entity.ConversationLog;
 import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.OrchestratorRouter;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
+import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
@@ -14,6 +16,7 @@ import dev.langchain4j.invocation.LangChain4jManaged;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +48,10 @@ public class OrchestratorService {
   @Inject YouTubeLinkValidator youTubeLinkValidator;
 
   @Inject YouTubeSearchService youTubeSearchService;
+
+  @Inject TitleGenerator titleGenerator;
+
+  @Inject ManagedExecutor executor;
 
   private static final Set<String> KNOWN_INTENTS =
       Set.of("CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
@@ -88,9 +95,13 @@ public class OrchestratorService {
       scope.writeState("response", agentResponse);
       ChatResponse response = responseComposer.compose(scope, request.sessionId());
 
+      boolean isNewSession =
+          conversationRepository.count("sessionId = ?1", request.sessionId()) == 0;
       conversationRepository.logMessage(userId, request.sessionId(), "user", request.message());
       conversationRepository.logMessage(
           userId, request.sessionId(), "assistant", response.message(), response.agentType());
+
+      if (isNewSession) scheduleTitleGeneration(userId, request.sessionId());
 
       ingestIfContent(intent, request.message(), userId);
 
@@ -193,6 +204,27 @@ public class OrchestratorService {
           "Generate a brief encouraging follow-up message for a student who hasn't been active. Context: " + context);
     } finally {
       LangChain4jManaged.removeCurrent();
+    }
+  }
+
+  private void scheduleTitleGeneration(String userId, String sessionId) {
+    if (executor == null || titleGenerator == null) return;
+    try {
+      executor.execute(() -> generateTitle(userId, sessionId));
+    } catch (Exception e) {
+      log.warn("Failed to schedule title generation for session={}: {}", sessionId, e.getMessage());
+    }
+  }
+
+  private void generateTitle(String userId, String sessionId) {
+    try {
+      ConversationLog first = conversationRepository.firstUserMessage(sessionId);
+      if (first == null) return;
+      String title = titleGenerator.generate(first.message);
+      if (title == null || title.isBlank()) return;
+      conversationRepository.setThreadTitle(userId, sessionId, title);
+    } catch (Exception e) {
+      log.warn("Title generation failed for session={}: {}", sessionId, e.getMessage());
     }
   }
 }

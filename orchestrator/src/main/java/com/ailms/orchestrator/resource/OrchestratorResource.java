@@ -37,9 +37,17 @@ public class OrchestratorResource {
 
   @GET
   @Path("/history/{sessionId}")
-  public Response getHistory(@PathParam("sessionId") String sessionId) {
-    log.info("History request for session={}", sessionId);
-    ChatHistory history = conversationRepository.getHistory(sessionId);
+  public Response getHistory(
+      @PathParam("sessionId") String sessionId, @HeaderParam("X-User-Id") String userId) {
+    log.info("History request for user={} session={}", userId, sessionId);
+    ChatHistory history = conversationRepository.getHistory(userId, sessionId);
     return Response.ok(history).build();
+  }
+
+  @GET
+  @Path("/threads")
+  public Response getThreads(@HeaderParam("X-User-Id") String userId) {
+    log.info("Thread list request for user={}", userId);
+    return Response.ok(conversationRepository.listThreads(userId)).build();
   }
 }

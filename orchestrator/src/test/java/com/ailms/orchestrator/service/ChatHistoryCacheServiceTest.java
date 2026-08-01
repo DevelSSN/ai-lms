@@ -30,10 +30,10 @@ class ChatHistoryCacheServiceTest {
     when(redisDS.key()).thenReturn(keys);
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
-    cache.cacheMessage("sess-1", "user", "hello", null);
+    cache.cacheMessage("user-1", "sess-1", "user", "hello", null);
 
-    verify(lists).rpush("history:sess-1", "user||hello||");
-    verify(keys).expire(eq("history:sess-1"), anyLong());
+    verify(lists).rpush("history:user-1:sess-1", "user||hello||");
+    verify(keys).expire(eq("history:user-1:sess-1"), anyLong());
   }
 
   @Test
@@ -42,20 +42,20 @@ class ChatHistoryCacheServiceTest {
     when(redisDS.key()).thenReturn(keys);
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
-    cache.cacheMessage("sess-1", "assistant", "hi there", "CONVERSATION");
+    cache.cacheMessage("user-1", "sess-1", "assistant", "hi there", "CONVERSATION");
 
-    verify(lists).rpush("history:sess-1", "assistant||hi there||CONVERSATION");
+    verify(lists).rpush("history:user-1:sess-1", "assistant||hi there||CONVERSATION");
   }
 
   @Test
   void getCachedHistory_returnsMessages() {
     when(redisDS.list(String.class)).thenReturn(lists);
     when(redisDS.key()).thenReturn(keys);
-    when(lists.lrange("history:sess-1", 0, -1))
+    when(lists.lrange("history:user-1:sess-1", 0, -1))
         .thenReturn(List.of("user||hello||", "assistant||hi||CONVERSATION"));
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
-    ChatHistory history = cache.getCachedHistory("sess-1");
+    ChatHistory history = cache.getCachedHistory("user-1", "sess-1");
 
     assertNotNull(history);
     assertEquals("sess-1", history.sessionId());
@@ -68,9 +68,9 @@ class ChatHistoryCacheServiceTest {
   void getCachedHistory_emptyReturnsNull() {
     when(redisDS.list(String.class)).thenReturn(lists);
     when(redisDS.key()).thenReturn(keys);
-    when(lists.lrange("history:sess-1", 0, -1)).thenReturn(List.of());
+    when(lists.lrange("history:user-1:sess-1", 0, -1)).thenReturn(List.of());
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
-    assertNull(cache.getCachedHistory("sess-1"));
+    assertNull(cache.getCachedHistory("user-1", "sess-1"));
   }
 }

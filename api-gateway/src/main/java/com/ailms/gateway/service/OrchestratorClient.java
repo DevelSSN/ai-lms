@@ -3,10 +3,12 @@ package com.ailms.gateway.service;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ThreadSummary;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import java.util.List;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/api/v1/orchestrate")
@@ -19,4 +21,8 @@ public interface OrchestratorClient {
   @GET
   @Path("/history/{sessionId}")
   ChatHistory getHistory(@PathParam("sessionId") String sessionId);
+
+  @GET
+  @Path("/threads")
+  List<ThreadSummary> getThreads();
 }
