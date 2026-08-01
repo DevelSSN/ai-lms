@@ -88,7 +88,7 @@ class OrchestratorServiceTest {
   @Test
   void route_contentAnalysisIntent() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8)))
         .thenReturn(java.util.List.of());
     when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Analysis result");
@@ -99,8 +99,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("analyze this", "sess-1"), "user-1");
 
     assertEquals("Analysis result", resp.message());
-    verify(vectorDBService).retrieveRelevantContext(anyString(), eq(3));
-    verify(vectorDBService).ingestDocument(anyString(), anyString(), anyString());
+    verify(vectorDBService).retrieveRelevantContext(anyString(), eq(8));
   }
 
   @Test
@@ -201,11 +200,8 @@ class OrchestratorServiceTest {
   @Test
   void route_handlesVectorDbFailureGracefully() {
     when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8)))
         .thenThrow(new RuntimeException("Qdrant down"));
-    doThrow(new RuntimeException("Qdrant down"))
-        .when(vectorDBService)
-        .ingestDocument(anyString(), anyString(), anyString());
     when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Analysis result (no context)");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -236,9 +232,6 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveContent("doc-1"))
         .thenReturn("File: notes.pdf\n\nContent:\nsample text");
-
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
-        .thenReturn(java.util.List.of());
     when(contentAnalysisAgent.process(eq("conversation:upload-user-1"), anyString()))
         .thenReturn("Analysis complete");
     when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))

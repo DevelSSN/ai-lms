@@ -61,6 +61,14 @@ public class OrchestratorService {
   private static final Set<String> KNOWN_INTENTS =
       Set.of("CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
 
+  private static final String UPLOAD_PREFIX = "Analyze the uploaded file: ";
+
+  private static final int CHUNK_SIZE = 800;
+
+  private static final int CHUNK_OVERLAP = 100;
+
+  private static final int ANALYSIS_TOP_K = 8;
+
   @Inject KafkaEventPublisher kafkaEventPublisher;
 
   public ChatResponse route(ChatRequest request, String userId) {
@@ -109,8 +117,6 @@ public class OrchestratorService {
 
       if (isNewSession) scheduleTitleGeneration(userId, request.sessionId());
 
-      ingestIfContent(intent, request.message(), userId);
-
       publishAgentEvent(intent, userId, request.sessionId(), response.message());
 
       log.info("Response ready for user={} type={}", userId, intent);
@@ -157,19 +163,58 @@ public class OrchestratorService {
   private String enrichWithContext(String intent, String message, String userId) {
     if (!"CONTENT_ANALYSIS".equals(intent) && !"ASSESSMENT".equals(intent)) return message;
 
-    String contentBody = resolveUploadedContent(message);
-    String enriched = contentBody != null ? contentBody : message;
+    if ("CONTENT_ANALYSIS".equals(intent)) {
+      if (message.startsWith(UPLOAD_PREFIX)) return enrichUploadAnalysis(message, userId);
+      try {
+        List<String> context = vectorDBService.retrieveRelevantContext(message, ANALYSIS_TOP_K);
+        if (!context.isEmpty()) {
+          return "Relevant context:\n"
+              + String.join("\n---\n", context)
+              + "\n\nUser message: "
+              + message;
+        }
+      } catch (Exception e) {
+        log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
+      }
+      return message;
+    }
 
     try {
-      List<String> context = vectorDBService.retrieveRelevantContext(enriched, 3);
+      List<String> context = vectorDBService.retrieveRelevantContext(message, 3);
       if (!context.isEmpty()) {
-        String ctx = String.join("\n---\n", context);
-        return "Relevant context:\n" + ctx + "\n\nContent to analyze: " + enriched;
+        return "Relevant context:\n"
+            + String.join("\n---\n", context)
+            + "\n\nUser message: "
+            + message;
       }
     } catch (Exception e) {
       log.warn("Qdrant context retrieval failed for user={}: {}", userId, e.getMessage());
     }
-    return enriched;
+    return message;
+  }
+
+  private String enrichUploadAnalysis(String message, String userId) {
+    String docId = message.substring(UPLOAD_PREFIX.length()).trim();
+    try {
+      List<String> chunks = contentDocumentService.chunkContent(docId, CHUNK_SIZE, CHUNK_OVERLAP);
+      if (!chunks.isEmpty()) {
+        vectorDBService.ingestDocumentChunks(chunks, docId, "document");
+        String contentBody = resolveUploadedContent(message);
+        List<String> context =
+            vectorDBService.retrieveRelevantContext(
+                contentBody != null ? contentBody : message, ANALYSIS_TOP_K, "doc:" + docId);
+        if (!context.isEmpty()) {
+          return "File: "
+              + contentDocumentService.resolveFileName(docId)
+              + "\n\nRelevant content excerpts:\n"
+              + String.join("\n---\n", context);
+        }
+      }
+    } catch (Exception e) {
+      log.warn("Chunk ingestion failed for docId={} user={}: {}", docId, userId, e.getMessage());
+    }
+    String contentBody = resolveUploadedContent(message);
+    return contentBody != null ? contentBody : message;
   }
 
   private String resolveAnalysisContext(String intent, String message, String userId) {
@@ -203,18 +248,9 @@ public class OrchestratorService {
   }
 
   private String resolveUploadedContent(String message) {
-    if (!message.startsWith("Analyze the uploaded file: ")) return null;
-    String docId = message.substring("Analyze the uploaded file: ".length()).trim();
+    if (!message.startsWith(UPLOAD_PREFIX)) return null;
+    String docId = message.substring(UPLOAD_PREFIX.length()).trim();
     return contentDocumentService.resolveContent(docId);
-  }
-
-  private void ingestIfContent(String intent, String message, String userId) {
-    if (!"CONTENT_ANALYSIS".equals(intent)) return;
-    try {
-      vectorDBService.ingestDocument(message, "user-" + userId, "conversation");
-    } catch (Exception e) {
-      log.warn("Qdrant ingestion failed for user={}: {}", userId, e.getMessage());
-    }
   }
 
   public String generateProactiveMessage(String userId, String context) {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -49,7 +50,7 @@ class VectorDBServiceTest {
 
   @Test
   @Disabled("Needs Quarkus Arc for Panache")
-  void ingestDocument_callsStore() {
+  void ingestDocumentChunks_callsStoreForEachChunk() {
     when(embeddingModel.embed(any(TextSegment.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
 
@@ -58,9 +59,9 @@ class VectorDBServiceTest {
 
     VectorDBService svc = new VectorDBService(stores);
     svc.embeddingModel = embeddingModel;
-    svc.ingestDocument("test content", "source-1", "type-1");
+    svc.ingestDocumentChunks(List.of("chunk one", "chunk two"), "doc-1", "document");
 
-    verify(embeddingStore).add(any(Embedding.class), any(TextSegment.class));
+    verify(embeddingStore, times(2)).add(any(Embedding.class), any(TextSegment.class));
   }
 
   @Test
@@ -86,6 +87,30 @@ class VectorDBServiceTest {
     List<String> results = svc.retrieveRelevantContext("test query", 3);
     assertEquals(1, results.size());
     assertEquals("matched text", results.get(0));
+  }
+
+  @Test
+  void retrieveRelevantContext_filtersBySourcePrefix() {
+    when(embeddingModel.embed(any(String.class)))
+        .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
+
+    EmbeddingMatch<TextSegment> match =
+        new EmbeddingMatch<>(
+            0.95,
+            "id-1",
+            new Embedding(new float[] {0.1f, 0.2f, 0.3f}),
+            TextSegment.from("doc text", Metadata.from(java.util.Map.of("source", "doc:abc"))));
+    when(embeddingStore.search(any(EmbeddingSearchRequest.class)))
+        .thenReturn(new EmbeddingSearchResult<>(List.of(match)));
+
+    Instance<EmbeddingStore<TextSegment>> stores = mock(Instance.class);
+    when(stores.stream()).thenReturn(Stream.of(embeddingStore));
+
+    VectorDBService svc = new VectorDBService(stores);
+    svc.embeddingModel = embeddingModel;
+
+    List<String> results = svc.retrieveRelevantContext("test query", 3, "doc:");
+    assertEquals(List.of("doc text"), results);
   }
 
   @Test
