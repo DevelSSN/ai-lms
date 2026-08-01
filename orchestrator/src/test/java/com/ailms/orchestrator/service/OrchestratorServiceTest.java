@@ -57,6 +57,25 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_generatesSessionWhenMissing() {
+    when(intentClassifier.classify("hi")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(anyString(), anyString())).thenReturn("Hello there!");
+    when(responseComposer.compose(any(AgenticScope.class), anyString()))
+        .thenAnswer(
+            inv -> {
+              String sid = inv.getArgument(1);
+              return new ChatResponse("Hello there!", sid, "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("hi", null), "user-1");
+
+    assertNotNull(resp.sessionId());
+    assertFalse(resp.sessionId().isBlank());
+    verify(conversationRepository).logMessage(eq("user-1"), anyString(), eq("user"), anyString());
+  }
+
+  @Test
   void route_normalizesClassifierOutput() {
     when(intentClassifier.classify("hi")).thenReturn("\nconversation. ");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))

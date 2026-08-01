@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -39,6 +40,10 @@ public class InteractResource {
     String message = body.get("message");
     String threadId = body.get("thread_id");
     String userId = jwt.getSubject();
+    if (threadId == null || threadId.isBlank()) {
+      threadId = UUID.randomUUID().toString();
+      log.info("Generated thread id for user={}: {}", userId, threadId);
+    }
 
     log.info("Interact request from user={} thread={}", userId, threadId);
 

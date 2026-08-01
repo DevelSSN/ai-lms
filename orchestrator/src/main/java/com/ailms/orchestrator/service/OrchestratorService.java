@@ -76,19 +76,23 @@ public class OrchestratorService {
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
 
+    String sessionId = request.sessionId();
+    if (sessionId == null || sessionId.isBlank()) {
+      sessionId = java.util.UUID.randomUUID().toString();
+      log.info("Generated session id for user={}: {}", userId, sessionId);
+    }
+
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
     try {
       String intent = normalizeIntent(intentClassifier.classify(request.message()));
       log.info("Intent={} for user={} message={}", intent, userId, request.message());
 
-      String enrichedMessage =
-          enrichWithContext(intent, request.message(), request.sessionId(), userId);
+      String enrichedMessage = enrichWithContext(intent, request.message(), sessionId, userId);
 
       scope.writeState("intent", intent);
 
-      String analysisCtx =
-          resolveAnalysisContext(intent, request.message(), request.sessionId(), userId);
+      String analysisCtx = resolveAnalysisContext(intent, request.message(), sessionId, userId);
       String agentResponse = null;
       if ("VIDEO_SEARCH".equals(intent)) {
         agentResponse = tryVideoSearch(request.message());
@@ -98,7 +102,7 @@ public class OrchestratorService {
         }
       }
       if (agentResponse == null) {
-        agentResponse = dispatchAgent(intent, request.sessionId(), enrichedMessage, analysisCtx);
+        agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
       }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
 
@@ -106,22 +110,22 @@ public class OrchestratorService {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
       }
 
-      profilingAgent.process("profiling:" + request.sessionId(), enrichedMessage);
+      profilingAgent.process("profiling:" + sessionId, enrichedMessage);
 
       scope.writeState("response", agentResponse);
-      ChatResponse response = responseComposer.compose(scope, request.sessionId());
+      ChatResponse response = responseComposer.compose(scope, sessionId);
 
       boolean isNewSession =
           conversationRepository.count(
-                  "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", request.sessionId())
+                  "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", sessionId)
               == 0;
-      conversationRepository.logMessage(userId, request.sessionId(), "user", request.message());
+      conversationRepository.logMessage(userId, sessionId, "user", request.message());
       conversationRepository.logMessage(
-          userId, request.sessionId(), "assistant", response.message(), response.agentType());
+          userId, sessionId, "assistant", response.message(), response.agentType());
 
-      if (isNewSession) scheduleTitleGeneration(userId, request.sessionId());
+      if (isNewSession) scheduleTitleGeneration(userId, sessionId);
 
-      publishAgentEvent(intent, userId, request.sessionId(), response.message());
+      publishAgentEvent(intent, userId, sessionId, response.message());
 
       log.info("Response ready for user={} type={}", userId, intent);
       return response;
