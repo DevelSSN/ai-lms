@@ -3,10 +3,12 @@ package com.ailms.orchestrator.service;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.orchestrator.agent.ContentAnalysisAgent;
 import com.ailms.orchestrator.agent.ConversationAgent;
+import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
-import com.ailms.orchestrator.agent.OrchestratorRouter;
 import com.ailms.orchestrator.agent.ProfilingAgent;
+import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
@@ -28,13 +30,17 @@ public class OrchestratorService {
 
   @Inject IntentClassifier intentClassifier;
 
-  @Inject OrchestratorRouter orchestratorRouter;
-
   @Inject ProfilingAgent profilingAgent;
 
   @Inject ResponseComposer responseComposer;
 
   @Inject ConversationAgent conversationAgent;
+
+  @Inject ContentAnalysisAgent contentAnalysisAgent;
+
+  @Inject QuestionGenerationAgent questionGenerationAgent;
+
+  @Inject InsightAgent insightAgent;
 
   @Inject ProfilingService profilingService;
 
@@ -80,9 +86,7 @@ public class OrchestratorService {
         }
       }
       if (agentResponse == null) {
-        agentResponse =
-            orchestratorRouter.route(
-                "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
+        agentResponse = dispatchAgent(intent, request.sessionId(), enrichedMessage, analysisCtx);
       }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
 
@@ -124,6 +128,16 @@ public class OrchestratorService {
       return "CONVERSATION";
     }
     return normalized;
+  }
+
+  private String dispatchAgent(String intent, String sessionId, String message, String analysisCtx) {
+    String memoryId = "conversation:" + sessionId;
+    return switch (intent) {
+      case "CONTENT_ANALYSIS" -> contentAnalysisAgent.process(memoryId, message);
+      case "ASSESSMENT" -> questionGenerationAgent.process(memoryId, message, analysisCtx);
+      case "INSIGHT" -> insightAgent.process(memoryId, message);
+      default -> conversationAgent.process(memoryId, message);
+    };
   }
 
   private void publishAgentEvent(String intent, String userId, String sessionId, String message) {
