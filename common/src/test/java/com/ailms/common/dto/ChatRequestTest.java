@@ -1,10 +1,10 @@
 package com.ailms.common.dto;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 class ChatRequestTest {
 
@@ -57,9 +57,10 @@ class ChatHistoryTest {
 
   @Test
   void createWithMessages() {
-    var msgs = List.of(
-        new ChatHistory.ChatMessage("user", "hello", null),
-        new ChatHistory.ChatMessage("assistant", "hi", "CONVERSATION"));
+    var msgs =
+        List.of(
+            new ChatHistory.ChatMessage("user", "hello", null),
+            new ChatHistory.ChatMessage("assistant", "hi", "CONVERSATION"));
     ChatHistory h = new ChatHistory("sess-1", msgs);
     assertEquals(2, h.messages().size());
     assertEquals("assistant", h.messages().get(1).role());
@@ -83,9 +84,16 @@ class InsightReportTest {
 
   @Test
   void create() {
-    InsightReport r = new InsightReport("user-1", "2026-Q1", 85.0,
-        List.of("algebra"), List.of("geometry"),
-        List.of("Practice more"), Map.of("sessions", 10), "2026-01-01");
+    InsightReport r =
+        new InsightReport(
+            "user-1",
+            "2026-Q1",
+            85.0,
+            List.of("algebra"),
+            List.of("geometry"),
+            List.of("Practice more"),
+            Map.of("sessions", 10),
+            "2026-01-01");
     assertEquals("user-1", r.userId());
     assertEquals("2026-Q1", r.period());
     assertEquals(85.0, r.progressScore());

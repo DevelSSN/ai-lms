@@ -1,9 +1,6 @@
 package com.ailms.orchestrator.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -13,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Slf4j
 @ApplicationScoped
@@ -21,8 +20,7 @@ public class YouTubeLinkValidator {
   private static final String URL_FORM =
       "(?:https?://(?:www\\.)?(?:youtube\\.com/watch\\?v=|youtu\\.be/)[A-Za-z0-9_-]+)";
 
-  private static final Pattern YOUTUBE_URL_PATTERN =
-      Pattern.compile(URL_FORM);
+  private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(URL_FORM);
 
   private static final Pattern MARKDOWN_LINK_PATTERN =
       Pattern.compile("\\[([^\\]]*)\\]\\(" + "(" + URL_FORM + ")\\)");

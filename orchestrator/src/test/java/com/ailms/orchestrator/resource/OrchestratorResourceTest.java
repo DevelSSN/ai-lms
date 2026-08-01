@@ -1,22 +1,22 @@
 package com.ailms.orchestrator.resource;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.service.OrchestratorService;
 import jakarta.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrchestratorResourceTest {
@@ -56,8 +56,7 @@ class OrchestratorResourceTest {
   void getThreads() {
     ThreadSummary summary =
         new ThreadSummary("sess-1", "Neural Networks Explained", Instant.now(), 4);
-    when(conversationRepository.listThreads("user-1"))
-        .thenReturn(List.of(summary));
+    when(conversationRepository.listThreads("user-1")).thenReturn(List.of(summary));
 
     OrchestratorResource resource = new OrchestratorResource();
     resource.conversationRepository = conversationRepository;
@@ -68,5 +67,25 @@ class OrchestratorResourceTest {
     assertEquals(1, threads.size());
     assertEquals("sess-1", threads.get(0).sessionId());
     assertEquals("Neural Networks Explained", threads.get(0).title());
+  }
+
+  @Test
+  void renameThread() {
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.conversationRepository = conversationRepository;
+
+    Response resp = resource.renameThread("sess-1", new ThreadRenameRequest("New Title"), "user-1");
+    assertEquals(204, resp.getStatus());
+    verify(conversationRepository).renameThread("user-1", "sess-1", "New Title");
+  }
+
+  @Test
+  void deleteThread() {
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.conversationRepository = conversationRepository;
+
+    Response resp = resource.deleteThread("sess-1", "user-1");
+    assertEquals(204, resp.getStatus());
+    verify(conversationRepository).deleteThread("user-1", "sess-1");
   }
 }

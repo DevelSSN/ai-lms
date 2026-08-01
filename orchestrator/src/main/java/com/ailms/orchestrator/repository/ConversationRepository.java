@@ -46,17 +46,23 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     if (cached != null) return cached;
 
     List<ConversationLog> logs =
-        find("userId = ?1 AND sessionId = ?2 ORDER BY timestamp ASC", userId, sessionId).list();
+        find(
+                "userId = ?1 AND sessionId = ?2 AND (deleted IS NULL OR deleted = false) "
+                    + "ORDER BY timestamp ASC",
+                userId,
+                sessionId)
+            .list();
 
     List<ChatHistory.ChatMessage> messages =
         logs.stream()
-            .map(log ->
-                new ChatHistory.ChatMessage(
-                    log.role,
-                    "user".equals(log.role)
-                        ? log.message
-                        : log.assistantMessage != null ? log.assistantMessage : log.message,
-                    log.agentType))
+            .map(
+                log ->
+                    new ChatHistory.ChatMessage(
+                        log.role,
+                        "user".equals(log.role)
+                            ? log.message
+                            : log.assistantMessage != null ? log.assistantMessage : log.message,
+                        log.agentType))
             .toList();
 
     return new ChatHistory(sessionId, messages);
@@ -67,7 +73,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     List<Object[]> rows =
         em.createQuery(
                 "SELECT l.sessionId, MAX(l.timestamp), COUNT(l) FROM ConversationLog l "
-                    + "WHERE l.userId = :userId GROUP BY l.sessionId "
+                    + "WHERE l.userId = :userId AND (l.deleted IS NULL OR l.deleted = false) "
+                    + "GROUP BY l.sessionId "
                     + "ORDER BY MAX(l.timestamp) DESC")
             .setParameter("userId", userId)
             .getResultList();
@@ -75,12 +82,13 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     Map<String, String> titles = threadTitles(userId);
 
     return rows.stream()
-        .map(row ->
-            new ThreadSummary(
-                (String) row[0],
-                titles.get(row[0]),
-                (Instant) row[1],
-                ((Number) row[2]).longValue()))
+        .map(
+            row ->
+                new ThreadSummary(
+                    (String) row[0],
+                    titles.get(row[0]),
+                    (Instant) row[1],
+                    ((Number) row[2]).longValue()))
         .toList();
   }
 
@@ -91,6 +99,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
         em.createQuery(
                 "SELECT l.sessionId, l.title FROM ConversationLog l "
                     + "WHERE l.userId = :userId AND l.title IS NOT NULL "
+                    + "AND (l.deleted IS NULL OR l.deleted = false) "
                     + "ORDER BY l.timestamp ASC")
             .setParameter("userId", userId)
             .getResultList();
@@ -110,14 +119,37 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
         sessionId);
   }
 
-  public ConversationLog firstUserMessage(String sessionId) {
-    return find("sessionId = ?1 AND role = 'user' ORDER BY timestamp ASC", sessionId).firstResult();
+  @Transactional
+  public void renameThread(String userId, String sessionId, String title) {
+    if (title == null || title.isBlank()) return;
+    update(
+        "set title = ?1 where userId = ?2 and sessionId = ?3 and (deleted IS NULL or deleted ="
+            + " false)",
+        title.trim().substring(0, Math.min(title.trim().length(), 60)),
+        userId,
+        sessionId);
+  }
+
+  @Transactional
+  public void deleteThread(String userId, String sessionId) {
+    update("set deleted = true where userId = ?1 and sessionId = ?2", userId, sessionId);
+    historyCache.deleteHistory(userId, sessionId);
+  }
+
+  public ConversationLog firstUserMessage(String userId, String sessionId) {
+    return find(
+            "userId = ?1 AND sessionId = ?2 AND role = 'user' "
+                + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp ASC",
+            userId,
+            sessionId)
+        .firstResult();
   }
 
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(
-            "SELECT DISTINCT userId FROM ConversationLog GROUP BY userId HAVING MAX(timestamp) < :since")
+            "SELECT DISTINCT userId FROM ConversationLog GROUP BY userId HAVING MAX(timestamp) <"
+                + " :since")
         .setParameter("since", since)
         .getResultList();
   }

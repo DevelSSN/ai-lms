@@ -1,6 +1,10 @@
 package com.ailms.orchestrator.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -9,26 +13,22 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.sax.ToTextContentHandler;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Set;
-
 @Slf4j
 @ApplicationScoped
 public class DocumentParserService {
 
-  private static final Set<String> SUPPORTED_TYPES = Set.of(
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-      "text/plain",
-      "text/html",
-      "application/rtf",
-      "application/vnd.oasis.opendocument.text",
-      "image/png",
-      "image/jpeg",
-      "image/tiff");
+  private static final Set<String> SUPPORTED_TYPES =
+      Set.of(
+          "application/pdf",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/msword",
+          "text/plain",
+          "text/html",
+          "application/rtf",
+          "application/vnd.oasis.opendocument.text",
+          "image/png",
+          "image/jpeg",
+          "image/tiff");
 
   private final Tika tika = new Tika();
 
@@ -52,7 +52,11 @@ public class DocumentParserService {
         return new ParseResult(null, "No extractable text found in " + fileName);
       }
 
-      log.info("Parsed document fileName={} type={} textLength={}", fileName, contentType, text.length());
+      log.info(
+          "Parsed document fileName={} type={} textLength={}",
+          fileName,
+          contentType,
+          text.length());
       return new ParseResult(text, null);
     } catch (TikaException | IOException | org.xml.sax.SAXException e) {
       log.error("Failed to parse document fileName={}: {}", fileName, e.getMessage());

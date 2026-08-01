@@ -5,20 +5,16 @@ import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
 import dev.langchain4j.agentic.declarative.ErrorHandler;
 import dev.langchain4j.agentic.declarative.SequenceAgent;
 import dev.langchain4j.service.MemoryId;
-import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface AnalysisPipeline {
 
   @SequenceAgent(
       outputKey = "analysisResult",
-      subAgents = {
-        ContentAnalysisAgent.class,
-        ProfilingAgent.class,
-        InsightAgent.class
-      })
+      subAgents = {ContentAnalysisAgent.class, ProfilingAgent.class, InsightAgent.class})
   @UserMessage("Analyze content and generate insights: {{message}}")
   String analyze(@MemoryId String sessionId, @V("message") String message);
 

@@ -5,15 +5,16 @@ import dev.langchain4j.agentic.agent.ErrorContext;
 import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
 import dev.langchain4j.agentic.declarative.ErrorHandler;
 import dev.langchain4j.service.MemoryId;
-import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface ProfilingAgent {
 
-  @SystemMessage("""
+  @SystemMessage(
+      """
       You are a student profiling expert for an AI-powered Learning Management System.
       Analyze student interactions, responses, and learning patterns to build comprehensive learner profiles.
       Identify learning preferences, strengths, weaknesses, and optimal study strategies.

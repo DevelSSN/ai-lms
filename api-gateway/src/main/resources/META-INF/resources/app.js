@@ -202,9 +202,39 @@ function renderThreadList(threads) {
     item.classList.add("thread-item");
     if (thread.sessionId === currentThreadId) item.classList.add("active");
 
+    const titleRow = document.createElement("div");
+    titleRow.classList.add("thread-item-title-row");
+
     const title = document.createElement("div");
     title.classList.add("thread-item-title");
     title.textContent = thread.title || "New chat";
+
+    const actions = document.createElement("div");
+    actions.classList.add("thread-item-actions");
+
+    const renameBtn = document.createElement("button");
+    renameBtn.classList.add("thread-action-btn");
+    renameBtn.title = "Rename";
+    renameBtn.innerHTML = RENAME_ICON;
+    renameBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startRename(item, title, thread);
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("thread-action-btn", "danger");
+    deleteBtn.title = "Delete";
+    deleteBtn.innerHTML = DELETE_ICON;
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteThread(thread.sessionId, thread.title);
+    });
+
+    actions.appendChild(renameBtn);
+    actions.appendChild(deleteBtn);
+
+    titleRow.appendChild(title);
+    titleRow.appendChild(actions);
 
     const meta = document.createElement("div");
     meta.classList.add("thread-item-meta");
@@ -212,11 +242,111 @@ function renderThreadList(threads) {
     const when = formatRelativeTime(thread.lastActive);
     meta.textContent = count ? `${count} messages · ${when}` : when;
 
-    item.appendChild(title);
+    item.appendChild(titleRow);
     item.appendChild(meta);
     item.addEventListener("click", () => switchThread(thread.sessionId));
     list.appendChild(item);
   }
+}
+
+const RENAME_ICON = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+  </svg>`;
+
+const DELETE_ICON = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14"/>
+  </svg>`;
+
+function startRename(item, titleEl, thread) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.classList.add("thread-rename-input");
+  input.value = thread.title || "";
+  input.maxLength = 60;
+  titleEl.replaceWith(input);
+  input.focus();
+  input.select();
+  input.addEventListener("click", (e) => e.stopPropagation());
+
+  let done = false;
+  const finish = async (commit) => {
+    if (done) return;
+    done = true;
+    const newTitle = input.value.trim();
+    if (commit && newTitle && newTitle !== thread.title) {
+      await renameThread(thread.sessionId, newTitle);
+    }
+    loadThreads();
+  };
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      finish(true);
+    } else if (e.key === "Escape") {
+      e.stopPropagation();
+      finish(false);
+    }
+  });
+  input.addEventListener("blur", () => finish(false));
+}
+
+async function renameThread(threadId, title) {
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    keycloak.login();
+    return;
+  }
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/v1/chat/threads/${encodeURIComponent(threadId)}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+        body: JSON.stringify({ title }),
+      },
+    );
+    if (!response.ok) throw new Error("Rename failed");
+  } catch (error) {
+    console.warn("Rename failed:", error);
+  }
+}
+
+async function deleteThread(threadId, title) {
+  const confirmed = confirm(`Delete "${title || "New chat"}"? This conversation will be removed.`);
+  if (!confirmed) return;
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    keycloak.login();
+    return;
+  }
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/v1/chat/threads/${encodeURIComponent(threadId)}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${keycloak.token}` },
+      },
+    );
+    if (!response.ok) throw new Error("Delete failed");
+    if (threadId === currentThreadId) {
+      currentThreadId = newThreadId();
+      saveThreadId();
+      clearChat();
+      showWelcome();
+    }
+  } catch (error) {
+    console.warn("Delete failed:", error);
+    return;
+  }
+  loadThreads();
 }
 
 function formatRelativeTime(iso) {

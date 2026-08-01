@@ -1,10 +1,10 @@
 package com.ailms.gateway.resource;
 
+import static io.restassured.RestAssured.given;
+
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @Disabled("Requires OIDC/JWT security setup")
@@ -15,22 +15,20 @@ class AuthEnforcementTest {
     given()
         .contentType("application/json")
         .body("{\"message\":\"hello\",\"sessionId\":\"test\"}")
-        .when().post("/api/v1/chat")
-        .then().statusCode(401);
+        .when()
+        .post("/api/v1/chat")
+        .then()
+        .statusCode(401);
   }
 
   @Test
   void contentEndpoint_shouldRejectUnauthenticated() {
-    given()
-        .when().get("/api/v1/content/insights")
-        .then().statusCode(401);
+    given().when().get("/api/v1/content/insights").then().statusCode(401);
   }
 
   @Test
   void profileEndpoint_shouldRejectUnauthenticated() {
-    given()
-        .when().get("/api/v1/profile")
-        .then().statusCode(401);
+    given().when().get("/api/v1/profile").then().statusCode(401);
   }
 
   @Test
@@ -38,14 +36,14 @@ class AuthEnforcementTest {
     given()
         .contentType("application/json")
         .body("{\"message\":\"hello\",\"thread_id\":\"test\"}")
-        .when().post("/api/interact")
-        .then().statusCode(401);
+        .when()
+        .post("/api/interact")
+        .then()
+        .statusCode(401);
   }
 
   @Test
   void updatesEndpoint_shouldAllowUnauthenticated() {
-    given()
-        .when().get("/api/updates")
-        .then().statusCode(200);
+    given().when().get("/api/updates").then().statusCode(200);
   }
 }

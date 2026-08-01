@@ -3,11 +3,14 @@ package com.ailms.gateway.resource;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -66,6 +69,33 @@ public class ChatResource {
       return Response.ok(orchestrator.getThreads()).build();
     } catch (Exception e) {
       log.error("Failed to fetch threads: {}", e.getMessage());
+      return Response.serverError().build();
+    }
+  }
+
+  @PATCH
+  @Path("/threads/{sessionId}")
+  public Response renameThread(
+      @PathParam("sessionId") String sessionId, ThreadRenameRequest request) {
+    log.info("Rename thread session={} user={}", sessionId, jwt.getSubject());
+    try {
+      orchestrator.renameThread(sessionId, request);
+      return Response.noContent().build();
+    } catch (Exception e) {
+      log.error("Failed to rename thread {}: {}", sessionId, e.getMessage());
+      return Response.serverError().build();
+    }
+  }
+
+  @DELETE
+  @Path("/threads/{sessionId}")
+  public Response deleteThread(@PathParam("sessionId") String sessionId) {
+    log.info("Delete thread session={} user={}", sessionId, jwt.getSubject());
+    try {
+      orchestrator.deleteThread(sessionId);
+      return Response.noContent().build();
+    } catch (Exception e) {
+      log.error("Failed to delete thread {}: {}", sessionId, e.getMessage());
       return Response.serverError().build();
     }
   }

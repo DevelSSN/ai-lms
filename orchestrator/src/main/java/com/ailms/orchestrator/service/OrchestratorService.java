@@ -15,13 +15,12 @@ import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import dev.langchain4j.invocation.LangChain4jManaged;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.context.ManagedExecutor;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 @Slf4j
 @ApplicationScoped
@@ -81,8 +80,9 @@ public class OrchestratorService {
         }
       }
       if (agentResponse == null) {
-        agentResponse = orchestratorRouter.route(
-            "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
+        agentResponse =
+            orchestratorRouter.route(
+                "conversation:" + request.sessionId(), enrichedMessage, analysisCtx, intent);
       }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
 
@@ -96,7 +96,9 @@ public class OrchestratorService {
       ChatResponse response = responseComposer.compose(scope, request.sessionId());
 
       boolean isNewSession =
-          conversationRepository.count("sessionId = ?1", request.sessionId()) == 0;
+          conversationRepository.count(
+                  "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", request.sessionId())
+              == 0;
       conversationRepository.logMessage(userId, request.sessionId(), "user", request.message());
       conversationRepository.logMessage(
           userId, request.sessionId(), "assistant", response.message(), response.agentType());
@@ -127,7 +129,8 @@ public class OrchestratorService {
   private void publishAgentEvent(String intent, String userId, String sessionId, String message) {
     try {
       switch (intent) {
-        case "CONTENT_ANALYSIS" -> kafkaEventPublisher.publishContentAnalysisComplete(userId, sessionId, message);
+        case "CONTENT_ANALYSIS" ->
+            kafkaEventPublisher.publishContentAnalysisComplete(userId, sessionId, message);
         case "INSIGHT" -> kafkaEventPublisher.publishInsightGenerated(userId, sessionId, message);
         default -> {}
       }
@@ -174,8 +177,12 @@ public class OrchestratorService {
     StringBuilder sb = new StringBuilder("Here's what I found on YouTube:");
     int n = 1;
     for (YouTubeSearchService.VideoResult result : results) {
-      sb.append('\n').append(n++).append(". https://www.youtube.com/watch?v=")
-          .append(result.videoId()).append(" — ").append(result.title());
+      sb.append('\n')
+          .append(n++)
+          .append(". https://www.youtube.com/watch?v=")
+          .append(result.videoId())
+          .append(" — ")
+          .append(result.title());
     }
     return sb.toString();
   }
@@ -201,7 +208,9 @@ public class OrchestratorService {
     try {
       return conversationAgent.process(
           "proactive-" + userId,
-          "Generate a brief encouraging follow-up message for a student who hasn't been active. Context: " + context);
+          "Generate a brief encouraging follow-up message for a student who hasn't been active."
+              + " Context: "
+              + context);
     } finally {
       LangChain4jManaged.removeCurrent();
     }
@@ -218,13 +227,26 @@ public class OrchestratorService {
 
   private void generateTitle(String userId, String sessionId) {
     try {
-      ConversationLog first = conversationRepository.firstUserMessage(sessionId);
+      ConversationLog first = conversationRepository.firstUserMessage(userId, sessionId);
       if (first == null) return;
-      String title = titleGenerator.generate(first.message);
-      if (title == null || title.isBlank()) return;
+      String title = null;
+      try {
+        title = titleGenerator.generate(first.message);
+      } catch (Exception e) {
+        log.warn("LLM title generation failed for session={}: {}", sessionId, e.getMessage());
+      }
+      if (title == null || title.isBlank()) {
+        title = fallbackTitle(first.message);
+      }
       conversationRepository.setThreadTitle(userId, sessionId, title);
     } catch (Exception e) {
       log.warn("Title generation failed for session={}: {}", sessionId, e.getMessage());
     }
+  }
+
+  private String fallbackTitle(String message) {
+    String collapsed = message.replaceAll("\\s+", " ").trim();
+    if (collapsed.isEmpty()) return "New chat";
+    return collapsed.length() <= 40 ? collapsed : collapsed.substring(0, 40).trim() + "…";
   }
 }

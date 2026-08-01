@@ -1,5 +1,9 @@
 package com.ailms.orchestrator.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.orchestrator.agent.ConversationAgent;
@@ -8,17 +12,11 @@ import com.ailms.orchestrator.agent.OrchestratorRouter;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
-
 import dev.langchain4j.agentic.scope.AgenticScope;
-import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrchestratorServiceTest {
@@ -39,7 +37,8 @@ class OrchestratorServiceTest {
   @Test
   void route_conversationIntent() {
     when(intentClassifier.classify("hello")).thenReturn("CONVERSATION");
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
@@ -56,7 +55,8 @@ class OrchestratorServiceTest {
   @Test
   void route_normalizesClassifierOutput() {
     when(intentClassifier.classify("hi")).thenReturn("\nconversation. ");
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
@@ -65,13 +65,15 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("hi", "sess-1"), "user-1");
 
     assertEquals("Hello there!", resp.message());
-    verify(orchestratorRouter).route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+    verify(orchestratorRouter)
+        .route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
   }
 
   @Test
   void route_defaultsUnrecognizedIntentToConversation() {
     when(intentClassifier.classify("huh")).thenReturn("SOMETHING_ELSE");
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
@@ -80,14 +82,17 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("huh", "sess-1"), "user-1");
 
     assertEquals("Hello there!", resp.message());
-    verify(orchestratorRouter).route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+    verify(orchestratorRouter)
+        .route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
   }
 
   @Test
   void route_contentAnalysisIntent() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
+        .thenReturn(java.util.List.of());
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Analysis result", "sess-1", "CONTENT_ANALYSIS"));
@@ -105,7 +110,11 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
         .thenReturn(java.util.List.of("context from qdrant"));
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), contains("context from qdrant"), eq("ASSESSMENT")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"),
+            anyString(),
+            contains("context from qdrant"),
+            eq("ASSESSMENT")))
         .thenReturn("Assessment result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));
@@ -139,18 +148,23 @@ class OrchestratorServiceTest {
     when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
         .thenReturn("Neural networks by 3b1b");
     when(youTubeSearchService.search("Neural networks by 3b1b"))
-        .thenReturn(java.util.List.of(
-            new YouTubeSearchService.VideoResult("But what is a neural network?", "aircAruvnKk")));
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult(
+                    "But what is a neural network?", "aircAruvnKk")));
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
-        .thenAnswer(inv -> {
-          AgenticScope scope = inv.getArgument(0);
-          String msg = scope.readState("response", "");
-          return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
-        });
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
 
     OrchestratorService svc = buildService();
-    ChatResponse resp = svc.route(
-        new ChatRequest("Give me a youtube link to Neural networks by 3b1b", "sess-1"), "user-1");
+    ChatResponse resp =
+        svc.route(
+            new ChatRequest("Give me a youtube link to Neural networks by 3b1b", "sess-1"),
+            "user-1");
 
     assertTrue(resp.message().contains("https://www.youtube.com/watch?v=aircAruvnKk"));
     assertEquals("VIDEO_SEARCH", resp.agentType());
@@ -163,7 +177,8 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("video please")).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("video please")).thenReturn("video please");
     when(youTubeSearchService.search("video please")).thenReturn(java.util.List.of());
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn("Fallback answer");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Fallback answer", "sess-1", "CONVERSATION"));
@@ -173,14 +188,16 @@ class OrchestratorServiceTest {
 
     assertEquals("Fallback answer", resp.message());
     assertEquals("CONVERSATION", resp.agentType());
-    verify(orchestratorRouter).route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
+    verify(orchestratorRouter)
+        .route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION"));
   }
 
   @Test
   void route_sanitizesAgentResponseLinks() {
     String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
     when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONVERSATION")))
         .thenReturn(raw);
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse(raw, "sess-1", "CONVERSATION"));
@@ -197,8 +214,10 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
         .thenThrow(new RuntimeException("Qdrant down"));
     doThrow(new RuntimeException("Qdrant down"))
-        .when(vectorDBService).ingestDocument(anyString(), anyString(), anyString());
-    when(orchestratorRouter.route(eq("conversation:sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
+        .when(vectorDBService)
+        .ingestDocument(anyString(), anyString(), anyString());
+    when(orchestratorRouter.route(
+            eq("conversation:sess-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis result (no context)");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Analysis result (no context)", "sess-1", "CONTENT_ANALYSIS"));
@@ -226,10 +245,13 @@ class OrchestratorServiceTest {
   void route_uploadFile_resolvesContent() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
-    when(contentDocumentService.resolveContent("doc-1")).thenReturn("File: notes.pdf\n\nContent:\nsample text");
+    when(contentDocumentService.resolveContent("doc-1"))
+        .thenReturn("File: notes.pdf\n\nContent:\nsample text");
 
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3))).thenReturn(java.util.List.of());
-    when(orchestratorRouter.route(eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3)))
+        .thenReturn(java.util.List.of());
+    when(orchestratorRouter.route(
+            eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS")))
         .thenReturn("Analysis complete");
     when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
         .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
@@ -239,7 +261,8 @@ class OrchestratorServiceTest {
 
     assertNotNull(resp);
     verify(contentDocumentService).resolveContent("doc-1");
-    verify(orchestratorRouter).route(eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS"));
+    verify(orchestratorRouter)
+        .route(eq("conversation:upload-user-1"), anyString(), eq(""), eq("CONTENT_ANALYSIS"));
   }
 
   private OrchestratorService buildService() {
@@ -256,7 +279,8 @@ class OrchestratorServiceTest {
     svc.kafkaEventPublisher = kafkaEventPublisher;
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;
-    lenient().when(youTubeLinkValidator.sanitize(anyString()))
+    lenient()
+        .when(youTubeLinkValidator.sanitize(anyString()))
         .thenAnswer(inv -> inv.getArgument(0));
     return svc;
   }

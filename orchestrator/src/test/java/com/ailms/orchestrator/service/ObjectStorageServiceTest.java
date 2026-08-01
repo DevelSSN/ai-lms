@@ -1,5 +1,10 @@
 package com.ailms.orchestrator.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -10,12 +15,6 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
-import java.io.ByteArrayInputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class ObjectStorageServiceTest {
 
@@ -25,7 +24,8 @@ class ObjectStorageServiceTest {
   void readFile_returnsBytes() throws Exception {
     byte[] expected = "file content".getBytes();
     GetObjectResponse resp = GetObjectResponse.builder().build();
-    ResponseInputStream<GetObjectResponse> is = new ResponseInputStream<>(resp, new ByteArrayInputStream(expected));
+    ResponseInputStream<GetObjectResponse> is =
+        new ResponseInputStream<>(resp, new ByteArrayInputStream(expected));
 
     when(s3.getObject(any(GetObjectRequest.class))).thenReturn(is);
 
@@ -48,7 +48,8 @@ class ObjectStorageServiceTest {
 
   @Test
   void readFile_ioError_returnsNull() throws Exception {
-    when(s3.getObject(any(GetObjectRequest.class))).thenThrow(new RuntimeException("Connection error"));
+    when(s3.getObject(any(GetObjectRequest.class)))
+        .thenThrow(new RuntimeException("Connection error"));
 
     ObjectStorageService service = new ObjectStorageService();
     service.s3 = s3;

@@ -19,10 +19,13 @@ public class ResponseComposer {
     if (primary != null && !primary.isBlank()) return primary;
 
     return switch (intent) {
-      case "CONTENT_ANALYSIS" -> fallback(agenticScope.readState("analysis", ""), "Analysis not available");
-      case "ASSESSMENT" -> fallback(agenticScope.readState("assessment", ""), "Assessment not available");
+      case "CONTENT_ANALYSIS" ->
+          fallback(agenticScope.readState("analysis", ""), "Analysis not available");
+      case "ASSESSMENT" ->
+          fallback(agenticScope.readState("assessment", ""), "Assessment not available");
       case "INSIGHT" -> fallback(agenticScope.readState("insights", ""), "Insights not available");
-      default -> fallback(primary, "I couldn't generate a response. Please try rephrasing your question.");
+      default ->
+          fallback(primary, "I couldn't generate a response. Please try rephrasing your question.");
     };
   }
 

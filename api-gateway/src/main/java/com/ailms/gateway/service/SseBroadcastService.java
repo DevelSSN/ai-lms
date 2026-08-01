@@ -4,30 +4,36 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.subscription.Cancellable;
 import io.smallrye.mutiny.subscription.MultiEmitter;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Duration;
 import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
 public class SseBroadcastService {
 
-  private final CopyOnWriteArrayList<MultiEmitter<? super String>> emitters = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<MultiEmitter<? super String>> emitters =
+      new CopyOnWriteArrayList<>();
 
   public Multi<String> subscribe() {
     log.info("New SSE subscriber connected (total: {})", emitters.size() + 1);
-    return Multi.createFrom().emitter(em -> {
-      emitters.add(em);
-      Cancellable keepalive = Multi.createFrom()
-          .ticks().every(Duration.ofSeconds(25))
-          .subscribe().with(tick -> em.emit("{\"type\":\"ping\"}"));
-      em.onTermination(() -> {
-        keepalive.cancel();
-        emitters.remove(em);
-        log.info("SSE subscriber disconnected (total: {})", emitters.size());
-      });
-    });
+    return Multi.createFrom()
+        .emitter(
+            em -> {
+              emitters.add(em);
+              Cancellable keepalive =
+                  Multi.createFrom()
+                      .ticks()
+                      .every(Duration.ofSeconds(25))
+                      .subscribe()
+                      .with(tick -> em.emit("{\"type\":\"ping\"}"));
+              em.onTermination(
+                  () -> {
+                    keepalive.cancel();
+                    emitters.remove(em);
+                    log.info("SSE subscriber disconnected (total: {})", emitters.size());
+                  });
+            });
   }
 
   public void broadcast(String userId, String message) {

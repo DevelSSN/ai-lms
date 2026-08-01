@@ -1,20 +1,18 @@
 package com.ailms.orchestrator.repository;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.orchestrator.service.ChatHistoryCacheService;
-import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Disabled("Needs Quarkus Arc for Panache")

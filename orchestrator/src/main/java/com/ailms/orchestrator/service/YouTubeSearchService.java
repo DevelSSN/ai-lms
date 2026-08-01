@@ -3,9 +3,6 @@ package com.ailms.orchestrator.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -17,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Slf4j
 @ApplicationScoped
@@ -24,8 +23,7 @@ public class YouTubeSearchService {
 
   public record VideoResult(String title, String videoId) {}
 
-  private static final String SEARCH_ENDPOINT =
-      "https://www.googleapis.com/youtube/v3/search";
+  private static final String SEARCH_ENDPOINT = "https://www.googleapis.com/youtube/v3/search";
 
   private static final int MAX_RESULTS = 3;
 
@@ -61,7 +59,8 @@ public class YouTubeSearchService {
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
       if (response.statusCode() != 200) {
-        log.warn("YouTube search API returned status={} for query={}", response.statusCode(), query);
+        log.warn(
+            "YouTube search API returned status={} for query={}", response.statusCode(), query);
         return List.of();
       }
       return parse(response.body());

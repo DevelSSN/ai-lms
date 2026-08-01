@@ -4,15 +4,16 @@ import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.agent.ErrorContext;
 import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
 import dev.langchain4j.agentic.declarative.ErrorHandler;
-import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface IntentClassifier {
 
-  @SystemMessage("""
+  @SystemMessage(
+      """
       You are an intent classification system for an AI-powered Learning Management System.
       Classify the user's message into one of these intents:
       - CONVERSATION: General questions, greetings, casual chat, and requests for resources, links, or recommendations (excluding videos)

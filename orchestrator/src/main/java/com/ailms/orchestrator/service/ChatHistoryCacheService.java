@@ -27,7 +27,8 @@ public class ChatHistoryCacheService {
   public void cacheMessage(
       String userId, String sessionId, String role, String message, String agentType) {
     String key = PREFIX + userId + ":" + sessionId;
-    String entry = String.join("||", role, message != null ? message : "", agentType != null ? agentType : "");
+    String entry =
+        String.join("||", role, message != null ? message : "", agentType != null ? agentType : "");
     lists.rpush(key, entry);
     keys.expire(key, TTL_SECONDS);
   }
@@ -37,12 +38,21 @@ public class ChatHistoryCacheService {
     List<String> entries = lists.lrange(key, 0, -1);
     if (entries.isEmpty()) return null;
 
-    List<ChatMessage> messages = entries.stream()
-        .map(e -> {
-          String[] parts = e.split("\\|\\|", 3);
-          return new ChatMessage(parts[0], parts.length > 1 ? parts[1] : "", parts.length > 2 ? parts[2] : null);
-        })
-        .toList();
+    List<ChatMessage> messages =
+        entries.stream()
+            .map(
+                e -> {
+                  String[] parts = e.split("\\|\\|", 3);
+                  return new ChatMessage(
+                      parts[0],
+                      parts.length > 1 ? parts[1] : "",
+                      parts.length > 2 ? parts[2] : null);
+                })
+            .toList();
     return new ChatHistory(sessionId, messages);
+  }
+
+  public void deleteHistory(String userId, String sessionId) {
+    keys.del(PREFIX + userId + ":" + sessionId);
   }
 }

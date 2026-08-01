@@ -12,7 +12,8 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 @RegisterAiService
 public interface TitleGenerator {
 
-  @SystemMessage("""
+  @SystemMessage(
+      """
       You generate short, descriptive titles for chat threads in an AI-powered Learning
       Management System.
 

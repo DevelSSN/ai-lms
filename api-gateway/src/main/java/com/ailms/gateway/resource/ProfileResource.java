@@ -33,8 +33,8 @@ public class ProfileResource {
     String userId = jwt.getSubject();
     log.info("Profile requested by user={}", userId);
     try {
-      com.ailms.common.dto.ChatRequest request = new com.ailms.common.dto.ChatRequest(
-          "Show my learning profile", "profile-" + userId);
+      com.ailms.common.dto.ChatRequest request =
+          new com.ailms.common.dto.ChatRequest("Show my learning profile", "profile-" + userId);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {
@@ -48,8 +48,9 @@ public class ProfileResource {
     String userId = jwt.getSubject();
     log.info("Profile update by user={} fields={}", userId, updates.keySet());
     try {
-      com.ailms.common.dto.ChatRequest request = new com.ailms.common.dto.ChatRequest(
-          "Update my profile: " + updates, "profile-" + userId);
+      com.ailms.common.dto.ChatRequest request =
+          new com.ailms.common.dto.ChatRequest(
+              "Update my profile: " + updates, "profile-" + userId);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {

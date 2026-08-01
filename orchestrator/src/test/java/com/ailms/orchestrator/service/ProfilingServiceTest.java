@@ -1,13 +1,12 @@
 package com.ailms.orchestrator.service;
 
-import com.ailms.common.entity.UserProfile;
+import static org.mockito.Mockito.*;
+
 import com.ailms.orchestrator.repository.UserProfileRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProfilingServiceTest {

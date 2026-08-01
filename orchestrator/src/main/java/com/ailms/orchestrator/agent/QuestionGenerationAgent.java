@@ -5,15 +5,16 @@ import dev.langchain4j.agentic.agent.ErrorContext;
 import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
 import dev.langchain4j.agentic.declarative.ErrorHandler;
 import dev.langchain4j.service.MemoryId;
-import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface QuestionGenerationAgent {
 
-  @SystemMessage("""
+  @SystemMessage(
+      """
       You are an expert assessment designer for an AI-powered Learning Management System.
       Generate relevant and well-structured quiz questions and test items based on educational content.
       Create questions that test understanding at various levels: recall, comprehension, application, and analysis.
@@ -24,7 +25,8 @@ public interface QuestionGenerationAgent {
       name = "QuestionGenerationAgent",
       description = "Generates assessment questions and quiz items based on educational content",
       outputKey = "assessment")
-  @UserMessage("""
+  @UserMessage(
+      """
       Generate assessment questions based on the content below.
       Use the analysis context if provided to focus on key topics.
 
@@ -34,9 +36,10 @@ public interface QuestionGenerationAgent {
       Content:
       {{message}}
       """)
-  String process(@MemoryId String sessionId,
-                 @V("message") String message,
-                 @V("analysisContext") String analysisContext);
+  String process(
+      @MemoryId String sessionId,
+      @V("message") String message,
+      @V("analysisContext") String analysisContext);
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {

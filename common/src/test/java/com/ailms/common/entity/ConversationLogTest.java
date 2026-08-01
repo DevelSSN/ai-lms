@@ -1,7 +1,8 @@
 package com.ailms.common.entity;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class ConversationLogTest {
 
@@ -97,7 +98,7 @@ class ContentEmbeddingTest {
     e.documentId = "doc-1";
     e.source = "user-1";
     e.contentType = "conversation";
-    e.embedding = new float[]{0.1f, 0.2f, 0.3f};
+    e.embedding = new float[] {0.1f, 0.2f, 0.3f};
     e.textSegment = "sample text";
     assertEquals("doc-1", e.documentId);
     assertEquals(3, e.embedding.length);

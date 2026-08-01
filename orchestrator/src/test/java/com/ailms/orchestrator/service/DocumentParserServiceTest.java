@@ -1,10 +1,9 @@
 package com.ailms.orchestrator.service;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class DocumentParserServiceTest {
 
@@ -12,7 +11,8 @@ class DocumentParserServiceTest {
 
   @Test
   void parsePlainText() {
-    byte[] content = "Hello, this is plain text.\nWith multiple lines.".getBytes(StandardCharsets.UTF_8);
+    byte[] content =
+        "Hello, this is plain text.\nWith multiple lines.".getBytes(StandardCharsets.UTF_8);
     DocumentParserService.ParseResult result = service.parse(content, "test.txt", "text/plain");
     assertTrue(result.isSuccess());
     assertNotNull(result.text());
@@ -31,7 +31,9 @@ class DocumentParserServiceTest {
 
   @Test
   void isSupported_docx() {
-    assertTrue(service.isSupported("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+    assertTrue(
+        service.isSupported(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
   }
 
   @Test

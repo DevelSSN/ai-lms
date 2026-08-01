@@ -32,6 +32,8 @@ public class ConversationLog {
   @Column(columnDefinition = "TEXT")
   public String title;
 
+  public Boolean deleted = false;
+
   @PrePersist
   void onCreate() {
     timestamp = Instant.now();

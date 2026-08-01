@@ -17,6 +17,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -26,10 +29,6 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.UUID;
 
 @Slf4j
 @Path("/api/v1/content")
@@ -60,11 +59,12 @@ public class ContentResource {
       String storagePath = "uploads/" + userId + "/" + UUID.randomUUID() + "_" + file.fileName();
       byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
 
-      PutObjectRequest putReq = PutObjectRequest.builder()
-          .bucket(BUCKET)
-          .key(storagePath)
-          .contentType(file.contentType())
-          .build();
+      PutObjectRequest putReq =
+          PutObjectRequest.builder()
+              .bucket(BUCKET)
+              .key(storagePath)
+              .contentType(file.contentType())
+              .build();
       s3.putObject(putReq, RequestBody.fromBytes(fileBytes));
 
       ContentDocument doc = new ContentDocument();
@@ -77,8 +77,8 @@ public class ContentResource {
       doc.status = "UPLOADED";
       contentDocRepo.persist(doc);
 
-      ChatRequest request = new ChatRequest(
-          "Analyze the uploaded file: " + doc.id, "upload-" + userId);
+      ChatRequest request =
+          new ChatRequest("Analyze the uploaded file: " + doc.id, "upload-" + userId);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {
@@ -92,15 +92,16 @@ public class ContentResource {
   @ApplicationScoped
   static class ContentDocumentRepository implements PanacheRepository<ContentDocument> {}
 
-
   @POST
   @Path("/assess")
   public Response generateAssessment(AssessmentRequest request) {
     String userId = jwt.getSubject();
-    log.info("Assessment generation requested for content={} by user={}", request.contentId(), userId);
+    log.info(
+        "Assessment generation requested for content={} by user={}", request.contentId(), userId);
     try {
-      ChatRequest chatReq = new ChatRequest(
-          "Generate assessment for content " + request.contentId(), "assess-" + userId);
+      ChatRequest chatReq =
+          new ChatRequest(
+              "Generate assessment for content " + request.contentId(), "assess-" + userId);
       ChatResponse response = orchestrator.processMessage(chatReq);
       return Response.ok(response).build();
     } catch (Exception e) {
@@ -115,7 +116,8 @@ public class ContentResource {
     String userId = jwt.getSubject();
     log.info("Insights requested by user={}", userId);
     try {
-      ChatRequest request = new ChatRequest("Show my learning insights and progress", "insight-" + userId);
+      ChatRequest request =
+          new ChatRequest("Show my learning insights and progress", "insight-" + userId);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {

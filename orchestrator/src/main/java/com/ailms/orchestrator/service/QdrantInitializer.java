@@ -4,14 +4,13 @@ import io.quarkus.runtime.Startup;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Slf4j
 @ApplicationScoped
@@ -61,22 +60,28 @@ public class QdrantInitializer {
     String body = "{ \"vectors\": { \"size\": " + vectorSize + ", \"distance\": \"Cosine\" } }";
     HttpResponse<String> response = send("PUT", "/collections/" + collection, body);
     if (response.statusCode() != 200) {
-      throw new IllegalStateException("Qdrant create collection returned " + response.statusCode() + ": " + response.body());
+      throw new IllegalStateException(
+          "Qdrant create collection returned " + response.statusCode() + ": " + response.body());
     }
   }
 
   private HttpResponse<String> send(String method, String path, String body) throws Exception {
-    HttpRequest.Builder builder = HttpRequest.newBuilder()
-        .uri(URI.create("http://" + host + ":" + port + path))
-        .timeout(Duration.ofSeconds(10))
-        .header("api-key", apiKey)
-        .header("Content-Type", "application/json");
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder()
+            .uri(URI.create("http://" + host + ":" + port + path))
+            .timeout(Duration.ofSeconds(10))
+            .header("api-key", apiKey)
+            .header("Content-Type", "application/json");
 
-    HttpRequest request = switch (method) {
-      case "GET" -> builder.GET().build();
-      case "PUT" -> builder.method("PUT", HttpRequest.BodyPublishers.ofString(body == null ? "" : body)).build();
-      default -> throw new IllegalArgumentException("Unsupported method " + method);
-    };
+    HttpRequest request =
+        switch (method) {
+          case "GET" -> builder.GET().build();
+          case "PUT" ->
+              builder
+                  .method("PUT", HttpRequest.BodyPublishers.ofString(body == null ? "" : body))
+                  .build();
+          default -> throw new IllegalArgumentException("Unsupported method " + method);
+        };
 
     return HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(5))

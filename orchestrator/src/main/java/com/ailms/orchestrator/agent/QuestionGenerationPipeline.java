@@ -7,10 +7,10 @@ import dev.langchain4j.agentic.declarative.ExitCondition;
 import dev.langchain4j.agentic.declarative.LoopAgent;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.service.MemoryId;
-import io.quarkiverse.langchain4j.RegisterAiService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
+import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface QuestionGenerationPipeline {
@@ -19,7 +19,8 @@ public interface QuestionGenerationPipeline {
       outputKey = "assessment",
       subAgents = {QuestionGenerationAgent.class, QualityEvaluator.class},
       maxIterations = 3)
-  @UserMessage("""
+  @UserMessage(
+      """
       Generate and refine assessment questions until quality threshold is met.
       Use analysis context below if provided to focus on key topics.
 
@@ -29,14 +30,16 @@ public interface QuestionGenerationPipeline {
       Content:
       {{message}}
       """)
-  String generateUntilQuality(@MemoryId String sessionId,
-                              @V("message") String message,
-                              @V("analysisContext") String analysisContext);
+  String generateUntilQuality(
+      @MemoryId String sessionId,
+      @V("message") String message,
+      @V("analysisContext") String analysisContext);
 
   @RegisterAiService
   interface QualityEvaluator {
 
-    @SystemMessage("""
+    @SystemMessage(
+        """
         You are an assessment quality evaluator.
         Rate the quality of the generated questions on a scale of 0-100.
         Consider: relevance, clarity, difficulty balance, and educational value.
@@ -50,9 +53,7 @@ public interface QuestionGenerationPipeline {
     Integer evaluate(@V("message") String assessment);
   }
 
-  @ExitCondition(
-      testExitAtLoopEnd = true,
-      description = "Exit when quality score >= 85")
+  @ExitCondition(testExitAtLoopEnd = true, description = "Exit when quality score >= 85")
   static boolean isQualityMet(AgenticScope scope) {
     String scoreStr = scope.readState("qualityScore", "0");
     try {
@@ -64,6 +65,7 @@ public interface QuestionGenerationPipeline {
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
-    return ErrorRecoveryResult.result("Assessment generation encountered an error. Please try again.");
+    return ErrorRecoveryResult.result(
+        "Assessment generation encountered an error. Please try again.");
   }
 }

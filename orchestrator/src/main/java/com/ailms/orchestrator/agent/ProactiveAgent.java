@@ -6,13 +6,12 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 @Slf4j
 @ApplicationScoped
@@ -32,8 +31,7 @@ public class ProactiveAgent {
     log.info("Running scheduled follow-up check");
     Instant cutoff = Instant.now().minus(24, ChronoUnit.HOURS);
 
-    List<String> inactiveUsers =
-        conversationRepository.findInactiveUsersSince(cutoff);
+    List<String> inactiveUsers = conversationRepository.findInactiveUsersSince(cutoff);
 
     for (String userId : inactiveUsers) {
       try {
@@ -48,8 +46,7 @@ public class ProactiveAgent {
   }
 
   private String generateFollowUp(String userId) {
-    List<ConversationLog> recentLogs =
-        conversationRepository.findRecentByUserId(userId, 5);
+    List<ConversationLog> recentLogs = conversationRepository.findRecentByUserId(userId, 5);
 
     String context =
         recentLogs.stream()
@@ -60,8 +57,10 @@ public class ProactiveAgent {
       return "Hi! Ready to continue learning? Let me know if you have any questions.";
     }
 
-    return conversationAgent.process("proactive-" + userId,
-        "Based on recent conversation, generate a brief encouraging follow-up message. Context: " + context);
+    return conversationAgent.process(
+        "proactive-" + userId,
+        "Based on recent conversation, generate a brief encouraging follow-up message. Context: "
+            + context);
   }
 
   public record ProactiveFollowUp(String userId, String message) {}

@@ -1,12 +1,12 @@
 package com.ailms.orchestrator.service;
 
+import static org.mockito.Mockito.*;
+
 import com.ailms.orchestrator.agent.ProactiveAgent.ProactiveEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class KafkaEventSubscriberTest {

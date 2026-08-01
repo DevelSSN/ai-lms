@@ -210,6 +210,73 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.thread-item-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.thread-item-actions {
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.thread-item:hover .thread-item-actions {
+    opacity: 1;
+}
+
+.thread-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.thread-action-btn:hover {
+    color: var(--accent-color);
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.thread-action-btn.danger:hover {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.12);
+}
+
+.thread-action-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.thread-rename-input {
+    width: 100%;
+    background-color: var(--container-bg);
+    border: 1px solid var(--accent-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.thread-rename-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
 }
 
 .thread-item-meta {

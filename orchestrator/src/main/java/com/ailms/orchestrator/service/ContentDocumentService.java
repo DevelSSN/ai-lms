@@ -5,10 +5,9 @@ import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
@@ -36,10 +35,15 @@ public class ContentDocumentService {
           doc.status = "PARSED";
           doc.processedAt = Instant.now();
           Panache.getEntityManager().merge(doc);
-          log.info("Parsed document docId={} type={} textLength={}", docId, doc.fileType, content.length());
+          log.info(
+              "Parsed document docId={} type={} textLength={}",
+              docId,
+              doc.fileType,
+              content.length());
         } else {
           content = new String(fileBytes, StandardCharsets.UTF_8);
-          log.warn("Parse failed for docId={}: {}, falling back to raw bytes", docId, result.error());
+          log.warn(
+              "Parse failed for docId={}: {}, falling back to raw bytes", docId, result.error());
         }
       } else {
         content = new String(fileBytes, StandardCharsets.UTF_8);

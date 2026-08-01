@@ -15,9 +15,8 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
@@ -27,10 +26,11 @@ public class VectorDBService {
 
   @Inject
   public VectorDBService(@Any Instance<EmbeddingStore<TextSegment>> stores) {
-    this.embeddingStore = stores.stream()
-        .filter(s -> !(s instanceof RedisEmbeddingStore))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("No non-Redis EmbeddingStore available"));
+    this.embeddingStore =
+        stores.stream()
+            .filter(s -> !(s instanceof RedisEmbeddingStore))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No non-Redis EmbeddingStore available"));
   }
 
   @Inject EmbeddingModel embeddingModel;
@@ -38,8 +38,7 @@ public class VectorDBService {
   @Transactional
   public void ingestDocument(String content, String source, String contentType) {
     java.util.Map<String, Object> meta = java.util.Map.of("source", source, "type", contentType);
-    TextSegment segment =
-        TextSegment.from(content, Metadata.from(meta));
+    TextSegment segment = TextSegment.from(content, Metadata.from(meta));
 
     Embedding embedding = embeddingModel.embed(segment).content();
     embeddingStore.add(embedding, segment);
@@ -65,8 +64,6 @@ public class VectorDBService {
 
     List<EmbeddingMatch<TextSegment>> matches = embeddingStore.search(request).matches();
 
-    return matches.stream()
-        .map(match -> match.embedded().text())
-        .toList();
+    return matches.stream().map(match -> match.embedded().text()).toList();
   }
 }

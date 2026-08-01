@@ -3,8 +3,11 @@ package com.ailms.gateway.service;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -25,4 +28,12 @@ public interface OrchestratorClient {
   @GET
   @Path("/threads")
   List<ThreadSummary> getThreads();
+
+  @PATCH
+  @Path("/threads/{sessionId}")
+  void renameThread(@PathParam("sessionId") String sessionId, ThreadRenameRequest request);
+
+  @DELETE
+  @Path("/threads/{sessionId}")
+  void deleteThread(@PathParam("sessionId") String sessionId);
 }

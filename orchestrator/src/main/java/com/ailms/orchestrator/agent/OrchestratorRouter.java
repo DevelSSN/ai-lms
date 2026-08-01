@@ -1,7 +1,5 @@
 package com.ailms.orchestrator.agent;
 
-import dev.langchain4j.agentic.agent.ErrorContext;
-import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
 import dev.langchain4j.agentic.declarative.ActivationCondition;
 import dev.langchain4j.agentic.declarative.ConditionalAgent;
 import dev.langchain4j.agentic.scope.AgenticScope;
@@ -21,7 +19,8 @@ public interface OrchestratorRouter {
         QuestionGenerationPipeline.class,
         InsightAgent.class
       })
-  @UserMessage("""
+  @UserMessage(
+      """
       Route to appropriate agent based on intent.
 
       Analysis context (if available):
@@ -30,10 +29,11 @@ public interface OrchestratorRouter {
       Message:
       {{message}}
       """)
-  String route(@MemoryId String sessionId,
-               @V("message") String message,
-               @V("analysisContext") String analysisContext,
-               @V("intent") String intent);
+  String route(
+      @MemoryId String sessionId,
+      @V("message") String message,
+      @V("analysisContext") String analysisContext,
+      @V("intent") String intent);
 
   @ActivationCondition(
       value = ConversationAgent.class,

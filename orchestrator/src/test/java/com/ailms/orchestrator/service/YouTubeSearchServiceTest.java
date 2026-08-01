@@ -1,11 +1,10 @@
 package com.ailms.orchestrator.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class YouTubeSearchServiceTest {
 
@@ -32,15 +31,17 @@ class YouTubeSearchServiceTest {
   @Test
   void buildUrl_encodesQueryAndKey() {
     String url = service.buildUrl("neural networks 3blue1brown");
-    assertTrue(url.startsWith(
-        "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=3"));
+    assertTrue(
+        url.startsWith(
+            "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=3"));
     assertTrue(url.contains("q=neural+networks+3blue1brown"));
     assertTrue(url.contains("key=test-key"));
   }
 
   @Test
   void parse_extractsVideoResults() {
-    String json = """
+    String json =
+        """
         {
           "items": [
             {
@@ -70,7 +71,8 @@ class YouTubeSearchServiceTest {
 
   @Test
   void parse_skipsItemsWithoutVideoId() {
-    String json = """
+    String json =
+        """
         {
           "items": [
             { "id": { "kind": "youtube#channel", "channelId": "UCEb9v7gq" }, "snippet": { "title": "channel" } },
@@ -92,17 +94,16 @@ class YouTubeSearchServiceTest {
 
   @Test
   void extractQuery_stripsPreamble() {
-    assertEquals("Neural networks by 3b1b",
+    assertEquals(
+        "Neural networks by 3b1b",
         service.extractQuery("Give me a youtube link to Neural networks by 3b1b"));
-    assertEquals("Neural networks by 3b1b",
+    assertEquals(
+        "Neural networks by 3b1b",
         service.extractQuery("give me the youtube link for Neural networks by 3b1b"));
-    assertEquals("calculus",
-        service.extractQuery("Recommend a good video about calculus"));
-    assertEquals("quantum mechanics",
-        service.extractQuery("Can you find me a video on quantum mechanics?"));
-    assertEquals("the universe",
-        service.extractQuery("Show me a video about the universe"));
-    assertEquals("What is a neural network",
-        service.extractQuery("What is a neural network?"));
+    assertEquals("calculus", service.extractQuery("Recommend a good video about calculus"));
+    assertEquals(
+        "quantum mechanics", service.extractQuery("Can you find me a video on quantum mechanics?"));
+    assertEquals("the universe", service.extractQuery("Show me a video about the universe"));
+    assertEquals("What is a neural network", service.extractQuery("What is a neural network?"));
   }
 }
