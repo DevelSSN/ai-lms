@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class ContentDocumentService {
 
+  private static final int MAX_CONTENT_CHARS = 12000;
+
   @Inject ObjectStorageService objectStorage;
 
   @Inject DocumentParserService documentParser;
@@ -48,6 +50,10 @@ public class ContentDocumentService {
       } else {
         content = new String(fileBytes, StandardCharsets.UTF_8);
         log.info("Unsupported type={} for docId={}, using raw bytes", doc.fileType, docId);
+      }
+
+      if (content.length() > MAX_CONTENT_CHARS) {
+        content = content.substring(0, MAX_CONTENT_CHARS) + "\n\n…[content truncated]";
       }
 
       return "File: " + doc.fileName + "\n\nContent:\n" + content;
