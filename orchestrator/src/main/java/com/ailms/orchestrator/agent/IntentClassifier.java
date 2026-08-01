@@ -9,7 +9,7 @@ import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
-@RegisterAiService
+@RegisterAiService(chatMemoryProviderSupplier = RegisterAiService.NoChatMemoryProviderSupplier.class)
 public interface IntentClassifier {
 
   @SystemMessage(
@@ -31,6 +31,17 @@ public interface IntentClassifier {
       - "Summarize the key points from the file I uploaded" -> CONTENT_ANALYSIS
       - "Quiz me on quadratic equations" -> ASSESSMENT
       - "How is my progress this week?" -> INSIGHT
+
+      Negative examples - always classify these as CONVERSATION, never as
+      CONTENT_ANALYSIS or ASSESSMENT, even though they mention such words:
+      - "Hi", "Hello", "Hey there", "Good morning" -> CONVERSATION
+      - "Hi" alone, or any single-word casual greeting -> CONVERSATION
+      - "I have a question" with no uploaded file or content reference -> CONVERSATION
+      - "Can you explain X?" with no file/content reference -> CONVERSATION
+
+      Content must actually exist (an uploaded file, or text/content already
+      provided in this conversation) for CONTENT_ANALYSIS or ASSESSMENT. A bare
+      request for an explanation with no such content is CONVERSATION.
 
       Respond with ONLY the intent label (e.g., CONVERSATION, VIDEO_SEARCH, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.

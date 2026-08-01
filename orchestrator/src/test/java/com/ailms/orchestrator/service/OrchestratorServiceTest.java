@@ -40,31 +40,36 @@ class OrchestratorServiceTest {
   @Mock YouTubeSearchService youTubeSearchService;
 
   @Test
-  void route_conversationIntent() {
-    when(intentClassifier.classify("hello")).thenReturn("CONVERSATION");
-    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
-        .thenReturn("Hello there!");
+  void route_bareGreeting_shortCircuits() {
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
-        .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
 
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("hello", "sess-1"), "user-1");
 
-    assertEquals("Hello there!", resp.message());
+    assertEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
+    assertEquals("CONVERSATION", resp.agentType());
     verify(profilingService).ensureProfile("user-1");
-    verify(profilingAgent).process(eq("profiling:sess-1"), anyString());
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+    verify(profilingAgent, never()).process(anyString(), anyString());
     verify(conversationRepository).logMessage(anyString(), anyString(), eq("user"), anyString());
   }
 
   @Test
   void route_generatesSessionWhenMissing() {
-    when(intentClassifier.classify("hi")).thenReturn("CONVERSATION");
-    when(conversationAgent.process(anyString(), anyString())).thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), anyString()))
         .thenAnswer(
             inv -> {
               String sid = inv.getArgument(1);
-              return new ChatResponse("Hello there!", sid, "CONVERSATION");
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, sid, "CONVERSATION");
             });
 
     OrchestratorService svc = buildService();
@@ -72,19 +77,20 @@ class OrchestratorServiceTest {
 
     assertNotNull(resp.sessionId());
     assertFalse(resp.sessionId().isBlank());
+    assertEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
     verify(conversationRepository).logMessage(eq("user-1"), anyString(), eq("user"), anyString());
   }
 
   @Test
   void route_normalizesClassifierOutput() {
-    when(intentClassifier.classify("hi")).thenReturn("\nconversation. ");
+    when(intentClassifier.classify("what is a neural network")).thenReturn("\nconversation. ");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Hello there!", "sess-1", "CONVERSATION"));
 
     OrchestratorService svc = buildService();
-    ChatResponse resp = svc.route(new ChatRequest("hi", "sess-1"), "user-1");
+    ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
 
     assertEquals("Hello there!", resp.message());
     verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
@@ -106,26 +112,32 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_contentAnalysisIntent() {
+  void route_contentAnalysisIntent_withoutDocument_reclassifiesToConversation() {
     when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), any(Predicate.class)))
-        .thenReturn(java.util.List.of());
-    when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
-        .thenReturn("Analysis result");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Explain result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
-        .thenReturn(new ChatResponse("Analysis result", "sess-1", "CONTENT_ANALYSIS"));
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String intent = scope.readState("intent", "");
+              return new ChatResponse("Explain result", "sess-1", intent);
+            });
 
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("analyze this", "sess-1"), "user-1");
 
-    assertEquals("Analysis result", resp.message());
-    verify(vectorDBService).retrieveRelevantContext(anyString(), eq(8), any(Predicate.class));
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
+    verify(vectorDBService, never())
+        .retrieveRelevantContext(anyString(), eq(8), any(Predicate.class));
   }
 
   @Test
   void route_assessmentIntent_enrichesWithContext() {
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), any(Predicate.class)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("context from qdrant"));
     when(questionGenerationAgent.process(
             eq("conversation:sess-1"), anyString(), contains("context from qdrant")))
@@ -138,7 +150,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Assessment result", resp.message());
     verify(vectorDBService, times(2))
-        .retrieveRelevantContext(anyString(), eq(3), any(Predicate.class));
+        .retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
   }
 
   @Test
@@ -240,8 +252,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_handlesVectorDbFailureGracefully() {
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), any(Predicate.class)))
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenThrow(new RuntimeException("Qdrant down"));
     when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Analysis result (no context)");

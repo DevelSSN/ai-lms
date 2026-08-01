@@ -12,6 +12,7 @@ import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.ailms.orchestrator.util.TextUtils;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import dev.langchain4j.invocation.LangChain4jManaged;
@@ -85,32 +86,55 @@ public class OrchestratorService {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
     try {
-      String intent = normalizeIntent(intentClassifier.classify(request.message()));
-      log.info("Intent={} for user={} message={}", intent, userId, request.message());
+      String message = request.message();
+      String greetingResponse =
+          TextUtils.isBareGreeting(message)
+              ? "Hello! I'm your AI tutor. What would you like to learn today?"
+              : null;
 
-      String enrichedMessage = enrichWithContext(intent, request.message(), sessionId, userId);
+      String intent;
+      String enrichedMessage;
+      if (greetingResponse != null) {
+        intent = "CONVERSATION";
+        enrichedMessage = message;
+        log.info(
+            "Intent=CONVERSATION (greeting short-circuit) for user={} message={}",
+            userId,
+            message);
+      } else {
+        intent = normalizeIntent(intentClassifier.classify(message));
+        intent = reclassifyContentIntent(intent, message, sessionId, userId);
+        log.info("Intent={} for user={} message={}", intent, userId, message);
+        enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
+      }
 
       scope.writeState("intent", intent);
 
-      String analysisCtx = resolveAnalysisContext(intent, request.message(), sessionId, userId);
-      String agentResponse = null;
-      if ("VIDEO_SEARCH".equals(intent)) {
-        agentResponse = tryVideoSearch(request.message());
+      String analysisCtx = "";
+      String agentResponse = greetingResponse;
+      if (agentResponse == null) {
+        analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
+        if ("VIDEO_SEARCH".equals(intent)) {
+          agentResponse = tryVideoSearch(message);
+          if (agentResponse == null) {
+            intent = "CONVERSATION";
+            scope.writeState("intent", intent);
+          }
+        }
         if (agentResponse == null) {
-          intent = "CONVERSATION";
-          scope.writeState("intent", intent);
+          agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
         }
       }
-      if (agentResponse == null) {
-        agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
-      }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
+      agentResponse = TextUtils.stripThinking(agentResponse);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
       }
 
-      profilingAgent.process("profiling:" + sessionId, enrichedMessage);
+      if (greetingResponse == null) {
+        profilingAgent.process("profiling:" + sessionId, enrichedMessage);
+      }
 
       scope.writeState("response", agentResponse);
       ChatResponse response = responseComposer.compose(scope, sessionId);
@@ -142,6 +166,27 @@ public class OrchestratorService {
       return "CONVERSATION";
     }
     return normalized;
+  }
+
+  private String reclassifyContentIntent(
+      String intent, String message, String sessionId, String userId) {
+    if (!"CONTENT_ANALYSIS".equals(intent) && !"ASSESSMENT".equals(intent)) return intent;
+    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return intent;
+    String activeDocId = null;
+    try {
+      activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve active document for intent={} session={}: {}",
+          intent,
+          sessionId,
+          e.getMessage());
+    }
+    if (activeDocId == null) {
+      log.info("No session document for intent={}, reclassifying to CONVERSATION", intent);
+      return "CONVERSATION";
+    }
+    return intent;
   }
 
   private String dispatchAgent(
@@ -253,13 +298,9 @@ public class OrchestratorService {
 
   private List<String> retrieveScopedContext(
       String userId, String sessionId, String message, String activeDocId, int topK) {
+    if (activeDocId == null) return List.of();
     try {
-      if (activeDocId != null) {
-        return vectorDBService.retrieveRelevantContext(message, topK, "doc:" + activeDocId);
-      }
-      Set<String> docIds = contentDocumentService.resolveIndexedDocumentIds(userId);
-      return vectorDBService.retrieveRelevantContext(
-          message, topK, source -> isUserDocument(source, docIds));
+      return vectorDBService.retrieveRelevantContext(message, topK, "doc:" + activeDocId);
     } catch (Exception e) {
       log.warn(
           "Scoped context retrieval failed for user={} session={}: {}",
@@ -268,11 +309,6 @@ public class OrchestratorService {
           e.getMessage());
       return List.of();
     }
-  }
-
-  private boolean isUserDocument(String source, Set<String> docIds) {
-    if (docIds.isEmpty() || source == null || !source.startsWith("doc:")) return false;
-    return docIds.contains(source.substring("doc:".length()));
   }
 
   private String tryVideoSearch(String message) {
