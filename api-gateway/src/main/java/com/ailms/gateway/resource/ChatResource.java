@@ -17,8 +17,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -45,7 +45,8 @@ public class ChatResource {
     }
     log.info("Chat request from user={} session={}", userId, sessionId);
     try {
-      ChatResponse response = orchestrator.processMessage(new ChatRequest(request.message(), sessionId));
+      ChatResponse response =
+          orchestrator.processMessage(new ChatRequest(request.message(), sessionId));
       log.debug("Chat response sent to user={}", userId);
       return Response.ok(response).build();
     } catch (Exception e) {

@@ -4,6 +4,7 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.orchestrator.service.ChatHistoryCacheService;
+import com.ailms.orchestrator.service.RedisChatMemoryStore;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,6 +21,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   @Inject EntityManager em;
 
   @Inject ChatHistoryCacheService historyCache;
+
+  @Inject RedisChatMemoryStore chatMemoryStore;
 
   @Transactional
   public void logMessage(String userId, String sessionId, String role, String message) {
@@ -134,6 +137,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   public void deleteThread(String userId, String sessionId) {
     update("set deleted = true where userId = ?1 and sessionId = ?2", userId, sessionId);
     historyCache.deleteHistory(userId, sessionId);
+    chatMemoryStore.deleteMessages("conversation:" + sessionId);
+    chatMemoryStore.deleteMessages("profiling:" + sessionId);
   }
 
   public ConversationLog firstUserMessage(String userId, String sessionId) {

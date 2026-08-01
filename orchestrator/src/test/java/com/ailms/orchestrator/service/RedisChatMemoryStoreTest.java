@@ -47,6 +47,22 @@ class RedisChatMemoryStoreTest {
   }
 
   @Test
+  void nullMemoryIdIsIsolated() {
+    when(redisDS.value(String.class)).thenReturn(values);
+    when(redisDS.key()).thenReturn(keys);
+
+    RedisChatMemoryStore store = new RedisChatMemoryStore(redisDS);
+    assertTrue(store.getMessages(null).isEmpty());
+    assertTrue(store.getMessages("  ").isEmpty());
+
+    store.updateMessages(null, List.of());
+    store.deleteMessages(null);
+    verify(values, never()).get("chat:memory:null");
+    verify(values, never()).set(eq("chat:memory:null"), anyString());
+    verify(keys, never()).del("chat:memory:null");
+  }
+
+  @Test
   @Disabled("Needs Quarkus JsonCodecFactory")
   void updateAndGetMessages() {
     when(redisDS.value(String.class)).thenReturn(values);

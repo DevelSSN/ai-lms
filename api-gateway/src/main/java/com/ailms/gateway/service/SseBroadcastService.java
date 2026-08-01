@@ -6,6 +6,7 @@ import io.smallrye.mutiny.subscription.MultiEmitter;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Duration;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,15 +22,31 @@ public class SseBroadcastService {
         .emitter(
             em -> {
               emitters.add(em);
+              AtomicReference<Cancellable> keepaliveRef = new AtomicReference<>();
               Cancellable keepalive =
                   Multi.createFrom()
                       .ticks()
                       .every(Duration.ofSeconds(25))
                       .subscribe()
-                      .with(tick -> em.emit("{\"type\":\"ping\"}"));
+                      .with(
+                          tick -> {
+                            if (em.isCancelled()) {
+                              keepaliveRef.get().cancel();
+                              emitters.remove(em);
+                              return;
+                            }
+                            try {
+                              em.emit("{\"type\":\"ping\"}");
+                            } catch (Exception e) {
+                              emitters.remove(em);
+                              keepaliveRef.get().cancel();
+                            }
+                          });
+              keepaliveRef.set(keepalive);
               em.onTermination(
                   () -> {
-                    keepalive.cancel();
+                    Cancellable ka = keepaliveRef.get();
+                    if (ka != null) ka.cancel();
                     emitters.remove(em);
                     log.info("SSE subscriber disconnected (total: {})", emitters.size());
                   });

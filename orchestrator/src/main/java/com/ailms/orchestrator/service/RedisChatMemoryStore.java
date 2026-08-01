@@ -28,14 +28,17 @@ public class RedisChatMemoryStore implements ChatMemoryStore {
 
   @Override
   public List<ChatMessage> getMessages(Object memoryId) {
-    String raw = values.get(KEY_PREFIX + memoryId);
+    String key = memoryKey(memoryId);
+    if (key == null) return List.of();
+    String raw = values.get(key);
     if (raw == null || raw.isBlank()) return List.of();
     return ChatMessageDeserializer.messagesFromJson(raw);
   }
 
   @Override
   public void updateMessages(Object memoryId, List<ChatMessage> messages) {
-    String key = KEY_PREFIX + memoryId;
+    String key = memoryKey(memoryId);
+    if (key == null) return;
     String json = ChatMessageSerializer.messagesToJson(messages);
     values.set(key, json);
     keys.expire(key, TTL_SECONDS);
@@ -43,6 +46,15 @@ public class RedisChatMemoryStore implements ChatMemoryStore {
 
   @Override
   public void deleteMessages(Object memoryId) {
-    keys.del(KEY_PREFIX + memoryId);
+    String key = memoryKey(memoryId);
+    if (key == null) return;
+    keys.del(key);
+  }
+
+  private String memoryKey(Object memoryId) {
+    if (memoryId == null) return null;
+    String id = memoryId.toString().trim();
+    if (id.isEmpty()) return null;
+    return KEY_PREFIX + id;
   }
 }
