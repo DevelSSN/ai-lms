@@ -34,6 +34,9 @@ public interface IntentClassifier {
       - "What is a neural network?" -> CONVERSATION
       - "Analyze this uploaded document and summarize it" -> CONTENT_ANALYSIS
       - "Summarize the key points from the file I uploaded" -> CONTENT_ANALYSIS
+      - "Questions based on the document" -> ASSESSMENT
+      - "Ask me questions about the file I uploaded" -> ASSESSMENT
+      - "Generate questions from the uploaded document" -> ASSESSMENT
       - "Quiz me on quadratic equations" -> ASSESSMENT
       - "How is my progress this week?" -> INSIGHT
 

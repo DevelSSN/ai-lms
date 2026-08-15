@@ -41,6 +41,44 @@ public class ContentDocumentService {
   }
 
   @Transactional
+  public String resolveRecentDocumentId(String userId, String sessionId) {
+    try {
+      if (sessionId != null && !sessionId.isBlank()) {
+        @SuppressWarnings("unchecked")
+        java.util.List<String> scoped =
+            Panache.getEntityManager()
+                .createQuery(
+                    "select d.id from ContentDocument d where d.userId = :uid and d.sessionId ="
+                        + " :sid order by d.uploadedAt desc",
+                    String.class)
+                .setParameter("uid", userId)
+                .setParameter("sid", sessionId)
+                .setMaxResults(1)
+                .getResultList();
+        if (!scoped.isEmpty()) return scoped.get(0);
+      }
+      @SuppressWarnings("unchecked")
+      java.util.List<String> userWide =
+          Panache.getEntityManager()
+              .createQuery(
+                  "select d.id from ContentDocument d where d.userId = :uid order by"
+                      + " d.uploadedAt desc",
+                  String.class)
+              .setParameter("uid", userId)
+              .setMaxResults(1)
+              .getResultList();
+      return userWide.isEmpty() ? null : userWide.get(0);
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve recent document for user={} session={}: {}",
+          userId,
+          sessionId,
+          e.getMessage());
+      return null;
+    }
+  }
+
+  @Transactional
   public java.util.Set<String> resolveIndexedDocumentIds(String userId) {
     @SuppressWarnings("unchecked")
     java.util.List<String> ids =

@@ -12,6 +12,7 @@ public class ContentDocument {
   public String id;
 
   public String userId;
+  public String sessionId;
   public String fileName;
   public String fileType;
   public Long fileSize;

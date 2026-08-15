@@ -51,9 +51,10 @@ public class ContentResource {
   @POST
   @Path("/upload")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public Response uploadFile(@RestForm("file") FileUpload file) {
+  public Response uploadFile(
+      @RestForm("file") FileUpload file, @RestForm("threadId") String threadId) {
     String userId = jwt.getSubject();
-    log.info("File upload from user={} fileName={}", userId, file.fileName());
+    log.info("File upload from user={} fileName={} threadId={}", userId, file.fileName(), threadId);
     try {
       String storagePath = "uploads/" + userId + "/" + UUID.randomUUID() + "_" + file.fileName();
       byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
@@ -68,6 +69,7 @@ public class ContentResource {
 
       ContentDocument doc = new ContentDocument();
       doc.userId = userId;
+      doc.sessionId = threadId;
       doc.fileName = file.fileName();
       doc.fileType = file.contentType();
       doc.fileSize = (long) fileBytes.length;

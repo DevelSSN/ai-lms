@@ -70,6 +70,20 @@ public class OrchestratorService {
           "(?i)(?:youtube|youtu\\.be|\\bwatch\\b)"
               + "|(?i)\\bvideo(?:s)?\\b(?=[^\\n]{0,40}(?:about|on|for|link|give|find|show|recommend|share|list))");
 
+  private static final Pattern DOC_REFERENCE =
+      Pattern.compile(
+          "(?i)\\b(?:the|this|that|my)\\s+(?:document|pdf)\\b"
+              + "|(?i)\\b(?:uploaded|attached)\\s+(?:document|file|pdf)\\b"
+              + "|(?i)\\b(?:the|this|that|my)\\s+uploaded\\s+file\\b"
+              + "|(?i)\\bbased\\s+on\\s+(?:the|this|that|my)\\s+(?:document|file|pdf)\\b");
+
+  private static final Pattern QUESTION_REFERENCE =
+      Pattern.compile("(?i)\\bquestion(?:s)?\\b|(?i)\\bquiz(?:zes)?\\b|(?i)\\bassess(?:ment)?\\b|(?i)\\btest\\b");
+
+  private static final String NO_DOCUMENT_MESSAGE =
+      "I couldn't find an uploaded document in this conversation. "
+          + "Upload a file first, and then I can analyze it or generate questions from it.";
+
   private static final String NO_VIDEOS_BARE =
       "I couldn't find any YouTube videos for that request. "
           + "Try asking like \"youtube videos about <topic>\".";
@@ -111,9 +125,11 @@ public class OrchestratorService {
 
       String intent;
       String enrichedMessage;
+      String agentResponse = null;
       if (greetingResponse != null) {
         intent = "CONVERSATION";
         enrichedMessage = message;
+        agentResponse = greetingResponse;
         log.info(
             "Intent=CONVERSATION (greeting short-circuit) for user={} message={}",
             userId,
@@ -125,6 +141,28 @@ public class OrchestratorService {
             "Intent=VIDEO_SEARCH (keyword short-circuit) for user={} message={}",
             userId,
             message);
+      } else if (isDocumentReference(message)) {
+        String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+        if (activeDocId != null) {
+          intent =
+              QUESTION_REFERENCE.matcher(message).find() ? "ASSESSMENT" : "CONTENT_ANALYSIS";
+          enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
+          log.info(
+              "Intent={} (document short-circuit doc={}) for user={} message={}",
+              intent,
+              activeDocId,
+              userId,
+              message);
+        } else {
+          intent = "CONVERSATION";
+          enrichedMessage = message;
+          agentResponse = NO_DOCUMENT_MESSAGE;
+          log.warn(
+              "Document referenced but none found for user={} session={} message={}",
+              userId,
+              sessionId,
+              message);
+        }
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
         intent = reclassifyContentIntent(intent, message, sessionId, userId);
@@ -135,7 +173,6 @@ public class OrchestratorService {
       scope.writeState("intent", intent);
 
       String analysisCtx = "";
-      String agentResponse = greetingResponse;
       if (agentResponse == null) {
         analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
         if ("VIDEO_SEARCH".equals(intent)) {
@@ -296,12 +333,27 @@ public class OrchestratorService {
     return "";
   }
 
+  private boolean isDocumentReference(String message) {
+    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return false;
+    return DOC_REFERENCE.matcher(message).find();
+  }
+
   private String resolveActiveDocumentId(String message, String sessionId, String userId) {
     if (message.startsWith(ASSESS_PREFIX)) {
       String docId = message.substring(ASSESS_PREFIX.length()).trim();
       if (!docId.isEmpty()) return docId;
     }
     if (sessionId != null) {
+      try {
+        String fromContent = contentDocumentService.resolveRecentDocumentId(userId, sessionId);
+        if (fromContent != null && !fromContent.isEmpty()) return fromContent;
+      } catch (Exception e) {
+        log.warn(
+            "Failed to resolve recent document for session={} user={}: {}",
+            sessionId,
+            userId,
+            e.getMessage());
+      }
       try {
         String fromHistory = conversationRepository.lastUploadedDocumentId(userId, sessionId);
         if (fromHistory != null && !fromHistory.isEmpty()) return fromHistory;
@@ -312,6 +364,13 @@ public class OrchestratorService {
             userId,
             e.getMessage());
       }
+    }
+    try {
+      String fromUser = contentDocumentService.resolveRecentDocumentId(userId, null);
+      if (fromUser != null && !fromUser.isEmpty()) return fromUser;
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve recent user document for user={}: {}", userId, e.getMessage());
     }
     return null;
   }

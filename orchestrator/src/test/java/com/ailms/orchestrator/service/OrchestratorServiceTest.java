@@ -347,6 +347,96 @@ class OrchestratorServiceTest {
     verify(contentAnalysisAgent).process(eq("conversation:upload-user-1"), anyString());
   }
 
+  @Test
+  void route_docReference_question_routesToAssessmentWithContext() {
+    String msg = "Questions based on the document";
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("rome context"));
+    when(questionGenerationAgent.process(
+            eq("conversation:sess-1"), anyString(), contains("rome context")))
+        .thenReturn("Rome questions");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("Rome questions", resp.message());
+    assertEquals("ASSESSMENT", resp.agentType());
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+  }
+
+  @Test
+  void route_docReference_question_fallsBackToUserWideDocument() {
+    String msg = "Questions based on the document";
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(contentDocumentService.resolveRecentDocumentId("user-1", null)).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("rome context"));
+    when(questionGenerationAgent.process(
+            eq("conversation:sess-1"), anyString(), contains("rome context")))
+        .thenReturn("Rome questions");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("ASSESSMENT", resp.agentType());
+    verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
+    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+  }
+
+  @Test
+  void route_docReference_summarize_routesToContentAnalysis() {
+    String msg = "Summarize the uploaded document";
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("rome context"));
+    when(contentAnalysisAgent.process(eq("conversation:sess-1"), contains("rome context")))
+        .thenReturn("Rome summary");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Rome summary", "sess-1", "CONTENT_ANALYSIS"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("CONTENT_ANALYSIS", resp.agentType());
+    verify(intentClassifier, never()).classify(anyString());
+    verify(contentAnalysisAgent).process(eq("conversation:sess-1"), anyString());
+  }
+
+  @Test
+  void route_docReference_noDocument_returnsCannedMessage() {
+    String msg = "Questions based on the document";
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(contentDocumentService.resolveRecentDocumentId("user-1", null)).thenReturn(null);
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msgState = scope.readState("response", "");
+              return new ChatResponse(msgState, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals(
+        "I couldn't find an uploaded document in this conversation. "
+            + "Upload a file first, and then I can analyze it or generate questions from it.",
+        resp.message());
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+    verify(questionGenerationAgent, never()).process(anyString(), anyString(), anyString());
+  }
+
   private OrchestratorService buildService() {
     OrchestratorService svc = new OrchestratorService();
     svc.intentClassifier = intentClassifier;
