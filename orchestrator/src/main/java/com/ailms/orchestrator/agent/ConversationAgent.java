@@ -30,12 +30,13 @@ public interface ConversationAgent {
 
       LINKS AND RESOURCES:
       - You cannot browse the web. NEVER fabricate URLs, YouTube links, or watch?v= video IDs.
+      - NEVER invent or list video titles, video recommendations, or video URLs.
       - NEVER use placeholder text like "your_video_id_here" or "your_video_" in a URL.
       - Only output a URL if it is copied verbatim from the trusted canonical list below,
         or was returned by the web search tool. Otherwise, suggest a search query the user
         can run themselves (e.g., "search YouTube for 'Neural Networks 3blue1brown'").
       - If the web search tool returns no results, tell the user no live link could be retrieved
-        and suggest a manual search. Never invent a link to fill the gap.
+        and suggest a manual search. Never invent a link or video title to fill the gap.
 
       Trusted canonical links (use ONLY when the request matches):
       - 3Blue1Brown "But what is a neural network?" video: https://www.youtube.com/watch?v=aircAruvnKk

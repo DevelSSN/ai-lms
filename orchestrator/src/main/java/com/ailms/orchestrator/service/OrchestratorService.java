@@ -15,6 +15,9 @@ import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.util.TextUtils;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageType;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.invocation.LangChain4jManaged;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
@@ -58,6 +62,19 @@ public class OrchestratorService {
   @Inject TitleGenerator titleGenerator;
 
   @Inject ManagedExecutor executor;
+
+  @Inject RedisChatMemoryStore chatMemoryStore;
+
+  private static final Pattern VIDEO_REQUEST =
+      Pattern.compile(
+          "(?i)(?:youtube|youtu\\.be|\\bwatch\\b)"
+              + "|(?i)\\bvideo(?:s)?\\b(?=[^\\n]{0,40}(?:about|on|for|link|give|find|show|recommend|share|list))");
+
+  private static final String NO_VIDEOS_BARE =
+      "I couldn't find any YouTube videos for that request. "
+          + "Try asking like \"youtube videos about <topic>\".";
+
+  private static final String NO_VIDEOS_FOR = "I couldn't find any YouTube videos for '";
 
   private static final Set<String> KNOWN_INTENTS =
       Set.of("CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
@@ -101,6 +118,13 @@ public class OrchestratorService {
             "Intent=CONVERSATION (greeting short-circuit) for user={} message={}",
             userId,
             message);
+      } else if (VIDEO_REQUEST.matcher(message).find()) {
+        intent = "VIDEO_SEARCH";
+        enrichedMessage = message;
+        log.info(
+            "Intent=VIDEO_SEARCH (keyword short-circuit) for user={} message={}",
+            userId,
+            message);
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
         intent = reclassifyContentIntent(intent, message, sessionId, userId);
@@ -115,11 +139,7 @@ public class OrchestratorService {
       if (agentResponse == null) {
         analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
         if ("VIDEO_SEARCH".equals(intent)) {
-          agentResponse = tryVideoSearch(message);
-          if (agentResponse == null) {
-            intent = "CONVERSATION";
-            scope.writeState("intent", intent);
-          }
+          agentResponse = tryVideoSearch(message, sessionId);
         }
         if (agentResponse == null) {
           agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
@@ -311,10 +331,20 @@ public class OrchestratorService {
     }
   }
 
-  private String tryVideoSearch(String message) {
+  private String tryVideoSearch(String message, String sessionId) {
     String query = youTubeSearchService.extractQuery(message);
+    if (query == null || query.isBlank()) {
+      query = lastUserTopicFromMemory(sessionId);
+    }
+    if (query == null || query.isBlank()) {
+      log.warn("No video topic extractable for message='{}'", message);
+      return NO_VIDEOS_BARE;
+    }
     List<YouTubeSearchService.VideoResult> results = youTubeSearchService.search(query);
-    if (results.isEmpty()) return null;
+    if (results.isEmpty()) {
+      log.warn("No YouTube results for query='{}'", query);
+      return NO_VIDEOS_FOR + query + "'. Try searching YouTube manually.";
+    }
     StringBuilder sb = new StringBuilder("Here's what I found on YouTube:");
     int n = 1;
     for (YouTubeSearchService.VideoResult result : results) {
@@ -326,6 +356,26 @@ public class OrchestratorService {
           .append(result.title());
     }
     return sb.toString();
+  }
+
+  private String lastUserTopicFromMemory(String sessionId) {
+    if (sessionId == null || sessionId.isBlank() || chatMemoryStore == null) return null;
+    try {
+      List<ChatMessage> messages = chatMemoryStore.getMessages("conversation:" + sessionId);
+      for (int i = messages.size() - 1; i >= 0; i--) {
+        ChatMessage msg = messages.get(i);
+        if (msg.type() == ChatMessageType.USER) {
+          String text = ((UserMessage) msg).singleText();
+          if (text != null && !text.isBlank()) return text.trim();
+        }
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to read chat memory for topic fallback session={}: {}",
+          sessionId,
+          e.getMessage());
+    }
+    return null;
   }
 
   private String resolveUploadedContent(String message) {

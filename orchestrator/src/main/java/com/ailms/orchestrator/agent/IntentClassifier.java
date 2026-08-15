@@ -24,8 +24,13 @@ public interface IntentClassifier {
 
       Examples:
       - "Give me a youtube link to Neural networks by 3b1b" -> VIDEO_SEARCH
+      - "Give youtube videos" -> VIDEO_SEARCH
+      - "Ok, give me youtube videos about git" -> VIDEO_SEARCH
+      - "youtube videos about calculus" -> VIDEO_SEARCH
       - "Recommend a good video about calculus" -> VIDEO_SEARCH
       - "Can you find me a video on quantum mechanics?" -> VIDEO_SEARCH
+      - "Explain video games" -> CONVERSATION
+      - "What is a video codec?" -> CONVERSATION
       - "What is a neural network?" -> CONVERSATION
       - "Analyze this uploaded document and summarize it" -> CONTENT_ANALYSIS
       - "Summarize the key points from the file I uploaded" -> CONTENT_ANALYSIS

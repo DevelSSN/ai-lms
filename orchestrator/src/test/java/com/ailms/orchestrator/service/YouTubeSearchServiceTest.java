@@ -106,4 +106,18 @@ class YouTubeSearchServiceTest {
     assertEquals("the universe", service.extractQuery("Show me a video about the universe"));
     assertEquals("What is a neural network", service.extractQuery("What is a neural network?"));
   }
+
+  @Test
+  void extractQuery_handlesBareAndMultilineVideoRequests() {
+    assertEquals("", service.extractQuery("Give youtube videos"));
+    assertEquals("", service.extractQuery("Ok\nGive youtube videos"));
+  }
+
+  @Test
+  void extractQuery_extractsTopicFromVideoRequests() {
+    assertEquals("git", service.extractQuery("youtube videos about git"));
+    assertEquals("git", service.extractQuery("Ok give youtube videos about git"));
+    assertEquals("git", service.extractQuery("give youtube videos for git"));
+    assertEquals("calculus", service.extractQuery("find me videos on calculus"));
+  }
 }

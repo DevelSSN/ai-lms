@@ -29,15 +29,14 @@ public class YouTubeSearchService {
 
   private static final List<Pattern> PREAMBLE_PATTERNS =
       List.of(
+          Pattern.compile("(?i)give\\s+(?:me\\s+)?(?:the\\s+)?youtube\\s+(?:videos|video|link)"),
+          Pattern.compile("(?i)i\\s+want\\s+(?:a\\s+|the\\s+)?youtube\\s+(?:videos|video|link)"),
           Pattern.compile(
-              "(?i)^\\s*(?:please\\s+)?(?:give\\s+me\\s+(?:the\\s+)?|find\\s+me\\s+|"
-                  + "recommend\\s+(?:me\\s+)?|show\\s+me\\s+|i\\s+want\\s+)"
-                  + "(?:a\\s+)?youtube\\s+(?:link|video)\\s+(?:to|about|on|for)\\s+"),
+              "(?i)(?:find|show|recommend)\\s+(?:me\\s+)?(?:a\\s+)?(?:good\\s+)?youtube\\s+(?:videos|video|link)"),
+          Pattern.compile("(?i)youtube\\s+(?:videos|video|link)"),
           Pattern.compile(
-              "(?i)^\\s*(?:can\\s+you\\s+(?:please\\s+)?)?"
-                  + "(?:find\\s+me\\s+|recommend\\s+(?:me\\s+)?|show\\s+me\\s+)"
-                  + "(?:a\\s+)?(?:good\\s+)?video\\s+(?:about|on)\\s+"),
-          Pattern.compile("(?i)^\\s*(?:a\\s+)?(?:good\\s+)?video\\s+(?:about|on)\\s+"));
+              "(?i)(?:recommend|find|show)\\s+(?:me\\s+)?(?:a\\s+)?(?:good\\s+)?video(?:s)?\\s+(?:about|on)"),
+          Pattern.compile("(?i)(?:a\\s+|good\\s+)?video(?:s)?\\s+(?:about|on|for)"));
 
   @ConfigProperty(name = "youtube.api.key", defaultValue = "")
   String apiKey;
@@ -50,7 +49,11 @@ public class YouTubeSearchService {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public List<VideoResult> search(String query) {
-    if (query == null || query.isBlank() || apiKey == null || apiKey.isBlank()) {
+    if (query == null || query.isBlank()) {
+      return List.of();
+    }
+    if (apiKey == null || apiKey.isBlank()) {
+      log.warn("YouTube API key missing — search disabled");
       return List.of();
     }
     try {
@@ -100,17 +103,17 @@ public class YouTubeSearchService {
   String extractQuery(String message) {
     if (message == null) return null;
     String trimmed = message.trim();
-    String query = trimmed;
     for (Pattern pattern : PREAMBLE_PATTERNS) {
       Matcher matcher = pattern.matcher(trimmed);
       if (matcher.find()) {
-        String rest = trimmed.substring(matcher.end()).trim();
-        if (!rest.isEmpty()) {
-          query = rest;
-          break;
-        }
+        String rest =
+            trimmed
+                .substring(matcher.end())
+                .replaceFirst("(?i)^\\s*(?:about|on|for|to)\\s*", "")
+                .trim();
+        return rest.replaceFirst("[?.!,;]+$", "").trim();
       }
     }
-    return query.replaceFirst("[?.!,;]+$", "").trim();
+    return trimmed.replaceFirst("[?.!,;]+$", "").trim();
   }
 }

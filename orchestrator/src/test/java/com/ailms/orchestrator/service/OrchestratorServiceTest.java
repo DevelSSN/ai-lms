@@ -15,6 +15,7 @@ import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import dev.langchain4j.agentic.scope.AgenticScope;
+import dev.langchain4j.data.message.UserMessage;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,7 @@ class OrchestratorServiceTest {
   @Mock KafkaEventPublisher kafkaEventPublisher;
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
+  @Mock RedisChatMemoryStore chatMemoryStore;
 
   @Test
   void route_bareGreeting_shortCircuits() {
@@ -189,8 +191,6 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearchIntent_returnsRealLinksWithoutRouter() {
-    when(intentClassifier.classify("Give me a youtube link to Neural networks by 3b1b"))
-        .thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
         .thenReturn("Neural networks by 3b1b");
     when(youTubeSearchService.search("Neural networks by 3b1b"))
@@ -219,21 +219,69 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_videoSearchIntent_emptyResults_fallsBackToConversation() {
+  void route_videoSearchIntent_emptyResults_returnsCannedMessage() {
     when(intentClassifier.classify("video please")).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("video please")).thenReturn("video please");
     when(youTubeSearchService.search("video please")).thenReturn(java.util.List.of());
-    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
-        .thenReturn("Fallback answer");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
-        .thenReturn(new ChatResponse("Fallback answer", "sess-1", "CONVERSATION"));
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
 
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("video please", "sess-1"), "user-1");
 
-    assertEquals("Fallback answer", resp.message());
-    assertEquals("CONVERSATION", resp.agentType());
-    verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
+    assertTrue(resp.message().contains("couldn't find any YouTube videos"));
+    assertEquals("VIDEO_SEARCH", resp.agentType());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoKeywordShortCircuitsClassifier() {
+    when(youTubeSearchService.extractQuery("Give youtube videos")).thenReturn("");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Give youtube videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("couldn't find any YouTube videos"));
+    assertEquals("VIDEO_SEARCH", resp.agentType());
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoKeyword_usesMemoryTopicWhenNoExplicitTopic() {
+    when(chatMemoryStore.getMessages("conversation:sess-1"))
+        .thenReturn(java.util.List.of(UserMessage.from("Learn about git")));
+    when(youTubeSearchService.extractQuery("Ok\nGive youtube videos")).thenReturn("");
+    when(youTubeSearchService.search("Learn about git"))
+        .thenReturn(
+            java.util.List.of(new YouTubeSearchService.VideoResult("Git tutorial", "dG2kXvT4vX4")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Ok\nGive youtube videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
+    verify(youTubeSearchService).search("Learn about git");
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
   @Test
@@ -315,6 +363,7 @@ class OrchestratorServiceTest {
     svc.kafkaEventPublisher = kafkaEventPublisher;
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;
+    svc.chatMemoryStore = chatMemoryStore;
     lenient()
         .when(youTubeLinkValidator.sanitize(anyString()))
         .thenAnswer(inv -> inv.getArgument(0));
