@@ -7,6 +7,7 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.orchestrator.service.ChatHistoryCacheService;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,8 @@ class ConversationRepositoryTest {
     repo.historyCache = historyCache;
 
     repo.logMessage("user-1", "sess-1", "user", "hello");
-    verify(historyCache).cacheMessage("user-1", "sess-1", "user", "hello", null);
+    verify(historyCache)
+        .cacheMessage("user-1", "sess-1", "user", "hello", null, any(Instant.class));
   }
 
   @Test
@@ -38,7 +40,8 @@ class ConversationRepositoryTest {
     repo.historyCache = historyCache;
 
     repo.logMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
-    verify(historyCache).cacheMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
+    verify(historyCache)
+        .cacheMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION", any(Instant.class));
   }
 
   @Test

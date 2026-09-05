@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.ailms.common.dto.ChatHistory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
 import io.quarkus.redis.datasource.list.ListCommands;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,37 +24,37 @@ class ChatHistoryCacheServiceTest {
   @Mock ListCommands<String, String> lists;
   @Mock KeyCommands<String> keys;
 
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
   @Test
   void cacheMessage() {
     when(redisDS.list(String.class)).thenReturn(lists);
     when(redisDS.key()).thenReturn(keys);
 
-    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
     cache.cacheMessage("user-1", "sess-1", "user", "hello", null);
 
-    verify(lists).rpush("history:user-1:sess-1", "user||hello||");
+    verify(lists)
+        .rpush(eq("history:user-1:sess-1"), startsWith("{\"role\":\"user\",\"content\":\"hello\""));
     verify(keys).expire(eq("history:user-1:sess-1"), anyLong());
-  }
-
-  @Test
-  void cacheMessageWithAgentType() {
-    when(redisDS.list(String.class)).thenReturn(lists);
-    when(redisDS.key()).thenReturn(keys);
-
-    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
-    cache.cacheMessage("user-1", "sess-1", "assistant", "hi there", "CONVERSATION");
-
-    verify(lists).rpush("history:user-1:sess-1", "assistant||hi there||CONVERSATION");
   }
 
   @Test
   void getCachedHistory_returnsMessages() {
     when(redisDS.list(String.class)).thenReturn(lists);
     when(redisDS.key()).thenReturn(keys);
+    String ts = "2026-09-05T10:00:00Z";
     when(lists.lrange("history:user-1:sess-1", 0, -1))
-        .thenReturn(List.of("user||hello||", "assistant||hi||CONVERSATION"));
+        .thenReturn(
+            List.of(
+                "{\"role\":\"user\",\"content\":\"hello\",\"agentType\":null,\"timestamp\":\""
+                    + ts
+                    + "\"}",
+                "{\"role\":\"assistant\",\"content\":\"hi\",\"agentType\":\"CONVERSATION\",\"timestamp\":\""
+                    + ts
+                    + "\"}"));
 
-    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
     ChatHistory history = cache.getCachedHistory("user-1", "sess-1");
 
     assertNotNull(history);
@@ -60,6 +62,29 @@ class ChatHistoryCacheServiceTest {
     assertEquals(2, history.messages().size());
     assertEquals("user", history.messages().get(0).role());
     assertEquals("CONVERSATION", history.messages().get(1).agentType());
+    assertEquals(Instant.parse(ts), history.messages().get(1).timestamp());
+  }
+
+  @Test
+  void getCachedHistory_handlesDelimiterInContent() {
+    when(redisDS.list(String.class)).thenReturn(lists);
+    when(redisDS.key()).thenReturn(keys);
+    String ts = "2026-09-05T10:00:00Z";
+    when(lists.lrange("history:user-1:sess-1", 0, -1))
+        .thenReturn(
+            List.of(
+                "{\"role\":\"user\",\"content\":\"a || b || c\",\"agentType\":\"CONVERSATION\",\"timestamp\":\""
+                    + ts
+                    + "\"}"));
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    ChatHistory history = cache.getCachedHistory("user-1", "sess-1");
+
+    assertNotNull(history);
+    assertEquals(1, history.messages().size());
+    assertEquals("a || b || c", history.messages().get(0).content());
+    assertEquals("CONVERSATION", history.messages().get(0).agentType());
+    assertEquals(Instant.parse(ts), history.messages().get(0).timestamp());
   }
 
   @Test
@@ -68,7 +93,7 @@ class ChatHistoryCacheServiceTest {
     when(redisDS.key()).thenReturn(keys);
     when(lists.lrange("history:user-1:sess-1", 0, -1)).thenReturn(List.of());
 
-    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS);
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
     assertNull(cache.getCachedHistory("user-1", "sess-1"));
   }
 }

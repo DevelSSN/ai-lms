@@ -1,7 +1,12 @@
 package com.ailms.common.dto;
 
+import java.time.Instant;
 import java.util.List;
 
 public record ChatHistory(String sessionId, List<ChatMessage> messages) {
-  public record ChatMessage(String role, String content, String agentType) {}
+  public record ChatMessage(String role, String content, String agentType, Instant timestamp) {
+    public ChatMessage(String role, String content, String agentType) {
+      this(role, content, agentType, null);
+    }
+  }
 }

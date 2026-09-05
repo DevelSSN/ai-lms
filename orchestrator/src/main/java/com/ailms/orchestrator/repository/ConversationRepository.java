@@ -32,6 +32,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   @Transactional
   public void logMessage(
       String userId, String sessionId, String role, String message, String agentType) {
+    Instant now = Instant.now();
     ConversationLog logEntry = new ConversationLog();
     logEntry.userId = userId;
     logEntry.sessionId = sessionId;
@@ -39,9 +40,10 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     logEntry.message = message;
     logEntry.assistantMessage = "assistant".equals(role) ? message : null;
     logEntry.agentType = agentType;
+    logEntry.timestamp = now;
     persist(logEntry);
 
-    historyCache.cacheMessage(userId, sessionId, role, message, agentType);
+    historyCache.cacheMessage(userId, sessionId, role, message, agentType, now);
   }
 
   public ChatHistory getHistory(String userId, String sessionId) {
@@ -65,7 +67,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
                         "user".equals(log.role)
                             ? log.message
                             : log.assistantMessage != null ? log.assistantMessage : log.message,
-                        log.agentType))
+                        log.agentType,
+                        log.timestamp))
             .toList();
 
     return new ChatHistory(sessionId, messages);
