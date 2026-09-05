@@ -12,6 +12,7 @@ import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.ProactiveFollowUpAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
+import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.util.TextUtils;
@@ -64,6 +65,8 @@ public class OrchestratorService {
   @Inject TitleGenerator titleGenerator;
 
   @Inject ProactiveFollowUpAgent proactiveFollowUpAgent;
+
+  @Inject ResponseVerifierAgent responseVerifierAgent;
 
   @Inject ManagedExecutor executor;
 
@@ -185,6 +188,8 @@ public class OrchestratorService {
       }
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
       agentResponse = TextUtils.stripThinking(agentResponse);
+
+      agentResponse = verifyAndRetry(intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
@@ -418,6 +423,54 @@ public class OrchestratorService {
           .append(result.title());
     }
     return sb.toString();
+  }
+
+  private String verifyAndRetry(
+      String intent,
+      String sessionId,
+      String message,
+      String enrichedMessage,
+      String analysisCtx,
+      String agentResponse) {
+    if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
+    if (isNonVerifiableIntent(intent)) return agentResponse;
+
+    String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
+    if (verifyResponse(message, context, agentResponse)) return agentResponse;
+
+    log.info(
+        "Response rejected by verifier for intent={}, regenerating once", intent);
+    String retried = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
+    if (retried == null || retried.isBlank()) {
+      log.warn("Retry returned blank response for intent={}, keeping original", intent);
+      return agentResponse;
+    }
+    retried = youTubeLinkValidator.sanitize(retried);
+    retried = TextUtils.stripThinking(retried);
+    if (verifyResponse(message, context, retried)) return retried;
+
+    log.warn("Regenerated response also rejected by verifier for intent={}, keeping it", intent);
+    return retried;
+  }
+
+  private boolean verifyResponse(String userQuestion, String context, String answer) {
+    try {
+      String result = responseVerifierAgent.verify(userQuestion, context, answer);
+      return isAccepted(result);
+    } catch (Exception e) {
+      log.warn("Response verifier failed, accepting response: {}", e.getMessage());
+      return true;
+    }
+  }
+
+  private boolean isAccepted(String result) {
+    if (result == null) return true;
+    return !result.toUpperCase(Locale.ROOT).contains("\"NEEDS_REWRITE\"")
+        && !result.toUpperCase(Locale.ROOT).contains("NEEDS_REWRITE");
+  }
+
+  private boolean isNonVerifiableIntent(String intent) {
+    return "VIDEO_SEARCH".equals(intent);
   }
 
   private String mergeVideoTopics(String messageTopic, String contextTopic) {
