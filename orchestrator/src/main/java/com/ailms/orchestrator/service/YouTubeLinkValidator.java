@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.service;
 
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -35,6 +36,7 @@ public class YouTubeLinkValidator {
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
 
+  @Blocking
   public String sanitize(String text) {
     if (text == null || text.isBlank()) return text;
 
@@ -98,8 +100,11 @@ public class YouTubeLinkValidator {
           httpClient.send(request, HttpResponse.BodyHandlers.discarding());
       return response.statusCode() == 200;
     } catch (Exception e) {
-      log.warn("YouTube oEmbed validation failed for videoId={}: {}", videoId, e.getMessage());
-      return true;
+      log.warn(
+          "YouTube oEmbed validation failed for videoId={}, failing closed: {}",
+          videoId,
+          e.getMessage());
+      return false;
     }
   }
 }
