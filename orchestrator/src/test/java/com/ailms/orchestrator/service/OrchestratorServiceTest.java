@@ -11,6 +11,7 @@ import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
+import com.ailms.orchestrator.agent.ProactiveFollowUpAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
@@ -32,6 +33,7 @@ class OrchestratorServiceTest {
   @Mock ContentAnalysisAgent contentAnalysisAgent;
   @Mock QuestionGenerationAgent questionGenerationAgent;
   @Mock InsightAgent insightAgent;
+  @Mock ProactiveFollowUpAgent proactiveFollowUpAgent;
   @Mock ProfilingService profilingService;
   @Mock ConversationRepository conversationRepository;
   @Mock VectorDBService vectorDBService;
@@ -318,14 +320,13 @@ class OrchestratorServiceTest {
 
   @Test
   void generateProactiveMessage_callsAgent() {
-    when(conversationAgent.process(eq("proactive-user-1"), anyString()))
-        .thenReturn("Follow up message");
+    when(proactiveFollowUpAgent.generate("context")).thenReturn("Follow up message");
 
     OrchestratorService svc = buildService();
     String msg = svc.generateProactiveMessage("user-1", "context");
 
     assertEquals("Follow up message", msg);
-    verify(conversationAgent).process(eq("proactive-user-1"), anyString());
+    verify(proactiveFollowUpAgent).generate("context");
   }
 
   @Test
@@ -446,6 +447,7 @@ class OrchestratorServiceTest {
     svc.contentAnalysisAgent = contentAnalysisAgent;
     svc.questionGenerationAgent = questionGenerationAgent;
     svc.insightAgent = insightAgent;
+    svc.proactiveFollowUpAgent = proactiveFollowUpAgent;
     svc.profilingService = profilingService;
     svc.conversationRepository = conversationRepository;
     svc.vectorDBService = vectorDBService;

@@ -8,6 +8,7 @@ import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
+import com.ailms.orchestrator.agent.ProactiveFollowUpAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.TitleGenerator;
@@ -60,6 +61,8 @@ public class OrchestratorService {
   @Inject YouTubeSearchService youTubeSearchService;
 
   @Inject TitleGenerator titleGenerator;
+
+  @Inject ProactiveFollowUpAgent proactiveFollowUpAgent;
 
   @Inject ManagedExecutor executor;
 
@@ -447,11 +450,7 @@ public class OrchestratorService {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
     try {
-      return conversationAgent.process(
-          "proactive-" + userId,
-          "Generate a brief encouraging follow-up message for a student who hasn't been active."
-              + " Context: "
-              + context);
+      return proactiveFollowUpAgent.generate(context);
     } finally {
       LangChain4jManaged.removeCurrent();
     }

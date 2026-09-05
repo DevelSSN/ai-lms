@@ -28,6 +28,8 @@ public class UserProfile {
   @Column(columnDefinition = "TEXT")
   public String metadata;
 
+  public Instant lastProactiveSentAt;
+
   public Instant createdAt;
   public Instant updatedAt;
 
