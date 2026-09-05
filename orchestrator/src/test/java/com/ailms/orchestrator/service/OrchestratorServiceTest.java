@@ -409,6 +409,41 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_videoSearch_intentIsVerifiedAndResearchesWhenRejected() {
+    when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
+        .thenReturn("Neural networks by 3b1b");
+    when(youTubeSearchService.search("Neural networks by 3b1b"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult(
+                    "But what is a neural network?", "aircAruvnKk")))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult("Better video", "better123")));
+    when(responseVerifierAgent.verify(
+            eq("Give me a youtube link to Neural networks by 3b1b"), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"links look stale\"}")
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"valid links\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp =
+        svc.route(
+            new ChatRequest("Give me a youtube link to Neural networks by 3b1b", "sess-1"),
+            "user-1");
+
+    assertTrue(resp.message().contains("watch?v=better123"));
+    verify(youTubeSearchService, times(2)).search("Neural networks by 3b1b");
+    verify(conversationAgent, never()).process(eq("conversation:sess-1"), anyString());
+  }
+
+  @Test
   void route_sanitizesAgentResponseLinks() {
     String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
     when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");

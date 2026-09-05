@@ -189,7 +189,8 @@ public class OrchestratorService {
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
       agentResponse = TextUtils.stripThinking(agentResponse);
 
-      agentResponse = verifyAndRetry(intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse);
+      agentResponse =
+          verifyAndRetry(intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
@@ -431,16 +432,17 @@ public class OrchestratorService {
       String message,
       String enrichedMessage,
       String analysisCtx,
-      String agentResponse) {
+      String agentResponse,
+      String userId) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
-    if (isNonVerifiableIntent(intent)) return agentResponse;
 
     String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
     if (verifyResponse(message, context, agentResponse)) return agentResponse;
 
     log.info(
         "Response rejected by verifier for intent={}, regenerating once", intent);
-    String retried = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
+    String retried =
+        regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId);
     if (retried == null || retried.isBlank()) {
       log.warn("Retry returned blank response for intent={}, keeping original", intent);
       return agentResponse;
@@ -451,6 +453,19 @@ public class OrchestratorService {
 
     log.warn("Regenerated response also rejected by verifier for intent={}, keeping it", intent);
     return retried;
+  }
+
+  private String regenerate(
+      String intent,
+      String sessionId,
+      String message,
+      String enrichedMessage,
+      String analysisCtx,
+      String userId) {
+    if ("VIDEO_SEARCH".equals(intent)) {
+      return tryVideoSearch(message, sessionId, userId);
+    }
+    return dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
   }
 
   private boolean verifyResponse(String userQuestion, String context, String answer) {
@@ -467,10 +482,6 @@ public class OrchestratorService {
     if (result == null) return true;
     return !result.toUpperCase(Locale.ROOT).contains("\"NEEDS_REWRITE\"")
         && !result.toUpperCase(Locale.ROOT).contains("NEEDS_REWRITE");
-  }
-
-  private boolean isNonVerifiableIntent(String intent) {
-    return "VIDEO_SEARCH".equals(intent);
   }
 
   private String mergeVideoTopics(String messageTopic, String contextTopic) {
