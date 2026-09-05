@@ -57,6 +57,7 @@ public interface ResponseVerifierAgent {
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
-    return ErrorRecoveryResult.result("{\"verdict\": \"ACCEPT\"}");
+    return ErrorRecoveryResult.result(
+        "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"verifier unavailable, answer unverified\"}");
   }
 }

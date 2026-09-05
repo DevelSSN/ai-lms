@@ -27,6 +27,8 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.invocation.LangChain4jManaged;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -76,6 +78,8 @@ public class OrchestratorService {
   @Inject ManagedExecutor executor;
 
   @Inject RedisChatMemoryStore chatMemoryStore;
+
+  @Inject ObjectMapper objectMapper;
 
   private static final Pattern EXPLICIT_VIDEO_LINK =
       Pattern.compile(
@@ -472,15 +476,27 @@ public class OrchestratorService {
       String result = responseVerifierAgent.verify(userQuestion, context, answer);
       return isAccepted(result);
     } catch (Exception e) {
-      log.warn("Response verifier failed, accepting response: {}", e.getMessage());
-      return true;
+      log.warn("Response verifier raised an error, failing closed: {}", e.getMessage());
+      return false;
     }
   }
 
   private boolean isAccepted(String result) {
-    if (result == null) return true;
-    return !result.toUpperCase(Locale.ROOT).contains("\"NEEDS_REWRITE\"")
-        && !result.toUpperCase(Locale.ROOT).contains("NEEDS_REWRITE");
+    if (result == null || result.isBlank()) {
+      log.warn("Verifier returned no verdict, failing closed");
+      return false;
+    }
+    try {
+      JsonNode verdict = objectMapper.readTree(result).get("verdict");
+      if (verdict == null || verdict.asText().isBlank()) {
+        log.warn("Verifier output had no verdict field, failing closed");
+        return false;
+      }
+      return "ACCEPT".equalsIgnoreCase(verdict.asText().trim());
+    } catch (Exception e) {
+      log.warn("Verifier output was not valid JSON, failing closed");
+      return false;
+    }
   }
 
   private String mergeVideoTopics(String messageTopic, String contextTopic) {

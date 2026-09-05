@@ -19,9 +19,11 @@ import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.function.Predicate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -47,6 +49,13 @@ class OrchestratorServiceTest {
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
+
+  @BeforeEach
+  void stubVerifierDefaultAccept() {
+    lenient()
+        .when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}");
+  }
 
   @Test
   void route_bareGreeting_shortCircuits() {
@@ -519,6 +528,8 @@ class OrchestratorServiceTest {
     String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
     when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString())).thenReturn(raw);
+    when(responseVerifierAgent.verify(eq("link please"), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"links ok\"}");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse(raw, "sess-1", "CONVERSATION"));
 
@@ -584,10 +595,13 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_verifier_nullVerdictIsAccepted() {
+  void route_verifier_nullVerdict_failsClosedAndRegenerates() {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
+    when(responseVerifierAgent.verify(eq("what is a neural network"), anyString(), anyString()))
+        .thenReturn(null);
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
-        .thenReturn("Some answer.");
+        .thenReturn("Some answer.")
+        .thenReturn("A neural network is a function approximator.");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(
             inv -> {
@@ -599,8 +613,56 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
 
-    assertEquals("Some answer.", resp.message());
-    verify(conversationAgent, times(1)).process(eq("conversation:sess-1"), anyString());
+    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
+    verify(responseVerifierAgent, times(2))
+        .verify(eq("what is a neural network"), anyString(), anyString());
+  }
+
+  @Test
+  void route_verifier_malformedJson_failsClosedAndRegenerates() {
+    when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Some answer.")
+        .thenReturn("A neural network is a function approximator.");
+    when(responseVerifierAgent.verify(eq("what is a neural network"), anyString(), anyString()))
+        .thenReturn("this is not json");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
+  }
+
+  @Test
+  void route_verifier_throws_failsClosedAndRegenerates() {
+    when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Some answer.")
+        .thenReturn("A neural network is a function approximator.");
+    when(responseVerifierAgent.verify(eq("what is a neural network"), anyString(), anyString()))
+        .thenThrow(new RuntimeException("LLM timeout"));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
   }
 
   @Test
@@ -764,6 +826,7 @@ class OrchestratorServiceTest {
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;
     svc.chatMemoryStore = chatMemoryStore;
+    svc.objectMapper = new ObjectMapper();
     lenient()
         .when(youTubeLinkValidator.sanitize(anyString()))
         .thenAnswer(inv -> inv.getArgument(0));
