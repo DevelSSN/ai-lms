@@ -51,6 +51,13 @@ public interface IntentClassifier {
       provided in this conversation) for CONTENT_ANALYSIS or ASSESSMENT. A bare
       request for an explanation with no such content is CONVERSATION.
 
+      Final rules:
+      - Pick EXACTLY ONE label. If no label clearly fits, choose CONVERSATION.
+      - A request with no uploaded content or provided document is NEVER
+        ASSESSMENT or CONTENT_ANALYSIS, even if it uses words like "analyze" or "questions".
+      - A request for YouTube videos or video links is VIDEO_SEARCH; a request to explain
+        a *topic* (even about videos or video games) is CONVERSATION.
+
       Respond with ONLY the intent label (e.g., CONVERSATION, VIDEO_SEARCH, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.
       """)
