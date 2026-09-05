@@ -16,9 +16,10 @@ public final class TextUtils {
           Pattern.CASE_INSENSITIVE);
 
   private static final Pattern THINK_BLOCK =
-      Pattern.compile("(?is)<think\\b.*?</think\\s*>");
+      Pattern.compile(
+          "(?is)\\bresponse\\s*<think\\b.*?</think\\s*>|<think\\b.*?</think\\s*>");
 
-  private static final Pattern THINK_REMNANT = Pattern.compile("(?is)<think\\b.*?|</?think\\s*>");
+  private static final Pattern THINK_REMNANT = Pattern.compile("(?is)</?think\\s*>");
 
   private TextUtils() {}
 
