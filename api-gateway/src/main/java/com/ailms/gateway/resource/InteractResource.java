@@ -10,10 +10,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -49,13 +45,12 @@ public class InteractResource {
     try {
       ChatRequest request = new ChatRequest(message, threadId);
       ChatResponse response = orchestrator.processMessage(request);
-      appendResponseLog(userId, threadId, response);
       log.debug("Interact response sent to user={}", userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());
       return Response.status(Response.Status.BAD_GATEWAY)
-          .entity(Map.of("error", "Orchestrator unavailable", "detail", e.getMessage()))
+          .entity(Map.of("error", "Orchestrator unavailable"))
           .build();
     }
   }
@@ -66,29 +61,5 @@ public class InteractResource {
   @Produces(MediaType.SERVER_SENT_EVENTS)
   public Multi<String> stream() {
     return sse.subscribe(jwt.getSubject());
-  }
-
-  private void appendResponseLog(String userId, String threadId, ChatResponse response) {
-    try {
-      String dump =
-          "["
-              + Instant.now()
-              + "]\nuser="
-              + userId
-              + "\nthread="
-              + threadId
-              + "\nagentType="
-              + response.agentType()
-              + "\nmessage="
-              + response.message()
-              + "\n----------\n";
-      Files.writeString(
-          java.nio.file.Path.of("/tmp/ailms-responses.log"),
-          dump,
-          StandardOpenOption.CREATE,
-          StandardOpenOption.APPEND);
-    } catch (IOException e) {
-      log.warn("Failed to append response log: {}", e.getMessage());
-    }
   }
 }

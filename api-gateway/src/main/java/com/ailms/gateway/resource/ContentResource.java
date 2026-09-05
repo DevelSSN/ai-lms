@@ -105,7 +105,7 @@ public class ContentResource {
     } catch (Exception e) {
       log.error("Upload failed for user={}: {}", userId, e.getMessage());
       return Response.status(Response.Status.BAD_GATEWAY)
-          .entity(Map.of("error", "Upload failed", "detail", e.getMessage()))
+          .entity(Map.of("error", "Upload failed"))
           .build();
     }
   }
