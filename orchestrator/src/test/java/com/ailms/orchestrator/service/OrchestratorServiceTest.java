@@ -45,6 +45,7 @@ class OrchestratorServiceTest {
   @Mock ConversationRepository conversationRepository;
   @Mock VectorDBService vectorDBService;
   @Mock ContentDocumentService contentDocumentService;
+  @Mock InsightDataService insightDataService;
   @Mock KafkaEventPublisher kafkaEventPublisher;
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
@@ -189,6 +190,24 @@ class OrchestratorServiceTest {
     assertEquals("Rome assessment", resp.message());
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
     verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+  }
+
+  @Test
+  void route_insightIntent_feedsRealAnalytics() {
+    when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
+    when(insightDataService.buildContext("user-1", "sess-1"))
+        .thenReturn("- Messages in this session: 12");
+    when(insightAgent.process(eq("conversation:sess-1"), contains("- Messages in this session: 12")))
+        .thenReturn("Insight result");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("my progress", "sess-1"), "user-1");
+
+    assertEquals("Insight result", resp.message());
+    verify(insightAgent).process(eq("conversation:sess-1"), contains("- Messages in this session: 12"));
+    verify(insightDataService).buildContext("user-1", "sess-1");
   }
 
   @Test
@@ -822,6 +841,7 @@ class OrchestratorServiceTest {
     svc.conversationRepository = conversationRepository;
     svc.vectorDBService = vectorDBService;
     svc.contentDocumentService = contentDocumentService;
+    svc.insightDataService = insightDataService;
     svc.kafkaEventPublisher = kafkaEventPublisher;
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;

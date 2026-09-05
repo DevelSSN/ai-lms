@@ -65,6 +65,8 @@ public class OrchestratorService {
 
   @Inject ContentDocumentService contentDocumentService;
 
+  @Inject InsightDataService insightDataService;
+
   @Inject YouTubeLinkValidator youTubeLinkValidator;
 
   @Inject YouTubeSearchService youTubeSearchService;
@@ -100,6 +102,7 @@ public class OrchestratorService {
   private static final String INTENT_VIDEO_SEARCH = IntentType.VIDEO_SEARCH.name();
   private static final String INTENT_CONTENT_ANALYSIS = IntentType.CONTENT_ANALYSIS.name();
   private static final String INTENT_ASSESSMENT = IntentType.ASSESSMENT.name();
+  private static final String INTENT_INSIGHT = IntentType.INSIGHT.name();
 
   private static final String UPLOAD_PREFIX = PromptPrefixes.UPLOAD_ANALYSIS;
 
@@ -158,6 +161,10 @@ public class OrchestratorService {
         enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
       }
 
+      if (INTENT_INSIGHT.equals(intent)) {
+        enrichedMessage = enrichWithAnalytics(userId, sessionId, message, enrichedMessage);
+      }
+
       scope.writeState("intent", intent);
 
       String analysisCtx = "";
@@ -198,6 +205,7 @@ public class OrchestratorService {
       }
 
       scope.writeState("response", agentResponse);
+      writeAgentScopeKey(intent, agentResponse, scope);
       ChatResponse response = responseComposer.compose(scope, sessionId);
 
       boolean isNewSession =
@@ -275,6 +283,33 @@ public class OrchestratorService {
       }
     } catch (Exception e) {
       log.warn("Failed to publish event for intent={} user={}: {}", intent, userId, e.getMessage());
+    }
+  }
+
+  private String enrichWithAnalytics(
+      String userId, String sessionId, String message, String enrichedMessage) {
+    try {
+      String analytics = insightDataService.buildContext(userId, sessionId);
+      if (analytics != null && !analytics.isBlank()) {
+        return analytics + "\n\nUser message: " + message;
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to enrich insights with analytics for user={} session={}: {}",
+          userId,
+          sessionId,
+          e.getMessage());
+    }
+    return enrichedMessage;
+  }
+
+  private void writeAgentScopeKey(String intent, String agentResponse, AgenticScope scope) {
+    if (agentResponse == null || agentResponse.isBlank()) return;
+    switch (IntentType.fromName(intent)) {
+      case CONTENT_ANALYSIS -> scope.writeState("analysis", agentResponse);
+      case ASSESSMENT -> scope.writeState("assessment", agentResponse);
+      case INSIGHT -> scope.writeState("insights", agentResponse);
+      default -> {}
     }
   }
 
