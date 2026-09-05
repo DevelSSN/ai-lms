@@ -18,19 +18,19 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class QdrantInitializer {
 
   @Inject
-  @ConfigProperty(name = "qdrant.rest.host", defaultValue = "localhost")
+  @ConfigProperty(name = "quarkus.langchain4j.qdrant.host", defaultValue = "localhost")
   String host;
 
   @Inject
-  @ConfigProperty(name = "qdrant.rest.port", defaultValue = "10633")
+  @ConfigProperty(name = "qdrant.admin.http-port", defaultValue = "10633")
   int port;
 
   @Inject
-  @ConfigProperty(name = "qdrant.api.key", defaultValue = "qdrant")
+  @ConfigProperty(name = "quarkus.langchain4j.qdrant.api-key", defaultValue = "qdrant")
   String apiKey;
 
   @Inject
-  @ConfigProperty(name = "qdrant.collection", defaultValue = "ailms-content")
+  @ConfigProperty(name = "quarkus.langchain4j.qdrant.collection.name", defaultValue = "ailms-content")
   String collection;
 
   @Inject
