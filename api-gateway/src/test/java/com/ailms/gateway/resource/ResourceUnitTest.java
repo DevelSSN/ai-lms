@@ -256,6 +256,30 @@ class ResourceUnitTest {
   }
 
   @Test
+  void contentResource_upload_rejectsUnsupportedType(@TempDir Path tempDir) throws Exception {
+    when(jwt.getSubject()).thenReturn("user-1");
+    Path file = tempDir.resolve("clip.mp4");
+    Files.write(file, new byte[] {0x1, 0x2, 0x3});
+
+    FileUpload upload = mock(FileUpload.class);
+    when(upload.fileName()).thenReturn("clip.mp4");
+    when(upload.contentType()).thenReturn("video/mp4");
+    when(upload.uploadedFile()).thenReturn(file);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.s3 = s3;
+    resource.contentDocRepo = contentDocRepo;
+    resource.maxUploadSize = 10_000_000;
+
+    Response resp = resource.uploadFile(upload, "t-1");
+
+    assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), resp.getStatus());
+    verify(s3, never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(orchestrator, never()).processMessage(any());
+  }
+
+  @Test
   void sanitizeFileName_stripsPathSeparatorsAndControls() {
     assertEquals("name.txt", ContentResource.sanitizeFileName("name.txt"));
     assertEquals("a_b_c.txt", ContentResource.sanitizeFileName("a/b\\c.txt"));

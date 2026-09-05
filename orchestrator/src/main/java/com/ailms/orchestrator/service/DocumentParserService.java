@@ -1,10 +1,10 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.util.ContentTypeSupport;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -17,24 +17,13 @@ import org.apache.tika.sax.ToTextContentHandler;
 @ApplicationScoped
 public class DocumentParserService {
 
-  private static final Set<String> SUPPORTED_TYPES =
-      Set.of(
-          "application/pdf",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/msword",
-          "text/plain",
-          "text/html",
-          "application/rtf",
-          "application/vnd.oasis.opendocument.text",
-          "image/png",
-          "image/jpeg",
-          "image/tiff");
+  private static final String UNSUPPORTED_MESSAGE = "Unsupported file type";
 
   private final Tika tika = new Tika();
 
   public ParseResult parse(byte[] fileBytes, String fileName, String contentType) {
     if (!isSupported(contentType)) {
-      return new ParseResult(null, "Unsupported file type: " + contentType);
+      return new ParseResult(null, UNSUPPORTED_MESSAGE + ": " + contentType);
     }
 
     try (InputStream is = new ByteArrayInputStream(fileBytes)) {
@@ -65,7 +54,7 @@ public class DocumentParserService {
   }
 
   public boolean isSupported(String contentType) {
-    return contentType != null && SUPPORTED_TYPES.contains(contentType);
+    return ContentTypeSupport.isSupported(contentType);
   }
 
   public record ParseResult(String text, String error) {

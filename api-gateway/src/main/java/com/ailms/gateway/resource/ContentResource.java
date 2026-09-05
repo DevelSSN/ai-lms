@@ -6,6 +6,7 @@ import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ContentDocument;
 import com.ailms.common.enums.ContentStatus;
+import com.ailms.common.util.ContentTypeSupport;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.security.Authenticated;
@@ -69,6 +70,16 @@ public class ContentResource {
         log.warn("Rejected oversized upload for user={} size={} max={}", userId, fileBytes.length, maxUploadSize);
         return Response.status(Response.Status.REQUEST_ENTITY_TOO_LARGE)
             .entity(Map.of("error", "File too large", "detail", "Maximum upload size is " + maxUploadSize + " bytes"))
+            .build();
+      }
+
+      if (!ContentTypeSupport.isSupported(file.contentType())) {
+        log.warn("Rejected unsupported content type user={} type={}", userId, file.contentType());
+        return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
+            .entity(
+                Map.of(
+                    "error",
+                    "Unsupported file type. Supported formats: plain text, Markdown, CSV, HTML, JSON, XML, PDF, DOC, DOCX, RTF, ODT, and images."))
             .build();
       }
 

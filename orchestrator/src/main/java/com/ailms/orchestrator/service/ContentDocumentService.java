@@ -2,6 +2,7 @@ package com.ailms.orchestrator.service;
 
 import com.ailms.common.entity.ContentDocument;
 import com.ailms.common.enums.ContentStatus;
+import com.ailms.common.util.ContentTypeSupport;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
