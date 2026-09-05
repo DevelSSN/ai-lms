@@ -47,23 +47,19 @@ public class ProactiveAgent {
 
     for (String userId : inactiveUsers) {
       try {
-        if (alreadyPinged(userId)) continue;
+        if (!userProfileRepository.markProactiveSentIfNotRecent(
+            userId, Instant.now(), Instant.now().minus(inactivityCutoff))) {
+          continue;
+        }
         String followUpMessage = generateFollowUp(userId);
         ProactiveEvent event =
             new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
         eventEmitter.send(event);
-        userProfileRepository.markProactiveSent(userId, Instant.now());
         log.info("Sent follow-up event for user={}", userId);
       } catch (Exception e) {
         log.error("Failed to generate follow-up for user={}: {}", userId, e.getMessage());
       }
     }
-  }
-
-  private boolean alreadyPinged(String userId) {
-    UserProfile profile = userProfileRepository.findByExternalId(userId);
-    if (profile == null || profile.lastProactiveSentAt == null) return false;
-    return !profile.lastProactiveSentAt.isBefore(Instant.now().minus(inactivityCutoff));
   }
 
   private String generateFollowUp(String userId) {
@@ -80,8 +76,6 @@ public class ProactiveAgent {
 
     return proactiveFollowUpAgent.generate(context);
   }
-
-  public record ProactiveFollowUp(String userId, String message) {}
 
   public record ProactiveEvent(String userId, String context, String eventType) {}
 }

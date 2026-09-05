@@ -23,8 +23,23 @@ public class UserProfileRepository implements PanacheRepository<UserProfile> {
     return profile;
   }
 
+  /**
+   * Atomically marks the profile as pinged, but only when it was not pinged within the last
+   * {@code cutoff} window. The check and update happen in one statement, so concurrent scheduler
+   * runs cannot double-ping the same user.
+   *
+   * @return true if the profile was marked (i.e. a follow-up should be sent), false if the user was
+   *     already pinged recently or has no profile.
+   */
   @Transactional
-  public void markProactiveSent(String externalId, Instant at) {
-    update("set lastProactiveSentAt = ?1 where externalId = ?2", at, externalId);
+  public boolean markProactiveSentIfNotRecent(String externalId, Instant at, Instant cutoff) {
+    int updated =
+        update(
+            "set lastProactiveSentAt = ?1 where externalId = ?2 and"
+                + " (lastProactiveSentAt is null or lastProactiveSentAt < ?3)",
+            at,
+            externalId,
+            cutoff);
+    return updated > 0;
   }
 }
