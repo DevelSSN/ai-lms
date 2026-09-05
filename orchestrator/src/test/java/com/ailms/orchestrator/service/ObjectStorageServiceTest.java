@@ -78,13 +78,13 @@ class ObjectStorageServiceTest {
   }
 
   @Test
-  void readFile_ioError_returnsNull() throws Exception {
+  void readFile_infraError_throws() {
     when(s3.getObject(any(GetObjectRequest.class)))
         .thenThrow(new RuntimeException("Connection error"));
 
     ObjectStorageService service = new ObjectStorageService();
     service.s3 = s3;
 
-    assertNull(service.readFile("broken"));
+    assertThrows(ObjectStorageException.class, () -> service.readFile("broken"));
   }
 }

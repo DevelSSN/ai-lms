@@ -70,6 +70,11 @@ public class ObjectStorageService {
     }
   }
 
+  /**
+   * Reads a stored file. Returns null only when the key does not exist; infrastructure and I/O
+   * failures are surfaced as {@link ObjectStorageException} so callers fail closed instead of
+   * silently treating an outage as a missing file.
+   */
   public byte[] readFile(String storagePath) {
     try {
       GetObjectRequest req = GetObjectRequest.builder().bucket(BUCKET).key(storagePath).build();
@@ -81,7 +86,8 @@ public class ObjectStorageService {
       return null;
     } catch (IOException | RuntimeException e) {
       log.error("Failed to read file from S3: {}", storagePath, e);
-      return null;
+      throw new ObjectStorageException(
+          "Failed to read file from S3: " + storagePath, e);
     }
   }
 }
