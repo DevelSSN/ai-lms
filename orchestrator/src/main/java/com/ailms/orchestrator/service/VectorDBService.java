@@ -11,13 +11,14 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
+import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
@@ -52,13 +53,22 @@ public class VectorDBService {
       log.info("No chunks to ingest for documentId={}", documentId);
       return;
     }
-    long existing = countEmbeddings(documentId);
-    if (existing > 0) {
-      log.info("Document already indexed documentId={} chunks={}, skipping", documentId, existing);
-      return;
-    }
 
     String source = VectorSourceKeys.document(documentId);
+
+    // Purge any prior vectors for this document so re-ingest is a clean, idempotent replace rather
+    // than skipping on partial writes or duplicating across the two stores (Qdrant + pgvector).
+    try {
+      embeddingStore.removeAll(MetadataFilterBuilder.metadataKey("source").isEqualTo(source));
+    } catch (Exception e) {
+      log.warn(
+          "Failed to purge previous Qdrant vectors for documentId={}: {}", documentId, e.getMessage());
+    }
+    Panache.getEntityManager()
+        .createQuery("delete from ContentEmbedding e where e.documentId = :did")
+        .setParameter("did", documentId)
+        .executeUpdate();
+
     for (String chunk : chunks) {
       Map<String, Object> meta = Map.of("source", source, "type", contentType);
       TextSegment segment = TextSegment.from(chunk, Metadata.from(meta));
@@ -121,17 +131,5 @@ public class VectorDBService {
         .limit(maxResults)
         .map(match -> match.embedded().text())
         .toList();
-  }
-
-  private long countEmbeddings(String documentId) {
-    try {
-      return Panache.getEntityManager()
-          .createQuery(
-              "select count(e) from ContentEmbedding e where e.documentId = :did", Long.class)
-          .setParameter("did", documentId)
-          .getSingleResult();
-    } catch (NoResultException e) {
-      return 0;
-    }
   }
 }

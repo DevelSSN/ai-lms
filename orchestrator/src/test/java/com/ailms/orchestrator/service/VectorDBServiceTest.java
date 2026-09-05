@@ -13,6 +13,7 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
 import jakarta.enterprise.inject.Instance;
 import java.util.List;
@@ -50,7 +51,7 @@ class VectorDBServiceTest {
 
   @Test
   @Disabled("Needs Quarkus Arc for Panache")
-  void ingestDocumentChunks_callsStoreForEachChunk() {
+  void ingestDocumentChunks_purgesThenWritesEachChunk() {
     when(embeddingModel.embed(any(TextSegment.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
 
@@ -61,6 +62,7 @@ class VectorDBServiceTest {
     svc.embeddingModel = embeddingModel;
     svc.ingestDocumentChunks(List.of("chunk one", "chunk two"), "doc-1", "document");
 
+    verify(embeddingStore, times(1)).removeAll(any(Filter.class));
     verify(embeddingStore, times(2)).add(any(Embedding.class), any(TextSegment.class));
   }
 
