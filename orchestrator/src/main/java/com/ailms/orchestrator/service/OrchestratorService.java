@@ -77,21 +77,9 @@ public class OrchestratorService {
 
   @Inject RedisChatMemoryStore chatMemoryStore;
 
-  private static final Pattern VIDEO_REQUEST = Pattern.compile("(?i)(?:youtube|youtu\\.be)");
-
-  private static final Pattern DOC_REFERENCE =
+  private static final Pattern EXPLICIT_VIDEO_LINK =
       Pattern.compile(
-          "(?i)\\b(?:the|this|that|my)\\s+(?:document|pdf)\\b"
-              + "|(?i)\\b(?:uploaded|attached)\\s+(?:document|file|pdf)\\b"
-              + "|(?i)\\b(?:the|this|that|my)\\s+uploaded\\s+file\\b"
-              + "|(?i)\\bbased\\s+on\\s+(?:the|this|that|my)\\s+(?:document|file|pdf)\\b");
-
-  private static final Pattern QUESTION_REFERENCE =
-      Pattern.compile("(?i)\\bquestion(?:s)?\\b|(?i)\\bquiz(?:zes)?\\b|(?i)\\bassess(?:ment)?\\b|(?i)\\btest\\b");
-
-  private static final String NO_DOCUMENT_MESSAGE =
-      "I couldn't find an uploaded document in this conversation. "
-          + "Upload a file first, and then I can analyze it or generate questions from it.";
+          "(?i)\\b(?:https?://|www\\.)?(?:m\\.)?(?:youtube\\.com|youtu\\.be)/");
 
   private static final String NO_VIDEOS_BARE =
       "I couldn't find any YouTube videos for that request. "
@@ -151,38 +139,14 @@ public class OrchestratorService {
             INTENT_CONVERSATION,
             userId,
             message);
-      } else if (VIDEO_REQUEST.matcher(message).find()) {
+      } else if (isExplicitVideoLink(message)) {
         intent = INTENT_VIDEO_SEARCH;
         enrichedMessage = message;
         log.info(
-            "Intent={} (keyword short-circuit) for user={} message={}",
+            "Intent={} (explicit video link short-circuit) for user={} message={}",
             INTENT_VIDEO_SEARCH,
             userId,
             message);
-      } else if (isDocumentReference(message)) {
-        String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-        if (activeDocId != null) {
-          intent =
-              QUESTION_REFERENCE.matcher(message).find()
-                  ? INTENT_ASSESSMENT
-                  : INTENT_CONTENT_ANALYSIS;
-          enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
-          log.info(
-              "Intent={} (document short-circuit doc={}) for user={} message={}",
-              intent,
-              activeDocId,
-              userId,
-              message);
-        } else {
-          intent = INTENT_CONVERSATION;
-          enrichedMessage = message;
-          agentResponse = NO_DOCUMENT_MESSAGE;
-          log.warn(
-              "Document referenced but none found for user={} session={} message={}",
-              userId,
-              sessionId,
-              message);
-        }
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
         intent = reclassifyContentIntent(intent, message, sessionId, userId);
@@ -375,9 +339,8 @@ public class OrchestratorService {
     return "";
   }
 
-  private boolean isDocumentReference(String message) {
-    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return false;
-    return DOC_REFERENCE.matcher(message).find();
+  private boolean isExplicitVideoLink(String message) {
+    return message != null && EXPLICIT_VIDEO_LINK.matcher(message).find();
   }
 
   private String resolveActiveDocumentId(String message, String sessionId, String userId) {
