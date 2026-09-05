@@ -108,6 +108,22 @@ public class OrchestratorService {
 
   private static final String ASSESS_PREFIX = "Generate assessment for content ";
 
+  private static final String ASSESS_PARAMS_MARKER = " | ";
+
+  /**
+   * Extracts the content id from an assessment prompt such as "Generate assessment for content
+   * doc-1 | questions=5 | difficulty=medium", ignoring any trailing question-count/difficulty
+   * parameters appended by the gateway.
+   */
+  static String assessmentTargetId(String message) {
+    String tail = message.substring(ASSESS_PREFIX.length()).trim();
+    int marker = tail.indexOf(ASSESS_PARAMS_MARKER);
+    if (marker >= 0) {
+      tail = tail.substring(0, marker).trim();
+    }
+    return tail;
+  }
+
   private static final int CHUNK_SIZE = 800;
 
   private static final int CHUNK_OVERLAP = 100;
@@ -400,7 +416,7 @@ public class OrchestratorService {
 
   private String resolveActiveDocumentId(String message, String sessionId, String userId) {
     if (message.startsWith(ASSESS_PREFIX)) {
-      String docId = message.substring(ASSESS_PREFIX.length()).trim();
+      String docId = assessmentTargetId(message);
       if (!docId.isEmpty()) return docId;
     }
     if (sessionId != null) {

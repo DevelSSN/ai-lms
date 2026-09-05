@@ -2,6 +2,7 @@ package com.ailms.gateway.resource;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import com.ailms.common.dto.ChatRequest;
@@ -176,6 +177,34 @@ class ResourceUnitTest {
     var req = new com.ailms.common.dto.AssessmentRequest("content-1", "user-1", 5, "medium");
     Response resp = resource.generateAssessment(req);
     assertEquals(200, resp.getStatus());
+    verify(orchestrator)
+        .processMessage(
+            argThat(
+                r ->
+                    r.message()
+                        .equals("Generate assessment for content content-1 | questions=5 | difficulty=medium")));
+  }
+
+  @Test
+  void contentResource_assess_appliesDefaults() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    when(orchestrator.processMessage(any(ChatRequest.class)))
+        .thenReturn(new ChatResponse("Assessment ready", "assess-user-1", "ASSESSMENT"));
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.orchestrator = orchestrator;
+
+    var req = new com.ailms.common.dto.AssessmentRequest("content-1", "user-1", null, null);
+    Response resp = resource.generateAssessment(req);
+    assertEquals(200, resp.getStatus());
+    verify(orchestrator)
+        .processMessage(
+            argThat(
+                r ->
+                    r.message()
+                        .equals(
+                            "Generate assessment for content content-1 | questions=5 | difficulty=medium")));
   }
 
   @Test

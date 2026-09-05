@@ -869,6 +869,21 @@ class OrchestratorServiceTest {
     verify(questionGenerationAgent, never()).process(anyString(), anyString(), anyString());
   }
 
+  @Test
+  void assessmentTargetId_ignoresTrailingParams() {
+    assertEquals("doc-1", OrchestratorService.assessmentTargetId("Generate assessment for content doc-1"));
+    assertEquals(
+        "doc-1",
+        OrchestratorService.assessmentTargetId(
+            "Generate assessment for content doc-1 | questions=5 | difficulty=medium"));
+    assertEquals(
+        "doc-1",
+        OrchestratorService.assessmentTargetId(
+            "Generate assessment for content  doc-1  | questions=10| difficulty=hard "));
+    assertEquals(
+        "", OrchestratorService.assessmentTargetId("Generate assessment for content "));
+  }
+
   private OrchestratorService buildService() {
     OrchestratorService svc = new OrchestratorService();
     svc.intentClassifier = intentClassifier;

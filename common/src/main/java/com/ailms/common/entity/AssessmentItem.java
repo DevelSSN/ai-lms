@@ -13,6 +13,7 @@ public class AssessmentItem {
 
   public String userId;
   public String contentId;
+  public String sessionId;
   public String questionType;
   public String difficulty;
 
@@ -24,6 +25,9 @@ public class AssessmentItem {
 
   @Column(columnDefinition = "TEXT")
   public String correctAnswer;
+
+  @Column(columnDefinition = "TEXT")
+  public String explanation;
 
   @Column(columnDefinition = "TEXT")
   public String topicTags;

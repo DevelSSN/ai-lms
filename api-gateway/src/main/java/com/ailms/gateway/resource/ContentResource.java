@@ -143,9 +143,22 @@ public class ContentResource {
     log.info(
         "Assessment generation requested for content={} by user={}", request.contentId(), userId);
     try {
+      int questionCount = request.questionCount() != null && request.questionCount() > 0
+          ? request.questionCount()
+          : 5;
+      String difficulty =
+          request.difficulty() != null && !request.difficulty().isBlank()
+              ? request.difficulty().trim()
+              : "medium";
       ChatRequest chatReq =
           new ChatRequest(
-              "Generate assessment for content " + request.contentId(), "assess-" + userId);
+              "Generate assessment for content "
+                  + request.contentId()
+                  + " | questions="
+                  + questionCount
+                  + " | difficulty="
+                  + difficulty,
+              "assess-" + userId);
       ChatResponse response = orchestrator.processMessage(chatReq);
       return Response.ok(response).build();
     } catch (Exception e) {
