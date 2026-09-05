@@ -20,10 +20,19 @@ public class ResponseComposer {
 
     return switch (intent) {
       case "CONTENT_ANALYSIS" ->
-          fallback(agenticScope.readState("analysis", ""), "Analysis not available");
+          fallback(
+              agenticScope.readState("analysis", ""),
+              "I couldn't analyze because no analyzable content was provided. "
+                  + "Upload a file or paste text first.");
       case "ASSESSMENT" ->
-          fallback(agenticScope.readState("assessment", ""), "Assessment not available");
-      case "INSIGHT" -> fallback(agenticScope.readState("insights", ""), "Insights not available");
+          fallback(
+              agenticScope.readState("assessment", ""),
+              "I couldn't generate questions because no content was provided. "
+                  + "Upload a file or paste text first.");
+      case "INSIGHT" ->
+          fallback(
+              agenticScope.readState("insights", ""),
+              "Not enough data to generate insights yet. Complete a few lessons and try again.");
       default ->
           fallback(primary, "I couldn't generate a response. Please try rephrasing your question.");
     };

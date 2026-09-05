@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Slf4j
 @ApplicationScoped
@@ -39,6 +40,9 @@ public class VectorDBService {
   }
 
   @Inject EmbeddingModel embeddingModel;
+
+  @ConfigProperty(name = "ailms.rag.min-score", defaultValue = "0.5")
+  double minScore;
 
   @Transactional
   public void ingestDocumentChunks(List<String> chunks, String documentId, String contentType) {
@@ -107,6 +111,7 @@ public class VectorDBService {
     List<EmbeddingMatch<TextSegment>> matches = embeddingStore.search(request).matches();
 
     return matches.stream()
+        .filter(m -> m.score() >= minScore)
         .filter(
             m ->
                 sourceFilter == null

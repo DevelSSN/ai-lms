@@ -16,7 +16,9 @@ public final class TextUtils {
           Pattern.CASE_INSENSITIVE);
 
   private static final Pattern THINK_BLOCK =
-      Pattern.compile("(?is)<think\\b.*?</think>|\\bresponse\\s*<think\\b.*?</think>");
+      Pattern.compile("(?is)<think\\b.*?</think\\s*>");
+
+  private static final Pattern THINK_REMNANT = Pattern.compile("(?is)<think\\b.*?|</?think\\s*>");
 
   private TextUtils() {}
 
@@ -29,7 +31,8 @@ public final class TextUtils {
 
   public static String stripThinking(String text) {
     if (text == null) return null;
-    String stripped = THINK_BLOCK.matcher(text).replaceAll(" ").replaceAll("[ \t]+", " ").trim();
-    return stripped;
+    String stripped = THINK_BLOCK.matcher(text).replaceAll(" ");
+    stripped = THINK_REMNANT.matcher(stripped).replaceAll(" ");
+    return stripped.replaceAll("\\s+", " ").trim();
   }
 }
