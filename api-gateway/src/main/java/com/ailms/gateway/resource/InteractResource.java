@@ -65,7 +65,7 @@ public class InteractResource {
   @Authenticated
   @Produces(MediaType.SERVER_SENT_EVENTS)
   public Multi<String> stream() {
-    return sse.subscribe();
+    return sse.subscribe(jwt.getSubject());
   }
 
   private void appendResponseLog(String userId, String threadId, ChatResponse response) {

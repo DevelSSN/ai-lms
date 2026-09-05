@@ -128,7 +128,9 @@ class ResourceUnitTest {
 
   @Test
   void interactResource_updates_returnsMulti() {
+    when(jwt.getSubject()).thenReturn("user-1");
     InteractResource resource = new InteractResource();
+    resource.jwt = jwt;
     resource.sse = new SseBroadcastService();
 
     Multi<String> stream = resource.stream();
