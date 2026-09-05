@@ -392,13 +392,12 @@ public class OrchestratorService {
   }
 
   private String tryVideoSearch(String message, String sessionId, String userId) {
-    String query = youTubeSearchService.extractQuery(message);
-    if (query == null || query.isBlank()) {
-      query = resolveTopicFromContext(userId, sessionId);
+    String messageTopic = youTubeSearchService.extractQuery(message);
+    String contextTopic = resolveTopicFromContext(userId, sessionId);
+    if (contextTopic == null || contextTopic.isBlank()) {
+      contextTopic = lastUserTopicFromMemory(sessionId);
     }
-    if (query == null || query.isBlank()) {
-      query = lastUserTopicFromMemory(sessionId);
-    }
+    String query = mergeVideoTopics(messageTopic, contextTopic);
     if (query == null || query.isBlank()) {
       log.warn("No video topic extractable for message='{}'", message);
       return NO_VIDEOS_BARE;
@@ -419,6 +418,22 @@ public class OrchestratorService {
           .append(result.title());
     }
     return sb.toString();
+  }
+
+  private String mergeVideoTopics(String messageTopic, String contextTopic) {
+    String m = messageTopic == null ? "" : messageTopic.trim();
+    String c = contextTopic == null ? "" : contextTopic.trim();
+    if (m.isBlank()) return c.isBlank() ? null : c;
+    if (c.isBlank() || m.equalsIgnoreCase(c)) return m;
+    if (containsWord(m, c)) return m;
+    if (containsWord(c, m)) return c;
+    return m + " " + c;
+  }
+
+  private boolean containsWord(String text, String word) {
+    return Pattern.compile("(?i)(?<![a-z0-9])" + Pattern.quote(word) + "(?![a-z0-9])")
+        .matcher(text)
+        .find();
   }
 
   private String resolveTopicFromContext(String userId, String sessionId) {

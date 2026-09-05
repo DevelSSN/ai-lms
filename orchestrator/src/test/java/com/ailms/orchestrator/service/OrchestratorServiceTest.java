@@ -352,6 +352,40 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_classifiedVideoSearch_withTopicAndHistory_mergesContext() {
+    when(intentClassifier.classify("Give me videos on branch management"))
+        .thenReturn("VIDEO_SEARCH");
+    when(conversationRepository.getHistory("user-1", "sess-1"))
+        .thenReturn(
+            new ChatHistory(
+                "sess-1",
+                java.util.List.of(
+                    new ChatHistory.ChatMessage("user", "Master plan for git", null))));
+    when(youTubeSearchService.extractQuery("Give me videos on branch management"))
+        .thenReturn("branch management");
+    when(youTubeSearchService.extractQuery("Master plan for git")).thenReturn("git");
+    when(youTubeSearchService.search("branch management git"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult("Git branches explained", "abc123")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp =
+        svc.route(new ChatRequest("Give me videos on branch management", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("watch?v=abc123"));
+    verify(youTubeSearchService).search("branch management git");
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
   void route_videoSearch_noTopicInContext_returnsCannedMessage() {
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenReturn(new ChatHistory("sess-1", java.util.List.of()));
