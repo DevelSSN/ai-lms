@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.orchestrator.agent.ContentAnalysisAgent;
@@ -262,11 +263,17 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_videoKeyword_usesMemoryTopicWhenNoExplicitTopic() {
-    when(chatMemoryStore.getMessages("conversation:sess-1"))
-        .thenReturn(java.util.List.of(UserMessage.from("Learn about git")));
+  void route_videoKeyword_usesHistoryTopicWhenNoExplicitTopic() {
+    when(conversationRepository.getHistory("user-1", "sess-1"))
+        .thenReturn(
+            new ChatHistory(
+                "sess-1",
+                java.util.List.of(
+                    new ChatHistory.ChatMessage("user", "Master plan for git", null),
+                    new ChatHistory.ChatMessage("assistant", "Master plan given", "CONVERSATION"))));
     when(youTubeSearchService.extractQuery("Ok\nGive youtube videos")).thenReturn("");
-    when(youTubeSearchService.search("Learn about git"))
+    when(youTubeSearchService.extractQuery("Master plan for git")).thenReturn("git");
+    when(youTubeSearchService.search("git"))
         .thenReturn(
             java.util.List.of(new YouTubeSearchService.VideoResult("Git tutorial", "dG2kXvT4vX4")));
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -281,9 +288,87 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("Ok\nGive youtube videos", "sess-1"), "user-1");
 
     assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
-    verify(youTubeSearchService).search("Learn about git");
+    verify(youTubeSearchService).search("git");
     verify(intentClassifier, never()).classify(anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoKeyword_usesMemoryTopicWhenNoExplicitTopic() {
+    when(chatMemoryStore.getMessages("conversation:sess-1"))
+        .thenReturn(java.util.List.of(UserMessage.from("Learn about git")));
+    when(youTubeSearchService.extractQuery("Ok\nGive youtube videos")).thenReturn("");
+    when(youTubeSearchService.extractQuery("Learn about git")).thenReturn("git");
+    when(youTubeSearchService.search("git"))
+        .thenReturn(
+            java.util.List.of(new YouTubeSearchService.VideoResult("Git tutorial", "dG2kXvT4vX4")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Ok\nGive youtube videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
+    verify(youTubeSearchService).search("git");
+    verify(intentClassifier, never()).classify(anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_classifiedVideoSearch_bareRequest_usesHistoryTopic() {
+    when(intentClassifier.classify("Give me videos")).thenReturn("VIDEO_SEARCH");
+    when(conversationRepository.getHistory("user-1", "sess-1"))
+        .thenReturn(
+            new ChatHistory(
+                "sess-1",
+                java.util.List.of(
+                    new ChatHistory.ChatMessage("user", "Master plan for git", null))));
+    when(youTubeSearchService.extractQuery("Give me videos")).thenReturn("");
+    when(youTubeSearchService.extractQuery("Master plan for git")).thenReturn("git");
+    when(youTubeSearchService.search("git"))
+        .thenReturn(
+            java.util.List.of(new YouTubeSearchService.VideoResult("Git tutorial", "dG2kXvT4vX4")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Give me videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
+    assertEquals("VIDEO_SEARCH", resp.agentType());
+    verify(intentClassifier).classify("Give me videos");
+    verify(youTubeSearchService).search("git");
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoSearch_noTopicInContext_returnsCannedMessage() {
+    when(conversationRepository.getHistory("user-1", "sess-1"))
+        .thenReturn(new ChatHistory("sess-1", java.util.List.of()));
+    when(youTubeSearchService.extractQuery("Give youtube videos")).thenReturn("");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Give youtube videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("couldn't find any YouTube videos"));
+    verify(youTubeSearchService, never()).search(anyString());
   }
 
   @Test

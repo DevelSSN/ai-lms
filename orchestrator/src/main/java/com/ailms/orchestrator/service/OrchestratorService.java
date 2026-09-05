@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ConversationLog;
@@ -68,10 +69,7 @@ public class OrchestratorService {
 
   @Inject RedisChatMemoryStore chatMemoryStore;
 
-  private static final Pattern VIDEO_REQUEST =
-      Pattern.compile(
-          "(?i)(?:youtube|youtu\\.be|\\bwatch\\b)"
-              + "|(?i)\\bvideo(?:s)?\\b(?=[^\\n]{0,40}(?:about|on|for|link|give|find|show|recommend|share|list))");
+  private static final Pattern VIDEO_REQUEST = Pattern.compile("(?i)(?:youtube|youtu\\.be)");
 
   private static final Pattern DOC_REFERENCE =
       Pattern.compile(
@@ -179,7 +177,7 @@ public class OrchestratorService {
       if (agentResponse == null) {
         analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
         if ("VIDEO_SEARCH".equals(intent)) {
-          agentResponse = tryVideoSearch(message, sessionId);
+          agentResponse = tryVideoSearch(message, sessionId, userId);
         }
         if (agentResponse == null) {
           agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
@@ -393,8 +391,11 @@ public class OrchestratorService {
     }
   }
 
-  private String tryVideoSearch(String message, String sessionId) {
+  private String tryVideoSearch(String message, String sessionId, String userId) {
     String query = youTubeSearchService.extractQuery(message);
+    if (query == null || query.isBlank()) {
+      query = resolveTopicFromContext(userId, sessionId);
+    }
     if (query == null || query.isBlank()) {
       query = lastUserTopicFromMemory(sessionId);
     }
@@ -420,16 +421,40 @@ public class OrchestratorService {
     return sb.toString();
   }
 
+  private String resolveTopicFromContext(String userId, String sessionId) {
+    try {
+      ChatHistory history = conversationRepository.getHistory(userId, sessionId);
+      if (history == null || history.messages() == null || history.messages().isEmpty()) {
+        return null;
+      }
+      List<ChatHistory.ChatMessage> messages = history.messages();
+      for (int i = messages.size() - 1; i >= 0; i--) {
+        ChatHistory.ChatMessage msg = messages.get(i);
+        if (msg == null || !"user".equals(msg.role())) continue;
+        if (msg.content() == null || msg.content().isBlank()) continue;
+        String topic = youTubeSearchService.extractQuery(msg.content());
+        if (topic != null && !topic.isBlank()) return topic;
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve topic from history for session={}: {}",
+          sessionId,
+          e.getMessage());
+    }
+    return null;
+  }
+
   private String lastUserTopicFromMemory(String sessionId) {
     if (sessionId == null || sessionId.isBlank() || chatMemoryStore == null) return null;
     try {
       List<ChatMessage> messages = chatMemoryStore.getMessages("conversation:" + sessionId);
       for (int i = messages.size() - 1; i >= 0; i--) {
         ChatMessage msg = messages.get(i);
-        if (msg.type() == ChatMessageType.USER) {
-          String text = ((UserMessage) msg).singleText();
-          if (text != null && !text.isBlank()) return text.trim();
-        }
+        if (msg.type() != ChatMessageType.USER) continue;
+        String text = ((UserMessage) msg).singleText();
+        if (text == null || text.isBlank()) continue;
+        String topic = youTubeSearchService.extractQuery(text);
+        if (topic != null && !topic.isBlank()) return topic;
       }
     } catch (Exception e) {
       log.warn(

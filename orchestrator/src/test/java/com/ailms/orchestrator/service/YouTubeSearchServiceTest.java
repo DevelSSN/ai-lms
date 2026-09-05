@@ -103,8 +103,8 @@ class YouTubeSearchServiceTest {
     assertEquals("calculus", service.extractQuery("Recommend a good video about calculus"));
     assertEquals(
         "quantum mechanics", service.extractQuery("Can you find me a video on quantum mechanics?"));
-    assertEquals("the universe", service.extractQuery("Show me a video about the universe"));
-    assertEquals("What is a neural network", service.extractQuery("What is a neural network?"));
+    assertEquals("universe", service.extractQuery("Show me a video about the universe"));
+    assertEquals("neural network", service.extractQuery("What is a neural network?"));
   }
 
   @Test
@@ -119,5 +119,25 @@ class YouTubeSearchServiceTest {
     assertEquals("git", service.extractQuery("Ok give youtube videos about git"));
     assertEquals("git", service.extractQuery("give youtube videos for git"));
     assertEquals("calculus", service.extractQuery("find me videos on calculus"));
+  }
+
+  @Test
+  void extractQuery_returnsBlankForBareRequests() {
+    assertEquals("", service.extractQuery("Give me videos"));
+    assertEquals("", service.extractQuery("give videos"));
+    assertEquals("", service.extractQuery("Give me youtube videos"));
+    assertEquals("", service.extractQuery("Show me some videos"));
+    assertEquals("", service.extractQuery("videos please"));
+  }
+
+  @Test
+  void extractQuery_extractsTopicFromConversationContextMessages() {
+    assertEquals("git", service.extractQuery("Master plan for git"));
+    assertEquals("git", service.extractQuery("Tutorial on git"));
+    assertEquals("docker", service.extractQuery("Guide to docker"));
+    assertEquals("calculus", service.extractQuery("Teach me calculus"));
+    assertEquals("machine learning", service.extractQuery("Show me videos about machine learning"));
+    assertEquals("linux", service.extractQuery("i want videos on linux"));
+    assertEquals("shell scripting", service.extractQuery("tell me about shell scripting"));
   }
 }

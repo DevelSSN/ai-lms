@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,38 @@ public class YouTubeSearchService {
           Pattern.compile("(?i)youtube\\s+(?:videos|video|link)"),
           Pattern.compile(
               "(?i)(?:recommend|find|show)\\s+(?:me\\s+)?(?:a\\s+)?(?:good\\s+)?video(?:s)?\\s+(?:about|on)"),
-          Pattern.compile("(?i)(?:a\\s+|good\\s+)?video(?:s)?\\s+(?:about|on|for)"));
+          Pattern.compile("(?i)(?:a\\s+|good\\s+)?video(?:s)?\\s+(?:about|on|for)"),
+          Pattern.compile(
+              "(?i)(?:recommend|find|show|share|send)\\s+(?:me\\s+)?(?:a\\s+|some\\s+)?videos?"),
+          Pattern.compile("(?i)give\\s+(?:me\\s+)?(?:some\\s+|the\\s+)?videos?"),
+          Pattern.compile("(?i)i\\s+want\\s+(?:a\\s+|some\\s+|the\\s+)?videos?"));
+
+  private static final List<String> TOPIC_PHRASE_PREFIXES =
+      List.of(
+          "master plan for",
+          "master plan of",
+          "study plan for",
+          "lesson plan for",
+          "roadmap for",
+          "crash course on",
+          "tutorial on",
+          "introduction to",
+          "guide to",
+          "tell me about",
+          "teach me",
+          "explain",
+          "learn about",
+          "learn",
+          "what is",
+          "what are",
+          "what's",
+          "about");
+
+  private static final Set<String> COMMAND_WORDS =
+      Set.of(
+          "give", "me", "show", "find", "recommend", "send", "share", "want", "i", "need",
+          "some", "the", "a", "an", "please", "ok", "okay", "yes", "no", "youtube",
+          "video", "videos", "link", "links", "watch", "for", "on", "about", "to", "of");
 
   @ConfigProperty(name = "youtube.api.key", defaultValue = "")
   String apiKey;
@@ -103,17 +136,55 @@ public class YouTubeSearchService {
   String extractQuery(String message) {
     if (message == null) return null;
     String trimmed = message.trim();
+    String rest = trimmed;
     for (Pattern pattern : PREAMBLE_PATTERNS) {
       Matcher matcher = pattern.matcher(trimmed);
       if (matcher.find()) {
-        String rest =
-            trimmed
-                .substring(matcher.end())
-                .replaceFirst("(?i)^\\s*(?:about|on|for|to)\\s*", "")
-                .trim();
-        return rest.replaceFirst("[?.!,;]+$", "").trim();
+        rest = trimmed.substring(matcher.end());
+        break;
       }
     }
-    return trimmed.replaceFirst("[?.!,;]+$", "").trim();
+    String topic = cleanTopic(rest);
+    return (topic == null || topic.isBlank()) ? "" : topic;
+  }
+
+  private String cleanTopic(String raw) {
+    if (raw == null) return null;
+    String text = raw.trim();
+    text = text.replaceFirst("[?.!,;\\s]+$", "").trim();
+    text = text.replaceFirst("(?i)^\\s*(?:about|on|for|to)\\s*", "").trim();
+
+    boolean changed = true;
+    while (changed) {
+      changed = false;
+      for (String phrase : TOPIC_PHRASE_PREFIXES) {
+        String candidate = stripPhrasePrefix(text, phrase);
+        if (candidate != null) {
+          text = candidate;
+          changed = true;
+          break;
+        }
+      }
+    }
+
+    text = text.replaceFirst("(?i)^(?:a|an|the)\\s+", "").trim();
+
+    if (text.isBlank()) return null;
+
+    String normalized = text.toLowerCase(Locale.ROOT);
+    String[] tokens = normalized.split("[^a-z0-9]+");
+    for (String token : tokens) {
+      if (token.isEmpty()) continue;
+      if (!COMMAND_WORDS.contains(token)) return text;
+    }
+    return null;
+  }
+
+  private String stripPhrasePrefix(String text, String phrase) {
+    String lower = text.toLowerCase(Locale.ROOT);
+    if (!lower.startsWith(phrase)) return null;
+    int len = phrase.length();
+    if (len < lower.length() && !Character.isWhitespace(lower.charAt(len))) return null;
+    return text.substring(len).trim();
   }
 }

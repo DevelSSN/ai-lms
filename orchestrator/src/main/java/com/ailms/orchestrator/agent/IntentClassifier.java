@@ -25,6 +25,9 @@ public interface IntentClassifier {
       Examples:
       - "Give me a youtube link to Neural networks by 3b1b" -> VIDEO_SEARCH
       - "Give youtube videos" -> VIDEO_SEARCH
+      - "Give me videos" -> VIDEO_SEARCH
+      - "Show me some videos" -> VIDEO_SEARCH
+      - "Recommend videos" -> VIDEO_SEARCH
       - "Ok, give me youtube videos about git" -> VIDEO_SEARCH
       - "youtube videos about calculus" -> VIDEO_SEARCH
       - "Recommend a good video about calculus" -> VIDEO_SEARCH
@@ -55,8 +58,10 @@ public interface IntentClassifier {
       - Pick EXACTLY ONE label. If no label clearly fits, choose CONVERSATION.
       - A request with no uploaded content or provided document is NEVER
         ASSESSMENT or CONTENT_ANALYSIS, even if it uses words like "analyze" or "questions".
-      - A request for YouTube videos or video links is VIDEO_SEARCH; a request to explain
-        a *topic* (even about videos or video games) is CONVERSATION.
+      - A request for YouTube videos or video links is VIDEO_SEARCH, even if it does
+        not contain the word "youtube" and even if no topic is named (the topic can be
+        inferred from the conversation). A request to explain a *topic* (even about
+        videos or video games) is CONVERSATION.
 
       Respond with ONLY the intent label (e.g., CONVERSATION, VIDEO_SEARCH, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.
