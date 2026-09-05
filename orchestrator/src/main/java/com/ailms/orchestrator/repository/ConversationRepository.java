@@ -147,6 +147,16 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     chatMemoryStore.deleteMessages(ChatMemoryKeys.profiling(sessionId));
   }
 
+  /**
+   * Returns the id of the user who owns the given session, or null when the session does not exist.
+   * Used to reject cross-user session access.
+   */
+  public String sessionOwner(String sessionId) {
+    ConversationLog log =
+        find("sessionId = ?1 AND (deleted IS NULL OR deleted = false)", sessionId).firstResult();
+    return log == null ? null : log.userId;
+  }
+
   public ConversationLog firstUserMessage(String userId, String sessionId) {
     return find(
             "userId = ?1 AND sessionId = ?2 AND role = '"

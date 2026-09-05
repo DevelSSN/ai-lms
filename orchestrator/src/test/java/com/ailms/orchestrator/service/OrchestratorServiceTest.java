@@ -59,6 +59,49 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_rejectsSessionOwnedByAnotherUser() {
+    when(conversationRepository.sessionOwner("sess-1")).thenReturn("user-other");
+
+    OrchestratorService svc = buildService();
+
+    assertThrows(
+        SessionOwnershipException.class, () -> svc.route(new ChatRequest("hello", "sess-1"), "user-1"));
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_allowsSessionOwnedBySameUser() {
+    when(conversationRepository.sessionOwner("sess-1")).thenReturn("user-1");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(
+                  scope.readState("response", "unset"), "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("hello", "sess-1"), "user-1");
+
+    assertEquals(
+        "Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
+  }
+
+  @Test
+  void greetsWithStateStoredUnderResponseKey() {
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(
+                  scope.readState("response", "unset"), "sess-1", "CONVERSATION");
+            });
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("hello", "sess-1"), "user-1");
+    assertEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
+  }
+
+  @Test
   void route_bareGreeting_shortCircuits() {
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(

@@ -6,6 +6,7 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.service.OrchestratorService;
+import com.ailms.orchestrator.service.SessionOwnershipException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
@@ -33,9 +35,16 @@ public class OrchestratorResource {
   @POST
   public Response processMessage(ChatRequest request, @HeaderParam("X-User-Id") String userId) {
     log.info("Orchestrate request from user={} session={}", userId, request.sessionId());
-    ChatResponse response = orchestratorService.route(request, userId);
-    log.debug("Orchestrate response sent to user={}", userId);
-    return Response.ok(response).build();
+    try {
+      ChatResponse response = orchestratorService.route(request, userId);
+      log.debug("Orchestrate response sent to user={}", userId);
+      return Response.ok(response).build();
+    } catch (SessionOwnershipException e) {
+      log.warn("Blocked cross-user session access: {}", e.getMessage());
+      return Response.status(Response.Status.FORBIDDEN)
+          .entity(Map.of("error", "Session does not belong to the authenticated user"))
+          .build();
+    }
   }
 
   @GET

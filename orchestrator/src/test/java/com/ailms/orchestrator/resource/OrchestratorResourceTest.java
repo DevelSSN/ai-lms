@@ -10,6 +10,7 @@ import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.service.OrchestratorService;
+import com.ailms.orchestrator.service.SessionOwnershipException;
 import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.List;
@@ -36,6 +37,18 @@ class OrchestratorResourceTest {
     assertEquals(200, resp.getStatus());
     ChatResponse body = (ChatResponse) resp.getEntity();
     assertEquals("Hello!", body.message());
+  }
+
+  @Test
+  void processMessage_returns403ForCrossUserSession() {
+    when(orchestratorService.route(any(ChatRequest.class), eq("user-1")))
+        .thenThrow(new SessionOwnershipException("Session sess-1 does not belong to user user-1"));
+
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.orchestratorService = orchestratorService;
+
+    Response resp = resource.processMessage(new ChatRequest("hi", "sess-1"), "user-1");
+    assertEquals(403, resp.getStatus());
   }
 
   @Test

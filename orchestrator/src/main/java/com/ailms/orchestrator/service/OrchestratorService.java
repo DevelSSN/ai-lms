@@ -124,6 +124,7 @@ public class OrchestratorService {
       sessionId = java.util.UUID.randomUUID().toString();
       log.info("Generated session id for user={}: {}", userId, sessionId);
     }
+    enforceSessionOwnership(sessionId, userId);
 
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
@@ -225,6 +226,19 @@ public class OrchestratorService {
       return response;
     } finally {
       LangChain4jManaged.removeCurrent();
+    }
+  }
+
+  void enforceSessionOwnership(String sessionId, String userId) {
+    String owner = conversationRepository.sessionOwner(sessionId);
+    if (owner != null && !owner.equals(userId)) {
+      log.warn(
+          "Denied cross-user session access: session={} owned by={} requested by={}",
+          sessionId,
+          owner,
+          userId);
+      throw new SessionOwnershipException(
+          "Session " + sessionId + " does not belong to user " + userId);
     }
   }
 
