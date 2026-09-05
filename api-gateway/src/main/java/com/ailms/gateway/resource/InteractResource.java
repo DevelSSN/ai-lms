@@ -6,7 +6,6 @@ import com.ailms.gateway.service.OrchestratorClient;
 import com.ailms.gateway.service.SseBroadcastService;
 import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
-import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -63,7 +62,7 @@ public class InteractResource {
 
   @GET
   @Path("/updates")
-  @PermitAll
+  @Authenticated
   @Produces(MediaType.SERVER_SENT_EVENTS)
   public Multi<String> stream() {
     return sse.subscribe();

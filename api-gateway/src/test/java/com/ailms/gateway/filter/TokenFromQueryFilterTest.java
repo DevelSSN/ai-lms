@@ -1,5 +1,6 @@
 package com.ailms.gateway.filter;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -31,21 +32,54 @@ class TokenFromQueryFilterTest {
 
     filter.filter(ctx);
 
-    verify(ctx).getHeaders();
-    assert params.getFirst("Authorization").equals("Bearer test-token");
+    verify(ctx, never()).abortWith(any());
+    assertEquals("Bearer test-token", params.getFirst("Authorization"));
   }
 
   @Test
-  void skipsWhenNoToken() {
+  void rejectsUpdatesPathWithoutAnyToken() {
     MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
 
     when(ctx.getUriInfo()).thenReturn(uriInfo);
+    when(ctx.getHeaders()).thenReturn(params);
     when(uriInfo.getPath()).thenReturn("/api/updates");
     when(uriInfo.getQueryParameters()).thenReturn(params);
 
     filter.filter(ctx);
 
-    verify(ctx, never()).getHeaders();
+    verify(ctx).abortWith(any());
+  }
+
+  @Test
+  void rejectsBlankQueryToken() {
+    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+    params.putSingle("token", "   ");
+
+    when(ctx.getUriInfo()).thenReturn(uriInfo);
+    when(ctx.getHeaders()).thenReturn(params);
+    when(uriInfo.getPath()).thenReturn("/api/updates");
+    when(uriInfo.getQueryParameters()).thenReturn(params);
+
+    filter.filter(ctx);
+
+    verify(ctx).abortWith(any());
+  }
+
+  @Test
+  void passesThroughWhenAuthorizationHeaderPresent() {
+    MultivaluedHashMap<String, String> headers = new MultivaluedHashMap<>();
+    headers.putSingle("Authorization", "Bearer header-token");
+    MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+
+    when(ctx.getUriInfo()).thenReturn(uriInfo);
+    when(ctx.getHeaders()).thenReturn(headers);
+    when(uriInfo.getPath()).thenReturn("/api/updates");
+    when(uriInfo.getQueryParameters()).thenReturn(params);
+
+    filter.filter(ctx);
+
+    verify(ctx, never()).abortWith(any());
+    assertEquals("Bearer header-token", headers.getFirst("Authorization"));
   }
 
   @Test
