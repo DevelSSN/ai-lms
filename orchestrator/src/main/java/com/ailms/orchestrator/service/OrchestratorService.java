@@ -14,7 +14,6 @@ import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
-import com.ailms.orchestrator.agent.ProactiveFollowUpAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
@@ -72,8 +71,6 @@ public class OrchestratorService {
   @Inject YouTubeSearchService youTubeSearchService;
 
   @Inject TitleGenerator titleGenerator;
-
-  @Inject ProactiveFollowUpAgent proactiveFollowUpAgent;
 
   @Inject ResponseVerifierAgent responseVerifierAgent;
 
@@ -631,16 +628,6 @@ public class OrchestratorService {
     if (!message.startsWith(UPLOAD_PREFIX)) return null;
     String docId = message.substring(UPLOAD_PREFIX.length()).trim();
     return contentDocumentService.resolveContent(docId);
-  }
-
-  public String generateProactiveMessage(String userId, String context) {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    LangChain4jManaged.setCurrent(Map.of(AgenticScope.class, scope));
-    try {
-      return proactiveFollowUpAgent.generate(context);
-    } finally {
-      LangChain4jManaged.removeCurrent();
-    }
   }
 
   private void scheduleTitleGeneration(String userId, String sessionId) {

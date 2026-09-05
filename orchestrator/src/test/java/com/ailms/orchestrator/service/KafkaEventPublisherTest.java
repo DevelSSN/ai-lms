@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class KafkaEventPublisherTest {
 
-  @Mock Emitter<KafkaEventPublisher.AgentEvent> emitter;
+  @Mock Emitter<com.ailms.common.dto.AgentEvent> emitter;
 
   @Test
   void publishContentAnalysisComplete() {
@@ -19,7 +19,7 @@ class KafkaEventPublisherTest {
     pub.contentAnalysisEmitter = emitter;
 
     pub.publishContentAnalysisComplete("user-1", "sess-1", "analysis result");
-    verify(emitter).send(any(KafkaEventPublisher.AgentEvent.class));
+    verify(emitter).send(any(com.ailms.common.dto.AgentEvent.class));
   }
 
   @Test
@@ -28,7 +28,7 @@ class KafkaEventPublisherTest {
     pub.profileUpdatedEmitter = emitter;
 
     pub.publishProfileUpdated("user-1", "sess-1", "profile data");
-    verify(emitter).send(any(KafkaEventPublisher.AgentEvent.class));
+    verify(emitter).send(any(com.ailms.common.dto.AgentEvent.class));
   }
 
   @Test
@@ -37,6 +37,6 @@ class KafkaEventPublisherTest {
     pub.insightGeneratedEmitter = emitter;
 
     pub.publishInsightGenerated("user-1", "sess-1", "insight data");
-    verify(emitter).send(any(KafkaEventPublisher.AgentEvent.class));
+    verify(emitter).send(any(com.ailms.common.dto.AgentEvent.class));
   }
 }

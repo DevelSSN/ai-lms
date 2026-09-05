@@ -1,6 +1,7 @@
 package com.ailms.orchestrator.service;
 
 import com.ailms.common.constants.EventTypeKeys;
+import com.ailms.common.dto.AgentEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,4 @@ public class KafkaEventPublisher {
     insightGeneratedEmitter.send(event);
     log.info("Published insight-generated event for user={}", userId);
   }
-
-  public record AgentEvent(String userId, String sessionId, String data, String eventType) {}
 }

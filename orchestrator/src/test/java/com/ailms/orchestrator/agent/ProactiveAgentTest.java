@@ -20,7 +20,7 @@ class ProactiveAgentTest {
   @Mock ConversationRepository conversationRepository;
   @Mock UserProfileRepository userProfileRepository;
   @Mock ProactiveFollowUpAgent proactiveFollowUpAgent;
-  @Mock Emitter<ProactiveAgent.ProactiveEvent> eventEmitter;
+  @Mock Emitter<com.ailms.common.dto.ProactiveEvent> eventEmitter;
 
   private ProactiveAgent newAgent() {
     ProactiveAgent agent = new ProactiveAgent();
@@ -48,7 +48,7 @@ class ProactiveAgentTest {
         .thenReturn(true);
 
     newAgent().checkFollowUps();
-    verify(eventEmitter).send(any(ProactiveAgent.ProactiveEvent.class));
+    verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
     verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any(), any());
   }
 
@@ -64,7 +64,7 @@ class ProactiveAgentTest {
         .thenReturn(true);
 
     newAgent().checkFollowUps();
-    verify(eventEmitter).send(any(ProactiveAgent.ProactiveEvent.class));
+    verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
   }
 
   @Test

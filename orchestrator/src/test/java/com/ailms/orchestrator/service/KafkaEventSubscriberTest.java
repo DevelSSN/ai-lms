@@ -1,51 +1,41 @@
 package com.ailms.orchestrator.service;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.ailms.orchestrator.agent.ProactiveAgent.ProactiveEvent;
+import com.ailms.common.dto.AgentEvent;
+import com.ailms.common.dto.ProactiveEvent;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 class KafkaEventSubscriberTest {
 
-  @Mock OrchestratorService orchestratorService;
-
   @Test
-  void handleProactiveEvent_generatesFollowUp() {
-    when(orchestratorService.generateProactiveMessage("user-1", "context"))
-        .thenReturn("Follow-up message");
-
+  void handleProactiveEvent_relaysForSseDelivery() {
     KafkaEventSubscriber sub = new KafkaEventSubscriber();
-    sub.orchestratorService = orchestratorService;
-
-    sub.handleProactiveEvent(new ProactiveEvent("user-1", "context", "FOLLOW_UP"));
-    verify(orchestratorService).generateProactiveMessage("user-1", "context");
+    // Delivery happens on the gateway SSE bridge; orchestrator must not throw.
+    assertDoesNotThrow(
+        () -> sub.handleProactiveEvent(new ProactiveEvent("user-1", "context", "FOLLOW_UP")));
   }
 
   @Test
   void handleContentAnalysisComplete_logsEvent() {
     KafkaEventSubscriber sub = new KafkaEventSubscriber();
-    sub.orchestratorService = orchestratorService;
-
-    sub.handleContentAnalysisComplete(
-        new KafkaEventPublisher.AgentEvent("user-1", "sess-1", "data", "CONTENT_ANALYSIS"));
-    // No exception expected
+    assertDoesNotThrow(
+        () ->
+            sub.handleContentAnalysisComplete(
+                new AgentEvent("user-1", "sess-1", "data", "CONTENT_ANALYSIS")));
   }
 
   @Test
   void handleProfileUpdated_logsEvent() {
     KafkaEventSubscriber sub = new KafkaEventSubscriber();
-    sub.handleProfileUpdated(
-        new KafkaEventPublisher.AgentEvent("user-1", "sess-1", "data", "PROFILE_UPDATE"));
+    assertDoesNotThrow(
+        () -> sub.handleProfileUpdated(new AgentEvent("user-1", "sess-1", "data", "PROFILE_UPDATE")));
   }
 
   @Test
   void handleInsightGenerated_logsEvent() {
     KafkaEventSubscriber sub = new KafkaEventSubscriber();
-    sub.handleInsightGenerated(
-        new KafkaEventPublisher.AgentEvent("user-1", "sess-1", "data", "INSIGHT"));
+    assertDoesNotThrow(
+        () -> sub.handleInsightGenerated(new AgentEvent("user-1", "sess-1", "data", "INSIGHT")));
   }
 }

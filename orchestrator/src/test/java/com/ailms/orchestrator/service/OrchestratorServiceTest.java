@@ -13,7 +13,6 @@ import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
-import com.ailms.orchestrator.agent.ProactiveFollowUpAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
@@ -40,7 +39,6 @@ class OrchestratorServiceTest {
   @Mock QuestionGenerationAgent questionGenerationAgent;
   @Mock ResponseVerifierAgent responseVerifierAgent;
   @Mock InsightAgent insightAgent;
-  @Mock ProactiveFollowUpAgent proactiveFollowUpAgent;
   @Mock ProfilingService profilingService;
   @Mock ConversationRepository conversationRepository;
   @Mock VectorDBService vectorDBService;
@@ -746,17 +744,6 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void generateProactiveMessage_callsAgent() {
-    when(proactiveFollowUpAgent.generate("context")).thenReturn("Follow up message");
-
-    OrchestratorService svc = buildService();
-    String msg = svc.generateProactiveMessage("user-1", "context");
-
-    assertEquals("Follow up message", msg);
-    verify(proactiveFollowUpAgent).generate("context");
-  }
-
-  @Test
   void route_uploadFile_resolvesContent() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
@@ -894,7 +881,6 @@ class OrchestratorServiceTest {
     svc.questionGenerationAgent = questionGenerationAgent;
     svc.responseVerifierAgent = responseVerifierAgent;
     svc.insightAgent = insightAgent;
-    svc.proactiveFollowUpAgent = proactiveFollowUpAgent;
     svc.profilingService = profilingService;
     svc.conversationRepository = conversationRepository;
     svc.vectorDBService = vectorDBService;

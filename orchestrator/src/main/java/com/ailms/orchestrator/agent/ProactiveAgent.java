@@ -1,6 +1,7 @@
 package com.ailms.orchestrator.agent;
 
 import com.ailms.common.constants.EventTypeKeys;
+import com.ailms.common.dto.ProactiveEvent;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.entity.UserProfile;
 import com.ailms.orchestrator.repository.ConversationRepository;
@@ -76,6 +77,4 @@ public class ProactiveAgent {
 
     return proactiveFollowUpAgent.generate(context);
   }
-
-  public record ProactiveEvent(String userId, String context, String eventType) {}
 }
