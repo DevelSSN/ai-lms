@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.agent;
 
+import com.ailms.common.enums.IntentType;
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.agent.ErrorContext;
 import dev.langchain4j.agentic.agent.ErrorRecoveryResult;
@@ -75,6 +76,6 @@ public interface IntentClassifier {
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
-    return ErrorRecoveryResult.result("CONVERSATION");
+    return ErrorRecoveryResult.result(IntentType.CONVERSATION.name());
   }
 }

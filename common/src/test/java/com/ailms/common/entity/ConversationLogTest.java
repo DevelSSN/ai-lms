@@ -2,6 +2,7 @@ package com.ailms.common.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ailms.common.enums.ContentStatus;
 import org.junit.jupiter.api.Test;
 
 class ConversationLogTest {
@@ -63,7 +64,7 @@ class ContentDocumentTest {
     assertNull(doc.status);
     doc.onCreate();
     assertNotNull(doc.uploadedAt);
-    assertEquals("UPLOADED", doc.status);
+    assertEquals(ContentStatus.UPLOADED, doc.status);
   }
 }
 

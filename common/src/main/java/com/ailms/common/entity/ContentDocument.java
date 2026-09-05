@@ -1,5 +1,6 @@
 package com.ailms.common.entity;
 
+import com.ailms.common.enums.ContentStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 
@@ -26,13 +27,14 @@ public class ContentDocument {
   @Column(columnDefinition = "TEXT")
   public String topicMappings;
 
-  public String status;
+  @Enumerated(EnumType.STRING)
+  public ContentStatus status;
   public Instant uploadedAt;
   public Instant processedAt;
 
   @PrePersist
   void onCreate() {
     uploadedAt = Instant.now();
-    status = "UPLOADED";
+    status = ContentStatus.UPLOADED;
   }
 }

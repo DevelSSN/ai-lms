@@ -1,8 +1,11 @@
 package com.ailms.orchestrator.repository;
 
+import com.ailms.common.constants.ChatMemoryKeys;
+import com.ailms.common.constants.PromptPrefixes;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.common.enums.ChatRole;
 import com.ailms.orchestrator.service.ChatHistoryCacheService;
 import com.ailms.orchestrator.service.RedisChatMemoryStore;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -38,7 +41,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     logEntry.sessionId = sessionId;
     logEntry.role = role;
     logEntry.message = message;
-    logEntry.assistantMessage = "assistant".equals(role) ? message : null;
+    logEntry.assistantMessage = ChatRole.isAssistant(role) ? message : null;
     logEntry.agentType = agentType;
     logEntry.timestamp = now;
     persist(logEntry);
@@ -64,7 +67,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
                 log ->
                     new ChatHistory.ChatMessage(
                         log.role,
-                        "user".equals(log.role)
+                        ChatRole.isUser(log.role)
                             ? log.message
                             : log.assistantMessage != null ? log.assistantMessage : log.message,
                         log.agentType,
@@ -140,13 +143,15 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   public void deleteThread(String userId, String sessionId) {
     update("set deleted = true where userId = ?1 and sessionId = ?2", userId, sessionId);
     historyCache.deleteHistory(userId, sessionId);
-    chatMemoryStore.deleteMessages("conversation:" + sessionId);
-    chatMemoryStore.deleteMessages("profiling:" + sessionId);
+    chatMemoryStore.deleteMessages(ChatMemoryKeys.conversation(sessionId));
+    chatMemoryStore.deleteMessages(ChatMemoryKeys.profiling(sessionId));
   }
 
   public ConversationLog firstUserMessage(String userId, String sessionId) {
     return find(
-            "userId = ?1 AND sessionId = ?2 AND role = 'user' "
+            "userId = ?1 AND sessionId = ?2 AND role = '"
+                + ChatRole.USER.key()
+                + "' "
                 + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp ASC",
             userId,
             sessionId)
@@ -156,13 +161,17 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   public String lastUploadedDocumentId(String userId, String sessionId) {
     ConversationLog log =
         find(
-                "userId = ?1 AND sessionId = ?2 AND role = 'user' "
-                    + "AND message LIKE 'Analyze the uploaded file: %' "
+                "userId = ?1 AND sessionId = ?2 AND role = '"
+                    + ChatRole.USER.key()
+                    + "' "
+                    + "AND message LIKE '"
+                    + PromptPrefixes.UPLOAD_ANALYSIS
+                    + "%' "
                     + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp DESC",
                 userId, sessionId)
             .firstResult();
     if (log == null) return null;
-    return log.message.substring("Analyze the uploaded file: ".length()).trim();
+    return log.message.substring(PromptPrefixes.UPLOAD_ANALYSIS.length()).trim();
   }
 
   @SuppressWarnings("unchecked")

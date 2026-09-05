@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.agent;
 
+import com.ailms.common.constants.EventTypeKeys;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.entity.UserProfile;
 import com.ailms.orchestrator.repository.ConversationRepository;
@@ -48,7 +49,8 @@ public class ProactiveAgent {
       try {
         if (alreadyPinged(userId)) continue;
         String followUpMessage = generateFollowUp(userId);
-        ProactiveEvent event = new ProactiveEvent(userId, followUpMessage, "FOLLOW_UP");
+        ProactiveEvent event =
+            new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
         eventEmitter.send(event);
         userProfileRepository.markProactiveSent(userId, Instant.now());
         log.info("Sent follow-up event for user={}", userId);

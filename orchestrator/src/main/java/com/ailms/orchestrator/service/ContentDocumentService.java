@@ -1,6 +1,7 @@
 package com.ailms.orchestrator.service;
 
 import com.ailms.common.entity.ContentDocument;
+import com.ailms.common.enums.ContentStatus;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -85,9 +86,10 @@ public class ContentDocumentService {
         Panache.getEntityManager()
             .createQuery(
                 "select d.id from ContentDocument d where d.userId = :uid and d.status ="
-                    + " 'INDEXED'",
+                    + " :status",
                 String.class)
             .setParameter("uid", userId)
+            .setParameter("status", ContentStatus.INDEXED)
             .getResultList();
     return new java.util.HashSet<>(ids);
   }
@@ -131,7 +133,7 @@ public class ContentDocumentService {
   private String extractContent(String docId) {
     ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, docId);
     if (doc == null || doc.storagePath == null) return null;
-    if (doc.extractedText != null && "PARSED".equals(doc.status)) return doc.extractedText;
+    if (doc.extractedText != null && doc.status == ContentStatus.PARSED) return doc.extractedText;
 
     byte[] fileBytes = objectStorage.readFile(doc.storagePath);
     if (fileBytes == null) return null;
@@ -143,7 +145,7 @@ public class ContentDocumentService {
       if (result.isSuccess()) {
         content = result.text();
         doc.extractedText = content;
-        doc.status = "PARSED";
+        doc.status = ContentStatus.PARSED;
         doc.processedAt = Instant.now();
         Panache.getEntityManager().merge(doc);
         log.info(

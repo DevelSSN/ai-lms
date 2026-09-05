@@ -1,9 +1,11 @@
 package com.ailms.gateway.resource;
 
+import com.ailms.common.constants.PromptPrefixes;
 import com.ailms.common.dto.AssessmentRequest;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ContentDocument;
+import com.ailms.common.enums.ContentStatus;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.security.Authenticated;
@@ -18,7 +20,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.nio.file.Files;
-import java.time.Instant;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -74,12 +75,11 @@ public class ContentResource {
       doc.fileType = file.contentType();
       doc.fileSize = (long) fileBytes.length;
       doc.storagePath = storagePath;
-      doc.uploadedAt = Instant.now();
-      doc.status = "UPLOADED";
+      doc.status = ContentStatus.UPLOADED;
       contentDocRepo.save(doc);
 
       ChatRequest request =
-          new ChatRequest("Analyze the uploaded file: " + doc.id, "upload:" + doc.id);
+          new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, "upload:" + doc.id);
       ChatResponse response = orchestrator.processMessage(request);
       return Response.ok(response).build();
     } catch (Exception e) {

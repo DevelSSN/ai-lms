@@ -1,5 +1,6 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.constants.EventTypeKeys;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -23,19 +24,21 @@ public class KafkaEventPublisher {
   Emitter<AgentEvent> insightGeneratedEmitter;
 
   public void publishContentAnalysisComplete(String userId, String sessionId, String analysis) {
-    AgentEvent event = new AgentEvent(userId, sessionId, analysis, "CONTENT_ANALYSIS");
+    AgentEvent event =
+        new AgentEvent(userId, sessionId, analysis, EventTypeKeys.CONTENT_ANALYSIS);
     contentAnalysisEmitter.send(event);
     log.info("Published content-analysis-complete event for user={}", userId);
   }
 
   public void publishProfileUpdated(String userId, String sessionId, String profileUpdate) {
-    AgentEvent event = new AgentEvent(userId, sessionId, profileUpdate, "PROFILE_UPDATE");
+    AgentEvent event =
+        new AgentEvent(userId, sessionId, profileUpdate, EventTypeKeys.PROFILE_UPDATE);
     profileUpdatedEmitter.send(event);
     log.info("Published profile-updated event for user={}", userId);
   }
 
   public void publishInsightGenerated(String userId, String sessionId, String insight) {
-    AgentEvent event = new AgentEvent(userId, sessionId, insight, "INSIGHT");
+    AgentEvent event = new AgentEvent(userId, sessionId, insight, EventTypeKeys.INSIGHT);
     insightGeneratedEmitter.send(event);
     log.info("Published insight-generated event for user={}", userId);
   }

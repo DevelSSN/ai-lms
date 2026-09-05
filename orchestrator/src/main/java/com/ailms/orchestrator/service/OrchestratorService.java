@@ -1,9 +1,14 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.constants.ChatMemoryKeys;
+import com.ailms.common.constants.PromptPrefixes;
+import com.ailms.common.constants.VectorSourceKeys;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.common.enums.ChatRole;
+import com.ailms.common.enums.IntentType;
 import com.ailms.orchestrator.agent.ContentAnalysisAgent;
 import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
@@ -95,9 +100,16 @@ public class OrchestratorService {
   private static final String NO_VIDEOS_FOR = "I couldn't find any YouTube videos for '";
 
   private static final Set<String> KNOWN_INTENTS =
-      Set.of("CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT");
+      java.util.Arrays.stream(IntentType.values())
+          .map(IntentType::name)
+          .collect(java.util.stream.Collectors.toSet());
 
-  private static final String UPLOAD_PREFIX = "Analyze the uploaded file: ";
+  private static final String INTENT_CONVERSATION = IntentType.CONVERSATION.name();
+  private static final String INTENT_VIDEO_SEARCH = IntentType.VIDEO_SEARCH.name();
+  private static final String INTENT_CONTENT_ANALYSIS = IntentType.CONTENT_ANALYSIS.name();
+  private static final String INTENT_ASSESSMENT = IntentType.ASSESSMENT.name();
+
+  private static final String UPLOAD_PREFIX = PromptPrefixes.UPLOAD_ANALYSIS;
 
   private static final String ASSESS_PREFIX = "Generate assessment for content ";
 
@@ -131,25 +143,29 @@ public class OrchestratorService {
       String enrichedMessage;
       String agentResponse = null;
       if (greetingResponse != null) {
-        intent = "CONVERSATION";
+        intent = INTENT_CONVERSATION;
         enrichedMessage = message;
         agentResponse = greetingResponse;
         log.info(
-            "Intent=CONVERSATION (greeting short-circuit) for user={} message={}",
+            "Intent={} (greeting short-circuit) for user={} message={}",
+            INTENT_CONVERSATION,
             userId,
             message);
       } else if (VIDEO_REQUEST.matcher(message).find()) {
-        intent = "VIDEO_SEARCH";
+        intent = INTENT_VIDEO_SEARCH;
         enrichedMessage = message;
         log.info(
-            "Intent=VIDEO_SEARCH (keyword short-circuit) for user={} message={}",
+            "Intent={} (keyword short-circuit) for user={} message={}",
+            INTENT_VIDEO_SEARCH,
             userId,
             message);
       } else if (isDocumentReference(message)) {
         String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
         if (activeDocId != null) {
           intent =
-              QUESTION_REFERENCE.matcher(message).find() ? "ASSESSMENT" : "CONTENT_ANALYSIS";
+              QUESTION_REFERENCE.matcher(message).find()
+                  ? INTENT_ASSESSMENT
+                  : INTENT_CONTENT_ANALYSIS;
           enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
           log.info(
               "Intent={} (document short-circuit doc={}) for user={} message={}",
@@ -158,7 +174,7 @@ public class OrchestratorService {
               userId,
               message);
         } else {
-          intent = "CONVERSATION";
+          intent = INTENT_CONVERSATION;
           enrichedMessage = message;
           agentResponse = NO_DOCUMENT_MESSAGE;
           log.warn(
@@ -179,7 +195,7 @@ public class OrchestratorService {
       String analysisCtx = "";
       if (agentResponse == null) {
         analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
-        if ("VIDEO_SEARCH".equals(intent)) {
+        if (INTENT_VIDEO_SEARCH.equals(intent)) {
           agentResponse = tryVideoSearch(message, sessionId, userId);
         }
         if (agentResponse == null) {
@@ -197,7 +213,7 @@ public class OrchestratorService {
       }
 
       if (greetingResponse == null) {
-        profilingAgent.process("profiling:" + sessionId, enrichedMessage);
+        profilingAgent.process(ChatMemoryKeys.profiling(sessionId), enrichedMessage);
       }
 
       scope.writeState("response", agentResponse);
@@ -207,9 +223,10 @@ public class OrchestratorService {
           conversationRepository.count(
                   "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", sessionId)
               == 0;
-      conversationRepository.logMessage(userId, sessionId, "user", request.message());
       conversationRepository.logMessage(
-          userId, sessionId, "assistant", response.message(), response.agentType());
+          userId, sessionId, ChatRole.USER.key(), request.message());
+      conversationRepository.logMessage(
+          userId, sessionId, ChatRole.ASSISTANT.key(), response.message(), response.agentType());
 
       if (isNewSession) scheduleTitleGeneration(userId, sessionId);
 
@@ -223,18 +240,18 @@ public class OrchestratorService {
   }
 
   private String normalizeIntent(String raw) {
-    if (raw == null) return "CONVERSATION";
+    if (raw == null) return INTENT_CONVERSATION;
     String normalized = raw.trim().toUpperCase(Locale.ROOT).replaceFirst("\\.$", "");
     if (!KNOWN_INTENTS.contains(normalized)) {
-      log.warn("Unrecognized classifier output '{}', defaulting to CONVERSATION", raw);
-      return "CONVERSATION";
+      log.warn("Unrecognized classifier output '{}', defaulting to {}", raw, INTENT_CONVERSATION);
+      return INTENT_CONVERSATION;
     }
     return normalized;
   }
 
   private String reclassifyContentIntent(
       String intent, String message, String sessionId, String userId) {
-    if (!"CONTENT_ANALYSIS".equals(intent) && !"ASSESSMENT".equals(intent)) return intent;
+    if (!IntentType.isAnalysis(intent)) return intent;
     if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return intent;
     String activeDocId = null;
     try {
@@ -247,29 +264,32 @@ public class OrchestratorService {
           e.getMessage());
     }
     if (activeDocId == null) {
-      log.info("No session document for intent={}, reclassifying to CONVERSATION", intent);
-      return "CONVERSATION";
+      log.info(
+          "No session document for intent={}, reclassifying to {}",
+          intent,
+          INTENT_CONVERSATION);
+      return INTENT_CONVERSATION;
     }
     return intent;
   }
 
   private String dispatchAgent(
       String intent, String sessionId, String message, String analysisCtx) {
-    String memoryId = "conversation:" + sessionId;
-    return switch (intent) {
-      case "CONTENT_ANALYSIS" -> contentAnalysisAgent.process(memoryId, message);
-      case "ASSESSMENT" -> questionGenerationAgent.process(memoryId, message, analysisCtx);
-      case "INSIGHT" -> insightAgent.process(memoryId, message);
+    String memoryId = ChatMemoryKeys.conversation(sessionId);
+    return switch (IntentType.fromName(intent)) {
+      case CONTENT_ANALYSIS -> contentAnalysisAgent.process(memoryId, message);
+      case ASSESSMENT -> questionGenerationAgent.process(memoryId, message, analysisCtx);
+      case INSIGHT -> insightAgent.process(memoryId, message);
       default -> conversationAgent.process(memoryId, message);
     };
   }
 
   private void publishAgentEvent(String intent, String userId, String sessionId, String message) {
     try {
-      switch (intent) {
-        case "CONTENT_ANALYSIS" ->
+      switch (IntentType.fromName(intent)) {
+        case CONTENT_ANALYSIS ->
             kafkaEventPublisher.publishContentAnalysisComplete(userId, sessionId, message);
-        case "INSIGHT" -> kafkaEventPublisher.publishInsightGenerated(userId, sessionId, message);
+        case INSIGHT -> kafkaEventPublisher.publishInsightGenerated(userId, sessionId, message);
         default -> {}
       }
     } catch (Exception e) {
@@ -278,9 +298,9 @@ public class OrchestratorService {
   }
 
   private String enrichWithContext(String intent, String message, String sessionId, String userId) {
-    if (!"CONTENT_ANALYSIS".equals(intent) && !"ASSESSMENT".equals(intent)) return message;
+    if (!IntentType.isAnalysis(intent)) return message;
 
-    if ("CONTENT_ANALYSIS".equals(intent)) {
+    if (INTENT_CONTENT_ANALYSIS.equals(intent)) {
       if (message.startsWith(UPLOAD_PREFIX)) return enrichUploadAnalysis(message, userId);
       String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
       List<String> context =
@@ -314,7 +334,9 @@ public class OrchestratorService {
         String contentBody = resolveUploadedContent(message);
         List<String> context =
             vectorDBService.retrieveRelevantContext(
-                contentBody != null ? contentBody : message, ANALYSIS_TOP_K, "doc:" + docId);
+                contentBody != null ? contentBody : message,
+                ANALYSIS_TOP_K,
+                VectorSourceKeys.document(docId));
         if (!context.isEmpty()) {
           return "File: "
               + contentDocumentService.resolveFileName(docId)
@@ -331,7 +353,7 @@ public class OrchestratorService {
 
   private String resolveAnalysisContext(
       String intent, String message, String sessionId, String userId) {
-    if (!"ASSESSMENT".equals(intent)) return "";
+    if (!INTENT_ASSESSMENT.equals(intent)) return "";
     String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
     List<String> context = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
     if (!context.isEmpty()) {
@@ -386,7 +408,8 @@ public class OrchestratorService {
       String userId, String sessionId, String message, String activeDocId, int topK) {
     if (activeDocId == null) return List.of();
     try {
-      return vectorDBService.retrieveRelevantContext(message, topK, "doc:" + activeDocId);
+      return vectorDBService.retrieveRelevantContext(
+          message, topK, VectorSourceKeys.document(activeDocId));
     } catch (Exception e) {
       log.warn(
           "Scoped context retrieval failed for user={} session={}: {}",
@@ -462,7 +485,7 @@ public class OrchestratorService {
       String enrichedMessage,
       String analysisCtx,
       String userId) {
-    if ("VIDEO_SEARCH".equals(intent)) {
+    if (INTENT_VIDEO_SEARCH.equals(intent)) {
       return tryVideoSearch(message, sessionId, userId);
     }
     return dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
@@ -509,7 +532,7 @@ public class OrchestratorService {
       List<ChatHistory.ChatMessage> messages = history.messages();
       for (int i = messages.size() - 1; i >= 0; i--) {
         ChatHistory.ChatMessage msg = messages.get(i);
-        if (msg == null || !"user".equals(msg.role())) continue;
+        if (msg == null || !ChatRole.isUser(msg.role())) continue;
         if (msg.content() == null || msg.content().isBlank()) continue;
         String topic = youTubeSearchService.extractQuery(msg.content());
         if (topic != null && !topic.isBlank()) return topic;
@@ -526,7 +549,8 @@ public class OrchestratorService {
   private String lastUserTopicFromMemory(String sessionId) {
     if (sessionId == null || sessionId.isBlank() || chatMemoryStore == null) return null;
     try {
-      List<ChatMessage> messages = chatMemoryStore.getMessages("conversation:" + sessionId);
+      List<ChatMessage> messages =
+          chatMemoryStore.getMessages(ChatMemoryKeys.conversation(sessionId));
       for (int i = messages.size() - 1; i >= 0; i--) {
         ChatMessage msg = messages.get(i);
         if (msg.type() != ChatMessageType.USER) continue;

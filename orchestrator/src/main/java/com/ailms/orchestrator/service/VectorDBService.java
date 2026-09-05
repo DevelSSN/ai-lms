@@ -1,7 +1,9 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.constants.VectorSourceKeys;
 import com.ailms.common.entity.ContentDocument;
 import com.ailms.common.entity.ContentEmbedding;
+import com.ailms.common.enums.ContentStatus;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -56,7 +58,7 @@ public class VectorDBService {
       return;
     }
 
-    String source = "doc:" + documentId;
+    String source = VectorSourceKeys.document(documentId);
     for (String chunk : chunks) {
       Map<String, Object> meta = Map.of("source", source, "type", contentType);
       TextSegment segment = TextSegment.from(chunk, Metadata.from(meta));
@@ -75,7 +77,7 @@ public class VectorDBService {
 
     ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, documentId);
     if (doc != null) {
-      doc.status = "INDEXED";
+      doc.status = ContentStatus.INDEXED;
       doc.processedAt = Instant.now();
       Panache.getEntityManager().merge(doc);
     }
