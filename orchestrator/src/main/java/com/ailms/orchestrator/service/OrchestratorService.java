@@ -213,7 +213,20 @@ public class OrchestratorService {
       }
 
       if (greetingResponse == null) {
-        profilingAgent.process(ChatMemoryKeys.profiling(sessionId), enrichedMessage);
+        try {
+          String profileUpdate =
+              profilingAgent.process(ChatMemoryKeys.profiling(sessionId), enrichedMessage);
+          if (profileUpdate != null && !profileUpdate.isBlank()) {
+            profilingService.applyProfileUpdate(userId, profileUpdate);
+            kafkaEventPublisher.publishProfileUpdated(userId, sessionId, profileUpdate);
+          }
+        } catch (Exception e) {
+          log.warn(
+              "Profiling pipeline failed for user={} session={}: {}",
+              userId,
+              sessionId,
+              e.getMessage());
+        }
       }
 
       scope.writeState("response", agentResponse);
