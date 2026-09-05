@@ -5,9 +5,6 @@ import static org.mockito.Mockito.verify;
 
 import com.ailms.common.dto.AgentEvent;
 import com.ailms.common.dto.ProactiveEvent;
-import com.ailms.gateway.service.ProactiveEventDeserializer;
-import com.ailms.gateway.service.SseBroadcastService;
-import com.ailms.gateway.service.SseEventBridge;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

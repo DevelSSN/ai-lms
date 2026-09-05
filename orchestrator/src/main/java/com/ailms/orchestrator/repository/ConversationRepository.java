@@ -178,7 +178,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
                     + PromptPrefixes.UPLOAD_ANALYSIS
                     + "%' "
                     + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp DESC",
-                userId, sessionId)
+                userId,
+                sessionId)
             .firstResult();
     if (log == null) return null;
     return log.message.substring(PromptPrefixes.UPLOAD_ANALYSIS.length()).trim();

@@ -12,7 +12,8 @@ public class KafkaEventSubscriber {
 
   @Incoming("proactive-events-in")
   public void handleProactiveEvent(ProactiveEvent event) {
-    // The follow-up text is already generated; the gateway pushes it to the owning user's SSE stream.
+    // The follow-up text is already generated; the gateway pushes it to the owning user's SSE
+    // stream.
     log.info(
         "Proactive follow-up for user={} type={} relayed for SSE delivery",
         event.userId(),

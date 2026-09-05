@@ -11,7 +11,6 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
 import io.quarkus.hibernate.orm.panache.Panache;
@@ -62,7 +61,9 @@ public class VectorDBService {
       embeddingStore.removeAll(MetadataFilterBuilder.metadataKey("source").isEqualTo(source));
     } catch (Exception e) {
       log.warn(
-          "Failed to purge previous Qdrant vectors for documentId={}: {}", documentId, e.getMessage());
+          "Failed to purge previous Qdrant vectors for documentId={}: {}",
+          documentId,
+          e.getMessage());
     }
     Panache.getEntityManager()
         .createQuery("delete from ContentEmbedding e where e.documentId = :did")

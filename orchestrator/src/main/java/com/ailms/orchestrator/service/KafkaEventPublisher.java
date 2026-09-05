@@ -25,8 +25,7 @@ public class KafkaEventPublisher {
   Emitter<AgentEvent> insightGeneratedEmitter;
 
   public void publishContentAnalysisComplete(String userId, String sessionId, String analysis) {
-    AgentEvent event =
-        new AgentEvent(userId, sessionId, analysis, EventTypeKeys.CONTENT_ANALYSIS);
+    AgentEvent event = new AgentEvent(userId, sessionId, analysis, EventTypeKeys.CONTENT_ANALYSIS);
     contentAnalysisEmitter.send(event);
     log.info("Published content-analysis-complete event for user={}", userId);
   }

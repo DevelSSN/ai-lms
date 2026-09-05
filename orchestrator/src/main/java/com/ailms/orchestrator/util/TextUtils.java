@@ -8,16 +8,14 @@ public final class TextUtils {
 
   private static final Pattern BARE_GREETING =
       Pattern.compile(
-          "^(?:"
-              + "(?:hi|hiya|hello|heya|hey|yo|sup|namaste|namaskar|hola)(?:\\s+there)?"
-              + "|good\\s+(?:morning|afternoon|evening)"
-              + "|how(?:'s| is| are)?\\s+(?:it\\s+going|things\\s+going|you\\s+doing|are\\s+you|are\\s+things)"
+          "^(?:(?:hi|hiya|hello|heya|hey|yo|sup|namaste|namaskar|hola)(?:\\s+there)?"
+              + "|good\\s+(?:morning|afternoon|evening)|how(?:'s| is|"
+              + " are)?\\s+(?:it\\s+going|things\\s+going|you\\s+doing|are\\s+you|are\\s+things)"
               + ")[\\s!.,'?]*$",
           Pattern.CASE_INSENSITIVE);
 
   private static final Pattern THINK_BLOCK =
-      Pattern.compile(
-          "(?is)\\bresponse\\s*<think\\b.*?</think\\s*>|<think\\b.*?</think\\s*>");
+      Pattern.compile("(?is)\\bresponse\\s*<think\\b.*?</think\\s*>|<think\\b.*?</think\\s*>");
 
   private static final Pattern THINK_REMNANT = Pattern.compile("(?is)</?think\\s*>");
 

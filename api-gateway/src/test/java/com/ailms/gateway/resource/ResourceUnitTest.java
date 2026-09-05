@@ -182,7 +182,9 @@ class ResourceUnitTest {
             argThat(
                 r ->
                     r.message()
-                        .equals("Generate assessment for content content-1 | questions=5 | difficulty=medium")));
+                        .equals(
+                            "Generate assessment for content content-1 | questions=5 |"
+                                + " difficulty=medium")));
   }
 
   @Test
@@ -204,7 +206,8 @@ class ResourceUnitTest {
                 r ->
                     r.message()
                         .equals(
-                            "Generate assessment for content content-1 | questions=5 | difficulty=medium")));
+                            "Generate assessment for content content-1 | questions=5 |"
+                                + " difficulty=medium")));
   }
 
   @Test

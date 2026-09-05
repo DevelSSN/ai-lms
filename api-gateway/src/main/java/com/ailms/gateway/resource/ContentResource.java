@@ -67,9 +67,18 @@ public class ContentResource {
     try {
       byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
       if (fileBytes.length > maxUploadSize) {
-        log.warn("Rejected oversized upload for user={} size={} max={}", userId, fileBytes.length, maxUploadSize);
+        log.warn(
+            "Rejected oversized upload for user={} size={} max={}",
+            userId,
+            fileBytes.length,
+            maxUploadSize);
         return Response.status(Response.Status.REQUEST_ENTITY_TOO_LARGE)
-            .entity(Map.of("error", "File too large", "detail", "Maximum upload size is " + maxUploadSize + " bytes"))
+            .entity(
+                Map.of(
+                    "error",
+                    "File too large",
+                    "detail",
+                    "Maximum upload size is " + maxUploadSize + " bytes"))
             .build();
       }
 
@@ -79,7 +88,8 @@ public class ContentResource {
             .entity(
                 Map.of(
                     "error",
-                    "Unsupported file type. Supported formats: plain text, Markdown, CSV, HTML, JSON, XML, PDF, DOC, DOCX, RTF, ODT, and images."))
+                    "Unsupported file type. Supported formats: plain text, Markdown, CSV, HTML,"
+                        + " JSON, XML, PDF, DOC, DOCX, RTF, ODT, and images."))
             .build();
       }
 
@@ -125,7 +135,8 @@ public class ContentResource {
     try {
       s3.deleteObject(DeleteObjectRequest.builder().bucket(BUCKET).key(storagePath).build());
     } catch (Exception cleanupErr) {
-      log.warn("Failed to clean up orphaned S3 object {}: {}", storagePath, cleanupErr.getMessage());
+      log.warn(
+          "Failed to clean up orphaned S3 object {}: {}", storagePath, cleanupErr.getMessage());
     }
   }
 
@@ -154,9 +165,10 @@ public class ContentResource {
     log.info(
         "Assessment generation requested for content={} by user={}", request.contentId(), userId);
     try {
-      int questionCount = request.questionCount() != null && request.questionCount() > 0
-          ? request.questionCount()
-          : 5;
+      int questionCount =
+          request.questionCount() != null && request.questionCount() > 0
+              ? request.questionCount()
+              : 5;
       String difficulty =
           request.difficulty() != null && !request.difficulty().isBlank()
               ? request.difficulty().trim()

@@ -40,8 +40,7 @@ class InsightDataServiceTest {
                 "sess-1",
                 List.of(
                     new ChatHistory.ChatMessage("user", "hello", null, t1),
-                    new ChatHistory.ChatMessage(
-                        "assistant", "Hi!", "CONVERSATION", t2),
+                    new ChatHistory.ChatMessage("assistant", "Hi!", "CONVERSATION", t2),
                     new ChatHistory.ChatMessage(
                         "user", "Analyze the uploaded file: doc-9", null, t2))));
     when(conversationRepository.listThreads("user-1"))
@@ -89,8 +88,7 @@ class InsightDataServiceTest {
     when(userProfileRepository.findByExternalId("user-1")).thenReturn(null);
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenThrow(new RuntimeException("redis down"));
-    when(conversationRepository.listThreads("user-1"))
-        .thenThrow(new RuntimeException("db down"));
+    when(conversationRepository.listThreads("user-1")).thenThrow(new RuntimeException("db down"));
 
     InsightDataService svc = build();
     String ctx = svc.buildContext("user-1", "sess-1");

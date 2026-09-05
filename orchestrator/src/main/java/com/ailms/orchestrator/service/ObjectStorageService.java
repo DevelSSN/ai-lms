@@ -86,8 +86,7 @@ public class ObjectStorageService {
       return null;
     } catch (IOException | RuntimeException e) {
       log.error("Failed to read file from S3: {}", storagePath, e);
-      throw new ObjectStorageException(
-          "Failed to read file from S3: " + storagePath, e);
+      throw new ObjectStorageException("Failed to read file from S3: " + storagePath, e);
     }
   }
 }

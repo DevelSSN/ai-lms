@@ -14,9 +14,8 @@ import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
-import com.ailms.orchestrator.agent.ResponseVerifierAgent;
-import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
+import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
@@ -63,7 +62,8 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
 
     assertThrows(
-        SessionOwnershipException.class, () -> svc.route(new ChatRequest("hello", "sess-1"), "user-1"));
+        SessionOwnershipException.class,
+        () -> svc.route(new ChatRequest("hello", "sess-1"), "user-1"));
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
@@ -81,8 +81,7 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("hello", "sess-1"), "user-1");
 
-    assertEquals(
-        "Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
+    assertEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
   }
 
   @Test
@@ -209,8 +208,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
     assertEquals("Assessment result", resp.message());
-    verify(vectorDBService, times(2))
-        .retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
+    verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
   }
 
   @Test
@@ -230,7 +228,8 @@ class OrchestratorServiceTest {
 
     assertEquals("Rome assessment", resp.message());
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
-    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+    verify(questionGenerationAgent)
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -238,7 +237,8 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
     when(insightDataService.buildContext("user-1", "sess-1"))
         .thenReturn("- Messages in this session: 12");
-    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12")))
+    when(insightAgent.process(
+            eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12")))
         .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
@@ -247,14 +247,16 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("my progress", "sess-1"), "user-1");
 
     assertEquals("Insight result", resp.message());
-    verify(insightAgent).process(eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12"));
+    verify(insightAgent)
+        .process(eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12"));
     verify(insightDataService).buildContext("user-1", "sess-1");
   }
 
   @Test
   void route_insightIntent() {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
-    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString())).thenReturn("Insight result");
+    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString()))
+        .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
 
@@ -408,7 +410,8 @@ class OrchestratorServiceTest {
                 "sess-1",
                 java.util.List.of(
                     new ChatHistory.ChatMessage("user", "Master plan for git", null),
-                    new ChatHistory.ChatMessage("assistant", "Master plan given", "CONVERSATION"))));
+                    new ChatHistory.ChatMessage(
+                        "assistant", "Master plan given", "CONVERSATION"))));
     when(youTubeSearchService.extractQuery("Ok\nGive youtube videos")).thenReturn("");
     when(youTubeSearchService.extractQuery("Master plan for git")).thenReturn("git");
     when(youTubeSearchService.search("git"))
@@ -558,8 +561,7 @@ class OrchestratorServiceTest {
                 new YouTubeSearchService.VideoResult(
                     "But what is a neural network?", "aircAruvnKk")))
         .thenReturn(
-            java.util.List.of(
-                new YouTubeSearchService.VideoResult("Better video", "better123")));
+            java.util.List.of(new YouTubeSearchService.VideoResult("Better video", "better123")));
     when(responseVerifierAgent.verify(
             eq("Give me a youtube link to Neural networks by 3b1b"), anyString(), anyString()))
         .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"links look stale\"}")
@@ -604,8 +606,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("A neural network is a function approximator.");
-    when(responseVerifierAgent.verify(
-            eq("what is a neural network"), anyString(), anyString()))
+    when(responseVerifierAgent.verify(eq("what is a neural network"), anyString(), anyString()))
         .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"on topic and accurate\"}");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(
@@ -782,7 +783,8 @@ class OrchestratorServiceTest {
     assertEquals("ASSESSMENT", resp.agentType());
     verify(intentClassifier).classify(msg);
     verify(conversationAgent, never()).process(anyString(), anyString());
-    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+    verify(questionGenerationAgent)
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -805,7 +807,8 @@ class OrchestratorServiceTest {
 
     assertEquals("ASSESSMENT", resp.agentType());
     verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
-    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+    verify(questionGenerationAgent)
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -815,7 +818,8 @@ class OrchestratorServiceTest {
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
-    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), contains("rome context")))
+    when(contentAnalysisAgent.process(
+            eq(ChatMemoryKeys.analysis("sess-1")), contains("rome context")))
         .thenReturn("Rome summary");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome summary", "sess-1", "CONTENT_ANALYSIS"));
@@ -858,7 +862,8 @@ class OrchestratorServiceTest {
 
   @Test
   void assessmentTargetId_ignoresTrailingParams() {
-    assertEquals("doc-1", OrchestratorService.assessmentTargetId("Generate assessment for content doc-1"));
+    assertEquals(
+        "doc-1", OrchestratorService.assessmentTargetId("Generate assessment for content doc-1"));
     assertEquals(
         "doc-1",
         OrchestratorService.assessmentTargetId(
@@ -867,8 +872,7 @@ class OrchestratorServiceTest {
         "doc-1",
         OrchestratorService.assessmentTargetId(
             "Generate assessment for content  doc-1  | questions=10| difficulty=hard "));
-    assertEquals(
-        "", OrchestratorService.assessmentTargetId("Generate assessment for content "));
+    assertEquals("", OrchestratorService.assessmentTargetId("Generate assessment for content "));
   }
 
   private OrchestratorService buildService() {

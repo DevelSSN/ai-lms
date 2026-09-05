@@ -13,9 +13,27 @@ class TextUtilsTest {
   void recognizesBareGreetings() {
     for (String greeting :
         new String[] {
-          "Hi", "hi", "Hello", "hello!", "Hey", "hey there", "Hey there!", "hiya", "yo", "sup",
-          "namaste", "hola", "Good morning", "good afternoon", "Good evening!", "How are you?",
-          "How's it going?", "How is it going", "how are you doing", "How are things", "hi  there"
+          "Hi",
+          "hi",
+          "Hello",
+          "hello!",
+          "Hey",
+          "hey there",
+          "Hey there!",
+          "hiya",
+          "yo",
+          "sup",
+          "namaste",
+          "hola",
+          "Good morning",
+          "good afternoon",
+          "Good evening!",
+          "How are you?",
+          "How's it going?",
+          "How is it going",
+          "how are you doing",
+          "How are things",
+          "hi  there"
         }) {
       assertTrue(TextUtils.isBareGreeting(greeting), "should be a greeting: '" + greeting + "'");
     }
@@ -41,7 +59,9 @@ class TextUtilsTest {
 
   @Test
   void stripsThinkBlocks() {
-    assertEquals("The answer is 42.", TextUtils.stripThinking("<think>Let me reason.</think>The answer is 42."));
+    assertEquals(
+        "The answer is 42.",
+        TextUtils.stripThinking("<think>Let me reason.</think>The answer is 42."));
     assertEquals("Hello", TextUtils.stripThinking(" response<think>hmm</think>Hello"));
     assertEquals("x y", TextUtils.stripThinking("<think>a\nb</think> x  y"));
     assertEquals("", TextUtils.stripThinking("<think></think>"));

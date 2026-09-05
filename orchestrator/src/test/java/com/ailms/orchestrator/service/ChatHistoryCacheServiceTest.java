@@ -73,7 +73,8 @@ class ChatHistoryCacheServiceTest {
     when(lists.lrange("history:user-1:sess-1", 0, -1))
         .thenReturn(
             List.of(
-                "{\"role\":\"user\",\"content\":\"a || b || c\",\"agentType\":\"CONVERSATION\",\"timestamp\":\""
+                "{\"role\":\"user\",\"content\":\"a || b ||"
+                    + " c\",\"agentType\":\"CONVERSATION\",\"timestamp\":\""
                     + ts
                     + "\"}"));
 

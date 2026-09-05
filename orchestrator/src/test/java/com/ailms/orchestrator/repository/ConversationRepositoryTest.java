@@ -41,7 +41,8 @@ class ConversationRepositoryTest {
 
     repo.logMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
     verify(historyCache)
-        .cacheMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION", any(Instant.class));
+        .cacheMessage(
+            "user-1", "sess-1", "assistant", "Hello!", "CONVERSATION", any(Instant.class));
   }
 
   @Test

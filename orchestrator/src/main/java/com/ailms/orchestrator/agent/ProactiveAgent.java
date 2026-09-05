@@ -3,7 +3,6 @@ package com.ailms.orchestrator.agent;
 import com.ailms.common.constants.EventTypeKeys;
 import com.ailms.common.dto.ProactiveEvent;
 import com.ailms.common.entity.ConversationLog;
-import com.ailms.common.entity.UserProfile;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
 import io.quarkus.scheduler.Scheduled;
@@ -53,8 +52,7 @@ public class ProactiveAgent {
           continue;
         }
         String followUpMessage = generateFollowUp(userId);
-        ProactiveEvent event =
-            new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
+        ProactiveEvent event = new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
         eventEmitter.send(event);
         log.info("Sent follow-up event for user={}", userId);
       } catch (Exception e) {

@@ -9,7 +9,8 @@ import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
-@RegisterAiService(chatMemoryProviderSupplier = RegisterAiService.NoChatMemoryProviderSupplier.class)
+@RegisterAiService(
+    chatMemoryProviderSupplier = RegisterAiService.NoChatMemoryProviderSupplier.class)
 public interface ResponseVerifierAgent {
 
   @SystemMessage(
@@ -58,6 +59,7 @@ public interface ResponseVerifierAgent {
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
     return ErrorRecoveryResult.result(
-        "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"verifier unavailable, answer unverified\"}");
+        "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"verifier unavailable, answer"
+            + " unverified\"}");
   }
 }

@@ -20,14 +20,14 @@ import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.util.TextUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.invocation.LangChain4jManaged;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -81,8 +81,7 @@ public class OrchestratorService {
   @Inject ObjectMapper objectMapper;
 
   private static final Pattern EXPLICIT_VIDEO_LINK =
-      Pattern.compile(
-          "(?i)\\b(?:https?://|www\\.)?(?:m\\.)?(?:youtube\\.com|youtu\\.be)/");
+      Pattern.compile("(?i)\\b(?:https?://|www\\.)?(?:m\\.)?(?:youtube\\.com|youtu\\.be)/");
 
   private static final String NO_VIDEOS_BARE =
       "I couldn't find any YouTube videos for that request. "
@@ -195,7 +194,8 @@ public class OrchestratorService {
       agentResponse = TextUtils.stripThinking(agentResponse);
 
       agentResponse =
-          verifyAndRetry(intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
+          verifyAndRetry(
+              intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
@@ -226,8 +226,7 @@ public class OrchestratorService {
           conversationRepository.count(
                   "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", sessionId)
               == 0;
-      conversationRepository.logMessage(
-          userId, sessionId, ChatRole.USER.key(), request.message());
+      conversationRepository.logMessage(userId, sessionId, ChatRole.USER.key(), request.message());
       conversationRepository.logMessage(
           userId, sessionId, ChatRole.ASSISTANT.key(), response.message(), response.agentType());
 
@@ -281,9 +280,7 @@ public class OrchestratorService {
     }
     if (activeDocId == null) {
       log.info(
-          "No session document for intent={}, reclassifying to {}",
-          intent,
-          INTENT_CONVERSATION);
+          "No session document for intent={}, reclassifying to {}", intent, INTENT_CONVERSATION);
       return INTENT_CONVERSATION;
     }
     return intent;
@@ -442,8 +439,7 @@ public class OrchestratorService {
       String fromUser = contentDocumentService.resolveRecentDocumentId(userId, null);
       if (fromUser != null && !fromUser.isEmpty()) return fromUser;
     } catch (Exception e) {
-      log.warn(
-          "Failed to resolve recent user document for user={}: {}", userId, e.getMessage());
+      log.warn("Failed to resolve recent user document for user={}: {}", userId, e.getMessage());
     }
     return null;
   }
@@ -506,10 +502,8 @@ public class OrchestratorService {
     String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
     if (verifyResponse(message, context, agentResponse)) return agentResponse;
 
-    log.info(
-        "Response rejected by verifier for intent={}, regenerating once", intent);
-    String retried =
-        regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId);
+    log.info("Response rejected by verifier for intent={}, regenerating once", intent);
+    String retried = regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId);
     if (retried == null || retried.isBlank()) {
       log.warn("Retry returned blank response for intent={}, keeping original", intent);
       return agentResponse;
@@ -595,9 +589,7 @@ public class OrchestratorService {
       }
     } catch (Exception e) {
       log.warn(
-          "Failed to resolve topic from history for session={}: {}",
-          sessionId,
-          e.getMessage());
+          "Failed to resolve topic from history for session={}: {}", sessionId, e.getMessage());
     }
     return null;
   }

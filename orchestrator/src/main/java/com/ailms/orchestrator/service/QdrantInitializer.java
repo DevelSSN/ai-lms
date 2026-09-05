@@ -30,7 +30,9 @@ public class QdrantInitializer {
   String apiKey;
 
   @Inject
-  @ConfigProperty(name = "quarkus.langchain4j.qdrant.collection.name", defaultValue = "ailms-content")
+  @ConfigProperty(
+      name = "quarkus.langchain4j.qdrant.collection.name",
+      defaultValue = "ailms-content")
   String collection;
 
   @Inject

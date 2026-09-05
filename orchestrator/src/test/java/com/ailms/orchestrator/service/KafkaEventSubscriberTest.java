@@ -29,7 +29,8 @@ class KafkaEventSubscriberTest {
   void handleProfileUpdated_logsEvent() {
     KafkaEventSubscriber sub = new KafkaEventSubscriber();
     assertDoesNotThrow(
-        () -> sub.handleProfileUpdated(new AgentEvent("user-1", "sess-1", "data", "PROFILE_UPDATE")));
+        () ->
+            sub.handleProfileUpdated(new AgentEvent("user-1", "sess-1", "data", "PROFILE_UPDATE")));
   }
 
   @Test

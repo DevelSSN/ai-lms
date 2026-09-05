@@ -16,8 +16,7 @@ public class SseEventBridge {
 
   @Incoming("proactive-events")
   public void onProactiveEvent(ProactiveEvent event) {
-    log.info(
-        "Relaying proactive follow-up to user={} type={}", event.userId(), event.eventType());
+    log.info("Relaying proactive follow-up to user={} type={}", event.userId(), event.eventType());
     sse.broadcast(event.userId(), event.context());
   }
 

@@ -20,7 +20,8 @@ public abstract class JsonKafkaDeserializer<T> implements Deserializer<T> {
     try {
       return OBJECT_MAPPER.readValue(data, targetType);
     } catch (Exception e) {
-      throw new IllegalArgumentException("Failed to deserialize Kafka message on topic " + topic, e);
+      throw new IllegalArgumentException(
+          "Failed to deserialize Kafka message on topic " + topic, e);
     }
   }
 }

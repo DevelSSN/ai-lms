@@ -67,9 +67,36 @@ public class YouTubeSearchService {
 
   private static final Set<String> COMMAND_WORDS =
       Set.of(
-          "give", "me", "show", "find", "recommend", "send", "share", "want", "i", "need",
-          "some", "the", "a", "an", "please", "ok", "okay", "yes", "no", "youtube",
-          "video", "videos", "link", "links", "watch", "for", "on", "about", "to", "of");
+          "give",
+          "me",
+          "show",
+          "find",
+          "recommend",
+          "send",
+          "share",
+          "want",
+          "i",
+          "need",
+          "some",
+          "the",
+          "a",
+          "an",
+          "please",
+          "ok",
+          "okay",
+          "yes",
+          "no",
+          "youtube",
+          "video",
+          "videos",
+          "link",
+          "links",
+          "watch",
+          "for",
+          "on",
+          "about",
+          "to",
+          "of");
 
   @ConfigProperty(name = "youtube.api.key", defaultValue = "")
   String apiKey;

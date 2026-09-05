@@ -36,15 +36,13 @@ public class SseBroadcastService {
     CopyOnWriteArrayList<MultiEmitter<? super String>> list =
         userEmitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
     if (list.size() >= MAX_EMITTERS_PER_USER) {
-      log.warn(
-          "Rejecting SSE subscription for user={} — connection limit reached", userId);
+      log.warn("Rejecting SSE subscription for user={} — connection limit reached", userId);
       return Multi.createFrom()
           .failure(new IllegalStateException("Too many active SSE connections"));
     }
     if (userEmitters.size() > MAX_USERS) {
       log.warn("Rejecting SSE subscription for user={} — registry full", userId);
-      return Multi.createFrom()
-          .failure(new IllegalStateException("SSE registry is full"));
+      return Multi.createFrom().failure(new IllegalStateException("SSE registry is full"));
     }
     log.info("New SSE subscriber for user={} (user connections: {})", userId, list.size() + 1);
     return Multi.createFrom()

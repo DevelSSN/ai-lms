@@ -29,6 +29,7 @@ public class ContentDocument {
 
   @Enumerated(EnumType.STRING)
   public ContentStatus status;
+
   public Instant uploadedAt;
   public Instant processedAt;
 

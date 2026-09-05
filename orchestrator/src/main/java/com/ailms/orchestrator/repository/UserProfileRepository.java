@@ -24,9 +24,9 @@ public class UserProfileRepository implements PanacheRepository<UserProfile> {
   }
 
   /**
-   * Atomically marks the profile as pinged, but only when it was not pinged within the last
-   * {@code cutoff} window. The check and update happen in one statement, so concurrent scheduler
-   * runs cannot double-ping the same user.
+   * Atomically marks the profile as pinged, but only when it was not pinged within the last {@code
+   * cutoff} window. The check and update happen in one statement, so concurrent scheduler runs
+   * cannot double-ping the same user.
    *
    * @return true if the profile was marked (i.e. a follow-up should be sent), false if the user was
    *     already pinged recently or has no profile.
