@@ -159,7 +159,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("context from qdrant"));
     when(questionGenerationAgent.process(
-            eq("conversation:sess-1"), anyString(), contains("context from qdrant")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("context from qdrant")))
         .thenReturn("Assessment result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));
@@ -179,7 +179,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome content"));
     when(questionGenerationAgent.process(
-            eq("conversation:sess-1"), anyString(), contains("rome content")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome content")))
         .thenReturn("Rome assessment");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome assessment", "sess-1", "ASSESSMENT"));
@@ -189,7 +189,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Rome assessment", resp.message());
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
-    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -197,7 +197,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
     when(insightDataService.buildContext("user-1", "sess-1"))
         .thenReturn("- Messages in this session: 12");
-    when(insightAgent.process(eq("conversation:sess-1"), contains("- Messages in this session: 12")))
+    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12")))
         .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
@@ -206,14 +206,14 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("my progress", "sess-1"), "user-1");
 
     assertEquals("Insight result", resp.message());
-    verify(insightAgent).process(eq("conversation:sess-1"), contains("- Messages in this session: 12"));
+    verify(insightAgent).process(eq(ChatMemoryKeys.insight("sess-1")), contains("- Messages in this session: 12"));
     verify(insightDataService).buildContext("user-1", "sess-1");
   }
 
   @Test
   void route_insightIntent() {
     when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
-    when(insightAgent.process(eq("conversation:sess-1"), anyString())).thenReturn("Insight result");
+    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString())).thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
 
@@ -690,7 +690,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenThrow(new RuntimeException("Qdrant down"));
-    when(contentAnalysisAgent.process(eq("conversation:sess-1"), anyString()))
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
         .thenReturn("Analysis result (no context)");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Analysis result (no context)", "sess-1", "CONTENT_ANALYSIS"));
@@ -719,7 +719,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveContent("doc-1"))
         .thenReturn("File: notes.pdf\n\nContent:\nsample text");
-    when(contentAnalysisAgent.process(eq("conversation:upload-user-1"), anyString()))
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString()))
         .thenReturn("Analysis complete");
     when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
         .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
@@ -729,7 +729,7 @@ class OrchestratorServiceTest {
 
     assertNotNull(resp);
     verify(contentDocumentService).resolveContent("doc-1");
-    verify(contentAnalysisAgent).process(eq("conversation:upload-user-1"), anyString());
+    verify(contentAnalysisAgent).process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString());
   }
 
   @Test
@@ -740,7 +740,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
     when(questionGenerationAgent.process(
-            eq("conversation:sess-1"), anyString(), contains("rome context")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context")))
         .thenReturn("Rome questions");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
@@ -752,7 +752,7 @@ class OrchestratorServiceTest {
     assertEquals("ASSESSMENT", resp.agentType());
     verify(intentClassifier).classify(msg);
     verify(conversationAgent, never()).process(anyString(), anyString());
-    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -765,7 +765,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
     when(questionGenerationAgent.process(
-            eq("conversation:sess-1"), anyString(), contains("rome context")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context")))
         .thenReturn("Rome questions");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
@@ -775,7 +775,7 @@ class OrchestratorServiceTest {
 
     assertEquals("ASSESSMENT", resp.agentType());
     verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
-    verify(questionGenerationAgent).process(eq("conversation:sess-1"), anyString(), anyString());
+    verify(questionGenerationAgent).process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
   }
 
   @Test
@@ -785,7 +785,7 @@ class OrchestratorServiceTest {
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
-    when(contentAnalysisAgent.process(eq("conversation:sess-1"), contains("rome context")))
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), contains("rome context")))
         .thenReturn("Rome summary");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome summary", "sess-1", "CONTENT_ANALYSIS"));
@@ -795,7 +795,7 @@ class OrchestratorServiceTest {
 
     assertEquals("CONTENT_ANALYSIS", resp.agentType());
     verify(intentClassifier).classify(msg);
-    verify(contentAnalysisAgent).process(eq("conversation:sess-1"), anyString());
+    verify(contentAnalysisAgent).process(eq(ChatMemoryKeys.analysis("sess-1")), anyString());
   }
 
   @Test

@@ -264,12 +264,14 @@ public class OrchestratorService {
 
   private String dispatchAgent(
       String intent, String sessionId, String message, String analysisCtx) {
-    String memoryId = ChatMemoryKeys.conversation(sessionId);
     return switch (IntentType.fromName(intent)) {
-      case CONTENT_ANALYSIS -> contentAnalysisAgent.process(memoryId, message);
-      case ASSESSMENT -> questionGenerationAgent.process(memoryId, message, analysisCtx);
-      case INSIGHT -> insightAgent.process(memoryId, message);
-      default -> conversationAgent.process(memoryId, message);
+      case CONTENT_ANALYSIS ->
+          contentAnalysisAgent.process(ChatMemoryKeys.analysis(sessionId), message);
+      case ASSESSMENT ->
+          questionGenerationAgent.process(
+              ChatMemoryKeys.assessment(sessionId), message, analysisCtx);
+      case INSIGHT -> insightAgent.process(ChatMemoryKeys.insight(sessionId), message);
+      default -> conversationAgent.process(ChatMemoryKeys.conversation(sessionId), message);
     };
   }
 
