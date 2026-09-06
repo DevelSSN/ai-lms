@@ -1,6 +1,5 @@
 package com.ailms.orchestrator.service;
 
-import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -36,7 +35,6 @@ public class YouTubeLinkValidator {
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
 
-  @Blocking
   public String sanitize(String text) {
     if (text == null || text.isBlank()) return text;
 
