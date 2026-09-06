@@ -1,9 +1,7 @@
 package com.ailms.orchestrator.service;
 
 import com.ailms.common.constants.VectorSourceKeys;
-import com.ailms.common.entity.ContentDocument;
 import com.ailms.common.entity.ContentEmbedding;
-import com.ailms.common.enums.ContentStatus;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -13,13 +11,11 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
-import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -43,10 +39,11 @@ public class VectorDBService {
 
   @Inject EmbeddingModel embeddingModel;
 
+  @Inject ContentEmbeddingRepository contentEmbeddingRepository;
+
   @ConfigProperty(name = "ailms.rag.min-score", defaultValue = "0.5")
   double minScore;
 
-  @Transactional
   public void ingestDocumentChunks(List<String> chunks, String documentId, String contentType) {
     if (chunks == null || chunks.isEmpty()) {
       log.info("No chunks to ingest for documentId={}", documentId);
@@ -65,11 +62,8 @@ public class VectorDBService {
           documentId,
           e.getMessage());
     }
-    Panache.getEntityManager()
-        .createQuery("delete from ContentEmbedding e where e.documentId = :did")
-        .setParameter("did", documentId)
-        .executeUpdate();
 
+    List<ContentEmbedding> rows = new ArrayList<>(chunks.size());
     for (String chunk : chunks) {
       Map<String, Object> meta = Map.of("source", source, "type", contentType);
       TextSegment segment = TextSegment.from(chunk, Metadata.from(meta));
@@ -83,15 +77,10 @@ public class VectorDBService {
       pgv.contentType = contentType;
       pgv.embedding = embedding.vector();
       pgv.textSegment = chunk;
-      Panache.getEntityManager().persist(pgv);
+      rows.add(pgv);
     }
 
-    ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, documentId);
-    if (doc != null) {
-      doc.status = ContentStatus.INDEXED;
-      doc.processedAt = Instant.now();
-      Panache.getEntityManager().merge(doc);
-    }
+    contentEmbeddingRepository.replaceAll(documentId, source, contentType, rows);
 
     log.info(
         "Ingested {} chunks for documentId={} type={} (Qdrant + pgvector)",
