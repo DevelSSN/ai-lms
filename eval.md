@@ -33,17 +33,25 @@ ollama pull nomic-embed-text
 From `MP/TODO.md` deep code audit. These MUST be fixed before measuring, or the
 numbers are invalid.
 
-- **A2 / C2 — pgvector type mapping:** `ContentEmbedding` `vector(768)` has no
-  Hibernate pgvector type mapping → first real persist fails. Add
-  `quarkus-jdbc-postgresql` to `common` + the type mapping; run on Postgres, not H2.
-- **A3 — Qdrant init:** `QdrantInitializer` reads nonexistent `qdrant.rest.*` keys;
-  port 10633 vs gRPC 10634 mismatch → collection init silently fails. Fix keys to
-  `quarkus.langchain4j.qdrant.*`, single port source of truth.
-- **A5 — routing short-circuits:** `OrchestratorService.java:141,148` — `youtube`
-  keyword force-routes to `VIDEO_SEARCH` and `DOC_REFERENCE` regex matches normal
-  phrases. **Remove** — the paper claims the LLM decides except explicit links.
-- **A1 — Redis cache:** `||` delimiter corrupts reads (memory-path realism).
-- **A6 — ResponseVerifier:** fail-open on LLM exception + fragile `contains` parse.
+**All five resolved as of branch `shashank/hardening`.** Remaining checks are
+functional (see `0.4`), not code changes.
+
+- **[RESOLVED] A2 / C2 — pgvector type mapping:** `hibernate-vector` in `common`;
+  `ContentEmbedding` maps `vector(768)` via `@JdbcTypeCode(SqlTypes.VECTOR)` +
+  `@Array(length=768)`; Postgres driver on app classpath; infra runs
+  `pgvector/pgvector:pg18` + `CREATE EXTENSION IF NOT EXISTS vector`. Ingestion
+  writes pgvector in `ContentEmbeddingRepository.replaceAll` (`REQUIRES_NEW`).
+- **[RESOLVED] A3 — Qdrant init:** `QdrantInitializer` reads
+  `quarkus.langchain4j.qdrant.*` + single REST port `qdrant.admin.http-port`
+  (10633); collection auto-created on boot, gRPC 10634 separate.
+- **[RESOLVED] A5 — routing short-circuits:** only explicit YouTube URLs
+  (`isExplicitVideoLink`) and bare greetings short-circuit; no `youtube`-keyword
+  force-route and no `DOC_REFERENCE` regex; classifier LLM decides otherwise.
+- **[RESOLVED] A1 — Redis cache:** chat memory and history cache use JSON
+  serialization; no `||` delimiter.
+- **[RESOLVED] A6 — ResponseVerifier:** resolves verdicts via strict JSON
+  parse (Jackson `readTree`), fails closed on LLM exception / blank verdict /
+  invalid JSON.
 
 ### 0.4 Verify a clean end-to-end run
 ```bash
