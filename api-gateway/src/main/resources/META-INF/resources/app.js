@@ -544,14 +544,51 @@ function setupUploadHandlers() {
   const attachBtn = document.getElementById("attach-btn");
   const fileInput = document.getElementById("file-input");
 
-  attachBtn.addEventListener("click", () => fileInput.click());
+  if (!attachBtn || !fileInput) return;
+
+  const triggerFileInput = (e) => {
+    e.preventDefault();
+    fileInput.value = "";
+    fileInput.click();
+  };
+
+  attachBtn.addEventListener("click", triggerFileInput);
 
   fileInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    await uploadFile(file);
+    const files = e.target.files;
+    if (!files || !files.length) return;
+    for (const file of files) {
+      await uploadFile(file);
+    }
     fileInput.value = "";
   });
+
+  const dropZone = document.querySelector(".input-wrapper");
+  if (dropZone) {
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("drag-over");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("drag-over");
+      });
+    });
+
+    dropZone.addEventListener("drop", async (e) => {
+      const files = e.dataTransfer?.files;
+      if (!files || !files.length) return;
+      for (const file of files) {
+        await uploadFile(file);
+      }
+    });
+  }
 }
 
 async function uploadFile(file) {

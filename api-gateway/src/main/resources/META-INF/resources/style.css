@@ -682,9 +682,14 @@ footer {
     transition: var(--transition);
 }
 
-.input-wrapper:focus-within {
+.input-wrapper:focus-within,
+.input-wrapper.drag-over {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.input-wrapper.drag-over {
+    background-color: rgba(37, 99, 235, 0.06);
 }
 
 #user-input {
