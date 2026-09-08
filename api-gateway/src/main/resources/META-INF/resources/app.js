@@ -636,7 +636,9 @@ function appendMessage(sender, text) {
   }
 
   chatContainer.appendChild(messageDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  requestAnimationFrame(() => {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  });
 }
 
 const YOUTUBE_URL_RE =
