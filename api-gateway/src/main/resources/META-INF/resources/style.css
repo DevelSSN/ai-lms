@@ -154,17 +154,26 @@ header {
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 1.1rem;
     cursor: pointer;
     width: 32px;
     height: 32px;
     border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     transition: var(--transition);
 }
 
 .threads-close:hover {
     color: var(--text-primary);
     background-color: var(--message-bot-bg);
+}
+
+.threads-close svg {
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 .new-chat-btn {
@@ -184,9 +193,16 @@ header {
     margin-bottom: 1.25rem;
 }
 
+.new-chat-btn svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
 .new-chat-btn:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
 }
 
 .thread-list {
@@ -198,10 +214,11 @@ header {
 
 .thread-item {
     padding: 0.75rem 0.85rem;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: var(--transition);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
+    border: 1px solid transparent;
 }
 
 .thread-item:hover {
@@ -209,8 +226,13 @@ header {
 }
 
 .thread-item.active {
-    background-color: var(--message-bot-bg);
-    border-left: 3px solid var(--accent-color);
+    background-color: rgba(10, 132, 255, 0.12);
+    border-color: rgba(10, 132, 255, 0.3);
+}
+
+.dark-mode .thread-item.active {
+    background-color: rgba(10, 132, 255, 0.18);
+    border-color: rgba(10, 132, 255, 0.35);
 }
 
 .thread-item-title {
@@ -351,23 +373,33 @@ header {
 }
 
 .logout-btn {
-    background: none;
-    border: none;
+    background-color: rgba(255, 59, 48, 0.12);
+    border: 1px solid rgba(255, 59, 48, 0.2);
     cursor: pointer;
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
+    color: #ff3b30;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    margin: 0;
     transition: var(--transition);
 }
 
+.logout-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
 .logout-btn:hover {
-    color: #ff3b30;
-    background-color: rgba(255, 59, 48, 0.12);
+    color: #ffffff;
+    background-color: #ff3b30;
+    border-color: #ff3b30;
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
 }
 
 main {
@@ -701,14 +733,23 @@ footer {
     color: white;
     border: none;
     border-radius: 12px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
     flex-shrink: 0;
     align-self: flex-end;
     margin-bottom: 2px;
     transition: var(--transition);
+}
+
+#send-btn svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    transform: translate(-1px, 1px);
 }
 
 #send-btn:hover {
