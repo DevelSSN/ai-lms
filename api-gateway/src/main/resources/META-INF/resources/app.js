@@ -1,6 +1,16 @@
 const API_BASE_URL = "/api";
 
 let currentThreadId = null;
+
+// Optimistic titles for brand-new threads until the server-generated
+// (async LLM) title arrives via loadThreads().
+const pendingTitles = new Map();
+
+function fallbackTitle(text) {
+  const collapsed = (text || "").replace(/\s+/g, " ").trim();
+  if (!collapsed) return "New chat";
+  return collapsed.length <= 40 ? collapsed : `${collapsed.slice(0, 40).trim()}…`;
+}
 let currentUserSub = null;
 
 function threadIdKey() {
@@ -122,7 +132,18 @@ async function loadHistory(threadId) {
         headers: { Authorization: `Bearer ${keycloak.token}` },
       },
     );
-    if (!response.ok) throw new Error("History fetch failed");
+    if (!response.ok) {
+      if (response.status === 403 || response.status === 404) {
+        // Stale thread (e.g. owned by another user): start fresh.
+        currentThreadId = newThreadId();
+        saveThreadId();
+        clearChat();
+        showWelcome();
+        loadThreads();
+        return;
+      }
+      throw new Error("History fetch failed");
+    }
 
     const history = await response.json();
     const messages = history?.messages || [];
@@ -177,6 +198,7 @@ function showWelcome() {
 function openThreadsPanel() {
   document.getElementById("threads-panel").classList.add("open");
   document.getElementById("threads-backdrop").classList.add("open");
+  loadThreads();
 }
 
 function closeThreadsPanel() {
@@ -208,6 +230,7 @@ function renderThreadList(threads) {
   const list = document.getElementById("thread-list");
   list.innerHTML = "";
   for (const thread of threads) {
+    if (thread.title) pendingTitles.delete(thread.sessionId);
     const item = document.createElement("li");
     item.classList.add("thread-item");
     if (thread.sessionId === currentThreadId) item.classList.add("active");
@@ -217,7 +240,7 @@ function renderThreadList(threads) {
 
     const title = document.createElement("div");
     title.classList.add("thread-item-title");
-    title.textContent = thread.title || "New chat";
+    title.textContent = thread.title || pendingTitles.get(thread.sessionId) || "New chat";
 
     const actions = document.createElement("div");
     actions.classList.add("thread-item-actions");
@@ -444,6 +467,7 @@ function setupEventListeners() {
     if (!currentThreadId) {
       currentThreadId = newThreadId();
       saveThreadId();
+      pendingTitles.set(currentThreadId, fallbackTitle(text));
     }
 
     const welcome = document.querySelector(".welcome-screen");
@@ -479,6 +503,8 @@ function setupEventListeners() {
       const data = await response.json();
       appendMessage("bot", data.message);
       loadThreads();
+      // Server title is generated asynchronously (LLM) — refresh again later.
+      setTimeout(loadThreads, 45000);
     } catch (error) {
       console.error("API Error:", error);
       appendMessage("bot", "⚠️ Backend unavailable — your message wasn't processed. Please try again.");
@@ -577,17 +603,30 @@ function appendMessage(sender, text) {
   const tokens = tokenizeYouTubeLinks(text);
 
   if (tokens.some((token) => token.type === "video")) {
+    let prevWasVideo = false;
     for (const token of tokens) {
       if (token.type === "video") {
         const videoContainer = document.createElement("div");
         videoContainer.classList.add("video-container");
         videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${token.videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
         messageDiv.appendChild(videoContainer);
+        prevWasVideo = true;
       } else if (token.content.trim()) {
-        const contentDiv = document.createElement("div");
-        if (sender === "bot") contentDiv.innerHTML = renderMarkdown(token.content);
-        else contentDiv.textContent = token.content;
-        messageDiv.appendChild(contentDiv);
+        // A trailing "— Title" belongs to the video above: render as caption.
+        const captionMatch = token.content.match(/^\s*—\s*(.+)$/s);
+        if (captionMatch && prevWasVideo) {
+          const lastContainer = messageDiv.querySelector(".video-container:last-of-type");
+          const caption = document.createElement("div");
+          caption.classList.add("video-caption");
+          caption.textContent = captionMatch[1].trim();
+          lastContainer.appendChild(caption);
+        } else {
+          const contentDiv = document.createElement("div");
+          if (sender === "bot") contentDiv.innerHTML = renderMarkdown(token.content);
+          else contentDiv.textContent = token.content;
+          messageDiv.appendChild(contentDiv);
+        }
+        prevWasVideo = false;
       }
     }
   } else if (sender === "bot") {

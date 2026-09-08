@@ -7,6 +7,7 @@ import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -19,21 +20,27 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface OrchestratorClient {
 
   @POST
-  ChatResponse processMessage(ChatRequest request);
+  ChatResponse processMessage(
+      ChatRequest request, @HeaderParam("X-User-Id") String userId);
 
   @GET
   @Path("/history/{sessionId}")
-  ChatHistory getHistory(@PathParam("sessionId") String sessionId);
+  ChatHistory getHistory(
+      @PathParam("sessionId") String sessionId, @HeaderParam("X-User-Id") String userId);
 
   @GET
   @Path("/threads")
-  List<ThreadSummary> getThreads();
+  List<ThreadSummary> getThreads(@HeaderParam("X-User-Id") String userId);
 
   @PATCH
   @Path("/threads/{sessionId}")
-  void renameThread(@PathParam("sessionId") String sessionId, ThreadRenameRequest request);
+  void renameThread(
+      @PathParam("sessionId") String sessionId,
+      ThreadRenameRequest request,
+      @HeaderParam("X-User-Id") String userId);
 
   @DELETE
   @Path("/threads/{sessionId}")
-  void deleteThread(@PathParam("sessionId") String sessionId);
+  void deleteThread(
+      @PathParam("sessionId") String sessionId, @HeaderParam("X-User-Id") String userId);
 }

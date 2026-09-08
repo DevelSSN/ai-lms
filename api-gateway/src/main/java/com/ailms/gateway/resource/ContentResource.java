@@ -121,7 +121,7 @@ public class ContentResource {
 
       ChatRequest request =
           new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, "upload:" + doc.id);
-      ChatResponse response = orchestrator.processMessage(request);
+      ChatResponse response = orchestrator.processMessage(request, userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Upload failed for user={}: {}", userId, e.getMessage());
@@ -182,7 +182,7 @@ public class ContentResource {
                   + " | difficulty="
                   + difficulty,
               "assess-" + userId);
-      ChatResponse response = orchestrator.processMessage(chatReq);
+      ChatResponse response = orchestrator.processMessage(chatReq, userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());
@@ -198,7 +198,7 @@ public class ContentResource {
     try {
       ChatRequest request =
           new ChatRequest("Show my learning insights and progress", "insight-" + userId);
-      ChatResponse response = orchestrator.processMessage(request);
+      ChatResponse response = orchestrator.processMessage(request, userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());

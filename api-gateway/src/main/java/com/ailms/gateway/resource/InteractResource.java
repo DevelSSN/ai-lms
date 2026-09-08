@@ -44,7 +44,7 @@ public class InteractResource {
 
     try {
       ChatRequest request = new ChatRequest(message, threadId);
-      ChatResponse response = orchestrator.processMessage(request);
+      ChatResponse response = orchestrator.processMessage(request, userId);
       log.debug("Interact response sent to user={}", userId);
       return Response.ok(response).build();
     } catch (Exception e) {

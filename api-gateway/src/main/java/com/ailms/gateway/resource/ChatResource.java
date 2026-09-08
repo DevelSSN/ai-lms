@@ -46,7 +46,7 @@ public class ChatResource {
     log.info("Chat request from user={} session={}", userId, sessionId);
     try {
       ChatResponse response =
-          orchestrator.processMessage(new ChatRequest(request.message(), sessionId));
+          orchestrator.processMessage(new ChatRequest(request.message(), sessionId), userId);
       log.debug("Chat response sent to user={}", userId);
       return Response.ok(response).build();
     } catch (Exception e) {
@@ -60,7 +60,7 @@ public class ChatResource {
   public Response getHistory(@PathParam("sessionId") String sessionId) {
     log.info("History request for session={}", sessionId);
     try {
-      ChatHistory history = orchestrator.getHistory(sessionId);
+      ChatHistory history = orchestrator.getHistory(sessionId, jwt.getSubject());
       return Response.ok(history).build();
     } catch (Exception e) {
       log.error("Failed to fetch history for session={}: {}", sessionId, e.getMessage());
@@ -73,7 +73,7 @@ public class ChatResource {
   public Response getThreads() {
     log.info("Thread list request for user={}", jwt.getSubject());
     try {
-      return Response.ok(orchestrator.getThreads()).build();
+      return Response.ok(orchestrator.getThreads(jwt.getSubject())).build();
     } catch (Exception e) {
       log.error("Failed to fetch threads: {}", e.getMessage());
       return Response.serverError().build();
@@ -86,7 +86,7 @@ public class ChatResource {
       @PathParam("sessionId") String sessionId, ThreadRenameRequest request) {
     log.info("Rename thread session={} user={}", sessionId, jwt.getSubject());
     try {
-      orchestrator.renameThread(sessionId, request);
+      orchestrator.renameThread(sessionId, request, jwt.getSubject());
       return Response.noContent().build();
     } catch (Exception e) {
       log.error("Failed to rename thread {}: {}", sessionId, e.getMessage());
@@ -99,7 +99,7 @@ public class ChatResource {
   public Response deleteThread(@PathParam("sessionId") String sessionId) {
     log.info("Delete thread session={} user={}", sessionId, jwt.getSubject());
     try {
-      orchestrator.deleteThread(sessionId);
+      orchestrator.deleteThread(sessionId, jwt.getSubject());
       return Response.noContent().build();
     } catch (Exception e) {
       log.error("Failed to delete thread {}: {}", sessionId, e.getMessage());

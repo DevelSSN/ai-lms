@@ -35,7 +35,7 @@ public class ProfileResource {
     try {
       com.ailms.common.dto.ChatRequest request =
           new com.ailms.common.dto.ChatRequest("Show my learning profile", "profile-" + userId);
-      ChatResponse response = orchestrator.processMessage(request);
+      ChatResponse response = orchestrator.processMessage(request, userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());
@@ -51,7 +51,7 @@ public class ProfileResource {
       com.ailms.common.dto.ChatRequest request =
           new com.ailms.common.dto.ChatRequest(
               "Update my profile: " + updates, "profile-" + userId);
-      ChatResponse response = orchestrator.processMessage(request);
+      ChatResponse response = orchestrator.processMessage(request, userId);
       return Response.ok(response).build();
     } catch (Exception e) {
       log.error("Orchestrator unavailable for user={}: {}", userId, e.getMessage());

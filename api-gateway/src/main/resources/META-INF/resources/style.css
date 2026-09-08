@@ -521,16 +521,21 @@ main {
 .video-container {
     width: 100%;
     margin-top: 1rem;
-    border-radius: 12px;
-    overflow: hidden;
-    aspect-ratio: 16 / 9;
-    background-color: #000;
 }
 
 .video-container iframe {
+    display: block;
     width: 100%;
-    height: 100%;
+    aspect-ratio: 16 / 9;
     border: none;
+    border-radius: 12px;
+    background-color: #000;
+}
+
+.video-caption {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    opacity: 0.85;
 }
 
 footer {
