@@ -229,6 +229,13 @@ async function loadThreads() {
 function renderThreadList(threads) {
   const list = document.getElementById("thread-list");
   list.innerHTML = "";
+  if (!threads || !threads.length) {
+    const emptyItem = document.createElement("li");
+    emptyItem.classList.add("thread-empty");
+    emptyItem.textContent = "No conversations yet";
+    list.appendChild(emptyItem);
+    return;
+  }
   for (const thread of threads) {
     if (thread.title) pendingTitles.delete(thread.sessionId);
     const item = document.createElement("li");
@@ -476,11 +483,13 @@ function setupEventListeners() {
     appendMessage("user", text);
     userInput.value = "";
     userInput.style.height = "auto";
+    showTypingIndicator();
 
     try {
       await keycloak.updateToken(5);
     } catch (err) {
       console.error("Token refresh failed before request:", err);
+      removeTypingIndicator();
       keycloak.login();
       return;
     }
@@ -501,12 +510,14 @@ function setupEventListeners() {
       if (!response.ok) throw new Error("Gateway unreachable");
 
       const data = await response.json();
+      removeTypingIndicator();
       appendMessage("bot", data.message);
       loadThreads();
       // Server title is generated asynchronously (LLM) — refresh again later.
       setTimeout(loadThreads, 45000);
     } catch (error) {
       console.error("API Error:", error);
+      removeTypingIndicator();
       appendMessage("bot", "⚠️ Backend unavailable — your message wasn't processed. Please try again.");
     }
   };
@@ -517,6 +528,10 @@ function setupEventListeners() {
       e.preventDefault();
       sendMessage();
     }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeThreadsPanel();
   });
 
   document.getElementById("threads-toggle").addEventListener("click", openThreadsPanel);
@@ -595,6 +610,47 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function showTypingIndicator() {
+  removeTypingIndicator();
+  const chatContainer = document.getElementById("chat-container");
+  const indicator = document.createElement("div");
+  indicator.id = "typing-indicator";
+  indicator.classList.add("message", "bot-message", "typing-indicator");
+  indicator.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+  chatContainer.appendChild(indicator);
+  requestAnimationFrame(() => {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  });
+}
+
+function removeTypingIndicator() {
+  const existing = document.getElementById("typing-indicator");
+  if (existing) existing.remove();
+}
+
+function enhanceCodeBlocks(container) {
+  const pres = container.querySelectorAll("pre");
+  pres.forEach((pre) => {
+    if (pre.querySelector(".copy-code-btn")) return;
+    const btn = document.createElement("button");
+    btn.classList.add("copy-code-btn");
+    btn.title = "Copy code";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", async () => {
+      const codeText = pre.querySelector("code")?.textContent || pre.textContent;
+      try {
+        await navigator.clipboard.writeText(codeText);
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = "Copy"), 2000);
+      } catch (e) {
+        console.error("Copy failed:", e);
+      }
+    });
+    pre.style.position = "relative";
+    pre.appendChild(btn);
+  });
+}
+
 function appendMessage(sender, text) {
   const chatContainer = document.getElementById("chat-container");
   const messageDiv = document.createElement("div");
@@ -633,6 +689,10 @@ function appendMessage(sender, text) {
     messageDiv.innerHTML = renderMarkdown(text);
   } else {
     messageDiv.textContent = text;
+  }
+
+  if (sender === "bot") {
+    enhanceCodeBlocks(messageDiv);
   }
 
   chatContainer.appendChild(messageDiv);
