@@ -1,0 +1,29 @@
+# Photosynthesis
+
+## Overview
+
+Photosynthesis is the process by which green plants, algae, and certain
+bacteria convert light energy into chemical energy in the form of glucose. The
+overall reaction is carbon dioxide plus water, in the presence of light and
+chlorophyll, producing glucose and oxygen.
+
+## Light-Dependent Reactions
+
+These reactions take place in the thylakoid membranes of the chloroplast. Light
+energy splits water molecules (photolysis), releasing oxygen gas and producing
+ATP and NADPH. The energy carriers ATP and NADPH are then used in the next
+stage.
+
+## Light-Independent Reactions (Calvin Cycle)
+
+The Calvin cycle occurs in the stroma of the chloroplast. Using the ATP and
+NADPH from the light-dependent stage, carbon dioxide is fixed into glucose
+through a series of enzyme-catalyzed steps. The enzyme RuBisCO catalyzes the
+first step, carbon fixation.
+
+## Key Concepts
+
+- Chlorophyll is the pigment that captures light energy.
+- Photolysis is the splitting of water molecules by light.
+- RuBisCO catalyzes carbon fixation in the Calvin cycle.
+- The products of photosynthesis are glucose and oxygen.
