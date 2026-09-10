@@ -121,14 +121,44 @@ public class ContentResource {
 
       ChatRequest request =
           new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, "upload:" + doc.id);
-      ChatResponse response = orchestrator.processMessage(request, userId);
-      return Response.ok(response).build();
+      Map<String, Object> ack = orchestrator.analyzeAsync(request, userId);
+      Map<String, Object> body = new java.util.LinkedHashMap<>();
+      body.put("sessionId", "upload:" + doc.id);
+      body.put("status", ack.getOrDefault("status", "PENDING"));
+      body.put("docId", doc.id);
+      body.putAll(Map.of("message", "Uploaded — analyzing your document…"));
+      return Response.status(Response.Status.ACCEPTED).entity(body).build();
     } catch (Exception e) {
       log.error("Upload failed for user={}: {}", userId, e.getMessage());
       return Response.status(Response.Status.BAD_GATEWAY)
           .entity(Map.of("error", "Upload failed"))
           .build();
     }
+  }
+
+  @GET
+  @Path("/status/{docId}")
+  public Response getStatus(@jakarta.ws.rs.PathParam("docId") String docId) {
+    String userId = jwt.getSubject();
+    ContentDocument doc = contentDocRepo.find("id", docId).firstResult();
+    if (doc == null) {
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(Map.of("error", "Document not found"))
+          .build();
+    }
+    if (!userId.equals(doc.userId)) {
+      log.warn("Denied status read for doc={} by user={}", docId, userId);
+      return Response.status(Response.Status.FORBIDDEN)
+          .entity(Map.of("error", "Not your document"))
+          .build();
+    }
+    java.util.LinkedHashMap<String, Object> body = new java.util.LinkedHashMap<>();
+    body.put("docId", doc.id);
+    body.put("fileName", doc.fileName);
+    body.put("status", doc.status == null ? com.ailms.common.enums.ContentStatus.UPLOADED.name() : doc.status.name());
+    body.put("processedAt", doc.processedAt == null ? null : doc.processedAt.toString());
+    body.put("error", doc.errorMessage == null ? "" : doc.errorMessage);
+    return Response.ok(body).build();
   }
 
   private void deleteObjectQuietly(String storagePath) {

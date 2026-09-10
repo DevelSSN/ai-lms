@@ -54,6 +54,22 @@ public class OrchestratorResource {
   }
 
   @POST
+  @Path("/analyze")
+  public Response analyze(
+      ChatRequest request, @HeaderParam("X-User-Id") String userId) {
+    log.info("Async analyze request from user={} session={}", userId, request.sessionId());
+    try {
+      Map<String, Object> ack = orchestratorService.routeAsync(request, userId);
+      return Response.status(Response.Status.ACCEPTED).entity(ack).build();
+    } catch (SessionOwnershipException e) {
+      log.warn("Blocked cross-user session access: {}", e.getMessage());
+      return Response.status(Response.Status.FORBIDDEN)
+          .entity(Map.of("error", "Session does not belong to the authenticated user"))
+          .build();
+    }
+  }
+
+  @POST
   @Path("/quiz/results")
   public Response recordQuizResult(
       QuizResultRequest request, @HeaderParam("X-User-Id") String userId) {

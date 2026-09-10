@@ -802,33 +802,86 @@ async function uploadFile(file) {
     }
 
     const data = await response.json();
-    appendMessage("bot", data.message);
-
     const uploadSessionId = data.sessionId || "";
-    if (uploadSessionId.startsWith("upload:")) {
-      const bar = document.createElement("div");
-      bar.classList.add("message", "bot-message", "quiz-action-bar");
-      const btn = document.createElement("button");
-      btn.classList.add("quiz-action-btn");
-      btn.textContent = "✨ Generate Quiz";
-      btn.title = "Create a quiz grounded in this document's analysis";
-      btn.addEventListener("click", () => {
-        const input = document.getElementById("user-input");
-        input.value = "Generate quiz about the uploaded document";
-        input.dispatchEvent(new Event("input"));
-        document.getElementById("send-btn").click();
-      });
-      bar.appendChild(btn);
-      document.getElementById("chat-container").appendChild(bar);
-      requestAnimationFrame(() => {
-        document.getElementById("chat-container").scrollTop =
-          document.getElementById("chat-container").scrollHeight;
-      });
+    const docId = data.docId || "";
+    appendMessage("bot", data.message || "Uploaded — analyzing your document…");
+
+    if (uploadSessionId.startsWith("upload:") && docId) {
+      pollUploadStatus(docId, uploadSessionId);
+    } else {
+      loadThreads();
     }
-    loadThreads();
   } catch (error) {
     appendMessage("bot", `Upload failed: ${error.message}. Files up to 50MB supported.`);
   }
+}
+
+const UPLOAD_POLL_INTERVAL_MS = 2500;
+const UPLOAD_POLL_MAX_MS = 5 * 60 * 1000;
+
+function pollUploadStatus(docId, sessionId) {
+  const startedAt = Date.now();
+
+  const check = async () => {
+    if (Date.now() - startedAt > UPLOAD_POLL_MAX_MS) {
+      appendMessage(
+        "bot",
+        "Your document is still processing. Once ready, the analysis will appear.",
+      );
+      return;
+    }
+    try {
+      await keycloak.updateToken(5);
+      const response = await fetch(
+        `${API_BASE_URL}/v1/content/status/${encodeURIComponent(docId)}`,
+        { headers: { Authorization: `Bearer ${keycloak.token}` } },
+      );
+      if (!response.ok) {
+        setTimeout(check, UPLOAD_POLL_INTERVAL_MS);
+        return;
+      }
+      const status = await response.json();
+      if (status.status === "INDEXED") {
+        showQuizActionBar(sessionId);
+        loadThreads();
+        return;
+      }
+      if (status.status === "FAILED") {
+        appendMessage(
+          "bot",
+          `Analysis failed: ${status.error || "Unknown error"}. Please try uploading again.`,
+        );
+        loadThreads();
+        return;
+      }
+    } catch (e) {
+      console.error("Upload status poll failed:", e);
+    }
+    setTimeout(check, UPLOAD_POLL_INTERVAL_MS);
+  };
+
+  setTimeout(check, UPLOAD_POLL_INTERVAL_MS);
+}
+
+function showQuizActionBar(sessionId) {
+  const bar = document.createElement("div");
+  bar.classList.add("message", "bot-message", "quiz-action-bar");
+  const btn = document.createElement("button");
+  btn.classList.add("quiz-action-btn");
+  btn.textContent = "✨ Generate Quiz";
+  btn.title = "Create a quiz grounded in this document's analysis";
+  btn.addEventListener("click", () => {
+    const input = document.getElementById("user-input");
+    input.value = "Generate quiz about the uploaded document";
+    input.dispatchEvent(new Event("input"));
+    document.getElementById("send-btn").click();
+  });
+  bar.appendChild(btn);
+  document.getElementById("chat-container").appendChild(bar);
+  requestAnimationFrame(() => {
+    document.getElementById("chat-container").scrollTop =
+      document.getElementById("chat-container").scrollHeight;
+  });
 }
 
 function renderMarkdown(text) {

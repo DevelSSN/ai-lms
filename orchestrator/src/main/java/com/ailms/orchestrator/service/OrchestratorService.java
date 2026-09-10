@@ -312,6 +312,66 @@ public class OrchestratorService {
     }
   }
 
+  /**
+   * Schedules a content-analysis run on a background worker and returns immediately. The upload
+   * pipeline (S3 read -> chunk -> embed -> ContentAnalysisAgent) is executed asynchronously; the
+   * result is delivered to the chat UI through the existing content-analysis-complete Kafka event.
+   */
+  public Map<String, Object> routeAsync(ChatRequest request, String userId) {
+    String sessionId = request.sessionId();
+    if (sessionId == null || sessionId.isBlank()) {
+      sessionId = java.util.UUID.randomUUID().toString();
+      log.info("Generated session id for async analysis user={}: {}", userId, sessionId);
+    }
+    enforceSessionOwnership(sessionId, userId);
+
+    ChatRequest job = new ChatRequest(request.message(), sessionId);
+    String finalSessionId = sessionId;
+    executor.execute(() -> runAnalysisJob(job, userId, finalSessionId));
+
+    log.info("Scheduled async content analysis for user={} session={}", userId, finalSessionId);
+    return Map.of("status", "PENDING", "sessionId", finalSessionId);
+  }
+
+  private void runAnalysisJob(ChatRequest request, String userId, String sessionId) {
+    String docId = null;
+    String raw = request.message();
+    if (raw != null && raw.startsWith(UPLOAD_PREFIX)) {
+      docId = raw.substring(UPLOAD_PREFIX.length()).trim();
+    }
+    try {
+      route(request, userId);
+    } catch (Exception e) {
+      log.error(
+          "Async content analysis failed for user={} session={}: {}",
+          userId,
+          sessionId,
+          e.getMessage(),
+          e);
+      String error = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+      if (docId != null && !docId.isEmpty()) {
+        try {
+          contentDocumentService.markFailed(docId, error);
+        } catch (Exception markErr) {
+          log.warn(
+              "Failed to mark doc {} FAILED: {}",
+              docId,
+              markErr.getMessage());
+        }
+      }
+      emitFallbackAnalysis(userId, sessionId, error);
+    }
+  }
+
+  private void emitFallbackAnalysis(String userId, String sessionId, String error) {
+    try {
+      kafkaEventPublisher.publishContentAnalysisComplete(
+          userId, sessionId, "I couldn't finish analyzing your document: " + error);
+    } catch (Exception e) {
+      log.warn("Failed to publish fallback analysis event for session={}: {}", sessionId, e.getMessage());
+    }
+  }
+
   void enforceSessionOwnership(String sessionId, String userId) {
     String owner = conversationRepository.sessionOwner(sessionId);
     if (owner != null && !owner.equals(userId)) {

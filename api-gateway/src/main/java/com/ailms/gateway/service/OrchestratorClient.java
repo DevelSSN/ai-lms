@@ -26,6 +26,11 @@ public interface OrchestratorClient {
   ChatResponse processMessage(
       ChatRequest request, @HeaderParam("X-User-Id") String userId);
 
+  @POST
+  @Path("/analyze")
+  java.util.Map<String, Object> analyzeAsync(
+      ChatRequest request, @HeaderParam("X-User-Id") String userId);
+
   @GET
   @Path("/history/{sessionId}")
   ChatHistory getHistory(

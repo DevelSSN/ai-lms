@@ -7,8 +7,10 @@ import static org.mockito.Mockito.*;
 
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.entity.ContentDocument;
 import com.ailms.gateway.service.OrchestratorClient;
 import com.ailms.gateway.service.SseBroadcastService;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.smallrye.mutiny.Multi;
 import jakarta.ws.rs.core.Response;
 import java.nio.file.Files;
@@ -283,7 +285,114 @@ class ResourceUnitTest {
 
     assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), resp.getStatus());
     verify(s3, never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(orchestrator, never()).analyzeAsync(any(ChatRequest.class), anyString());
+  }
+
+  @Test
+  void contentResource_upload_returns202AndSchedulesAnalysis(@TempDir Path tempDir)
+      throws Exception {
+    when(jwt.getSubject()).thenReturn("user-1");
+    when(orchestrator.analyzeAsync(any(ChatRequest.class), anyString()))
+        .thenReturn(Map.of("status", "PENDING"));
+    doAnswer(
+            inv -> {
+              ContentDocument d = inv.getArgument(0);
+              d.id = "1";
+              return null;
+            })
+        .when(contentDocRepo)
+        .save(any(ContentDocument.class));
+
+    Path file = tempDir.resolve("notes.txt");
+    Files.writeString(file, "hello world");
+    FileUpload upload = mock(FileUpload.class);
+    when(upload.fileName()).thenReturn("notes.txt");
+    when(upload.contentType()).thenReturn("text/plain");
+    when(upload.uploadedFile()).thenReturn(file);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.s3 = s3;
+    resource.contentDocRepo = contentDocRepo;
+    resource.orchestrator = orchestrator;
+    resource.maxUploadSize = 10_000_000;
+
+    Response resp = resource.uploadFile(upload, "t-1");
+
+    assertEquals(Response.Status.ACCEPTED.getStatusCode(), resp.getStatus());
+    Map<?, ?> body = (Map<?, ?>) resp.getEntity();
+    assertEquals("upload:1", body.get("sessionId"));
+    assertEquals("PENDING", body.get("status"));
+    assertEquals("1", body.get("docId"));
+    verify(s3).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(orchestrator)
+        .analyzeAsync(
+            argThat(
+                r ->
+                    r.message().equals("Analyze the uploaded file: 1")
+                        && r.sessionId().equals("upload:1")),
+            anyString());
     verify(orchestrator, never()).processMessage(any(ChatRequest.class), anyString());
+  }
+
+  @Test
+  void contentResource_status_ownedByUser() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    ContentDocument doc = new ContentDocument();
+    doc.id = "1";
+    doc.userId = "user-1";
+    doc.fileName = "notes.txt";
+    doc.status = com.ailms.common.enums.ContentStatus.INDEXED;
+    PanacheQuery<ContentDocument> q = mock(PanacheQuery.class);
+    when(contentDocRepo.find("id", "1")).thenReturn(q);
+    when(q.firstResult()).thenReturn(doc);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.contentDocRepo = contentDocRepo;
+
+    Response resp = resource.getStatus("1");
+
+    assertEquals(200, resp.getStatus());
+    Map<?, ?> body = (Map<?, ?>) resp.getEntity();
+    assertEquals("INDEXED", body.get("status"));
+    assertEquals("notes.txt", body.get("fileName"));
+  }
+
+  @Test
+  void contentResource_status_notOwner_forbidden() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    ContentDocument doc = new ContentDocument();
+    doc.id = "1";
+    doc.userId = "user-2";
+    doc.status = com.ailms.common.enums.ContentStatus.INDEXED;
+    PanacheQuery<ContentDocument> q = mock(PanacheQuery.class);
+    when(contentDocRepo.find("id", "1")).thenReturn(q);
+    when(q.firstResult()).thenReturn(doc);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.contentDocRepo = contentDocRepo;
+
+    Response resp = resource.getStatus("1");
+
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), resp.getStatus());
+  }
+
+  @Test
+  void contentResource_status_unknown_returns404() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    PanacheQuery<ContentDocument> q = mock(PanacheQuery.class);
+    when(contentDocRepo.find("id", "missing")).thenReturn(q);
+    when(q.firstResult()).thenReturn(null);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.contentDocRepo = contentDocRepo;
+
+    Response resp = resource.getStatus("missing");
+
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), resp.getStatus());
   }
 
   @Test

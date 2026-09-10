@@ -103,6 +103,16 @@ public class ContentDocumentService {
   }
 
   @Transactional
+  public void markFailed(String docId, String error) {
+    ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, docId);
+    if (doc == null || doc.status == ContentStatus.FAILED) return;
+    doc.status = ContentStatus.FAILED;
+    doc.errorMessage = error != null && error.length() > 4000 ? error.substring(0, 4000) : error;
+    doc.processedAt = Instant.now();
+    log.warn("Marked document as FAILED docId={}: {}", docId, error);
+  }
+
+  @Transactional
   public List<String> chunkContent(String docId, int chunkSize, int overlap) {
     String content = extractContent(docId);
     if (content == null) return List.of();

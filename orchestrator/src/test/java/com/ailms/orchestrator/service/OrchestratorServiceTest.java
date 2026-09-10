@@ -27,9 +27,11 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
 import java.util.function.Predicate;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -57,6 +59,7 @@ class OrchestratorServiceTest {
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
+  @Mock ManagedExecutor executor;
 
   @BeforeEach
   void stubVerifierDefaultAccept() {
@@ -75,6 +78,57 @@ class OrchestratorServiceTest {
         SessionOwnershipException.class,
         () -> svc.route(new ChatRequest("hello", "sess-1"), "user-1"));
     verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void routeAsync_returnsPendingAndSchedulesJob() {
+    OrchestratorService svc = buildService();
+
+    java.util.Map<String, Object> ack =
+        svc.routeAsync(
+            new ChatRequest(
+                "Analyze the uploaded file: doc-9", "upload:doc-9"),
+            "user-1");
+
+    assertEquals("PENDING", ack.get("status"));
+    assertEquals("upload:doc-9", ack.get("sessionId"));
+    verify(executor).execute(any(Runnable.class));
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void routeAsync_rejectsSessionOwnedByAnotherUser() {
+    when(conversationRepository.sessionOwner("upload:doc-9")).thenReturn("user-other");
+    OrchestratorService svc = buildService();
+
+    assertThrows(
+        SessionOwnershipException.class,
+        () ->
+            svc.routeAsync(
+                new ChatRequest("Analyze the uploaded file: doc-9", "upload:doc-9"), "user-1"));
+    verify(executor, never()).execute(any(Runnable.class));
+  }
+
+  @Test
+  void routeAsync_jobFailureMarksDocumentFailedAndEmitsFallback() {
+    doThrow(new RuntimeException("embedding service down"))
+        .when(profilingService)
+        .ensureProfile(anyString());
+    OrchestratorService svc = buildService();
+
+    svc.routeAsync(
+        new ChatRequest("Analyze the uploaded file: doc-9", "upload:doc-9"), "user-1");
+
+    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    verify(executor).execute(captor.capture());
+    captor.getValue().run();
+
+    verify(contentDocumentService).markFailed(eq("doc-9"), contains("embedding service down"));
+    verify(kafkaEventPublisher)
+        .publishContentAnalysisComplete(
+            eq("user-1"),
+            eq("upload:doc-9"),
+            contains("couldn't finish analyzing"));
   }
 
   @Test
@@ -1224,6 +1278,7 @@ class OrchestratorServiceTest {
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;
     svc.chatMemoryStore = chatMemoryStore;
+    svc.executor = executor;
     svc.objectMapper = new ObjectMapper();
     lenient()
         .when(youTubeLinkValidator.sanitize(anyString()))

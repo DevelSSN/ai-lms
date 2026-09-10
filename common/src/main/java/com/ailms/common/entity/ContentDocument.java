@@ -27,6 +27,9 @@ public class ContentDocument {
   @Column(columnDefinition = "TEXT")
   public String topicMappings;
 
+  @Column(columnDefinition = "TEXT")
+  public String errorMessage;
+
   @Enumerated(EnumType.STRING)
   public ContentStatus status;
 

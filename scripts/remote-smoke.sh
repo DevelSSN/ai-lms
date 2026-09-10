@@ -151,20 +151,41 @@ if [[ -z "$TOKEN" && "$FAIL_FAST" == "true" ]]; then echo "Abort: no token → c
 AUTH=(-H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json')
 
 # 2. Upload + CAA -------------------------------------------------------------
-say "2. Upload -> Content Analysis (S3 + pgvector + Qdrant + CAA)"
+say "2. Upload (202) -> poll status -> Content Analysis (S3 + pgvector + Qdrant + CAA)"
 if [[ -n "$TOKEN" && -n "$TEST_DOC" && -f "$TEST_DOC" ]] && ! skipflag upload; then
   UP_START=$(date +%s)
   UP=$(curl -s -w '\n%{http_code}' --max-time 300 -X POST \
        -H "Authorization: Bearer $TOKEN" \
        -F "file=@$TEST_DOC" "$GATEWAY_URL/api/v1/content/upload")
   UP_CODE=$(echo "$UP" | tail -1); UP_BODY=$(echo "$UP" | sed '$d' | head -c 2000)
-  if [[ "$UP_CODE" == "200" ]]; then
+  if [[ "$UP_CODE" == "202" ]]; then
     UPLOAD_SESS=$(jget "$UP_BODY" sessionId)
-    DOC_ID="${UPLOAD_SESS#upload:}"
+    DOC_ID=$(jget "$UP_BODY" docId)
+    if [[ -z "$DOC_ID" ]]; then DOC_ID="${UPLOAD_SESS#upload:}"; fi
     if [[ -n "$DOC_ID" && "$DOC_ID" != "$UPLOAD_SESS" ]]; then
-      ok "upload ok (doc=$DOC_ID, $(( $(date +%s) - UP_START ))s)"
+      ok "upload accepted (doc=$DOC_ID, $(( $(date +%s) - UP_START ))s)"
+      say "2b. polling /api/v1/content/status/$DOC_ID until INDEXED/FAILED"
+      ST_OK=0; ST_FAIL=0; ST_ERR=""
+      for i in $(seq 1 120); do
+        ST=$(curl -s -w '\n%{http_code}' --max-time 30 "${AUTH[@]}" \
+             "$GATEWAY_URL/api/v1/content/status/$DOC_ID")
+        ST_CODE=$(echo "$ST" | tail -1); ST_BODY=$(echo "$ST" | sed '$d')
+        if [[ "$ST_CODE" == "200" ]]; then
+          STV=$(jget "$ST_BODY" status)
+          if [[ "$STV" == "INDEXED" ]]; then ST_OK=1; break; fi
+          if [[ "$STV" == "FAILED" ]]; then ST_FAIL=1; ST_ERR=$(jget "$ST_BODY" error); break; fi
+        fi
+        sleep 2
+      done
+      if [[ "$ST_OK" == "1" ]]; then
+        ok "analysis indexed (took $(( $(date +%s) - UP_START ))s total)"
+      elif [[ "$ST_FAIL" == "1" ]]; then
+        bad "analysis FAILED: $ST_ERR"
+      else
+        bad "analysis not finished within 240s (last status=$STV)"
+      fi
     else
-      bad "upload 200 but sessionId not 'upload:<docId>' (got '$UPLOAD_SESS')"
+      bad "upload 202 but no docId (got '$UPLOAD_SESS' / '$DOC_ID')"
     fi
   else
     bad "upload HTTP $UP_CODE: $UP_BODY"
