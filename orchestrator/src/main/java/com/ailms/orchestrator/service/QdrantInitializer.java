@@ -18,7 +18,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class QdrantInitializer {
 
   @Inject
-  @ConfigProperty(name = "quarkus.langchain4j.qdrant.host", defaultValue = "localhost")
+  @ConfigProperty(name = "qdrant.admin.host", defaultValue = "localhost")
   String host;
 
   @Inject
