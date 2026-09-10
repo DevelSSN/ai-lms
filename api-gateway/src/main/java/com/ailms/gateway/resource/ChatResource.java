@@ -6,7 +6,7 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.gateway.service.OrchestratorClient;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -29,7 +29,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 @Tag(name = "Chat", description = "Conversation endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
+@RolesAllowed({"STUDENT", "TEACHER", "ADMIN"})
 public class ChatResource {
 
   @Inject @RestClient OrchestratorClient orchestrator;

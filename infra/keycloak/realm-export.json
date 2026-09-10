@@ -27,23 +27,23 @@
   "roles": {
     "realm": [
       {
-        "name": "student",
+        "name": "STUDENT",
         "description": "Student role",
         "composite": false
       },
       {
-        "name": "teacher",
+        "name": "TEACHER",
         "description": "Teacher role",
         "composite": false
       },
       {
-        "name": "admin",
+        "name": "ADMIN",
         "description": "Administrator role",
         "composite": false
       }
     ]
   },
-  "defaultRoles": ["student"],
+  "defaultRoles": ["STUDENT"],
   "clients": [
     {
       "clientId": "ailms-frontend",
@@ -108,7 +108,7 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["student"]
+      "realmRoles": ["STUDENT"]
     },
     {
       "username": "teacher1",
@@ -124,7 +124,23 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["teacher"]
+      "realmRoles": ["TEACHER"]
+    },
+    {
+      "username": "admin1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin1@ailms.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN"]
     }
   ],
   "clientScopes": [

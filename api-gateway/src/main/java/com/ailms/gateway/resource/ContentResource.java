@@ -9,7 +9,7 @@ import com.ailms.common.enums.ContentStatus;
 import com.ailms.common.util.ContentTypeSupport;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -40,7 +40,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @Tag(name = "Content", description = "Content analysis and assessment endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
+@RolesAllowed({"STUDENT", "TEACHER", "ADMIN"})
 public class ContentResource {
 
   @Inject @RestClient OrchestratorClient orchestrator;
