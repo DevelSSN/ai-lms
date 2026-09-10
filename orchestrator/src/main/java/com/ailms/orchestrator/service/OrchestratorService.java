@@ -46,9 +46,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.context.ManagedExecutor;
 
 @Slf4j
 @ApplicationScoped
@@ -90,7 +91,7 @@ public class OrchestratorService {
 
   @Inject ResponseVerifierAgent responseVerifierAgent;
 
-  @Inject ManagedExecutor executor;
+  ExecutorService executor = Executors.newFixedThreadPool(2);
 
   @Inject RedisChatMemoryStore chatMemoryStore;
 

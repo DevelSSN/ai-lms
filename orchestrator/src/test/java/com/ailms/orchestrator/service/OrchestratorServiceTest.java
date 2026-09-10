@@ -26,8 +26,8 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Predicate;
-import org.eclipse.microprofile.context.ManagedExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +59,7 @@ class OrchestratorServiceTest {
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
-  @Mock ManagedExecutor executor;
+  @Mock ExecutorService executor;
   @Mock AsyncJobRunner asyncJobRunner;
 
   @BeforeEach
