@@ -8,12 +8,15 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
 import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Provider
 @Priority(1900)
 public class TokenFromQueryFilter implements ContainerRequestFilter {
+
+  private static final Pattern SAFE_TOKEN = Pattern.compile("^[A-Za-z0-9._\\-]+$");
 
   @Override
   public void filter(ContainerRequestContext ctx) {
@@ -23,6 +26,14 @@ public class TokenFromQueryFilter implements ContainerRequestFilter {
     MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
     String token = queryParams.getFirst("token");
     if (token != null && !token.isBlank()) {
+      if (!SAFE_TOKEN.matcher(token).matches()) {
+        log.warn("Rejecting SSE request with malformed token (path={})", uriInfo.getPath());
+        ctx.abortWith(
+            Response.status(Response.Status.UNAUTHORIZED)
+                .entity(Map.of("error", "Invalid token format"))
+                .build());
+        return;
+      }
       ctx.getHeaders().putSingle("Authorization", "Bearer " + token);
       log.debug("Extracted auth token from query string for SSE endpoint");
       return;

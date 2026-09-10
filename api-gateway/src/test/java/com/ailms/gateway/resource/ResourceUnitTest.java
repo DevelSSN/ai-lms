@@ -37,7 +37,7 @@ class ResourceUnitTest {
   @Test
   void chatResource_sendMessage_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Hello!", "sess-1", "CONVERSATION"));
 
     ChatResource resource = new ChatResource();
@@ -54,7 +54,7 @@ class ResourceUnitTest {
   @Test
   void chatResource_sendMessage_orchestratorDown() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenThrow(new RuntimeException("Connection refused"));
 
     ChatResource resource = new ChatResource();
@@ -67,10 +67,12 @@ class ResourceUnitTest {
 
   @Test
   void chatResource_getHistory_success() {
-    when(orchestrator.getHistory("sess-1"))
+    when(jwt.getSubject()).thenReturn("user-1");
+    when(orchestrator.getHistory("sess-1", "user-1"))
         .thenReturn(new com.ailms.common.dto.ChatHistory("sess-1", java.util.List.of()));
 
     ChatResource resource = new ChatResource();
+    resource.jwt = jwt;
     resource.orchestrator = orchestrator;
 
     Response resp = resource.getHistory("sess-1");
@@ -80,7 +82,7 @@ class ResourceUnitTest {
   @Test
   void profileResource_getProfile_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Profile data", "profile-user-1", "PROFILE"));
 
     ProfileResource resource = new ProfileResource();
@@ -96,7 +98,7 @@ class ResourceUnitTest {
   @Test
   void profileResource_updateProfile_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Updated", "profile-user-1", "PROFILE"));
 
     ProfileResource resource = new ProfileResource();
@@ -110,7 +112,7 @@ class ResourceUnitTest {
   @Test
   void interactResource_interact_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Response", "thread-1", "CONVERSATION"));
 
     InteractResource resource = new InteractResource();
@@ -126,7 +128,7 @@ class ResourceUnitTest {
   @Test
   void interactResource_orchestratorDown_returns502() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenThrow(new RuntimeException("Down"));
 
     InteractResource resource = new InteractResource();
@@ -151,7 +153,7 @@ class ResourceUnitTest {
   @Test
   void contentResource_insights_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Great progress", "insight-user-1", "INSIGHT"));
 
     ContentResource resource = new ContentResource();
@@ -167,7 +169,7 @@ class ResourceUnitTest {
   @Test
   void contentResource_assess_success() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Assessment ready", "assess-user-1", "ASSESSMENT"));
 
     ContentResource resource = new ContentResource();
@@ -184,13 +186,14 @@ class ResourceUnitTest {
                     r.message()
                         .equals(
                             "Generate assessment for content content-1 | questions=5 |"
-                                + " difficulty=medium")));
+                                + " difficulty=medium")),
+            anyString());
   }
 
   @Test
   void contentResource_assess_appliesDefaults() {
     when(jwt.getSubject()).thenReturn("user-1");
-    when(orchestrator.processMessage(any(ChatRequest.class)))
+    when(orchestrator.processMessage(any(ChatRequest.class), anyString()))
         .thenReturn(new ChatResponse("Assessment ready", "assess-user-1", "ASSESSMENT"));
 
     ContentResource resource = new ContentResource();
@@ -207,7 +210,8 @@ class ResourceUnitTest {
                     r.message()
                         .equals(
                             "Generate assessment for content content-1 | questions=5 |"
-                                + " difficulty=medium")));
+                                + " difficulty=medium")),
+            anyString());
   }
 
   @Test
@@ -279,7 +283,7 @@ class ResourceUnitTest {
 
     assertEquals(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode(), resp.getStatus());
     verify(s3, never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
-    verify(orchestrator, never()).processMessage(any());
+    verify(orchestrator, never()).processMessage(any(ChatRequest.class), anyString());
   }
 
   @Test

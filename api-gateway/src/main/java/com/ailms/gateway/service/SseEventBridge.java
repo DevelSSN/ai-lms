@@ -16,24 +16,40 @@ public class SseEventBridge {
 
   @Incoming("proactive-events")
   public void onProactiveEvent(ProactiveEvent event) {
+    if (event.userId() == null) {
+      log.warn("Skipping proactive event with null userId");
+      return;
+    }
     log.info("Relaying proactive follow-up to user={} type={}", event.userId(), event.eventType());
     sse.broadcast(event.userId(), event.context());
   }
 
   @Incoming("content-analysis-complete")
   public void onContentAnalysisComplete(AgentEvent event) {
+    if (event.userId() == null) {
+      log.warn("Skipping content-analysis event with null userId");
+      return;
+    }
     log.info("Relaying content analysis to user={}", event.userId());
     sse.broadcast(event.userId(), event.data());
   }
 
   @Incoming("profile-updated")
   public void onProfileUpdated(AgentEvent event) {
+    if (event.userId() == null) {
+      log.warn("Skipping profile-update event with null userId");
+      return;
+    }
     log.info("Relaying profile update to user={}", event.userId());
     sse.broadcast(event.userId(), event.data());
   }
 
   @Incoming("insight-generated")
   public void onInsightGenerated(AgentEvent event) {
+    if (event.userId() == null) {
+      log.warn("Skipping insight event with null userId");
+      return;
+    }
     log.info("Relaying insight to user={}", event.userId());
     sse.broadcast(event.userId(), event.data());
   }

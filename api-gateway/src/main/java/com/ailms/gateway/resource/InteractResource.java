@@ -6,6 +6,8 @@ import com.ailms.gateway.service.OrchestratorClient;
 import com.ailms.gateway.service.SseBroadcastService;
 import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -29,6 +31,7 @@ public class InteractResource {
   @POST
   @Path("/interact")
   @Authenticated
+  @Blocking
   @jakarta.ws.rs.Consumes(MediaType.APPLICATION_JSON)
   @jakarta.ws.rs.Produces(MediaType.APPLICATION_JSON)
   public Response interact(Map<String, String> body) {

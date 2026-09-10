@@ -8,7 +8,6 @@ import com.ailms.orchestrator.repository.UserProfileRepository;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -38,22 +37,25 @@ public class ProactiveAgent {
   Duration inactivityCutoff;
 
   @Scheduled(every = "5m")
-  @Transactional
   void checkFollowUps() {
     log.info("Running scheduled follow-up check");
     Instant cutoff = Instant.now().minus(inactivityCutoff);
+    Instant now = Instant.now();
 
     List<String> inactiveUsers = conversationRepository.findInactiveUsersSince(cutoff);
 
     for (String userId : inactiveUsers) {
       try {
-        if (!userProfileRepository.markProactiveSentIfNotRecent(
-            userId, Instant.now(), Instant.now().minus(inactivityCutoff))) {
+        if (!userProfileRepository.markProactiveSentIfNotRecent(userId, now, cutoff)) {
           continue;
         }
         String followUpMessage = generateFollowUp(userId);
         ProactiveEvent event = new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
-        eventEmitter.send(event);
+        eventEmitter.send(event).whenComplete((result, error) -> {
+          if (error != null) {
+            log.error("Kafka send failed for user={}: {}", userId, error.getMessage());
+          }
+        });
         log.info("Sent follow-up event for user={}", userId);
       } catch (Exception e) {
         log.error("Failed to generate follow-up for user={}: {}", userId, e.getMessage());

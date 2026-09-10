@@ -33,16 +33,17 @@ public class SseBroadcastService {
     if (userId == null || userId.isBlank()) {
       return Multi.createFrom().failure(new IllegalArgumentException("userId must not be blank"));
     }
+    if (userEmitters.size() >= MAX_USERS) {
+      log.warn("Rejecting SSE subscription for user={} — registry full", userId);
+      return Multi.createFrom().failure(new IllegalStateException("SSE registry is full"));
+    }
     CopyOnWriteArrayList<MultiEmitter<? super String>> list =
         userEmitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
     if (list.size() >= MAX_EMITTERS_PER_USER) {
       log.warn("Rejecting SSE subscription for user={} — connection limit reached", userId);
+      userEmitters.remove(userId, list);
       return Multi.createFrom()
           .failure(new IllegalStateException("Too many active SSE connections"));
-    }
-    if (userEmitters.size() > MAX_USERS) {
-      log.warn("Rejecting SSE subscription for user={} — registry full", userId);
-      return Multi.createFrom().failure(new IllegalStateException("SSE registry is full"));
     }
     log.info("New SSE subscriber for user={} (user connections: {})", userId, list.size() + 1);
     return Multi.createFrom()
@@ -94,7 +95,7 @@ public class SseBroadcastService {
     String payload = toPayload(userId, message);
     for (MultiEmitter<? super String> emitter : list) {
       try {
-        if (emitter.isCancelled() || emitter.requested() <= 0) {
+        if (emitter.isCancelled()) {
           list.remove(emitter);
           continue;
         }

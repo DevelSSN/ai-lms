@@ -188,13 +188,15 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(
-            "SELECT DISTINCT userId FROM ConversationLog GROUP BY userId HAVING MAX(timestamp) <"
-                + " :since")
+            "SELECT DISTINCT userId FROM ConversationLog WHERE deleted = FALSE GROUP BY userId"
+                + " HAVING MAX(timestamp) < :since")
         .setParameter("since", since)
         .getResultList();
   }
 
   public List<ConversationLog> findRecentByUserId(String userId, int limit) {
-    return find("userId = ?1 ORDER BY timestamp DESC", userId).page(0, limit).list();
+    return find("userId = ?1 AND deleted = FALSE ORDER BY timestamp DESC", userId)
+        .page(0, limit)
+        .list();
   }
 }
