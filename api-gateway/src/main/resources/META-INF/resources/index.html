@@ -22,6 +22,10 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button id="analytics-btn" class="analytics-btn" title="Analytics Dashboard" hidden>
+                    <span class="analytics-icon">📊</span>
+                    <span class="analytics-label">Analytics</span>
+                </button>
                 <button id="theme-toggle" title="Toggle Theme">
                     <span class="sun-icon">☀️</span>
                     <span class="moon-icon">🌙</span>
@@ -59,6 +63,31 @@
             <ul id="thread-list" class="thread-list"></ul>
         </aside>
 
+        <section id="analytics-panel" class="analytics-panel" hidden>
+            <div class="analytics-header">
+                <h2>Class Analytics</h2>
+                <button id="analytics-close" class="analytics-close" title="Close">&times;</button>
+            </div>
+            <div class="analytics-summary" id="analytics-summary"></div>
+            <div class="analytics-charts">
+                <div class="chart-box">
+                    <h3>Topic coverage</h3>
+                    <canvas id="topic-chart" height="220"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Recent activity</h3>
+                    <div id="activity-feed" class="activity-feed"></div>
+                </div>
+            </div>
+            <div class="analytics-student">
+                <label for="analytics-student-select">Student</label>
+                <select id="analytics-student-select">
+                    <option value="">Select a student…</option>
+                </select>
+            </div>
+            <div id="analytics-student-detail" class="analytics-student-detail"></div>
+        </section>
+
         <main id="chat-container">
             <div class="welcome-screen">
                 <h2 id="welcome-name">Hello.</h2>
@@ -91,6 +120,7 @@
     </div>
     <script src="vendor/marked.umd.js"></script>
     <script src="vendor/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="keycloak.js"></script>
     <script src="app.js"></script>
     <!-- Vendored from npm (exact version, integrity-verified): marked@18.0.7 lib/marked.umd.js (sha256 7a1f8c5e...), dompurify@3.4.12 dist/purify.min.js (sha256 c45ba939...). Licenses: vendor/LICENSE.marked (MIT), vendor/LICENSE.dompurify (Apache-2.0), vendor/LICENSE-MPL (MPL-2.0). -->

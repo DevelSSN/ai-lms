@@ -121,7 +121,7 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 - [x] H3. Teacher-student association — new entity `TeacherStudent` (teacherId, studentId) or use Keycloak group membership. Add repository + resource for managing associations.
 - [x] H4. Student analytics endpoint — `GET /api/v1/analytics/student/{studentId}`: topics studied (from profile), conversation count, documents analyzed, quiz scores, last active. SQL queries on existing tables.
 - [x] H5. Class analytics endpoint — `GET /api/v1/analytics/class`: aggregated stats (avg score, topic coverage heatmap, active student count). Teacher role required.
-- [ ] H6. Analytics dashboard frontend — `app.js` + `style.css`: teacher view with student selector, knowledge coverage bar chart, activity timeline, quiz score history. Vanilla JS + Chart.js (CDN, no build step).
+- [x] H6. Analytics dashboard frontend — `app.js` + `style.css`: teacher view with student selector, knowledge coverage bar chart, activity timeline, quiz score history. Vanilla JS + Chart.js (CDN, no build step).
 
 ## Deferred (by decision)
 

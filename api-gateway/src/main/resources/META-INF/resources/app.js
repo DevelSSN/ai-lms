@@ -100,6 +100,181 @@ function setupUI() {
   document.getElementById("logout-btn").addEventListener("click", () => {
     keycloak.logout({ redirectUri: window.location.origin });
   });
+
+  if (isTeacherOrAdmin()) {
+    const analyticsBtn = document.getElementById("analytics-btn");
+    analyticsBtn.hidden = false;
+    analyticsBtn.addEventListener("click", toggleAnalyticsPanel);
+    document.getElementById("analytics-close").addEventListener("click", toggleAnalyticsPanel);
+  }
+}
+
+function isTeacherOrAdmin() {
+  const roles = keycloak.tokenParsed?.realm_access?.roles || [];
+  return roles.includes("TEACHER") || roles.includes("ADMIN");
+}
+
+async function apiGet(path) {
+  await keycloak.updateToken(5);
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Authorization: `Bearer ${keycloak.token}` },
+  });
+  if (!response.ok) throw new Error(`GET ${path} failed: ${response.status}`);
+  return response.json();
+}
+
+let topicChart = null;
+
+async function toggleAnalyticsPanel() {
+  const panel = document.getElementById("analytics-panel");
+  const chat = document.getElementById("chat-container");
+  const wasHidden = panel.hidden;
+  panel.hidden = !wasHidden;
+  document
+    .querySelector(".footer-note")
+    .scrollIntoView({ behavior: "smooth", block: "end" });
+  if (wasHidden) {
+    document.getElementById("chat-container").style.display = "none";
+    await loadClassAnalytics();
+  } else {
+    document.getElementById("chat-container").style.display = "";
+    document.getElementById("analytics-empty")?.remove();
+  }
+}
+
+async function loadClassAnalytics() {
+  const summary = document.getElementById("analytics-summary");
+  const select = document.getElementById("analytics-student-select");
+  summary.innerHTML = '<div class="analytics-loading">Loading class analytics…</div>';
+  try {
+    const cls = await apiGet("/api/v1/analytics/class");
+    renderClassSummary(summary, cls);
+    renderTopicChart(cls.topics || []);
+    const students = await apiGet("/api/v1/teacher/students");
+    populateStudentSelect(select, students);
+  } catch (e) {
+    console.error("Analytics load failed:", e);
+    summary.innerHTML =
+      '<div class="analytics-loading analytics-error">Could not load analytics. Try again later.</div>';
+  }
+}
+
+function renderClassSummary(summary, cls) {
+  const cards = [
+    ["Students", cls.totalStudents ?? 0],
+    ["Active (30d)", cls.activeStudentsLast30Days ?? 0],
+    ["Conversations", cls.totalConversations ?? 0],
+    ["Avg score", `${Math.round((cls.averageScore ?? 0) * 10) / 10}%`],
+    ["Quiz attempts", cls.totalQuizAttempts ?? 0],
+  ];
+  summary.innerHTML = "";
+  cards.forEach(([label, value]) => {
+    const card = document.createElement("div");
+    card.classList.add("stat-card");
+    const v = document.createElement("div");
+    v.classList.add("stat-value");
+    v.textContent = value;
+    const l = document.createElement("div");
+    l.classList.add("stat-label");
+    l.textContent = label;
+    card.appendChild(v);
+    card.appendChild(l);
+    summary.appendChild(card);
+  });
+}
+
+function renderTopicChart(topics) {
+  const canvas = document.getElementById("topic-chart");
+  const labels = topics.map((t) => t.topic);
+  const values = topics.map((t) => t.studentCount);
+  if (!labels.length) {
+    const box = canvas.parentElement;
+    const empty = document.createElement("div");
+    empty.id = "analytics-empty";
+    empty.className = "analytics-loading";
+    empty.textContent = "No topic data yet.";
+    box.appendChild(empty);
+    return;
+  }
+  if (typeof Chart === "undefined") {
+    canvas.parentElement.appendChild(note("Chart library unavailable"));
+    return;
+  }
+  if (topicChart) topicChart.destroy();
+  topicChart = new Chart(canvas.getContext("2d"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Students",
+          data: values,
+          backgroundColor: "rgba(59, 130, 246, 0.6)",
+          borderColor: "#3b82f6",
+          borderWidth: 1,
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+      },
+    },
+  });
+}
+
+function note(text) {
+  const el = document.createElement("div");
+  el.className = "analytics-loading";
+  el.textContent = text;
+  return el;
+}
+
+function populateStudentSelect(select, students) {
+  select.innerHTML = '<option value="">Select a student…</option>';
+  (students || []).forEach((s) => {
+    const opt = document.createElement("option");
+    opt.value = s.studentId;
+    opt.textContent = s.studentId;
+    select.appendChild(opt);
+  });
+  select.addEventListener("change", () => loadStudentAnalytics(select.value));
+}
+
+async function loadStudentAnalytics(studentId) {
+  const detail = document.getElementById("analytics-student-detail");
+  if (!studentId) {
+    detail.innerHTML = "";
+    return;
+  }
+  detail.innerHTML = '<div class="analytics-loading">Loading student analytics…</div>';
+  try {
+    const a = await apiGet(`/api/v1/analytics/student/${encodeURIComponent(studentId)}`);
+    renderStudentDetail(detail, a);
+  } catch (e) {
+    console.error("Student analytics failed:", e);
+    detail.innerHTML = '<div class="analytics-loading analytics-error">Could not load student data.</div>';
+  }
+}
+
+function renderStudentDetail(detail, a) {
+  const topics = (a.topics || []).length
+    ? a.topics.map((t) => `<span class="topic-chip">${escapeHtml(t)}</span>`).join("")
+    : "<em>No topics recorded yet.</em>";
+  const lastActive = a.lastActive ? new Date(a.lastActive).toLocaleString() : "—";
+  detail.innerHTML = `
+    <div class="student-grid">
+      <div class="student-attr"><span>Conversations</span><b>${a.conversationCount ?? 0}</b></div>
+      <div class="student-attr"><span>Messages</span><b>${a.messageCount ?? 0}</b></div>
+      <div class="student-attr"><span>Documents analyzed</span><b>${a.documentsAnalyzed ?? 0}</b></div>
+      <div class="student-attr"><span>Quiz attempts</span><b>${a.quizAttempts ?? 0}</b></div>
+      <div class="student-attr"><span>Average score</span><b>${Math.round((a.averageScore ?? 0) * 10) / 10}%</b></div>
+      <div class="student-attr"><span>Last active</span><b>${lastActive}</b></div>
+    </div>
+    <div class="student-topics"><strong>Topics</strong><div class="topic-chips">${topics}</div></div>`;
 }
 
 function setupTokenRefresh() {
