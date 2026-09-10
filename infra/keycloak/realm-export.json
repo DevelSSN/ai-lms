@@ -68,11 +68,14 @@
         "https://washing-collecting-engineering-unified.trycloudflare.com/*"
       ],
       "webOrigins": [
+        "*",
         "http://localhost:3000",
         "http://localhost:5173",
         "https://*.trycloudflare.com",
         "https://*.localhost.run",
-        "https://*.ngrok-free.app"
+        "https://*.ngrok-free.app",
+        "https://hit-request-mouse-chip.trycloudflare.com",
+        "https://washing-collecting-engineering-unified.trycloudflare.com"
       ],
       "defaultClientScopes": [
         "openid",
