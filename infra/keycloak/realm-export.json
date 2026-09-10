@@ -43,7 +43,9 @@
       }
     ]
   },
-  "defaultRoles": ["STUDENT"],
+  "defaultRoles": [
+    "STUDENT"
+  ],
   "clients": [
     {
       "clientId": "ailms-frontend",
@@ -58,11 +60,17 @@
       "serviceAccountsEnabled": false,
       "redirectUris": [
         "http://localhost:3000/*",
-        "http://localhost:5173/*"
+        "http://localhost:5173/*",
+        "https://*.trycloudflare.com/*",
+        "https://*.localhost.run/*",
+        "https://*.ngrok-free.app/*"
       ],
       "webOrigins": [
         "http://localhost:3000",
-        "http://localhost:5173"
+        "http://localhost:5173",
+        "https://*.trycloudflare.com",
+        "https://*.localhost.run",
+        "https://*.ngrok-free.app"
       ],
       "defaultClientScopes": [
         "openid",
@@ -108,7 +116,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["STUDENT"]
+      "realmRoles": [
+        "STUDENT"
+      ]
     },
     {
       "username": "teacher1",
@@ -124,7 +134,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["TEACHER"]
+      "realmRoles": [
+        "TEACHER"
+      ]
     },
     {
       "username": "admin1",
@@ -140,7 +152,9 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["ADMIN"]
+      "realmRoles": [
+        "ADMIN"
+      ]
     }
   ],
   "clientScopes": [
