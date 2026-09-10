@@ -100,6 +100,9 @@ public class OrchestratorService {
   private static final String INTENT_ASSESSMENT = IntentType.ASSESSMENT.name();
   private static final String INTENT_INSIGHT = IntentType.INSIGHT.name();
 
+  private static final String VERIFIER_FALLBACK =
+      "I'm sorry, I couldn't generate a good answer. Could you rephrase?";
+
   private static final String UPLOAD_PREFIX = PromptPrefixes.UPLOAD_ANALYSIS;
 
   private static final String ASSESS_PREFIX = "Generate assessment for content ";
@@ -193,9 +196,11 @@ public class OrchestratorService {
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
       agentResponse = TextUtils.stripThinking(agentResponse);
 
-      agentResponse =
-          verifyAndRetry(
-              intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
+      if (greetingResponse == null) {
+        agentResponse =
+            verifyAndRetry(
+                intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
+      }
 
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
@@ -204,7 +209,7 @@ public class OrchestratorService {
       if (greetingResponse == null) {
         try {
           String profileUpdate =
-              profilingAgent.process(ChatMemoryKeys.profiling(sessionId), enrichedMessage);
+              profilingAgent.process(ChatMemoryKeys.profiling(sessionId), message);
           if (profileUpdate != null && !profileUpdate.isBlank()) {
             profilingService.applyProfileUpdate(userId, profileUpdate);
             kafkaEventPublisher.publishProfileUpdated(userId, sessionId, profileUpdate);
@@ -505,15 +510,16 @@ public class OrchestratorService {
     log.info("Response rejected by verifier for intent={}, regenerating once", intent);
     String retried = regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId);
     if (retried == null || retried.isBlank()) {
-      log.warn("Retry returned blank response for intent={}, keeping original", intent);
-      return agentResponse;
+      log.warn("Retry returned blank response for intent={}, returning fallback", intent);
+      return VERIFIER_FALLBACK;
     }
     retried = youTubeLinkValidator.sanitize(retried);
     retried = TextUtils.stripThinking(retried);
     if (verifyResponse(message, context, retried)) return retried;
 
-    log.warn("Regenerated response also rejected by verifier for intent={}, keeping it", intent);
-    return retried;
+    log.warn(
+        "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
+    return VERIFIER_FALLBACK;
   }
 
   private String regenerate(

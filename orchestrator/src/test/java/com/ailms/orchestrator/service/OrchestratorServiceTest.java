@@ -117,6 +117,7 @@ class OrchestratorServiceTest {
     verify(intentClassifier, never()).classify(anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
     verify(profilingAgent, never()).process(anyString(), anyString());
+    verify(responseVerifierAgent, never()).verify(anyString(), anyString(), anyString());
     verify(conversationRepository).logMessage(anyString(), anyString(), eq("user"), anyString());
   }
 
@@ -656,7 +657,7 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_verifier_nullVerdict_failsClosedAndRegenerates() {
+  void route_verifier_nullVerdict_failsClosedReturnsFallback() {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
     when(responseVerifierAgent.verify(eq("what is a neural network"), anyString(), anyString()))
         .thenReturn(null);
@@ -674,14 +675,15 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
 
-    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
     verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
     verify(responseVerifierAgent, times(2))
         .verify(eq("what is a neural network"), anyString(), anyString());
   }
 
   @Test
-  void route_verifier_malformedJson_failsClosedAndRegenerates() {
+  void route_verifier_malformedJson_failsClosedReturnsFallback() {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Some answer.")
@@ -699,12 +701,13 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
 
-    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
     verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
   }
 
   @Test
-  void route_verifier_throws_failsClosedAndRegenerates() {
+  void route_verifier_throws_failsClosedReturnsFallback() {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Some answer.")
@@ -722,7 +725,8 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
 
-    assertTrue(resp.message().contains("A neural network is a function approximator."));
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
     verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
   }
 
@@ -873,6 +877,80 @@ class OrchestratorServiceTest {
         OrchestratorService.assessmentTargetId(
             "Generate assessment for content  doc-1  | questions=10| difficulty=hard "));
     assertEquals("", OrchestratorService.assessmentTargetId("Generate assessment for content "));
+  }
+
+  @Test
+  void route_verifier_doubleRejection_returnsFallback() {
+    when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Bad answer first.")
+        .thenReturn("Bad answer second.");
+    when(responseVerifierAgent.verify(
+            eq("what is a neural network"), anyString(), eq("Bad answer first.")))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"off-topic\"}");
+    when(responseVerifierAgent.verify(
+            eq("what is a neural network"), anyString(), eq("Bad answer second.")))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"still bad\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
+
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
+    verify(responseVerifierAgent, times(2))
+        .verify(eq("what is a neural network"), anyString(), anyString());
+  }
+
+  @Test
+  void route_verifier_retryBlank_returnsFallback() {
+    when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Rejected answer.")
+        .thenReturn("");
+    when(responseVerifierAgent.verify(
+            eq("what is a neural network"), anyString(), eq("Rejected answer.")))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"bad\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("what is a neural network", "sess-1"), "user-1");
+
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), anyString());
+  }
+
+  @Test
+  void route_profilingAgent_receivesRawMessage_notEnriched() {
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("some context from vector db"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString()))
+        .thenReturn("Assessment result");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    verify(profilingAgent)
+        .process(eq(ChatMemoryKeys.profiling("sess-1")), eq("quiz me"));
   }
 
   private OrchestratorService buildService() {
