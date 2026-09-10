@@ -95,13 +95,13 @@ The proactive follow-up pipeline works end-to-end under ideal conditions but is 
 
 Upload a textbook chapter → get a personalized, grounded quiz. Depends on Phase E.
 
-- [ ] F1. Wire CAA analysis into QGA context — after E4, verify that "Generate quiz about this document" produces questions grounded in the CAA's topic/concept extraction, not just raw chunks.
-- [ ] F2. Add difficulty parameter to QGA — `QuestionGenerationAgent.java` prompt: add `{{difficulty}}` template variable (easy/medium/hard). `OrchestratorService`: parse difficulty from user message or default to medium. (Supersedes C3 dead fields.)
-- [ ] F3. Add question count parameter to QGA — allow "Generate 10 questions" or "Generate 3 questions". Parse from user message, default to 5. (Supersedes C3 dead fields.)
-- [ ] F4. Add `AssessmentItem.explanation` and `sessionId` fields — complete the QGA output schema so quiz answers include explanations and can be tracked per session. (Supersedes C3.)
-- [ ] F5. Frontend "Generate Quiz" quick action — `app.js`: after file upload + CAA analysis is displayed, show a "Generate Quiz" button that sends "Generate 5 quiz questions about this document".
-- [ ] F6. Quiz display UI — `app.js` + `style.css`: numbered questions with radio-button options, click to reveal answer + explanation, score tracking (correct/total). Lightweight, no framework.
-- [ ] F7. Quiz result persistence — new entity `QuizResult` (userId, sessionId, docId, questions, answers, score, timestamp). Store in PostgreSQL. Feed results back into ProfilingAgent for weak-area tracking.
+- [x] F1. Wire CAA analysis into QGA context — after E4, verify that "Generate quiz about this document" produces questions grounded in the CAA's topic/concept extraction, not just raw chunks.
+- [x] F2. Add difficulty parameter to QGA — `QuestionGenerationAgent.java` prompt: add `{{difficulty}}` template variable (easy/medium/hard). `OrchestratorService`: parse difficulty from user message or default to medium. (Supersedes C3 dead fields.)
+- [x] F3. Add question count parameter to QGA — allow "Generate 10 questions" or "Generate 3 questions". Parse from user message, default to 5. (Supersedes C3 dead fields.)
+- [x] F4. Add `AssessmentItem.explanation` and `sessionId` fields — complete the QGA output schema so quiz answers include explanations and can be tracked per session. (Supersedes C3.)
+- [x] F5. Frontend "Generate Quiz" quick action — `app.js`: after file upload + CAA analysis is displayed, show a "Generate Quiz" button that sends "Generate 5 quiz questions about this document".
+- [x] F6. Quiz display UI — `app.js` + `style.css`: numbered questions with radio-button options, click to reveal answer + explanation, score tracking (correct/total). Lightweight, no framework.
+- [x] F7. Quiz result persistence — new entity `QuizResult` (userId, sessionId, docId, questions, answers, score, timestamp). Store in PostgreSQL. Feed results back into ProfilingAgent for weak-area tracking.
 
 ## Phase G — Verifiable Sources & Citations
 

@@ -202,7 +202,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("context from qdrant"));
     when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("context from qdrant")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("context from qdrant"), eq("medium"), eq(5)))
         .thenReturn("Assessment result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));
@@ -221,7 +221,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome content"));
     when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome content")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome content"), eq("medium"), eq(5)))
         .thenReturn("Rome assessment");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome assessment", "sess-1", "ASSESSMENT"));
@@ -232,7 +232,7 @@ class OrchestratorServiceTest {
     assertEquals("Rome assessment", resp.message());
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
     verify(questionGenerationAgent)
-        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
   @Test
@@ -247,7 +247,9 @@ class OrchestratorServiceTest {
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
-            contains("Topics: Photosynthesis")))
+            contains("Topics: Photosynthesis"),
+            eq("medium"),
+            eq(5)))
         .thenReturn("Assessment from analysis");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment from analysis", "sess-1", "ASSESSMENT"));
@@ -260,7 +262,187 @@ class OrchestratorServiceTest {
         .process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
-            contains("Topics: Photosynthesis"));
+            contains("Topics: Photosynthesis"),
+            eq("medium"),
+            eq(5));
+  }
+
+  @Test
+  void route_assessment_parsesDifficultyAndCountFromFreeText() {
+    String msg = "Generate 10 hard questions about the document";
+    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("context from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("hard"),
+            eq(10)))
+        .thenReturn("Hard quiz");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Hard quiz", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    verify(questionGenerationAgent)
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("hard"), eq(10));
+  }
+
+  @Test
+  void route_assessment_defaultsDifficultyAndCount() {
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("context from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("medium"),
+            eq(5)))
+        .thenReturn("Default quiz");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Default quiz", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    verify(questionGenerationAgent)
+        .process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("medium"),
+            eq(5));
+  }
+
+  @Test
+  void route_assessment_parsesStructuredParamSuffix() {
+    String msg = "Generate assessment for content doc-9 | questions=3 | difficulty=easy";
+    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("rome content"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("easy"),
+            eq(3)))
+        .thenReturn("Easy quiz");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Easy quiz", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    verify(questionGenerationAgent)
+        .process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("easy"),
+            eq(3));
+  }
+
+  @Test
+  void route_assessment_fallsBackToCAAFromUploadSession() {
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("sess-1")))
+        .thenReturn(java.util.List.of());
+    ChatMessage uploadCaa = AiMessage.from("Analysis from upload session");
+    when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("upload:doc-9")))
+        .thenReturn(java.util.List.of(uploadCaa));
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("chunk from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            contains("Analysis from upload session"),
+            eq("medium"),
+            eq(5)))
+        .thenReturn("Grounded quiz");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Grounded quiz", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    verify(questionGenerationAgent)
+        .process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            contains("Analysis from upload session"),
+            eq("medium"),
+            eq(5));
+  }
+
+  @Test
+  void route_assessment_parsesStructuredJsonOutputIntoMetadata() {
+    String json =
+        "[{\"question\":\"What is 2+2?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"3\",\"4\",\"5\"],\"answer\":\"4\","
+            + "\"explanation\":\"Basic addition\"}]";
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("context from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("medium"),
+            eq(5)))
+        .thenReturn(json);
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              com.ailms.common.dto.QuizMetadata meta =
+                  scope.readState("quizMetadata", null);
+              return new ChatResponse("Assessment result", "sess-1", "ASSESSMENT", meta);
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertInstanceOf(com.ailms.common.dto.QuizMetadata.class, resp.metadata());
+    var meta = (com.ailms.common.dto.QuizMetadata) resp.metadata();
+    assertEquals(1, meta.items().size());
+    assertEquals("What is 2+2?", meta.items().get(0).question());
+    assertEquals("4", meta.items().get(0).answer());
+    assertEquals(5, meta.questionCount());
+    assertEquals("medium", meta.difficulty());
+  }
+
+  @Test
+  void route_assessment_unparseableOutput_hasNoMetadata() {
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("context from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("medium"),
+            eq(5)))
+        .thenReturn("1. What is X?\n   Answer: Y");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              Object meta = scope.readState("quizMetadata", null);
+              return new ChatResponse("Assessment result", "sess-1", "ASSESSMENT", meta);
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertNull(resp.metadata());
   }
 
   @Test
@@ -805,7 +987,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
     when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context"), eq("medium"), eq(5)))
         .thenReturn("Rome questions");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
@@ -818,7 +1000,7 @@ class OrchestratorServiceTest {
     verify(intentClassifier).classify(msg);
     verify(conversationAgent, never()).process(anyString(), anyString());
     verify(questionGenerationAgent)
-        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
   @Test
@@ -831,7 +1013,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("rome context"));
     when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context")))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context"), eq("medium"), eq(5)))
         .thenReturn("Rome questions");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
@@ -842,7 +1024,7 @@ class OrchestratorServiceTest {
     assertEquals("ASSESSMENT", resp.agentType());
     verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
     verify(questionGenerationAgent)
-        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
   @Test
@@ -891,7 +1073,7 @@ class OrchestratorServiceTest {
     assertEquals("CONVERSATION", resp.agentType());
     verify(intentClassifier).classify(msg);
     verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
-    verify(questionGenerationAgent, never()).process(anyString(), anyString(), anyString());
+    verify(questionGenerationAgent, never()).process(anyString(), anyString(), anyString(), anyString(), anyInt());
   }
 
   @Test
@@ -907,6 +1089,30 @@ class OrchestratorServiceTest {
         OrchestratorService.assessmentTargetId(
             "Generate assessment for content  doc-1  | questions=10| difficulty=hard "));
     assertEquals("", OrchestratorService.assessmentTargetId("Generate assessment for content "));
+  }
+
+  @Test
+  void parseDifficulty_handlesWordAndParamForms() {
+    assertEquals("hard", OrchestratorService.parseDifficulty("give me hard questions"));
+    assertEquals("easy", OrchestratorService.parseDifficulty("easy quiz please"));
+    assertEquals(
+        "easy",
+        OrchestratorService.parseDifficulty(
+            "Generate assessment for content doc-1 | questions=5 | difficulty=easy"));
+    assertEquals("medium", OrchestratorService.parseDifficulty("quiz me"));
+    assertEquals("medium", OrchestratorService.parseDifficulty(null));
+  }
+
+  @Test
+  void parseQuestionCount_handlesWordAndParamForms() {
+    assertEquals(10, OrchestratorService.parseQuestionCount("Generate 10 questions"));
+    assertEquals(3, OrchestratorService.parseQuestionCount("ask me 3 hard questions"));
+    assertEquals(
+        8, OrchestratorService.parseQuestionCount("Generate assessment for content doc-1 | questions=8"));
+    assertEquals(5, OrchestratorService.parseQuestionCount("quiz me"));
+    assertEquals(5, OrchestratorService.parseQuestionCount(null));
+    assertEquals(50, OrchestratorService.parseQuestionCount("200 questions"));
+    assertEquals(1, OrchestratorService.parseQuestionCount("0 questions"));
   }
 
   @Test
@@ -971,7 +1177,7 @@ class OrchestratorServiceTest {
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(java.util.List.of("some context from vector db"));
     when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString()))
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
         .thenReturn("Assessment result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Assessment result", "sess-1", "ASSESSMENT"));

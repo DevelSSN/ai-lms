@@ -11,8 +11,9 @@ public class ResponseComposer {
   public ChatResponse compose(AgenticScope agenticScope, String sessionId) {
     String intent = agenticScope.readState("intent", IntentType.CONVERSATION.name());
     String response = extractResponse(agenticScope, intent);
+    Object metadata = agenticScope.readState("quizMetadata", null);
 
-    return new ChatResponse(response, sessionId, intent);
+    return new ChatResponse(response, sessionId, intent, metadata);
   }
 
   private String extractResponse(AgenticScope agenticScope, String intent) {

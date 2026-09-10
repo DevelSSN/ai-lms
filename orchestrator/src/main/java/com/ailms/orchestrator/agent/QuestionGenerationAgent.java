@@ -26,16 +26,25 @@ public interface QuestionGenerationAgent {
       - If the "Content" block is empty or contains no material, reply exactly:
         "No content provided to generate questions from."
 
+      Generate EXACTLY {{questionCount}} questions (default 5 if unspecified).
+      Tailor the cognitive level to the requested difficulty:
+      - easy: recall and recognition; straightforward options
+      - medium: comprehension and basic application
+      - hard: application, analysis, and synthesis; multiple plausible distractors
+
       Cover varying levels: recall, comprehension, application, and analysis where possible.
       Include multiple choice, true/false, and short answer when appropriate.
 
-      OUTPUT FORMAT (one block per question):
-      - type: multiple_choice | true_false | short_answer
-      - question: <the question text>
-      - options: <list of choices, only for multiple_choice; may include distractors>
-      - answer: <correct answer>
-      - explanation: <brief explanation grounded in the content>
-      Present them as a numbered list. Always provide the correct answer and a brief explanation.
+      OUTPUT FORMAT:
+      Reply with a single JSON array of exactly {{questionCount}} objects. No extra text, no
+      markdown fences. The JSON object schema per question is:
+      {
+        "question": "<the question text>",
+        "type": "multiple_choice | true_false | short_answer",
+        "options": ["<option A>", "<option B>", "<option C>"],  // only for multiple_choice, omit otherwise
+        "answer": "<correct answer>",
+        "explanation": "<brief explanation grounded in the content>"
+      }
       """)
   @Agent(
       name = "QuestionGenerationAgent",
@@ -43,8 +52,12 @@ public interface QuestionGenerationAgent {
       outputKey = "assessment")
   @UserMessage(
       """
-      Generate assessment questions based on the content below.
-      Use the analysis context if provided to focus on key topics.
+      Generate {{questionCount}} assessment questions at {{difficulty}} difficulty
+      based on the content below. Use the analysis context if provided to focus on
+      key topics. Respond with ONLY the JSON array described in the system prompt.
+
+      Difficulty: {{difficulty}}
+      Question count: {{questionCount}}
 
       Analysis context:
       {{analysisContext}}
@@ -55,7 +68,9 @@ public interface QuestionGenerationAgent {
   String process(
       @MemoryId String sessionId,
       @V("message") String message,
-      @V("analysisContext") String analysisContext);
+      @V("analysisContext") String analysisContext,
+      @V("difficulty") String difficulty,
+      @V("questionCount") int questionCount);
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {

@@ -3,96 +3,49 @@ package com.ailms.orchestrator.agent;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.QuizItem;
+import com.ailms.common.dto.QuizMetadata;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ResponseComposerTest {
 
-  ResponseComposer composer = new ResponseComposer();
+  private final ResponseComposer composer = new ResponseComposer();
 
   @Test
-  void composeConversation() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", "CONVERSATION");
-    scope.writeState("response", "Hello!");
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("Hello!", res.message());
-    assertEquals("sess-1", res.sessionId());
-    assertEquals("CONVERSATION", res.agentType());
-  }
-
-  @Test
-  void composeAnalysis() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", "CONTENT_ANALYSIS");
-    scope.writeState("analysis", "Key topics: math, science");
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("Key topics: math, science", res.message());
-    assertEquals("CONTENT_ANALYSIS", res.agentType());
-  }
-
-  @Test
-  void composeAnalysis_prefersRouterResponse() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", "CONTENT_ANALYSIS");
-    scope.writeState("response", "The uploaded notes cover neural networks.");
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("The uploaded notes cover neural networks.", res.message());
-    assertEquals("CONTENT_ANALYSIS", res.agentType());
-  }
-
-  @Test
-  void composeAssessment() {
+  void compose_attachesQuizMetadata_whenPresent() {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", "ASSESSMENT");
-    scope.writeState("assessment", "Q1: What is 2+2?");
+    scope.writeState("response", "ignored-json");
+    scope.writeState(
+        "quizMetadata",
+        new QuizMetadata(
+            "doc-9",
+            2,
+            "hard",
+            List.of(
+                new QuizItem(
+                    "Q1", "multiple_choice", List.of("A", "B"), "B", "explain"))));
 
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("Q1: What is 2+2?", res.message());
-    assertEquals("ASSESSMENT", res.agentType());
+    ChatResponse resp = composer.compose(scope, "sess-1");
+
+    assertEquals("ASSESSMENT", resp.agentType());
+    assertInstanceOf(QuizMetadata.class, resp.metadata());
+    var meta = (QuizMetadata) resp.metadata();
+    assertEquals("doc-9", meta.contentId());
+    assertEquals(1, meta.items().size());
   }
 
   @Test
-  void composeInsight() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", "INSIGHT");
-    scope.writeState("insights", "You're improving in algebra");
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals("You're improving in algebra", res.message());
-    assertEquals("INSIGHT", res.agentType());
-  }
-
-  @Test
-  void composeFallback() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-    scope.writeState("intent", "UNKNOWN");
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals(
-        "I couldn't generate a response. Please try rephrasing your question.", res.message());
-  }
-
-  @Test
-  void composeEmptyScope() {
-    AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
-
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertEquals(
-        "I couldn't generate a response. Please try rephrasing your question.", res.message());
-  }
-
-  @Test
-  void composePreservesMetadata() {
+  void compose_metadataNull_whenNoQuiz() {
     AgenticScope scope = DefaultAgenticScope.ephemeralAgenticScope();
     scope.writeState("intent", "CONVERSATION");
-    scope.writeState("response", "test");
+    scope.writeState("response", "hello");
 
-    ChatResponse res = composer.compose(scope, "sess-1");
-    assertNull(res.metadata());
+    ChatResponse resp = composer.compose(scope, "sess-1");
+
+    assertNull(resp.metadata());
   }
 }

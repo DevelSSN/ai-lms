@@ -6,6 +6,8 @@ import com.ailms.common.constants.VectorSourceKeys;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.QuizItem;
+import com.ailms.common.dto.QuizMetadata;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.enums.ChatRole;
 import com.ailms.common.enums.IntentType;
@@ -109,6 +111,55 @@ public class OrchestratorService {
   private static final String ASSESS_PREFIX = "Generate assessment for content ";
 
   private static final String ASSESS_PARAMS_MARKER = " | ";
+
+  private static final String DEFAULT_DIFFICULTY = "medium";
+
+  private static final int DEFAULT_QUESTION_COUNT = 5;
+
+  private static final int MAX_QUESTION_COUNT = 50;
+
+  private static final Pattern DIFFICULTY_PARAM =
+      Pattern.compile("(?i)difficulty=(easy|medium|hard)");
+
+  private static final Pattern DIFFICULTY_WORD = Pattern.compile("(?i)\\b(easy|medium|hard)\\b");
+
+  private static final Pattern COUNT_PARAM = Pattern.compile("(?i)questions=(\\d{1,3})");
+
+  private static final Pattern COUNT_WORD =
+      Pattern.compile(
+          "(?i)\\b(\\d{1,3})\\s+(?:(?:easy|medium|hard|tough|difficult|simple|quiz|practice|mcq)\\s+)*questions?\\b");
+
+  /**
+   * Extracts the requested difficulty (easy|medium|hard) from the user message, preferring an
+   * explicit structured {@code difficulty=X} parameter, then a standalone word. Defaults to
+   * {@code medium}.
+   */
+  static String parseDifficulty(String message) {
+    if (message == null) return DEFAULT_DIFFICULTY;
+    var param = DIFFICULTY_PARAM.matcher(message);
+    if (param.find()) return param.group(1).toLowerCase(Locale.ROOT);
+    var word = DIFFICULTY_WORD.matcher(message);
+    if (word.find()) return word.group(1).toLowerCase(Locale.ROOT);
+    return DEFAULT_DIFFICULTY;
+  }
+
+  /**
+   * Extracts the requested question count from the user message, preferring an explicit
+   * structured {@code questions=N} parameter, then a count word ("10 questions"). Defaults to
+   * {@code 5} and clamps to [1, 50].
+   */
+  static int parseQuestionCount(String message) {
+    if (message == null) return DEFAULT_QUESTION_COUNT;
+    var param = COUNT_PARAM.matcher(message);
+    if (param.find()) return clampQuestionCount(Integer.parseInt(param.group(1)));
+    var word = COUNT_WORD.matcher(message);
+    if (word.find()) return clampQuestionCount(Integer.parseInt(word.group(1)));
+    return DEFAULT_QUESTION_COUNT;
+  }
+
+  private static int clampQuestionCount(int count) {
+    return Math.max(1, Math.min(count, MAX_QUESTION_COUNT));
+  }
 
   /**
    * Extracts the content id from an assessment prompt such as "Generate assessment for content
@@ -226,6 +277,7 @@ public class OrchestratorService {
 
       scope.writeState("response", agentResponse);
       writeAgentScopeKey(intent, agentResponse, scope);
+      attachQuizMetadata(intent, sessionId, message, agentResponse, scope, userId);
       ChatResponse response = responseComposer.compose(scope, sessionId);
 
       boolean isNewSession =
@@ -299,7 +351,11 @@ public class OrchestratorService {
           contentAnalysisAgent.process(ChatMemoryKeys.analysis(sessionId), message);
       case ASSESSMENT ->
           questionGenerationAgent.process(
-              ChatMemoryKeys.assessment(sessionId), message, analysisCtx);
+              ChatMemoryKeys.assessment(sessionId),
+              message,
+              analysisCtx,
+              parseDifficulty(message),
+              parseQuestionCount(message));
       case INSIGHT -> insightAgent.process(ChatMemoryKeys.insight(sessionId), message);
       default -> conversationAgent.process(ChatMemoryKeys.conversation(sessionId), message);
     };
@@ -343,6 +399,51 @@ public class OrchestratorService {
       case INSIGHT -> scope.writeState("insights", agentResponse);
       default -> {}
     }
+  }
+
+  private void attachQuizMetadata(
+      String intent, String sessionId, String message, String agentResponse, AgenticScope scope, String userId) {
+    if (!INTENT_ASSESSMENT.equals(intent) || agentResponse == null || agentResponse.isBlank()) return;
+    List<QuizItem> items = parseQuizItems(agentResponse);
+    if (items.isEmpty()) {
+      log.debug("Assessment output not parseable as structured quiz for session={}", sessionId);
+      return;
+    }
+    String contentId = null;
+    try {
+      contentId = resolveActiveDocumentId(message, sessionId, userId);
+    } catch (Exception e) {
+      log.warn("Failed to resolve content id for quiz metadata session={}: {}", sessionId, e.getMessage());
+    }
+    scope.writeState(
+        "quizMetadata",
+        new QuizMetadata(contentId, parseQuestionCount(message), parseDifficulty(message), items));
+  }
+
+  List<QuizItem> parseQuizItems(String output) {
+    if (output == null || output.isBlank()) return List.of();
+    try {
+      return objectMapper.readValue(
+          stripCodeFences(output),
+          new com.fasterxml.jackson.core.type.TypeReference<List<QuizItem>>() {});
+    } catch (Exception e) {
+      log.debug("Quiz output parse failed: {}", e.getMessage());
+      return List.of();
+    }
+  }
+
+  private static String stripCodeFences(String output) {
+    String trimmed = output.trim();
+    if (trimmed.startsWith("```")) {
+      trimmed = trimmed.replaceFirst("^```[a-zA-Z]*\\s*", "");
+      trimmed = trimmed.replaceFirst("```\\s*$", "").trim();
+    }
+    int start = trimmed.indexOf('[');
+    int end = trimmed.lastIndexOf(']');
+    if (start >= 0 && end > start) {
+      trimmed = trimmed.substring(start, end + 1);
+    }
+    return trimmed;
   }
 
   private String enrichWithContext(String intent, String message, String sessionId, String userId) {
@@ -406,9 +507,19 @@ public class OrchestratorService {
     try {
       List<ChatMessage> analysisMem =
           chatMemoryStore.getMessages(ChatMemoryKeys.analysis(sessionId));
-      for (ChatMessage m : analysisMem) {
-        if (m instanceof AiMessage aiMsg && aiMsg.text() != null) {
-          ctx.append(aiMsg.text()).append("\n---\n");
+      if (analysisMem == null || analysisMem.isEmpty()) {
+        // The upload flow runs CAA under session "upload:<docId>"; fall back to it so a
+        // quiz request in the chat thread is still grounded in the doc analysis.
+        String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+        if (activeDocId != null) {
+          analysisMem = chatMemoryStore.getMessages(ChatMemoryKeys.analysis("upload:" + activeDocId));
+        }
+      }
+      if (analysisMem != null) {
+        for (ChatMessage m : analysisMem) {
+          if (m instanceof AiMessage aiMsg && aiMsg.text() != null) {
+            ctx.append(aiMsg.text()).append("\n---\n");
+          }
         }
       }
     } catch (Exception e) {
