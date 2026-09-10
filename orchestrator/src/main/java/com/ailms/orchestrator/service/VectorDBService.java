@@ -52,17 +52,6 @@ public class VectorDBService {
 
     String source = VectorSourceKeys.document(documentId);
 
-    // Purge any prior vectors for this document so re-ingest is a clean, idempotent replace rather
-    // than skipping on partial writes or duplicating across the two stores (Qdrant + pgvector).
-    try {
-      embeddingStore.removeAll(MetadataFilterBuilder.metadataKey("source").isEqualTo(source));
-    } catch (Exception e) {
-      log.warn(
-          "Failed to purge previous Qdrant vectors for documentId={}: {}",
-          documentId,
-          e.getMessage());
-    }
-
     List<ContentEmbedding> rows = new ArrayList<>(chunks.size());
     for (String chunk : chunks) {
       Map<String, Object> meta = Map.of("source", source, "type", contentType);
@@ -81,6 +70,15 @@ public class VectorDBService {
     }
 
     contentEmbeddingRepository.replaceAll(documentId, source, contentType, rows);
+
+    try {
+      embeddingStore.removeAll(MetadataFilterBuilder.metadataKey("source").isEqualTo(source));
+    } catch (Exception e) {
+      log.warn(
+          "Failed to purge stale Qdrant vectors for documentId={}: {}",
+          documentId,
+          e.getMessage());
+    }
 
     log.info(
         "Ingested {} chunks for documentId={} type={} (Qdrant + pgvector)",

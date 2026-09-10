@@ -63,16 +63,18 @@ class VectorDBServiceTest {
   }
 
   @Test
-  void ingestDocumentChunks_purgesThenEmbedsThenPersists() {
+  void ingestDocumentChunks_embedsThenPersistsThenPurgesOld() {
     when(embeddingModel.embed(any(TextSegment.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
 
     VectorDBService svc = newService();
     svc.ingestDocumentChunks(List.of("chunk one", "chunk two"), "doc-1", "document");
 
-    InOrder order = inOrder(embeddingStore);
-    order.verify(embeddingStore).removeAll(any(Filter.class));
+    InOrder order = inOrder(embeddingStore, contentEmbeddingRepository);
     order.verify(embeddingStore, times(2)).add(any(Embedding.class), any(TextSegment.class));
+    order.verify(contentEmbeddingRepository)
+        .replaceAll(eq("doc-1"), eq("doc:doc-1"), eq("document"), any());
+    order.verify(embeddingStore).removeAll(any(Filter.class));
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<ContentEmbedding>> captor = ArgumentCaptor.forClass(List.class);
