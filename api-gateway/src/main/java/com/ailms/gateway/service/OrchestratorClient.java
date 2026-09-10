@@ -3,6 +3,7 @@ package com.ailms.gateway.service;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ClassAnalytics;
 import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
@@ -55,4 +56,8 @@ public interface OrchestratorClient {
   @Path("/analytics/student/{studentId}")
   StudentAnalytics getStudentAnalytics(
       @PathParam("studentId") String studentId, @HeaderParam("X-User-Id") String userId);
+
+  @GET
+  @Path("/analytics/class")
+  ClassAnalytics getClassAnalytics(@HeaderParam("X-User-Id") String userId);
 }

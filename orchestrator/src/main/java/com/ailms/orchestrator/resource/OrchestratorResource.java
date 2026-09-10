@@ -3,6 +3,7 @@ package com.ailms.orchestrator.resource;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ClassAnalytics;
 import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
@@ -101,6 +102,14 @@ public class OrchestratorResource {
       @PathParam("studentId") String studentId, @HeaderParam("X-User-Id") String userId) {
     log.info("Student analytics request for student={} by user={}", studentId, userId);
     StudentAnalytics analytics = analyticsService.student(studentId);
+    return Response.ok(analytics).build();
+  }
+
+  @GET
+  @Path("/analytics/class")
+  public Response classAnalytics(@HeaderParam("X-User-Id") String userId) {
+    log.info("Class analytics request by user={}", userId);
+    ClassAnalytics analytics = analyticsService.classAnalytics();
     return Response.ok(analytics).build();
   }
 

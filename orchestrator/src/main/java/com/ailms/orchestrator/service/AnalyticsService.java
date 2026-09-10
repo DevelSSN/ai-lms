@@ -1,5 +1,7 @@
 package com.ailms.orchestrator.service;
 
+import com.ailms.common.dto.ClassAnalytics;
+import com.ailms.common.dto.ClassAnalytics.TopicCoverage;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.entity.QuizResult;
 import com.ailms.common.entity.UserProfile;
@@ -9,8 +11,11 @@ import com.ailms.orchestrator.repository.UserProfileRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -88,5 +93,73 @@ public class AnalyticsService {
       log.warn("Profile topics failed for student={}: {}", studentId, e.getMessage());
       return List.of();
     }
+  }
+
+  public ClassAnalytics classAnalytics() {
+    long totalStudents;
+    long activeStudents;
+    long totalConversations;
+    try {
+      totalStudents = profiles.count();
+    } catch (Exception e) {
+      log.warn("Class student count failed: {}", e.getMessage());
+      totalStudents = 0;
+    }
+    try {
+      activeStudents =
+          conversations.countActiveStudents(Instant.now().minus(30, ChronoUnit.DAYS));
+    } catch (Exception e) {
+      log.warn("Class active count failed: {}", e.getMessage());
+      activeStudents = 0;
+    }
+    try {
+      totalConversations = conversations.countAllSessions();
+    } catch (Exception e) {
+      log.warn("Class conversation count failed: {}", e.getMessage());
+      totalConversations = 0;
+    }
+
+    double avg = 0;
+    int attempts = 0;
+    try {
+      List<QuizResult> results = quizzes.listAll();
+      attempts = results.size();
+      avg =
+          results.stream()
+              .mapToDouble(q -> q.total > 0 ? q.score * 100.0 / q.total : 0)
+              .average()
+              .orElse(0);
+    } catch (Exception e) {
+      log.warn("Class quiz aggregation failed: {}", e.getMessage());
+    }
+
+    return new ClassAnalytics(
+        totalStudents,
+        activeStudents,
+        totalConversations,
+        Math.round(avg * 100.0) / 100.0,
+        attempts,
+        topicCoverage());
+  }
+
+  private List<TopicCoverage> topicCoverage() {
+    Map<String, Long> counts = new LinkedHashMap<>();
+    try {
+      for (UserProfile profile : profiles.listAll()) {
+        if (profile.interests == null || profile.interests.isBlank()) continue;
+        Arrays.stream(profile.interests.split("[,;\\n]"))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .distinct()
+            .forEach(topic -> counts.merge(topic, 1L, Long::sum));
+      }
+    } catch (Exception e) {
+      log.warn("Class topic coverage failed: {}", e.getMessage());
+    }
+    return counts.entrySet().stream()
+        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+        .limit(10)
+        .map(e -> new TopicCoverage(e.getKey(), e.getValue()))
+        .toList();
   }
 }

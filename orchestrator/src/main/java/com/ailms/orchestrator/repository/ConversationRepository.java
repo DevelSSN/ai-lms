@@ -206,6 +206,22 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
         .getSingleResult();
   }
 
+  public long countActiveStudents(Instant since) {
+    return em.createQuery(
+            "select count(distinct c.userId) from ConversationLog c where c.timestamp >= :since",
+            Long.class)
+        .setParameter("since", since)
+        .getSingleResult();
+  }
+
+  public long countAllSessions() {
+    return em.createQuery(
+            "select count(distinct c.sessionId) from ConversationLog c "
+                + "where (c.deleted is null or c.deleted = false)",
+            Long.class)
+        .getSingleResult();
+  }
+
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(

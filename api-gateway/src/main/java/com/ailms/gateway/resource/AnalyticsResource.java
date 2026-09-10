@@ -1,5 +1,6 @@
 package com.ailms.gateway.resource;
 
+import com.ailms.common.dto.ClassAnalytics;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.gateway.service.OrchestratorClient;
 import jakarta.annotation.security.RolesAllowed;
@@ -47,5 +48,19 @@ public class AnalyticsResource {
     if (roles == null || caller == null) return false;
     if (roles.contains("TEACHER") || roles.contains("ADMIN")) return true;
     return caller.equals(targetStudentId);
+  }
+
+  @GET
+  @Path("/class")
+  @RolesAllowed({"TEACHER", "ADMIN"})
+  public Response classAnalytics() {
+    String caller = jwt.getSubject();
+    try {
+      ClassAnalytics analytics = orchestrator.getClassAnalytics(caller);
+      return Response.ok(analytics).build();
+    } catch (Exception e) {
+      log.error("Class analytics unavailable: {}", e.getMessage());
+      return Response.status(Response.Status.BAD_GATEWAY).build();
+    }
   }
 }

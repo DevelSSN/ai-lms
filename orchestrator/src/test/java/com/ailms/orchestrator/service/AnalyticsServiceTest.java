@@ -81,6 +81,56 @@ class AnalyticsServiceTest {
     assertNull(result.lastActive());
   }
 
+  @Test
+  void classAnalytics_aggregatesAcrossStudents() {
+    when(profiles.count()).thenReturn(2L);
+    when(conversations.countActiveStudents(org.mockito.ArgumentMatchers.any(Instant.class)))
+        .thenReturn(1L);
+    when(conversations.countAllSessions()).thenReturn(7L);
+
+    QuizResult q1 = new QuizResult();
+    q1.score = 10;
+    q1.total = 10;
+    QuizResult q2 = new QuizResult();
+    q2.score = 5;
+    q2.total = 10;
+    when(quizzes.listAll()).thenReturn(List.of(q1, q2));
+
+    UserProfile p1 = new UserProfile();
+    p1.interests = "physics, math";
+    UserProfile p2 = new UserProfile();
+    p2.interests = "physics; chemistry";
+    when(profiles.listAll()).thenReturn(List.of(p1, p2));
+
+    var result = service.classAnalytics();
+
+    assertEquals(2L, result.totalStudents());
+    assertEquals(1L, result.activeStudentsLast30Days());
+    assertEquals(7L, result.totalConversations());
+    assertEquals(75.0, result.averageScore());
+    assertEquals(2, result.totalQuizAttempts());
+    assertEquals(3, result.topics().size());
+    assertEquals("physics", result.topics().get(0).topic());
+    assertEquals(2L, result.topics().get(0).studentCount());
+  }
+
+  @Test
+  void classAnalytics_handlesMissingData() {
+    when(profiles.count()).thenReturn(0L);
+    when(conversations.countActiveStudents(org.mockito.ArgumentMatchers.any(Instant.class)))
+        .thenReturn(0L);
+    when(conversations.countAllSessions()).thenReturn(0L);
+    when(quizzes.listAll()).thenReturn(List.of());
+    when(profiles.listAll()).thenReturn(List.of());
+
+    var result = service.classAnalytics();
+
+    assertEquals(0L, result.totalStudents());
+    assertEquals(0, result.totalQuizAttempts());
+    assertEquals(0.0, result.averageScore());
+    assertEquals(0, result.topics().size());
+  }
+
   @SuppressWarnings("unchecked")
   private void stubProfile(String studentId, UserProfile profile) {
     PanacheQuery<UserProfile> q = mock(PanacheQuery.class);
