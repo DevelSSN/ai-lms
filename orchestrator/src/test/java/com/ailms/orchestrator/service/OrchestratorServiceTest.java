@@ -8,6 +8,7 @@ import com.ailms.common.constants.ChatMemoryKeys;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.RetrievedChunk;
 import com.ailms.orchestrator.agent.ContentAnalysisAgent;
 import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
@@ -24,6 +25,7 @@ import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import java.util.List;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +208,7 @@ class OrchestratorServiceTest {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("context from qdrant"));
+        .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("context from qdrant"), eq("medium"), eq(5)))
         .thenReturn("Assessment result");
@@ -225,7 +227,7 @@ class OrchestratorServiceTest {
     String msg = "Generate assessment for content doc-9";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("rome content"));
+        .thenReturn(chunks("rome content"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome content"), eq("medium"), eq(5)))
         .thenReturn("Rome assessment");
@@ -246,7 +248,7 @@ class OrchestratorServiceTest {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("chunk from vector db"));
+        .thenReturn(chunks("chunk from vector db"));
     ChatMessage caaAnalysis = AiMessage.from("Topics: Photosynthesis\nKey concepts: chlorophyll");
     when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("sess-1")))
         .thenReturn(java.util.List.of(caaAnalysis));
@@ -279,7 +281,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("context from qdrant"));
+        .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -302,7 +304,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("context from qdrant"));
+        .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -330,7 +332,7 @@ class OrchestratorServiceTest {
     String msg = "Generate assessment for content doc-9 | questions=3 | difficulty=easy";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("rome content"));
+        .thenReturn(chunks("rome content"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -363,7 +365,7 @@ class OrchestratorServiceTest {
     when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("upload:doc-9")))
         .thenReturn(java.util.List.of(uploadCaa));
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("chunk from qdrant"));
+        .thenReturn(chunks("chunk from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -395,7 +397,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("context from qdrant"));
+        .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -429,7 +431,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("context from qdrant"));
+        .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -991,7 +993,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("rome context"));
+        .thenReturn(chunks("rome context"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context"), eq("medium"), eq(5)))
         .thenReturn("Rome questions");
@@ -1017,7 +1019,7 @@ class OrchestratorServiceTest {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
     when(contentDocumentService.resolveRecentDocumentId("user-1", null)).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("rome context"));
+        .thenReturn(chunks("rome context"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context"), eq("medium"), eq(5)))
         .thenReturn("Rome questions");
@@ -1039,7 +1041,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("rome context"));
+        .thenReturn(chunks("rome context"));
     when(contentAnalysisAgent.process(
             eq(ChatMemoryKeys.analysis("sess-1")), contains("rome context")))
         .thenReturn("Rome summary");
@@ -1181,7 +1183,7 @@ class OrchestratorServiceTest {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(java.util.List.of("some context from vector db"));
+        .thenReturn(chunks("some context from vector db"));
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
         .thenReturn("Assessment result");
@@ -1193,6 +1195,12 @@ class OrchestratorServiceTest {
 
     verify(profilingAgent)
         .process(eq(ChatMemoryKeys.profiling("sess-1")), eq("quiz me"));
+  }
+
+  private static List<RetrievedChunk> chunks(String... texts) {
+    return java.util.Arrays.stream(texts)
+        .map(t -> new RetrievedChunk(t, "doc:doc-9", 0.7, 0))
+        .toList();
   }
 
   private OrchestratorService buildService() {

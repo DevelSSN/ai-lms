@@ -9,6 +9,7 @@ import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.QuizItem;
 import com.ailms.common.dto.QuizMetadata;
 import com.ailms.common.dto.QuizResultRequest;
+import com.ailms.common.dto.RetrievedChunk;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.entity.QuizResult;
 import com.ailms.common.entity.UserProfile;
@@ -238,7 +239,7 @@ public class OrchestratorService {
         intent = normalizeIntent(intentClassifier.classify(message));
         intent = reclassifyContentIntent(intent, message, sessionId, userId);
         log.info("Intent={} for user={} message={}", intent, userId, message);
-        enrichedMessage = enrichWithContext(intent, message, sessionId, userId);
+        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
       }
 
       if (INTENT_INSIGHT.equals(intent)) {
@@ -458,32 +459,56 @@ public class OrchestratorService {
     return trimmed;
   }
 
-  private String enrichWithContext(String intent, String message, String sessionId, String userId) {
+  private String enrichWithContext(
+    String intent, String message, String sessionId, String userId, AgenticScope scope) {
     if (!IntentType.isAnalysis(intent)) return message;
 
     if (INTENT_CONTENT_ANALYSIS.equals(intent)) {
       if (message.startsWith(UPLOAD_PREFIX)) return enrichUploadAnalysis(message, userId);
       String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-      List<String> context =
+      List<RetrievedChunk> context =
           retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
       if (!context.isEmpty()) {
-        return "Relevant context:\n"
-            + String.join("\n---\n", context)
-            + "\n\nUser message: "
-            + message;
+        writeChunkContext(scope, activeDocId, context);
+        return numberedContext(context) + "\n\nUser message: " + message;
       }
       return message;
     }
 
     String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-    List<String> context = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
+    List<RetrievedChunk> context =
+        retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
     if (!context.isEmpty()) {
-      return "Relevant context:\n"
-          + String.join("\n---\n", context)
-          + "\n\nUser message: "
-          + message;
+      writeChunkContext(scope, activeDocId, context);
+      return numberedContext(context) + "\n\nUser message: " + message;
     }
     return message;
+  }
+
+  private void writeChunkContext(
+      AgenticScope scope, String activeDocId, List<RetrievedChunk> chunks) {
+    if (chunks == null || chunks.isEmpty()) return;
+    scope.writeState("chunks", chunks.stream().filter(c -> c != null).toList());
+    String name = activeDocId;
+    try {
+      if (activeDocId != null) {
+        name = contentDocumentService.resolveFileName(activeDocId);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to resolve filename for citation doc={}: {}", activeDocId, e.getMessage());
+    }
+    scope.writeState("chunkDocumentName", name);
+  }
+
+  private static String numberedContext(List<RetrievedChunk> chunks) {
+    StringBuilder sb = new StringBuilder("Relevant context from your uploaded document:");
+    int n = 1;
+    for (RetrievedChunk c : chunks) {
+      if (c == null || c.text() == null || c.text().isBlank()) continue;
+      sb.append("\n[").append(n).append("] ").append(c.text());
+      n++;
+    }
+    return sb.toString().trim();
   }
 
   private String enrichUploadAnalysis(String message, String userId) {
@@ -493,7 +518,7 @@ public class OrchestratorService {
       if (!chunks.isEmpty()) {
         vectorDBService.ingestDocumentChunks(chunks, docId, "document");
         String contentBody = resolveUploadedContent(message);
-        List<String> context =
+        List<RetrievedChunk> context =
             vectorDBService.retrieveRelevantContext(
                 contentBody != null ? contentBody : message,
                 ANALYSIS_TOP_K,
@@ -502,7 +527,9 @@ public class OrchestratorService {
           return "File: "
               + contentDocumentService.resolveFileName(docId)
               + "\n\nRelevant content excerpts:\n"
-              + String.join("\n---\n", context);
+              + String.join(
+                  "\n---\n",
+                  context.stream().map(RetrievedChunk::text).toList());
         }
       }
     } catch (Exception e) {
@@ -539,9 +566,9 @@ public class OrchestratorService {
           "Failed to read CAA analysis from memory for session={}: {}", sessionId, e.getMessage());
     }
     String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-    List<String> chunks = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
+    List<RetrievedChunk> chunks = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
     if (!chunks.isEmpty()) {
-      ctx.append(String.join("\n---\n", chunks));
+      ctx.append(String.join("\n---\n", chunks.stream().map(RetrievedChunk::text).toList()));
     }
     return ctx.toString();
   }
@@ -586,7 +613,7 @@ public class OrchestratorService {
     return null;
   }
 
-  private List<String> retrieveScopedContext(
+  private List<RetrievedChunk> retrieveScopedContext(
       String userId, String sessionId, String message, String activeDocId, int topK) {
     if (activeDocId == null) return List.of();
     try {

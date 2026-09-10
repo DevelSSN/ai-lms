@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.ailms.common.dto.RetrievedChunk;
 import com.ailms.common.entity.ContentEmbedding;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -112,15 +113,20 @@ class VectorDBServiceTest {
             0.95,
             "id-1",
             new Embedding(new float[] {0.1f, 0.2f, 0.3f}),
-            TextSegment.from("matched text"));
+            TextSegment.from(
+                "matched text",
+                Metadata.from(java.util.Map.of("source", "doc:doc-9", "chunkIndex", 2))));
     when(embeddingStore.search(any(EmbeddingSearchRequest.class)))
         .thenReturn(new EmbeddingSearchResult<>(List.of(match)));
 
     VectorDBService svc = newService();
 
-    List<String> results = svc.retrieveRelevantContext("test query", 3);
+    List<RetrievedChunk> results = svc.retrieveRelevantContext("test query", 3);
     assertEquals(1, results.size());
-    assertEquals("matched text", results.get(0));
+    assertEquals("matched text", results.get(0).text());
+    assertEquals("doc:doc-9", results.get(0).source());
+    assertEquals(2, results.get(0).chunkIndex());
+    assertEquals(0.95, results.get(0).score());
   }
 
   @Test
@@ -139,8 +145,8 @@ class VectorDBServiceTest {
 
     VectorDBService svc = newService();
 
-    List<String> results = svc.retrieveRelevantContext("test query", 3, "doc:");
-    assertEquals(List.of("doc text"), results);
+    List<RetrievedChunk> results = svc.retrieveRelevantContext("test query", 3, "doc:");
+    assertEquals("doc text", results.get(0).text());
   }
 
   @Test
@@ -159,9 +165,9 @@ class VectorDBServiceTest {
 
     VectorDBService svc = newService();
 
-    List<String> results =
+    List<RetrievedChunk> results =
         svc.retrieveRelevantContext("test query", 3, s -> s != null && s.equals("doc:abc"));
-    assertEquals(List.of("doc text"), results);
+    assertEquals("doc text", results.get(0).text());
   }
 
   @Test
@@ -174,5 +180,23 @@ class VectorDBServiceTest {
     VectorDBService svc = newService();
 
     assertTrue(svc.retrieveRelevantContext("test", 3).isEmpty());
+  }
+
+  @Test
+  void ingestDocumentChunks_embedsChunkIndexIntoQdrantMetadata() {
+    when(embeddingModel.embed(any(TextSegment.class)))
+        .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})))
+        .thenReturn(Response.from(new Embedding(new float[] {0.4f, 0.5f, 0.6f})));
+
+    VectorDBService svc = newService();
+    svc.ingestDocumentChunks(List.of("a", "b"), "doc-1", "document");
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<TextSegment> captor = ArgumentCaptor.forClass(TextSegment.class);
+    verify(embeddingStore, times(2)).add(any(Embedding.class), captor.capture());
+    List<TextSegment> segments = captor.getAllValues();
+    assertEquals(0, segments.get(0).metadata().toMap().get("chunkIndex"));
+    assertEquals(1, segments.get(1).metadata().toMap().get("chunkIndex"));
+    assertEquals("doc:doc-1", segments.get(0).metadata().toMap().get("source"));
   }
 }

@@ -1,6 +1,7 @@
 package com.ailms.orchestrator.service;
 
 import com.ailms.common.constants.VectorSourceKeys;
+import com.ailms.common.dto.RetrievedChunk;
 import com.ailms.common.entity.ContentEmbedding;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -54,8 +55,10 @@ public class VectorDBService {
     String source = VectorSourceKeys.document(documentId);
 
     List<ContentEmbedding> rows = new ArrayList<>(chunks.size());
-    for (String chunk : chunks) {
-      Map<String, Object> meta = Map.of("source", source, "type", contentType);
+    for (int i = 0; i < chunks.size(); i++) {
+      String chunk = chunks.get(i);
+      Map<String, Object> meta =
+          Map.of("source", source, "type", contentType, "chunkIndex", i);
       TextSegment segment = TextSegment.from(chunk, Metadata.from(meta));
 
       Embedding embedding = embeddingModel.embed(segment).content();
@@ -88,17 +91,18 @@ public class VectorDBService {
         contentType);
   }
 
-  public List<String> retrieveRelevantContext(String query, int maxResults) {
+  public List<RetrievedChunk> retrieveRelevantContext(String query, int maxResults) {
     return retrieveRelevantContext(query, maxResults, (Predicate<String>) null);
   }
 
-  public List<String> retrieveRelevantContext(String query, int maxResults, String sourcePrefix) {
+  public List<RetrievedChunk> retrieveRelevantContext(
+      String query, int maxResults, String sourcePrefix) {
     Predicate<String> filter =
         sourcePrefix == null ? null : source -> source != null && source.startsWith(sourcePrefix);
     return retrieveRelevantContext(query, maxResults, filter);
   }
 
-  public List<String> retrieveRelevantContext(
+  public List<RetrievedChunk> retrieveRelevantContext(
       String query, int maxResults, Predicate<String> sourceFilter) {
     Embedding queryEmbedding = embeddingModel.embed(query).content();
 
@@ -127,7 +131,31 @@ public class VectorDBService {
     return matches.stream()
         .filter(m -> m.score() >= minScore)
         .limit(maxResults)
-        .map(match -> match.embedded().text())
+        .map(
+            match -> {
+              Map<String, Object> meta =
+                  match.embedded().metadata() == null
+                      ? Map.of()
+                      : match.embedded().metadata().toMap();
+              Object source = meta.get("source");
+              Object idx = meta.get("chunkIndex");
+              int chunkIndex =
+                  idx instanceof Number n ? n.intValue() : parseIntQuietly(idx);
+              return new RetrievedChunk(
+                  match.embedded().text(),
+                  source instanceof String s ? s : null,
+                  match.score(),
+                  chunkIndex);
+            })
         .toList();
+  }
+
+  private static int parseIntQuietly(Object value) {
+    if (value == null) return -1;
+    try {
+      return Integer.parseInt(value.toString());
+    } catch (NumberFormatException e) {
+      return -1;
+    }
   }
 }

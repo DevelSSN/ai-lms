@@ -34,6 +34,15 @@ public interface ConversationAgent {
         not available here and offer to check it or have them upload/rephrase.
       - Do not present guesses or placeholders as facts.
 
+      CITATIONS (mandatory when context is provided):
+      - The current message may begin with numbered context blocks like "[1] ...", "[2] ...".
+      - When you use a piece of that context in your answer, append a citation marker "[N]"
+        at the end of the sentence that uses it, matching the block number of the source.
+        For example: "Photosynthesis converts light into chemical energy in the form of
+        glucose [1]."
+      - Cite only blocks you actually used. Never emit numbers that have no matching block,
+        and never cite when no context blocks are present.
+
       - If the user's message is a simple greeting or a short casual opener
         (e.g., "Hi", "Hello", "Hey there"), reply briefly and warmly and ask what
         they would like to learn today. Do NOT invent or continue a topic on your own.
