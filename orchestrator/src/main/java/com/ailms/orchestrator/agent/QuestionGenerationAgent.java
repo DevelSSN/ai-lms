@@ -70,7 +70,7 @@ public interface QuestionGenerationAgent {
       @V("message") String message,
       @V("analysisContext") String analysisContext,
       @V("difficulty") String difficulty,
-      @V("questionCount") int questionCount);
+      @V("questionCount") Integer questionCount);
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
