@@ -19,6 +19,8 @@ import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.BeforeEach;
@@ -231,6 +233,34 @@ class OrchestratorServiceTest {
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
     verify(questionGenerationAgent)
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString());
+  }
+
+  @Test
+  void route_assessment_includesCAAAnalysisFromMemory() {
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(java.util.List.of("chunk from vector db"));
+    ChatMessage caaAnalysis = AiMessage.from("Topics: Photosynthesis\nKey concepts: chlorophyll");
+    when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("sess-1")))
+        .thenReturn(java.util.List.of(caaAnalysis));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            contains("Topics: Photosynthesis")))
+        .thenReturn("Assessment from analysis");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Assessment from analysis", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertEquals("Assessment from analysis", resp.message());
+    verify(questionGenerationAgent)
+        .process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            contains("Topics: Photosynthesis"));
   }
 
   @Test

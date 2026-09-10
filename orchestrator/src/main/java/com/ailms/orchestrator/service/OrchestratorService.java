@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.data.message.UserMessage;
@@ -401,12 +402,25 @@ public class OrchestratorService {
   private String resolveAnalysisContext(
       String intent, String message, String sessionId, String userId) {
     if (!INTENT_ASSESSMENT.equals(intent)) return "";
-    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-    List<String> context = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
-    if (!context.isEmpty()) {
-      return String.join("\n---\n", context);
+    StringBuilder ctx = new StringBuilder();
+    try {
+      List<ChatMessage> analysisMem =
+          chatMemoryStore.getMessages(ChatMemoryKeys.analysis(sessionId));
+      for (ChatMessage m : analysisMem) {
+        if (m instanceof AiMessage aiMsg && aiMsg.text() != null) {
+          ctx.append(aiMsg.text()).append("\n---\n");
+        }
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to read CAA analysis from memory for session={}: {}", sessionId, e.getMessage());
     }
-    return "";
+    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+    List<String> chunks = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
+    if (!chunks.isEmpty()) {
+      ctx.append(String.join("\n---\n", chunks));
+    }
+    return ctx.toString();
   }
 
   private boolean isExplicitVideoLink(String message) {
