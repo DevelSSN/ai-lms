@@ -4,6 +4,7 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.QuizResultRequest;
+import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import jakarta.ws.rs.DELETE;
@@ -49,4 +50,9 @@ public interface OrchestratorClient {
   @Path("/quiz/results")
   void submitQuizResult(
       QuizResultRequest request, @HeaderParam("X-User-Id") String userId);
+
+  @GET
+  @Path("/analytics/student/{studentId}")
+  StudentAnalytics getStudentAnalytics(
+      @PathParam("studentId") String studentId, @HeaderParam("X-User-Id") String userId);
 }

@@ -185,6 +185,27 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     return log.message.substring(PromptPrefixes.UPLOAD_ANALYSIS.length()).trim();
   }
 
+  public long countMessages(String userId) {
+    return count("userId = ?1 AND (deleted IS NULL OR deleted = false)", userId);
+  }
+
+  public long countSessions(String userId) {
+    return em.createQuery(
+            "select count(distinct c.sessionId) from ConversationLog c "
+                + "where c.userId = :uid and (c.deleted is null or c.deleted = false)",
+            Long.class)
+        .setParameter("uid", userId)
+        .getSingleResult();
+  }
+
+  public Instant lastActivity(String userId) {
+    return em.createQuery(
+            "select max(c.timestamp) from ConversationLog c where c.userId = :uid",
+            Instant.class)
+        .setParameter("uid", userId)
+        .getSingleResult();
+  }
+
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(

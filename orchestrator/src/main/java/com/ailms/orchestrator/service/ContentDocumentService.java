@@ -94,6 +94,14 @@ public class ContentDocumentService {
     return new java.util.HashSet<>(ids);
   }
 
+  public long countByUser(String userId) {
+    return Panache.getEntityManager()
+        .createQuery(
+            "select count(d) from ContentDocument d where d.userId = :uid", Long.class)
+        .setParameter("uid", userId)
+        .getSingleResult();
+  }
+
   @Transactional
   public List<String> chunkContent(String docId, int chunkSize, int overlap) {
     String content = extractContent(docId);

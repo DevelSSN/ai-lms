@@ -4,8 +4,10 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.QuizResultRequest;
+import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.ailms.orchestrator.service.AnalyticsService;
 import com.ailms.orchestrator.service.OrchestratorService;
 import com.ailms.orchestrator.service.SessionOwnershipException;
 import jakarta.inject.Inject;
@@ -32,6 +34,8 @@ public class OrchestratorResource {
   @Inject OrchestratorService orchestratorService;
 
   @Inject ConversationRepository conversationRepository;
+
+  @Inject AnalyticsService analyticsService;
 
   @POST
   public Response processMessage(ChatRequest request, @HeaderParam("X-User-Id") String userId) {
@@ -89,6 +93,15 @@ public class OrchestratorResource {
     log.info("Rename thread session={} user={}", sessionId, userId);
     conversationRepository.renameThread(userId, sessionId, request.title());
     return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/analytics/student/{studentId}")
+  public Response studentAnalytics(
+      @PathParam("studentId") String studentId, @HeaderParam("X-User-Id") String userId) {
+    log.info("Student analytics request for student={} by user={}", studentId, userId);
+    StudentAnalytics analytics = analyticsService.student(studentId);
+    return Response.ok(analytics).build();
   }
 
   @DELETE
