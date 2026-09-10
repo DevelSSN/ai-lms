@@ -74,6 +74,20 @@ Fixes that must land before any new features. Derived from deep code audit (2026
 - [ ] E6. Qdrant config key mismatch — `QdrantInitializer.java:21-29`: introduce `qdrant.admin.host` config key instead of borrowing from `quarkus.langchain4j.qdrant.host` (gRPC target). Decouple admin REST from gRPC connection.
 - [ ] E7. Source-filtered retrieval undershooting — `VectorDBService.java:102-123`: push source filter into `EmbeddingSearchRequest` metadata filter instead of client-side filtering. Ensures `maxResults` is actually returned.
 
+### E8. SSE & ProactiveAgent delivery fixes
+
+The proactive follow-up pipeline works end-to-end under ideal conditions but is fragile in practice. These fixes make delivery reliable.
+
+- [ ] E8a. SseBroadcastService registry leak — `SseBroadcastService.java:37-45`: `computeIfAbsent` inserts an empty list before the `MAX_USERS` guard. On rejection, the orphaned entry is never removed. Fix: check `userEmitters.size()` before `computeIfAbsent`, or `userEmitters.remove(userId, list)` in the rejection path. Also fix off-by-one: line 43 uses `>` instead of `>=`.
+- [ ] E8b. SseBroadcastService race on fresh emitters — `SseBroadcastService.java:97`: `requested() <= 0` evicts emitters before the SSE sink registers demand. A Kafka event arriving in the window between emitter creation and first `request(n)` silently drops the message. Fix: only check `emitter.isCancelled()`, let Mutiny buffer zero-demand emissions.
+- [ ] E8c. ProactiveAgent long-running transaction — `ProactiveAgent.java:40-62`: entire `checkFollowUps()` runs in a single `@Transactional`. For N inactive users, each LLM call (seconds) holds the DB connection. Fix: remove `@Transactional` from the method; `markProactiveSentIfNotRecent` already has its own. Extract LLM call + Kafka send into a non-transactional method.
+- [ ] E8d. ProactiveAgent fire-and-forget Kafka send — `ProactiveAgent.java:56`: `eventEmitter.send()` returns `CompletableFuture<Boolean>` which is discarded. If Kafka is down, the user's `lastProactiveSentAt` is already updated but the message was never sent. Fix: `.send(event).exceptionally(ex -> { log.error("Proactive Kafka send failed", ex); return false; })`. On failure, revert `lastProactiveSentAt` so the user is retried next cycle.
+- [ ] E8e. ProactiveAgent double `Instant.now()` — `ProactiveAgent.java:44,51`: cutoff is computed once at line 44, but line 51 computes two new `Instant.now()` values inside the loop. Over a long-running loop the cutoff shifts. Fix: capture `Instant now = Instant.now()` once before the loop and reuse.
+- [ ] E8f. ConversationRepository includes deleted logs — `ConversationRepository.findInactiveUsersSince()` (lines 189-194) and `findRecentByUserId()` (lines 197-199): no `deleted` filter. Users who deleted all conversations appear inactive and receive unsolicited follow-ups with deleted content. Fix: add `WHERE (deleted IS NULL OR deleted = false)` to both queries.
+- [ ] E8g. SseEventBridge null userId guard — `SseEventBridge.java:18-38`: no null check on `event.userId()` before `sse.broadcast()`. Malformed Kafka messages could trigger NPE or broadcast to `null` key. Fix: add `if (event.userId() == null) { log.warn("Skipping event with null userId"); return; }` to each handler.
+- [ ] E8h. TokenFromQueryFilter format validation — `TokenFromQueryFilter.java:25-26`: any arbitrary string from `?token=` is injected into the `Authorization` header without validation. Fix: reject tokens that don't match `[A-Za-z0-9._\-]+` (JWT characters only).
+- [ ] E8i. InteractResource blocks event loop — `InteractResource.java:46-47`: synchronous `orchestrator.processMessage()` REST call blocks the Quarkus event-loop thread, starving SSE connections. Fix: make the method `@Blocking` or return `Uni<ChatResponse>`.
+
 ## Phase F — Document-to-Assessment Pipeline (hero demo)
 
 Upload a textbook chapter → get a personalized, grounded quiz. Depends on Phase E.
