@@ -118,7 +118,7 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 
 - [x] H1. Add Keycloak roles — realm export: add `STUDENT`, `TEACHER`, `ADMIN` roles to `ailms` realm. Update `keycloak/realm-export.json`.
 - [x] H2. RBAC on gateway endpoints — `ChatResource`, `ContentResource`, `ProfileResource`: add `@RolesAllowed` annotations. Students: own data only (enforce `userId == JWT subject`). Teachers: any student's profile/insights. Admin: full access.
-- [ ] H3. Teacher-student association — new entity `TeacherStudent` (teacherId, studentId) or use Keycloak group membership. Add repository + resource for managing associations.
+- [x] H3. Teacher-student association — new entity `TeacherStudent` (teacherId, studentId) or use Keycloak group membership. Add repository + resource for managing associations.
 - [ ] H4. Student analytics endpoint — `GET /api/v1/analytics/student/{studentId}`: topics studied (from profile), conversation count, documents analyzed, quiz scores, last active. SQL queries on existing tables.
 - [ ] H5. Class analytics endpoint — `GET /api/v1/analytics/class`: aggregated stats (avg score, topic coverage heatmap, active student count). Teacher role required.
 - [ ] H6. Analytics dashboard frontend — `app.js` + `style.css`: teacher view with student selector, knowledge coverage bar chart, activity timeline, quiz score history. Vanilla JS + Chart.js (CDN, no build step).
