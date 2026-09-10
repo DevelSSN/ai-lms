@@ -62,10 +62,55 @@ Fixes land first because they unblock the DB, tests, and downstream data flow.
 - [ ] D7/24. Constants & enums — `common` `enums` package; replace magic strings
 - [ ] D8/25. YouTube hardening — config-driven API-key flag, regex edge cases
 
+## Phase E — Critical Bug Fixes (blocks demo)
+
+Fixes that must land before any new features. Derived from deep code audit (2026-09-10).
+
+- [ ] E1. Greeting responses skip verifier — `OrchestratorService.java:196-198`: wrap `verifyAndRetry()` in `if (greetingResponse == null)`. Saves ~500ms + wasted LLM call per greeting.
+- [ ] E2. Rejected responses not shipped — `OrchestratorService.java:507-509,515-516`: when retry returns blank or double-rejection occurs, return user-facing fallback ("I couldn't generate a good answer. Could you rephrase?") instead of the rejected original.
+- [ ] E3. Profiling agent receives polluted input — `OrchestratorService.java:207`: change `enrichedMessage` → `message` so ProfilingAgent only sees what the student typed, not vector DB document chunks.
+- [ ] E4. CAA→QGA data flow — `OrchestratorService.resolveAnalysisContext()` (lines 396-405): retrieve CAA's structured analysis from `ChatMemoryKeys.analysis(sessionId)` chat memory and prepend to `analysisCtx` before passing to QGA. This is the critical link for document-to-assessment.
+- [ ] E5. VectorDBService non-atomic dual-write — `VectorDBService.java:57-83`: reorder ingest to add all Qdrant vectors first, then delete old ones. Crash leaves stale-but-complete data instead of partial.
+- [ ] E6. Qdrant config key mismatch — `QdrantInitializer.java:21-29`: introduce `qdrant.admin.host` config key instead of borrowing from `quarkus.langchain4j.qdrant.host` (gRPC target). Decouple admin REST from gRPC connection.
+- [ ] E7. Source-filtered retrieval undershooting — `VectorDBService.java:102-123`: push source filter into `EmbeddingSearchRequest` metadata filter instead of client-side filtering. Ensures `maxResults` is actually returned.
+
+## Phase F — Document-to-Assessment Pipeline (hero demo)
+
+Upload a textbook chapter → get a personalized, grounded quiz. Depends on Phase E.
+
+- [ ] F1. Wire CAA analysis into QGA context — after E4, verify that "Generate quiz about this document" produces questions grounded in the CAA's topic/concept extraction, not just raw chunks.
+- [ ] F2. Add difficulty parameter to QGA — `QuestionGenerationAgent.java` prompt: add `{{difficulty}}` template variable (easy/medium/hard). `OrchestratorService`: parse difficulty from user message or default to medium. (Supersedes C3 dead fields.)
+- [ ] F3. Add question count parameter to QGA — allow "Generate 10 questions" or "Generate 3 questions". Parse from user message, default to 5. (Supersedes C3 dead fields.)
+- [ ] F4. Add `AssessmentItem.explanation` and `sessionId` fields — complete the QGA output schema so quiz answers include explanations and can be tracked per session. (Supersedes C3.)
+- [ ] F5. Frontend "Generate Quiz" quick action — `app.js`: after file upload + CAA analysis is displayed, show a "Generate Quiz" button that sends "Generate 5 quiz questions about this document".
+- [ ] F6. Quiz display UI — `app.js` + `style.css`: numbered questions with radio-button options, click to reveal answer + explanation, score tracking (correct/total). Lightweight, no framework.
+- [ ] F7. Quiz result persistence — new entity `QuizResult` (userId, sessionId, docId, questions, answers, score, timestamp). Store in PostgreSQL. Feed results back into ProfilingAgent for weak-area tracking.
+
+## Phase G — Verifiable Sources & Citations
+
+"This answer came from page X of your document." Depends on Phase E.
+
+- [ ] G1. Return chunk metadata from retrieval — `VectorDBService.retrieveRelevantContext()`: change return type from `List<String>` to `List<RetrievedChunk>` record (text, source, score, chunkIndex). Propagate through `retrieveScopedContext()`.
+- [ ] G2. Pass chunk references to ConversationAgent — `OrchestratorService`: store chunk metadata in request-scoped context alongside enriched message. Update ConversationAgent system prompt to instruct citation by chunk number when answering from RAG context.
+- [ ] G3. Format citations in ResponseComposer — `ResponseComposer`: when answer contains citation markers (`[1]`, `[source: N]`), map to actual document name + chunk text. Return citation metadata alongside response.
+- [ ] G4. Display citations in frontend — `app.js`: parse citation markers in bot responses, render as expandable footnotes ("From: {filename}, chunk {N}"). Small CSS addition for footnote styling.
+
+## Phase H — Privacy-First Features (RBAC + Analytics)
+
+Role-based access and learning analytics dashboard. Depends on Phase B (SSE security).
+
+- [ ] H1. Add Keycloak roles — realm export: add `STUDENT`, `TEACHER`, `ADMIN` roles to `ailms` realm. Update `keycloak/realm-export.json`.
+- [ ] H2. RBAC on gateway endpoints — `ChatResource`, `ContentResource`, `ProfileResource`: add `@RolesAllowed` annotations. Students: own data only (enforce `userId == JWT subject`). Teachers: any student's profile/insights. Admin: full access.
+- [ ] H3. Teacher-student association — new entity `TeacherStudent` (teacherId, studentId) or use Keycloak group membership. Add repository + resource for managing associations.
+- [ ] H4. Student analytics endpoint — `GET /api/v1/analytics/student/{studentId}`: topics studied (from profile), conversation count, documents analyzed, quiz scores, last active. SQL queries on existing tables.
+- [ ] H5. Class analytics endpoint — `GET /api/v1/analytics/class`: aggregated stats (avg score, topic coverage heatmap, active student count). Teacher role required.
+- [ ] H6. Analytics dashboard frontend — `app.js` + `style.css`: teacher view with student selector, knowledge coverage bar chart, activity timeline, quiz score history. Vanilla JS + Chart.js (CDN, no build step).
+
 ## Deferred (by decision)
 
 - **Phase 14 (GraalVM native build)** — not run in this session; only Dockerfile correctness fixes kept under D6.
 - **Phase 26 email delivery** — SSE push only; `quarkus-mailer` not added.
+- **Phase I (Offline deployment packaging)** — single `deploy.sh` script + model pre-download + health checks. Low priority, defer until core features work.
 
 ---
 
