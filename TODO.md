@@ -110,7 +110,7 @@ Upload a textbook chapter → get a personalized, grounded quiz. Depends on Phas
 - [x] G1. Return chunk metadata from retrieval — `VectorDBService.retrieveRelevantContext()`: change return type from `List<String>` to `List<RetrievedChunk>` record (text, source, score, chunkIndex). Propagate through `retrieveScopedContext()`.
 - [x] G2. Pass chunk references to ConversationAgent — `OrchestratorService`: store chunk metadata in request-scoped context alongside enriched message. Update ConversationAgent system prompt to instruct citation by chunk number when answering from RAG context.
 - [x] G3. Format citations in ResponseComposer — `ResponseComposer`: when answer contains citation markers (`[1]`, `[source: N]`), map to actual document name + chunk text. Return citation metadata alongside response.
-- [ ] G4. Display citations in frontend — `app.js`: parse citation markers in bot responses, render as expandable footnotes ("From: {filename}, chunk {N}"). Small CSS addition for footnote styling.
+- [x] G4. Display citations in frontend — `app.js`: parse citation markers in bot responses, render as expandable footnotes ("From: {filename}, chunk {N}"). Small CSS addition for footnote styling.
 
 ## Phase H — Privacy-First Features (RBAC + Analytics)
 

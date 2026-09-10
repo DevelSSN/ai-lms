@@ -758,13 +758,85 @@ function appendMessage(sender, text) {
   requestAnimationFrame(() => {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
+  return messageDiv;
 }
 
 function appendAssistantContent(data) {
-  appendMessage("bot", data?.message || "");
+  const msgEl = appendMessage("bot", data?.message || "");
+  if (Array.isArray(data?.metadata?.citations) && data.metadata.citations.length) {
+    attachCitations(msgEl, data.metadata.citations);
+  }
   if (data?.metadata?.items && Array.isArray(data.metadata.items)) {
     renderQuizCard(data.metadata);
   }
+}
+
+function attachCitations(messageEl, citations) {
+  const numbers = new Set(citations.map((c) => c.number));
+  highlightCitationMarkers(messageEl, numbers);
+
+  const details = document.createElement("details");
+  details.classList.add("citation-footnotes");
+
+  const summary = document.createElement("summary");
+  summary.textContent = `Sources (${citations.length})`;
+  details.appendChild(summary);
+
+  const list = document.createElement("ul");
+  citations.forEach((c) => {
+    const li = document.createElement("li");
+    const label = document.createElement("span");
+    label.classList.add("citation-label");
+    label.textContent = `[${c.number}]`;
+    const body = document.createElement("span");
+    const fileName = c.documentName || c.source || "document";
+    const excerpt = (c.text || "").trim();
+    const truncated =
+      excerpt.length > 160 ? `${excerpt.slice(0, 160)}…` : excerpt;
+    body.textContent = `From "${fileName}", chunk ${(Number.isFinite(c.chunkIndex) ? c.chunkIndex : -1) + 1}${excerpt ? `: ${truncated}` : ""}`;
+    li.appendChild(label);
+    li.appendChild(body);
+    list.appendChild(li);
+  });
+  details.appendChild(list);
+  messageEl.appendChild(details);
+}
+
+function highlightCitationMarkers(root, numbers) {
+  if (!numbers || numbers.size === 0) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const toReplace = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const parent = node.parentNode || root;
+    if (parent.closest && parent.closest("pre, code")) continue;
+    if (/\[\d+\]/.test(node.nodeValue || "")) toReplace.push(node);
+  }
+  toReplace.forEach((node) => {
+    const frag = document.createDocumentFragment();
+    const regex = /\[(\d+)\]/g;
+    let last = 0;
+    let m;
+    while ((m = regex.exec(node.nodeValue || ""))) {
+      if (m.index > last) {
+        frag.appendChild(document.createTextNode(node.nodeValue.slice(last, m.index)));
+      }
+      const num = parseInt(m[1], 10);
+      if (numbers.has(num)) {
+        const sup = document.createElement("sup");
+        sup.classList.add("citation-ref");
+        sup.textContent = num;
+        frag.appendChild(sup);
+      } else {
+        frag.appendChild(document.createTextNode(m[0]));
+      }
+      last = m.index + m[0].length;
+    }
+    if (last < (node.nodeValue || "").length) {
+      frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+    }
+    node.parentNode.replaceChild(frag, node);
+  });
 }
 
 function renderQuizCard(meta) {

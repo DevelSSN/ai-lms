@@ -977,3 +977,51 @@ footer {
 .quiz-result.quiz-result-pass {
     background-color: rgba(76, 175, 80, 0.14);
 }
+
+.citation-ref {
+    font-size: 0.7em;
+    font-weight: 700;
+    vertical-align: super;
+    color: var(--accent-color, #3b82f6);
+    margin-left: 1px;
+}
+
+.citation-footnotes {
+    margin-top: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.06);
+    font-size: 0.82rem;
+}
+
+.citation-footnotes summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-secondary);
+    user-select: none;
+}
+
+.citation-footnotes ul {
+    margin: 0.5rem 0 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.citation-footnotes li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.25rem 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.12);
+}
+
+.citation-footnotes li:first-of-type {
+    border-top: none;
+}
+
+.citation-label {
+    font-weight: 700;
+    color: var(--accent-color, #3b82f6);
+    white-space: nowrap;
+}
