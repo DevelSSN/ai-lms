@@ -3,6 +3,7 @@ package com.ailms.orchestrator.resource;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.service.OrchestratorService;
@@ -43,6 +44,22 @@ public class OrchestratorResource {
       log.warn("Blocked cross-user session access: {}", e.getMessage());
       return Response.status(Response.Status.FORBIDDEN)
           .entity(Map.of("error", "Session does not belong to the authenticated user"))
+          .build();
+    }
+  }
+
+  @POST
+  @Path("/quiz/results")
+  public Response recordQuizResult(
+      QuizResultRequest request, @HeaderParam("X-User-Id") String userId) {
+    log.info("Quiz result submission from user={} session={}", userId, request.sessionId());
+    try {
+      orchestratorService.recordQuizResult(userId, request);
+      return Response.noContent().build();
+    } catch (IllegalArgumentException e) {
+      log.warn("Invalid quiz result payload from user={}: {}", userId, e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(Map.of("error", e.getMessage()))
           .build();
     }
   }

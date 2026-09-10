@@ -8,7 +8,10 @@ import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.QuizItem;
 import com.ailms.common.dto.QuizMetadata;
+import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.entity.ConversationLog;
+import com.ailms.common.entity.QuizResult;
+import com.ailms.common.entity.UserProfile;
 import com.ailms.common.enums.ChatRole;
 import com.ailms.common.enums.IntentType;
 import com.ailms.orchestrator.agent.ContentAnalysisAgent;
@@ -21,6 +24,8 @@ import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.TitleGenerator;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.ailms.orchestrator.repository.QuizResultRepository;
+import com.ailms.orchestrator.repository.UserProfileRepository;
 import com.ailms.orchestrator.util.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +38,9 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.invocation.LangChain4jManaged;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +70,10 @@ public class OrchestratorService {
   @Inject ProfilingService profilingService;
 
   @Inject ConversationRepository conversationRepository;
+
+  @Inject QuizResultRepository quizResultRepository;
+
+  @Inject UserProfileRepository userProfileRepository;
 
   @Inject VectorDBService vectorDBService;
 
@@ -785,5 +797,52 @@ public class OrchestratorService {
     String collapsed = message.replaceAll("\\s+", " ").trim();
     if (collapsed.isEmpty()) return "New chat";
     return collapsed.length() <= 40 ? collapsed : collapsed.substring(0, 40).trim() + "…";
+  }
+
+  @Transactional
+  public void recordQuizResult(String userId, QuizResultRequest request) {
+    if (userId == null || request == null) {
+      throw new IllegalArgumentException("Quiz result requires a user id and payload");
+    }
+    if (request.questions() == null || request.questions().isEmpty()) {
+      throw new IllegalArgumentException("Quiz result requires at least one question");
+    }
+    QuizResult result = new QuizResult();
+    result.userId = userId;
+    result.sessionId = request.sessionId();
+    result.contentId = request.contentId();
+    result.score = Math.max(0, Math.min(request.score(), request.total()));
+    result.total = request.total();
+    try {
+      result.questions = objectMapper.writeValueAsString(request.questions());
+      result.answers =
+          objectMapper.writeValueAsString(
+              request.answers() == null ? Map.of() : request.answers());
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Failed to serialize quiz payload", e);
+    }
+    quizResultRepository.save(result);
+    feedProfilingFromQuiz(userId, request);
+  }
+
+  private void feedProfilingFromQuiz(String userId, QuizResultRequest request) {
+    int total = request.total() <= 0 ? request.questions().size() : request.total();
+    if (total <= 0 || request.score() * 2 >= total) return;
+
+    List<String> missed = new ArrayList<>();
+    for (QuizItem item : request.questions()) {
+      String userAnswer = request.answers() == null ? null : request.answers().get(item.question());
+      if (userAnswer == null || item.answer() == null || !userAnswer.equalsIgnoreCase(item.answer())) {
+        missed.add(item.question());
+      }
+    }
+    String note =
+        "[%s] Quiz %d/%d — recheck: %s"
+            .formatted(Instant.now(), request.score(), total, String.join(" | ", missed));
+    UserProfile profile = userProfileRepository.findOrCreate(userId);
+    String existing = profile.behavioralTraits;
+    String separator = (existing == null || existing.isBlank()) ? "" : "\n";
+    profile.behavioralTraits = (existing == null ? "" : existing) + separator + note;
+    log.info("Recorded weak-area quiz feedback for user={} score={}/{}", userId, request.score(), total);
   }
 }

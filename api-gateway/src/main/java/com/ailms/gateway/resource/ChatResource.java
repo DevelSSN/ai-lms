@@ -3,6 +3,7 @@ package com.ailms.gateway.resource;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.gateway.service.OrchestratorClient;
 import io.quarkus.security.Authenticated;
@@ -103,6 +104,20 @@ public class ChatResource {
       return Response.noContent().build();
     } catch (Exception e) {
       log.error("Failed to delete thread {}: {}", sessionId, e.getMessage());
+      return Response.serverError().build();
+    }
+  }
+
+  @POST
+  @Path("/quiz/submit")
+  public Response submitQuiz(QuizResultRequest request) {
+    String userId = jwt.getSubject();
+    log.info("Quiz submission from user={} session={}", userId, request.sessionId());
+    try {
+      orchestrator.submitQuizResult(request, userId);
+      return Response.noContent().build();
+    } catch (Exception e) {
+      log.error("Failed to persist quiz result for user={}: {}", userId, e.getMessage());
       return Response.serverError().build();
     }
   }

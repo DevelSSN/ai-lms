@@ -3,6 +3,7 @@ package com.ailms.gateway.service;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import jakarta.ws.rs.DELETE;
@@ -43,4 +44,9 @@ public interface OrchestratorClient {
   @Path("/threads/{sessionId}")
   void deleteThread(
       @PathParam("sessionId") String sessionId, @HeaderParam("X-User-Id") String userId);
+
+  @POST
+  @Path("/quiz/results")
+  void submitQuizResult(
+      QuizResultRequest request, @HeaderParam("X-User-Id") String userId);
 }

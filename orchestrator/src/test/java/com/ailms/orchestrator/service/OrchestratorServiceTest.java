@@ -17,6 +17,8 @@ import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.ailms.orchestrator.repository.QuizResultRepository;
+import com.ailms.orchestrator.repository.UserProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.data.message.AiMessage;
@@ -42,6 +44,10 @@ class OrchestratorServiceTest {
   @Mock InsightAgent insightAgent;
   @Mock ProfilingService profilingService;
   @Mock ConversationRepository conversationRepository;
+
+  @Mock QuizResultRepository quizResultRepository;
+
+  @Mock UserProfileRepository userProfileRepository;
   @Mock VectorDBService vectorDBService;
   @Mock ContentDocumentService contentDocumentService;
   @Mock InsightDataService insightDataService;
@@ -1201,6 +1207,8 @@ class OrchestratorServiceTest {
     svc.insightAgent = insightAgent;
     svc.profilingService = profilingService;
     svc.conversationRepository = conversationRepository;
+    svc.quizResultRepository = quizResultRepository;
+    svc.userProfileRepository = userProfileRepository;
     svc.vectorDBService = vectorDBService;
     svc.contentDocumentService = contentDocumentService;
     svc.insightDataService = insightDataService;
@@ -1213,5 +1221,51 @@ class OrchestratorServiceTest {
         .when(youTubeLinkValidator.sanitize(anyString()))
         .thenAnswer(inv -> inv.getArgument(0));
     return svc;
+  }
+
+  @Test
+  void recordQuizResult_persistsAndSkipsProfilingOnGoodScore() {
+    var item =
+        new com.ailms.common.dto.QuizItem(
+            "Q1", "multiple_choice", java.util.List.of("A", "B"), "B", "why B");
+    var request =
+        new com.ailms.common.dto.QuizResultRequest(
+            "sess-1", "doc-9", java.util.List.of(item), java.util.Map.of("Q1", "B"), 1, 1);
+
+    OrchestratorService svc = buildService();
+    svc.recordQuizResult("user-1", request);
+
+    verify(quizResultRepository).save(argThat(r -> r.userId.equals("user-1")));
+    verify(userProfileRepository, never()).findOrCreate(anyString());
+  }
+
+  @Test
+  void recordQuizResult_appendsWeakAreaNoteWhenBelowHalf() {
+    var item =
+        new com.ailms.common.dto.QuizItem(
+            "Q1", "multiple_choice", java.util.List.of("A", "B"), "B", "why B");
+    var request =
+        new com.ailms.common.dto.QuizResultRequest(
+            "sess-1", "doc-9", java.util.List.of(item), java.util.Map.of("Q1", "A"), 0, 1);
+    var profile = new com.ailms.common.entity.UserProfile();
+    when(userProfileRepository.findOrCreate("user-1")).thenReturn(profile);
+
+    OrchestratorService svc = buildService();
+    svc.recordQuizResult("user-1", request);
+
+    assertTrue(profile.behavioralTraits.contains("Quiz 0/1"));
+    assertTrue(profile.behavioralTraits.contains("Q1"));
+  }
+
+  @Test
+  void recordQuizResult_rejectsEmptyPayload() {
+    OrchestratorService svc = buildService();
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            svc.recordQuizResult(
+                "user-1",
+                new com.ailms.common.dto.QuizResultRequest(
+                    "sess-1", "doc-9", java.util.List.of(), java.util.Map.of(), 0, 0)));
   }
 }

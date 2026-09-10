@@ -511,7 +511,7 @@ function setupEventListeners() {
 
       const data = await response.json();
       removeTypingIndicator();
-      appendMessage("bot", data.message);
+      appendAssistantContent(data);
       loadThreads();
       // Server title is generated asynchronously (LLM) — refresh again later.
       setTimeout(loadThreads, 45000);
@@ -628,6 +628,28 @@ async function uploadFile(file) {
 
     const data = await response.json();
     appendMessage("bot", data.message);
+
+    const uploadSessionId = data.sessionId || "";
+    if (uploadSessionId.startsWith("upload:")) {
+      const bar = document.createElement("div");
+      bar.classList.add("message", "bot-message", "quiz-action-bar");
+      const btn = document.createElement("button");
+      btn.classList.add("quiz-action-btn");
+      btn.textContent = "✨ Generate Quiz";
+      btn.title = "Create a quiz grounded in this document's analysis";
+      btn.addEventListener("click", () => {
+        const input = document.getElementById("user-input");
+        input.value = "Generate quiz about the uploaded document";
+        input.dispatchEvent(new Event("input"));
+        document.getElementById("send-btn").click();
+      });
+      bar.appendChild(btn);
+      document.getElementById("chat-container").appendChild(bar);
+      requestAnimationFrame(() => {
+        document.getElementById("chat-container").scrollTop =
+          document.getElementById("chat-container").scrollHeight;
+      });
+    }
     loadThreads();
   } catch (error) {
     appendMessage("bot", `Upload failed: ${error.message}. Files up to 50MB supported.`);
@@ -736,6 +758,161 @@ function appendMessage(sender, text) {
   requestAnimationFrame(() => {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
+}
+
+function appendAssistantContent(data) {
+  appendMessage("bot", data?.message || "");
+  if (data?.metadata?.items && Array.isArray(data.metadata.items)) {
+    renderQuizCard(data.metadata);
+  }
+}
+
+function renderQuizCard(meta) {
+  const container = document.getElementById("chat-container");
+  const card = document.createElement("div");
+  card.classList.add("quiz-card");
+
+  const difficulty = capitalize(meta.difficulty || "medium");
+  const header = document.createElement("div");
+  header.classList.add("quiz-header");
+  header.textContent = `📝 Quiz · ${difficulty} · ${meta.items.length} questions`;
+  card.appendChild(header);
+
+  const questions = meta.items.map((item, i) => buildQuizQuestion(i, item));
+  questions.forEach((q) => card.appendChild(q));
+
+  const checkBtn = document.createElement("button");
+  checkBtn.classList.add("quiz-submit-btn");
+  checkBtn.textContent = "Check answers";
+  card.appendChild(checkBtn);
+
+  const result = document.createElement("div");
+  result.classList.add("quiz-result");
+  result.hidden = true;
+  card.appendChild(result);
+
+  checkBtn.addEventListener("click", () => evaluateQuiz(meta, questions, result));
+
+  container.appendChild(card);
+  requestAnimationFrame(() => {
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function buildQuizQuestion(index, item) {
+  const q = document.createElement("div");
+  q.classList.add("quiz-question");
+
+  const prompt = document.createElement("div");
+  prompt.classList.add("quiz-question-text");
+  prompt.textContent = `${index + 1}. ${item.question || ""}`;
+  q.appendChild(prompt);
+
+  if (item.type === "true_false") {
+    const wrap = document.createElement("div");
+    wrap.classList.add("quiz-options");
+    ["true", "false"].forEach((opt) => {
+      wrap.appendChild(quizRadio(index, opt, opt[0].toUpperCase() + opt.slice(1)));
+    });
+    q.appendChild(wrap);
+  } else if (Array.isArray(item.options) && item.options.length) {
+    const wrap = document.createElement("div");
+    wrap.classList.add("quiz-options");
+    item.options.forEach((opt) => wrap.appendChild(quizRadio(index, opt, opt)));
+    q.appendChild(wrap);
+  } else {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Type your answer…";
+    input.classList.add("quiz-input");
+    q.appendChild(input);
+  }
+
+  const explanation = document.createElement("div");
+  explanation.classList.add("quiz-explanation");
+  explanation.hidden = true;
+  q.appendChild(explanation);
+  return q;
+}
+
+function quizRadio(index, value, label) {
+  const labelEl = document.createElement("label");
+  const radio = document.createElement("input");
+  radio.type = "radio";
+  radio.name = `quiz-q${index}`;
+  radio.value = value;
+  labelEl.appendChild(radio);
+  labelEl.appendChild(document.createTextNode(label));
+  return labelEl;
+}
+
+function evaluateQuiz(meta, questions, resultEl) {
+  const answers = {};
+  let score = 0;
+  questions.forEach((q, i) => {
+    const item = meta.items[i];
+    let given = "";
+    const checked = q.querySelector("input[type=radio]:checked");
+    if (checked) given = checked.value;
+    const text = q.querySelector(".quiz-input");
+    if (text && text.value.trim()) given = text.value.trim();
+
+    answers[item.question] = given;
+    const expected = item.answer || "";
+    const isCorrect = given && given.toLowerCase() === expected.toLowerCase();
+    if (isCorrect) score++;
+
+    const badge = document.createElement("span");
+    badge.classList.add("quiz-badge", isCorrect ? "quiz-correct" : "quiz-wrong");
+    badge.textContent = isCorrect ? "✓" : "✗";
+    q.querySelector(".quiz-question-text").appendChild(badge);
+
+    const exp = q.querySelector(".quiz-explanation");
+    if (exp) {
+      const parts = [];
+      if (item.explanation) parts.push(`Explanation: ${item.explanation}`);
+      if (!isCorrect && expected) parts.push(`Correct answer: ${expected}`);
+      exp.textContent = parts.join("  ·  ");
+      exp.hidden = false;
+    }
+  });
+
+  const total = questions.length;
+  resultEl.hidden = false;
+  resultEl.textContent = `Score: ${score}/${total}${score * 2 >= total ? " — nice work! 🎉" : " — review the answers above to reinforce weak areas."}`;
+  resultEl.classList.toggle("quiz-result-pass", score * 2 >= total);
+  submitQuizResult(meta, answers, score, total);
+}
+
+async function submitQuizResult(meta, answers, score, total) {
+  try {
+    await keycloak.updateToken(5);
+  } catch {
+    return;
+  }
+  try {
+    await fetch(`${API_BASE_URL}/v1/chat/quiz/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${keycloak.token}`,
+      },
+      body: JSON.stringify({
+        sessionId: currentThreadId,
+        contentId: meta.contentId,
+        questions: meta.items,
+        answers,
+        score,
+        total,
+      }),
+    });
+  } catch (e) {
+    console.warn("Quiz result submit failed:", e);
+  }
+}
+
+function capitalize(value) {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
 }
 
 const YOUTUBE_URL_RE =

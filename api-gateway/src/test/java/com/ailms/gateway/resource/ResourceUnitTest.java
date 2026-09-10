@@ -293,4 +293,44 @@ class ResourceUnitTest {
     assertEquals("no_ control", ContentResource.sanitizeFileName("no\u0000 control"));
     assertEquals("upload.bin", ContentResource.sanitizeFileName("   "));
   }
+
+  @Test
+  void chatResource_submitQuiz_success() {
+    when(jwt.getSubject()).thenReturn("user-1");
+
+    ChatResource resource = new ChatResource();
+    resource.jwt = jwt;
+    resource.orchestrator = orchestrator;
+
+    var request =
+        new com.ailms.common.dto.QuizResultRequest(
+            "sess-1",
+            "doc-9",
+            java.util.List.of(new com.ailms.common.dto.QuizItem("Q1", "multiple_choice",
+                java.util.List.of("A", "B"), "B", "explain")),
+            java.util.Map.of("Q1", "B"),
+            1,
+            1);
+    Response resp = resource.submitQuiz(request);
+    assertEquals(204, resp.getStatus());
+    verify(orchestrator).submitQuizResult(request, "user-1");
+  }
+
+  @Test
+  void chatResource_submitQuiz_orchestratorDown() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    doThrow(new RuntimeException("Down"))
+        .when(orchestrator)
+        .submitQuizResult(any(com.ailms.common.dto.QuizResultRequest.class), anyString());
+
+    ChatResource resource = new ChatResource();
+    resource.jwt = jwt;
+    resource.orchestrator = orchestrator;
+
+    var request =
+        new com.ailms.common.dto.QuizResultRequest(
+            "sess-1", "doc-9", java.util.List.of(), java.util.Map.of(), 0, 0);
+    Response resp = resource.submitQuiz(request);
+    assertEquals(500, resp.getStatus());
+  }
 }
