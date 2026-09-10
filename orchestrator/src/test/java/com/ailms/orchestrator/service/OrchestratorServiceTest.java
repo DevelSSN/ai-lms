@@ -60,6 +60,7 @@ class OrchestratorServiceTest {
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
   @Mock ManagedExecutor executor;
+  @Mock RequestContextRunner requestContextRunner;
 
   @BeforeEach
   void stubVerifierDefaultAccept() {
@@ -114,6 +115,13 @@ class OrchestratorServiceTest {
     doThrow(new RuntimeException("embedding service down"))
         .when(profilingService)
         .ensureProfile(anyString());
+    doAnswer(
+            inv -> {
+              inv.getArgument(0, Runnable.class).run();
+              return null;
+            })
+        .when(requestContextRunner)
+        .run(any(Runnable.class));
     OrchestratorService svc = buildService();
 
     svc.routeAsync(
@@ -1279,6 +1287,7 @@ class OrchestratorServiceTest {
     svc.youTubeSearchService = youTubeSearchService;
     svc.chatMemoryStore = chatMemoryStore;
     svc.executor = executor;
+    svc.requestContextRunner = requestContextRunner;
     svc.objectMapper = new ObjectMapper();
     lenient()
         .when(youTubeLinkValidator.sanitize(anyString()))
