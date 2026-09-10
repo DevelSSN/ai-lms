@@ -60,7 +60,7 @@ class OrchestratorServiceTest {
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
   @Mock ManagedExecutor executor;
-  @Mock RequestContextRunner requestContextRunner;
+  @Mock AsyncJobRunner asyncJobRunner;
 
   @BeforeEach
   void stubVerifierDefaultAccept() {
@@ -120,7 +120,7 @@ class OrchestratorServiceTest {
               inv.getArgument(0, Runnable.class).run();
               return null;
             })
-        .when(requestContextRunner)
+        .when(asyncJobRunner)
         .run(any(Runnable.class));
     OrchestratorService svc = buildService();
 
@@ -1287,7 +1287,7 @@ class OrchestratorServiceTest {
     svc.youTubeSearchService = youTubeSearchService;
     svc.chatMemoryStore = chatMemoryStore;
     svc.executor = executor;
-    svc.requestContextRunner = requestContextRunner;
+    svc.asyncJobRunner = asyncJobRunner;
     svc.objectMapper = new ObjectMapper();
     lenient()
         .when(youTubeLinkValidator.sanitize(anyString()))

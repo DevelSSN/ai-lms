@@ -196,7 +196,7 @@ public class OrchestratorService {
 
   @Inject KafkaEventPublisher kafkaEventPublisher;
 
-  @Inject RequestContextRunner requestContextRunner;
+  @Inject AsyncJobRunner asyncJobRunner;
 
   public ChatResponse route(ChatRequest request, String userId) {
     profilingService.ensureProfile(userId);
@@ -329,7 +329,7 @@ public class OrchestratorService {
 
     ChatRequest job = new ChatRequest(request.message(), sessionId);
     String finalSessionId = sessionId;
-    executor.execute(() -> requestContextRunner.run(() -> runAnalysisJob(job, userId, finalSessionId)));
+    executor.execute(() -> asyncJobRunner.run(() -> runAnalysisJob(job, userId, finalSessionId)));
 
     log.info("Scheduled async content analysis for user={} session={}", userId, finalSessionId);
     return Map.of("status", "PENDING", "sessionId", finalSessionId);
@@ -857,7 +857,7 @@ public class OrchestratorService {
   private void scheduleTitleGeneration(String userId, String sessionId) {
     if (executor == null || titleGenerator == null) return;
     try {
-      executor.execute(() -> requestContextRunner.run(() -> generateTitle(userId, sessionId)));
+      executor.execute(() -> asyncJobRunner.run(() -> generateTitle(userId, sessionId)));
     } catch (Exception e) {
       log.warn("Failed to schedule title generation for session={}: {}", sessionId, e.getMessage());
     }
