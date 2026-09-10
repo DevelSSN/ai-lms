@@ -9,6 +9,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import io.quarkiverse.langchain4j.redis.RedisEmbeddingStore;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -101,21 +102,30 @@ public class VectorDBService {
       String query, int maxResults, Predicate<String> sourceFilter) {
     Embedding queryEmbedding = embeddingModel.embed(query).content();
 
-    int fetchSize = sourceFilter == null ? maxResults : maxResults * 3;
+    Filter metadataFilter = null;
+    if (sourceFilter != null) {
+      metadataFilter =
+          (Filter)
+              obj -> {
+                if (obj instanceof Map<?, ?> metadata) {
+                  Object source = metadata.get("source");
+                  return sourceFilter.test(source instanceof String s ? s : null);
+                }
+                return false;
+              };
+    }
+
     EmbeddingSearchRequest request =
         EmbeddingSearchRequest.builder()
             .queryEmbedding(queryEmbedding)
-            .maxResults(fetchSize)
+            .maxResults(maxResults)
+            .filter(metadataFilter)
             .build();
 
     List<EmbeddingMatch<TextSegment>> matches = embeddingStore.search(request).matches();
 
     return matches.stream()
         .filter(m -> m.score() >= minScore)
-        .filter(
-            m ->
-                sourceFilter == null
-                    || sourceFilter.test(m.embedded().metadata().getString("source")))
         .limit(maxResults)
         .map(match -> match.embedded().text())
         .toList();

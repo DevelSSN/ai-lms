@@ -72,7 +72,7 @@ Fixes that must land before any new features. Derived from deep code audit (2026
 - [x] E4. CAA→QGA data flow — `OrchestratorService.resolveAnalysisContext()` (lines 396-405): retrieve CAA's structured analysis from `ChatMemoryKeys.analysis(sessionId)` chat memory and prepend to `analysisCtx` before passing to QGA. This is the critical link for document-to-assessment.
 - [x] E5. VectorDBService non-atomic dual-write — `VectorDBService.java:57-83`: reorder ingest to add all Qdrant vectors first, then delete old ones. Crash leaves stale-but-complete data instead of partial.
 - [x] E6. Qdrant config key mismatch — `QdrantInitializer.java:21-29`: introduce `qdrant.admin.host` config key instead of borrowing from `quarkus.langchain4j.qdrant.host` (gRPC target). Decouple admin REST from gRPC connection.
-- [ ] E7. Source-filtered retrieval undershooting — `VectorDBService.java:102-123`: push source filter into `EmbeddingSearchRequest` metadata filter instead of client-side filtering. Ensures `maxResults` is actually returned.
+- [x] E7. Source-filtered retrieval undershooting — `VectorDBService.java:102-123`: push source filter into `EmbeddingSearchRequest` metadata filter instead of client-side filtering. Ensures `maxResults` is actually returned.
 
 ### E8. SSE & ProactiveAgent delivery fixes
 
