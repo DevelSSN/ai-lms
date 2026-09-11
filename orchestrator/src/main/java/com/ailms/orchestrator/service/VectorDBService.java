@@ -20,7 +20,6 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -92,38 +91,25 @@ public class VectorDBService {
   }
 
   public List<RetrievedChunk> retrieveRelevantContext(String query, int maxResults) {
-    return retrieveRelevantContext(query, maxResults, (Predicate<String>) null);
+    return search(query, maxResults, null);
   }
 
-  public List<RetrievedChunk> retrieveRelevantContext(
-      String query, int maxResults, String sourcePrefix) {
-    Predicate<String> filter =
-        sourcePrefix == null ? null : source -> source != null && source.startsWith(sourcePrefix);
-    return retrieveRelevantContext(query, maxResults, filter);
+  public List<RetrievedChunk> retrieveRelevantContext(String query, int maxResults, String sourceKey) {
+    Filter filter =
+        sourceKey == null
+            ? null
+            : MetadataFilterBuilder.metadataKey("source").isEqualTo(sourceKey);
+    return search(query, maxResults, filter);
   }
 
-  public List<RetrievedChunk> retrieveRelevantContext(
-      String query, int maxResults, Predicate<String> sourceFilter) {
+  private List<RetrievedChunk> search(String query, int maxResults, Filter filter) {
     Embedding queryEmbedding = embeddingModel.embed(query).content();
-
-    Filter metadataFilter = null;
-    if (sourceFilter != null) {
-      metadataFilter =
-          (Filter)
-              obj -> {
-                if (obj instanceof Map<?, ?> metadata) {
-                  Object source = metadata.get("source");
-                  return sourceFilter.test(source instanceof String s ? s : null);
-                }
-                return false;
-              };
-    }
 
     EmbeddingSearchRequest request =
         EmbeddingSearchRequest.builder()
             .queryEmbedding(queryEmbedding)
             .maxResults(maxResults)
-            .filter(metadataFilter)
+            .filter(filter)
             .build();
 
     List<EmbeddingMatch<TextSegment>> matches = embeddingStore.search(request).matches();

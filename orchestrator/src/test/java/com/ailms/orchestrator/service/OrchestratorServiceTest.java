@@ -27,7 +27,6 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -262,7 +261,7 @@ class OrchestratorServiceTest {
     assertEquals("CONVERSATION", resp.agentType());
     verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
     verify(vectorDBService, never())
-        .retrieveRelevantContext(anyString(), eq(8), any(Predicate.class));
+        .retrieveRelevantContext(anyString(), eq(8), anyString());
   }
 
   @Test

@@ -130,7 +130,7 @@ class VectorDBServiceTest {
   }
 
   @Test
-  void retrieveRelevantContext_filtersBySourcePrefix() {
+  void retrieveRelevantContext_filtersBySourceKey() {
     when(embeddingModel.embed(any(String.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
 
@@ -145,29 +145,15 @@ class VectorDBServiceTest {
 
     VectorDBService svc = newService();
 
-    List<RetrievedChunk> results = svc.retrieveRelevantContext("test query", 3, "doc:");
+    List<RetrievedChunk> results = svc.retrieveRelevantContext("test query", 3, "doc:abc");
     assertEquals("doc text", results.get(0).text());
-  }
 
-  @Test
-  void retrieveRelevantContext_filtersByPredicate() {
-    when(embeddingModel.embed(any(String.class)))
-        .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
-
-    EmbeddingMatch<TextSegment> match =
-        new EmbeddingMatch<>(
-            0.95,
-            "id-1",
-            new Embedding(new float[] {0.1f, 0.2f, 0.3f}),
-            TextSegment.from("doc text", Metadata.from(java.util.Map.of("source", "doc:abc"))));
-    when(embeddingStore.search(any(EmbeddingSearchRequest.class)))
-        .thenReturn(new EmbeddingSearchResult<>(List.of(match)));
-
-    VectorDBService svc = newService();
-
-    List<RetrievedChunk> results =
-        svc.retrieveRelevantContext("test query", 3, s -> s != null && s.equals("doc:abc"));
-    assertEquals("doc text", results.get(0).text());
+    ArgumentCaptor<EmbeddingSearchRequest> captor =
+        ArgumentCaptor.forClass(EmbeddingSearchRequest.class);
+    verify(embeddingStore).search(captor.capture());
+    Filter filter = captor.getValue().filter();
+    assertNotNull(filter);
+    assertFalse(filter.getClass().getName().contains("$$Lambda"));
   }
 
   @Test
