@@ -594,28 +594,60 @@ async function switchThread(threadId) {
   loadThreads();
 }
 
-function startSSE() {
-  const chatContainer = document.getElementById("chat-container");
-  const parsed = keycloak.tokenParsed;
-  const currentUsername = parsed.sub || "";
+let eventSource = null;
+let sseBackoffMs = 1000;
 
-  const eventSource = new EventSource(
+function startSSE() {
+  if (eventSource) {
+    try {
+      eventSource.close();
+    } catch { /* ignore */ }
+    eventSource = null;
+  }
+  connectSSE();
+}
+
+async function connectSSE() {
+  try {
+    await keycloak.updateToken(5);
+  } catch { /* will retry with backoff */ }
+
+  const parsed = keycloak.tokenParsed;
+  const currentUsername = parsed?.sub || "";
+
+  const es = new EventSource(
     `${API_BASE_URL}/updates?token=${encodeURIComponent(keycloak.token)}`,
   );
+  eventSource = es;
 
-  eventSource.onmessage = (event) => {
+  es.onopen = () => {
+    sseBackoffMs = 1000;
+  };
+
+  es.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      if (data.user_id === currentUsername) {
-        appendMessage("bot", data.response);
+      if (data.ping) return;
+      if (data.user_id === currentUsername && data.response) {
+        const container = document.getElementById("chat-container");
+        const bots = container.querySelectorAll(".bot-message");
+        const last = bots[bots.length - 1];
+        if (!last || last.textContent.trim() !== data.response.trim()) {
+          appendMessage("bot", data.response);
+        }
       }
     } catch (e) {
       console.error("Error parsing SSE data:", e);
     }
   };
 
-  eventSource.onerror = (err) => {
-    console.error("SSE connection failed:", err);
+  es.onerror = () => {
+    es.close();
+    if (eventSource === es) eventSource = null;
+    const delay = sseBackoffMs;
+    sseBackoffMs = Math.min(sseBackoffMs * 2, 30000);
+    console.warn(`SSE disconnected, reconnecting in ${delay / 1000}s`);
+    setTimeout(connectSSE, delay);
   };
 }
 
@@ -843,6 +875,9 @@ function pollUploadStatus(docId, sessionId) {
       }
       const status = await response.json();
       if (status.status === "INDEXED") {
+        if (sessionId === currentThreadId) {
+          await loadHistory(sessionId);
+        }
         showQuizActionBar(sessionId);
         loadThreads();
         return;
