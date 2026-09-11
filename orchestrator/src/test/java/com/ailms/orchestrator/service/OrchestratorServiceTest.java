@@ -9,6 +9,7 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.RetrievedChunk;
+import com.ailms.common.enums.ChatRole;
 import com.ailms.orchestrator.agent.ContentAnalysisAgent;
 import com.ailms.orchestrator.agent.ConversationAgent;
 import com.ailms.orchestrator.agent.InsightAgent;
@@ -1070,6 +1071,34 @@ class OrchestratorServiceTest {
     assertNotNull(resp);
     verify(contentDocumentService).resolveContent("doc-1");
     verify(contentAnalysisAgent).process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString());
+  }
+
+  @Test
+  void route_uploadFile_logsFriendlyUserMessage() {
+    String uploadMsg = "Analyze the uploaded file: doc-1";
+    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveContent("doc-1"))
+        .thenReturn("File: emacs.pdf\n\nContent:\nmanual excerpt");
+    when(contentDocumentService.resolveFileName("doc-1")).thenReturn("emacs.pdf");
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString()))
+        .thenReturn("Analysis summary text.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
+        .thenReturn(
+            new ChatResponse("Analysis summary text.", "upload-user-1", "CONTENT_ANALYSIS"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
+
+    ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+    verify(conversationRepository, atLeastOnce())
+        .logMessage(
+            eq("user-1"),
+            eq("upload-user-1"),
+            eq(ChatRole.USER.key()),
+            messageCaptor.capture());
+    assertTrue(
+        messageCaptor.getAllValues().stream()
+            .anyMatch(v -> v.equals("📎 Uploaded document: emacs.pdf")));
   }
 
   @Test

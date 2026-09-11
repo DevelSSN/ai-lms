@@ -300,7 +300,8 @@ public class OrchestratorService {
           conversationRepository.count(
                   "sessionId = ?1 AND (deleted IS NULL OR deleted = false)", sessionId)
               == 0;
-      conversationRepository.logMessage(userId, sessionId, ChatRole.USER.key(), request.message());
+      conversationRepository.logMessage(
+          userId, sessionId, ChatRole.USER.key(), displayUserMessage(request.message(), userId, sessionId));
       conversationRepository.logMessage(
           userId, sessionId, ChatRole.ASSISTANT.key(), response.message(), response.agentType());
 
@@ -448,6 +449,28 @@ public class OrchestratorService {
     } catch (Exception e) {
       log.warn("Failed to publish event for intent={} user={}: {}", intent, userId, e.getMessage());
     }
+  }
+
+  private String displayUserMessage(String message, String userId, String sessionId) {
+    if (message != null && message.startsWith(UPLOAD_PREFIX)) {
+      String docId = message.substring(UPLOAD_PREFIX.length()).trim();
+      String name = null;
+      try {
+        name = contentDocumentService.resolveFileName(docId);
+      } catch (Exception e) {
+        log.warn(
+            "Failed to resolve file name for upload message user={} session={} doc={}: {}",
+            userId,
+            sessionId,
+            docId,
+            e.getMessage());
+      }
+      if (name == null || name.isBlank()) {
+        return "📎 Uploaded a document for analysis.";
+      }
+      return "📎 Uploaded document: " + name;
+    }
+    return message;
   }
 
   private String enrichWithAnalytics(
@@ -746,13 +769,18 @@ public class OrchestratorService {
 
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
-    return assessmentFallbackIfStructured(intent, retried);
+    return lastUsableAnswer(intent, retried);
   }
 
-  private String assessmentFallbackIfStructured(String intent, String answer) {
+  private String lastUsableAnswer(String intent, String answer) {
     if (INTENT_ASSESSMENT.equals(intent) && !parseQuizItems(answer).isEmpty()) {
-      log.warn(
-          "Verifier rejected assessment but quiz is structurally valid, delivering it anyway");
+      log.warn("Verifier rejected assessment but quiz is structurally valid, delivering it");
+      return answer;
+    }
+    if (INTENT_CONTENT_ANALYSIS.equals(intent)
+        && answer != null
+        && answer.trim().length() > 150) {
+      log.warn("Verifier rejected content analysis but response is substantial, delivering it");
       return answer;
     }
     return VERIFIER_FALLBACK;

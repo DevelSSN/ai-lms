@@ -23,12 +23,20 @@ public interface ResponseVerifierAgent {
       - user_context: any relevant context (lesson/topic, document excerpt, chat history)
       - assistant_answer: the answer produced before it is sent to the student
 
+      IMPORTANT: the assistant_answer is whatever the assistant produced for the student
+      (a summary, an explanation, or a structured quiz). It must NEVER contain a verdict,
+      self-assessment, JSON metadata, or any evaluation of its own sufficiency. Do NOT
+      reject an answer for lacking such a self-evaluation. The only JSON you ever produce
+      is your own report at the end of this message.
+
       Decide ACCEPT or NEEDS_REWRITE:
-      - ACCEPT if the answer is on-topic, factually consistent with the context, and
-        meaningfully answers the question.
-      - NEEDS_REWRITE if the answer is off-topic, is empty, merely repeats itself without
-        answering, introduces facts NOT supported by the context (hallucination), or only
-        partially answers while ignoring a clear requirement.
+      - ACCEPT if the answer is on-topic, factually consistent with the user_context, and
+        meaningfully answers the user_question. Structured answers (e.g. a quiz with a
+        list of questions, or a summary broken into sections) are fine and should be
+        accepted when they are grounded in the context.
+      - NEEDS_REWRITE only if the answer is off-topic, empty, hallucinates facts NOT
+        supported by the context, merely repeats the question without answering, or
+        ignores a clear requirement of the user_question.
 
       If NEEDS_REWRITE, list which non-compliant parts (fragments) should be discarded or
       what is missing, so a regenerated answer can be produced.
