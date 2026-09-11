@@ -236,4 +236,21 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
         .page(0, limit)
         .list();
   }
+
+  public String resolveLastSessionId(String userId) {
+    try {
+      @SuppressWarnings("unchecked")
+      List<String> rows =
+          em.createQuery(
+                  "select c.sessionId from ConversationLog c where c.userId = :uid and c.deleted ="
+                      + " false order by c.timestamp desc",
+                  String.class)
+              .setParameter("uid", userId)
+              .setMaxResults(1)
+              .getResultList();
+      return rows.isEmpty() ? null : rows.get(0);
+    } catch (Exception e) {
+      return null;
+    }
+  }
 }

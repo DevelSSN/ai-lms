@@ -113,6 +113,15 @@ public class ContentDocumentService {
   }
 
   @Transactional
+  public void markIndexed(String docId) {
+    ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, docId);
+    if (doc == null || doc.status == ContentStatus.FAILED) return;
+    doc.status = ContentStatus.INDEXED;
+    doc.processedAt = Instant.now();
+    log.info("Marked document as INDEXED docId={}", docId);
+  }
+
+  @Transactional
   public List<String> chunkContent(String docId, int chunkSize, int overlap) {
     String content = extractContent(docId);
     if (content == null) return List.of();

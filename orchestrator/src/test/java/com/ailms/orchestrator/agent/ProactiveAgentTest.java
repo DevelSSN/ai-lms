@@ -2,8 +2,12 @@ package com.ailms.orchestrator.agent;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.ailms.common.constants.EventTypeKeys;
+import com.ailms.common.enums.ChatRole;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
 import java.time.Duration;
@@ -44,11 +48,19 @@ class ProactiveAgentTest {
   void checkFollowUps_withInactiveUser() {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
+    when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
     when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any(), any()))
         .thenReturn(true);
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
+    verify(conversationRepository)
+        .logMessage(
+            eq("user-1"),
+            eq("sess-1"),
+            eq(ChatRole.ASSISTANT.key()),
+            anyString(),
+            eq(EventTypeKeys.FOLLOW_UP));
     verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any(), any());
   }
 
@@ -59,12 +71,20 @@ class ProactiveAgentTest {
     log.role = "user";
     log.message = "hello";
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of(log));
+    when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
     when(proactiveFollowUpAgent.generate(anyString())).thenReturn("Follow up message");
     when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any(), any()))
         .thenReturn(true);
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
+    verify(conversationRepository)
+        .logMessage(
+            eq("user-1"),
+            eq("sess-1"),
+            eq(ChatRole.ASSISTANT.key()),
+            contains("Follow up message"),
+            eq(EventTypeKeys.FOLLOW_UP));
   }
 
   @Test

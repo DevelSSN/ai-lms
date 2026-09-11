@@ -351,6 +351,9 @@ public class OrchestratorService {
     }
     try {
       route(request, userId);
+      if (docId != null && !docId.isEmpty()) {
+        contentDocumentService.markIndexed(docId);
+      }
     } catch (Exception e) {
       log.error(
           "Async content analysis failed for user={} session={}: {}",

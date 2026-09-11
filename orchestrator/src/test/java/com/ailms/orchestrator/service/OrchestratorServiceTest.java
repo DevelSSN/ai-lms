@@ -167,6 +167,36 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void routeAsync_jobSuccessMarksDocumentIndexed() {
+    String uploadMsg = "Analyze the uploaded file: doc-1";
+    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveContent("doc-1"))
+        .thenReturn("File: notes.pdf\n\nContent:\nsample text");
+    when(contentDocumentService.resolveFileName("doc-1")).thenReturn("notes.pdf");
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString()))
+        .thenReturn("Analysis complete");
+    when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
+        .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
+    doAnswer(
+            inv -> {
+              inv.getArgument(0, Runnable.class).run();
+              return null;
+            })
+        .when(asyncJobRunner)
+        .run(any(Runnable.class));
+    OrchestratorService svc = buildService();
+
+    svc.routeAsync(
+        new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
+
+    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    verify(executor).execute(captor.capture());
+    captor.getValue().run();
+
+    verify(contentDocumentService).markIndexed("doc-1");
+  }
+
+  @Test
   void route_allowsSessionOwnedBySameUser() {
     when(conversationRepository.sessionOwner("sess-1")).thenReturn("user-1");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))

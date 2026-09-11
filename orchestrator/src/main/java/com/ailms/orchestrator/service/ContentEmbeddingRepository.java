@@ -2,7 +2,6 @@ package com.ailms.orchestrator.service;
 
 import com.ailms.common.entity.ContentDocument;
 import com.ailms.common.entity.ContentEmbedding;
-import com.ailms.common.enums.ContentStatus;
 import io.quarkus.hibernate.orm.panache.Panache;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -26,7 +25,6 @@ public class ContentEmbeddingRepository {
     }
     ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, documentId);
     if (doc != null) {
-      doc.status = ContentStatus.INDEXED;
       doc.processedAt = Instant.now();
       Panache.getEntityManager().merge(doc);
     }
