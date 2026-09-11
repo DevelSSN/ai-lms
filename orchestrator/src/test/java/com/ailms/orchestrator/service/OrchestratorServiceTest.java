@@ -1209,6 +1209,35 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_verifier_doubleRejection_deliversStructuredAssessment() {
+    String quiz =
+        "[{\"question\":\"What is the primary use of Emacs?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"Editing text\",\"Compiling code only\"],\"answer\":\"Editing"
+            + " text\",\"explanation\":\"Emacs is primarily a text editor.\"}]";
+    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
+        .thenReturn(quiz)
+        .thenReturn(quiz);
+    when(responseVerifierAgent.verify(eq("quiz me"), anyString(), eq(quiz)))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"off-topic\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "ASSESSMENT");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertEquals(quiz, resp.message());
+    verify(responseVerifierAgent, times(2)).verify(anyString(), anyString(), anyString());
+  }
+
+  @Test
   void route_verifier_doubleRejection_returnsFallback() {
     when(intentClassifier.classify("what is a neural network")).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))

@@ -746,6 +746,15 @@ public class OrchestratorService {
 
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
+    return assessmentFallbackIfStructured(intent, retried);
+  }
+
+  private String assessmentFallbackIfStructured(String intent, String answer) {
+    if (INTENT_ASSESSMENT.equals(intent) && !parseQuizItems(answer).isEmpty()) {
+      log.warn(
+          "Verifier rejected assessment but quiz is structurally valid, delivering it anyway");
+      return answer;
+    }
     return VERIFIER_FALLBACK;
   }
 
@@ -779,18 +788,32 @@ public class OrchestratorService {
     }
     try {
       String candidate = TextUtils.extractJsonObject(TextUtils.stripThinking(result));
-      JsonNode verdict = objectMapper.readTree(candidate).get("verdict");
+      JsonNode parsed = objectMapper.readTree(candidate);
+      JsonNode verdict = parsed.get("verdict");
       if (verdict == null || verdict.asText().isBlank()) {
-        log.warn("Verifier output had no verdict field, failing closed");
+        log.warn("Verifier output had no verdict field, failing closed: {}", snippet(result));
         return false;
       }
-      return "ACCEPT".equalsIgnoreCase(verdict.asText().trim());
-    } catch (Exception e) {
+      String decision = verdict.asText().trim();
+      JsonNode reason = parsed.get("reason");
+      if ("ACCEPT".equalsIgnoreCase(decision)) {
+        log.info("Verifier accepted answer: {}", reason == null ? "" : reason.asText());
+        return true;
+      }
       log.warn(
-          "Verifier output was not valid JSON, failing closed: {}",
-          result.length() > 160 ? result.substring(0, 160) + "..." : result);
+          "Verifier rejected answer ({}): {}",
+          decision,
+          reason == null ? "" : reason.asText().trim());
+      return false;
+    } catch (Exception e) {
+      log.warn("Verifier output was not valid JSON, failing closed: {}", snippet(result));
       return false;
     }
+  }
+
+  private static String snippet(String result) {
+    if (result == null) return "";
+    return result.length() > 160 ? result.substring(0, 160) + "..." : result;
   }
 
   private String mergeVideoTopics(String messageTopic, String contextTopic) {
