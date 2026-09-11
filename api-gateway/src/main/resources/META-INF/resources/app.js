@@ -940,6 +940,14 @@ function enhanceCodeBlocks(container) {
 }
 
 function appendMessage(sender, text) {
+  if (sender === "bot") {
+    const quizItems = tryParseQuizJson(text);
+    if (quizItems) {
+      renderQuizCard({ contentId: null, items: quizItems });
+      return null;
+    }
+  }
+
   const chatContainer = document.getElementById("chat-container");
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", `${sender}-message`);
@@ -1066,6 +1074,31 @@ function highlightCitationMarkers(root, numbers) {
     }
     node.parentNode.replaceChild(frag, node);
   });
+}
+
+function tryParseQuizJson(text) {
+  if (text == null) return null;
+  let body = text.trim();
+  const fenced = body.match(/^\s*```(?:json)?\s*\n?([\s\S]*?)\s*```\s*$/);
+  if (fenced) {
+    body = fenced[1].trim();
+  } else {
+    body = body.replace(/^json\b/i, "").trim();
+  }
+  if (!body.startsWith("[")) return null;
+  try {
+    const parsed = JSON.parse(body);
+    if (
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every((item) => item && typeof item.question === "string")
+    ) {
+      return parsed;
+    }
+  } catch {
+    /* not quiz json */
+  }
+  return null;
 }
 
 function renderQuizCard(meta) {
