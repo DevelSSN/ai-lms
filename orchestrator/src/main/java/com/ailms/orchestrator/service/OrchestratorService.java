@@ -772,20 +772,23 @@ public class OrchestratorService {
     }
   }
 
-  private boolean isAccepted(String result) {
+  boolean isAccepted(String result) {
     if (result == null || result.isBlank()) {
       log.warn("Verifier returned no verdict, failing closed");
       return false;
     }
     try {
-      JsonNode verdict = objectMapper.readTree(result).get("verdict");
+      String candidate = TextUtils.extractJsonObject(TextUtils.stripThinking(result));
+      JsonNode verdict = objectMapper.readTree(candidate).get("verdict");
       if (verdict == null || verdict.asText().isBlank()) {
         log.warn("Verifier output had no verdict field, failing closed");
         return false;
       }
       return "ACCEPT".equalsIgnoreCase(verdict.asText().trim());
     } catch (Exception e) {
-      log.warn("Verifier output was not valid JSON, failing closed");
+      log.warn(
+          "Verifier output was not valid JSON, failing closed: {}",
+          result.length() > 160 ? result.substring(0, 160) + "..." : result);
       return false;
     }
   }

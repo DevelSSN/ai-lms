@@ -34,4 +34,19 @@ public final class TextUtils {
     stripped = THINK_REMNANT.matcher(stripped).replaceAll(" ");
     return stripped.replaceAll("\\s+", " ").trim();
   }
+
+  public static String extractJsonObject(String text) {
+    if (text == null) return null;
+    String trimmed = text.trim();
+    if (trimmed.startsWith("```")) {
+      trimmed = trimmed.replaceFirst("^```[a-zA-Z]*\\s*", "");
+      trimmed = trimmed.replaceFirst("```\\s*$", "").trim();
+    }
+    int start = trimmed.indexOf('{');
+    int end = trimmed.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      return trimmed.substring(start, end + 1);
+    }
+    return trimmed;
+  }
 }

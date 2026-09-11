@@ -69,6 +69,30 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void isAccepted_parsesCleanJson() {
+    OrchestratorService svc = buildService();
+    assertTrue(svc.isAccepted("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}"));
+    assertFalse(svc.isAccepted("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"x\"}"));
+  }
+
+  @Test
+  void isAccepted_toleratesProseFencesAndThinking() {
+    OrchestratorService svc = buildService();
+    assertTrue(
+        svc.isAccepted(
+            "Here is my verdict:\n```json\n{\"verdict\": \"ACCEPT\", \"reason\": \"on-topic\"}\n```"));
+    assertTrue(
+        svc.isAccepted("response thinkinghmm{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}"));
+  }
+
+  @Test
+  void isAccepted_rejectsNonJson() {
+    OrchestratorService svc = buildService();
+    assertFalse(svc.isAccepted("I cannot verify this right now"));
+    assertFalse(svc.isAccepted(""));
+  }
+
+  @Test
   void route_rejectsSessionOwnedByAnotherUser() {
     when(conversationRepository.sessionOwner("sess-1")).thenReturn("user-other");
 

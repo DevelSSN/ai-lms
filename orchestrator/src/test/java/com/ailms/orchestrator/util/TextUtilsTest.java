@@ -77,4 +77,33 @@ class TextUtilsTest {
   void handlesNull() {
     assertNull(TextUtils.stripThinking(null));
   }
+
+  @Test
+  void extractsCleanJsonObject() {
+    assertEquals(
+        "{\"verdict\": \"ACCEPT\"}",
+        TextUtils.extractJsonObject("{\"verdict\": \"ACCEPT\"}"));
+  }
+
+  @Test
+  void extractsJsonObjectAcrossProseAndFences() {
+    assertEquals(
+        "{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}",
+        TextUtils.extractJsonObject(
+            "Sure! Here is my verdict: ```json\n{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}\n```"));
+  }
+
+  @Test
+  void extractsJsonObjectWrappedInThinking() {
+    assertEquals(
+        "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"missing\"}",
+        TextUtils.extractJsonObject(
+            "response thinkinghmm{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"missing\"} trailing"));
+  }
+
+  @Test
+  void returnsInputWhenNoJsonObject() {
+    assertEquals("not json at all", TextUtils.extractJsonObject("not json at all"));
+    assertNull(TextUtils.extractJsonObject(null));
+  }
 }
