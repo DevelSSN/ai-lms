@@ -786,6 +786,7 @@ async function uploadFile(file) {
 
   const formData = new FormData();
   formData.append("file", file);
+  if (currentThreadId) formData.append("threadId", currentThreadId);
 
   try {
     const response = await fetch(`${API_BASE_URL}/v1/content/upload`, {
@@ -806,7 +807,7 @@ async function uploadFile(file) {
     const docId = data.docId || "";
     appendMessage("bot", data.message || "Uploaded — analyzing your document…");
 
-    if (uploadSessionId.startsWith("upload:") && docId) {
+    if (docId) {
       pollUploadStatus(docId, uploadSessionId);
     } else {
       loadThreads();

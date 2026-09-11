@@ -321,7 +321,7 @@ class ResourceUnitTest {
 
     assertEquals(Response.Status.ACCEPTED.getStatusCode(), resp.getStatus());
     Map<?, ?> body = (Map<?, ?>) resp.getEntity();
-    assertEquals("upload:1", body.get("sessionId"));
+    assertEquals("t-1", body.get("sessionId"));
     assertEquals("PENDING", body.get("status"));
     assertEquals("1", body.get("docId"));
     verify(s3).putObject(any(PutObjectRequest.class), any(RequestBody.class));
@@ -330,9 +330,48 @@ class ResourceUnitTest {
             argThat(
                 r ->
                     r.message().equals("Analyze the uploaded file: 1")
-                        && r.sessionId().equals("upload:1")),
+                        && r.sessionId().equals("t-1")),
             anyString());
     verify(orchestrator, never()).processMessage(any(ChatRequest.class), anyString());
+  }
+
+  @Test
+  void contentResource_upload_withoutThreadIdFallsBackToUploadSession(@TempDir Path tempDir)
+      throws Exception {
+    when(jwt.getSubject()).thenReturn("user-1");
+    when(orchestrator.analyzeAsync(any(ChatRequest.class), anyString()))
+        .thenReturn(Map.of("status", "PENDING"));
+    doAnswer(
+            inv -> {
+              ContentDocument d = inv.getArgument(0);
+              d.id = "1";
+              return null;
+            })
+        .when(contentDocRepo)
+        .save(any(ContentDocument.class));
+
+    Path file = tempDir.resolve("notes.txt");
+    Files.writeString(file, "hello world");
+    FileUpload upload = mock(FileUpload.class);
+    when(upload.fileName()).thenReturn("notes.txt");
+    when(upload.contentType()).thenReturn("text/plain");
+    when(upload.uploadedFile()).thenReturn(file);
+
+    ContentResource resource = new ContentResource();
+    resource.jwt = jwt;
+    resource.s3 = s3;
+    resource.contentDocRepo = contentDocRepo;
+    resource.orchestrator = orchestrator;
+    resource.maxUploadSize = 10_000_000;
+
+    Response resp = resource.uploadFile(upload, "   ");
+
+    assertEquals(Response.Status.ACCEPTED.getStatusCode(), resp.getStatus());
+    Map<?, ?> body = (Map<?, ?>) resp.getEntity();
+    assertEquals("upload:1", body.get("sessionId"));
+    verify(orchestrator)
+        .analyzeAsync(
+            argThat(r -> r.sessionId().equals("upload:1")), anyString());
   }
 
   @Test

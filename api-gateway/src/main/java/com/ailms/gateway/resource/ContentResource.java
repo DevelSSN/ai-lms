@@ -119,11 +119,13 @@ public class ContentResource {
         throw e;
       }
 
+      String analysisSession =
+          threadId != null && !threadId.isBlank() ? threadId : "upload:" + doc.id;
       ChatRequest request =
-          new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, "upload:" + doc.id);
+          new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, analysisSession);
       Map<String, Object> ack = orchestrator.analyzeAsync(request, userId);
       Map<String, Object> body = new java.util.LinkedHashMap<>();
-      body.put("sessionId", "upload:" + doc.id);
+      body.put("sessionId", analysisSession);
       body.put("status", ack.getOrDefault("status", "PENDING"));
       body.put("docId", doc.id);
       body.putAll(Map.of("message", "Uploaded — analyzing your document…"));
