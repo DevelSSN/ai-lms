@@ -848,6 +848,20 @@ footer {
     padding-top: 0;
 }
 
+.processing-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: var(--surface-hover);
+    border-radius: 10px;
+    width: fit-content;
+    max-width: 90%;
+}
+
 .quiz-action-btn {
     padding: 0.6rem 1.1rem;
     font-family: inherit;

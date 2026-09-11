@@ -270,6 +270,12 @@ public class OrchestratorService {
                 intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
       }
 
+      if (INTENT_ASSESSMENT.equals(intent)) {
+        agentResponse =
+            enforceStructuredQuiz(
+                intent, sessionId, enrichedMessage, analysisCtx, agentResponse);
+      }
+
       if (agentResponse == null || agentResponse.isBlank()) {
         log.warn("Router returned blank response for intent={} user={}", intent, userId);
       }
@@ -770,6 +776,42 @@ public class OrchestratorService {
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
     return lastUsableAnswer(intent, retried);
+  }
+
+  private String enforceStructuredQuiz(
+      String intent, String sessionId, String enrichedMessage, String analysisCtx, String agentResponse) {
+    if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
+    if (!parseQuizItems(agentResponse).isEmpty()) return agentResponse;
+
+    log.warn(
+        "Assessment output not parseable as structured quiz for session={}, "
+            + "regenerating with strict JSON-only instruction",
+        sessionId);
+    String strictInstruction =
+        "IMPORTANT: Your entire reply MUST be a single raw JSON array of "
+            + "{{questionCount}} quiz objects — no prose, no intro sentence, no closing remark, "
+            + "no markdown fences. Each object exactly: "
+            + "{\"question\": \"...\", \"type\": \"multiple_choice\", "
+            + "\"options\": [\"A\", \"B\", \"C\"], \"answer\": \"A\", "
+            + "\"explanation\": \"<grounded in the content>\"}";
+    String strictMessage = enrichedMessage + "\n\n" + strictInstruction;
+    try {
+      String strict = dispatchAgent(intent, sessionId, strictMessage, analysisCtx);
+      strict = youTubeLinkValidator.sanitize(strict);
+      strict = TextUtils.stripThinking(strict);
+      if (strict != null && !parseQuizItems(strict).isEmpty()) {
+        log.info("Strict JSON regeneration produced a parseable quiz for session={}", sessionId);
+        return strict;
+      }
+      log.warn(
+          "Strict JSON regeneration still not parseable for session={}, "
+              + "keeping original response",
+          sessionId);
+    } catch (Exception e) {
+      log.warn(
+          "Strict JSON quiz regeneration failed for session={}: {}", sessionId, e.getMessage());
+    }
+    return agentResponse;
   }
 
   private String lastUsableAnswer(String intent, String answer) {

@@ -67,6 +67,9 @@ class OrchestratorServiceTest {
     lenient()
         .when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
         .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}");
+    lenient()
+        .when(youTubeLinkValidator.sanitize(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test
@@ -325,7 +328,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Rome assessment", resp.message());
     verify(vectorDBService, times(2)).retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9"));
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
@@ -352,7 +355,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
     assertEquals("Assessment from analysis", resp.message());
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -381,7 +384,7 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("hard"), eq(10));
   }
 
@@ -404,7 +407,7 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -432,7 +435,7 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -465,7 +468,7 @@ class OrchestratorServiceTest {
     OrchestratorService svc = buildService();
     svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(
             eq(ChatMemoryKeys.assessment("sess-1")),
             anyString(),
@@ -1121,8 +1124,50 @@ class OrchestratorServiceTest {
     assertEquals("ASSESSMENT", resp.agentType());
     verify(intentClassifier).classify(msg);
     verify(conversationAgent, never()).process(anyString(), anyString());
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
+  }
+
+  @Test
+  void route_assessment_proseOutput_triggersStrictJsonRegen() {
+    String msg = "Questions based on the document";
+    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(chunks("rome context"));
+    String prose =
+        "Here are five medium-difficulty quiz questions based on the manual: 1. Recall: What"
+            + " does the manual cover?";
+    String strictJson =
+        "[{\"question\":\"What does the manual cover?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"A\",\"B\",\"C\"],\"answer\":\"A\","
+            + "\"explanation\":\"Grounded in content\"}]";
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            contains("rome context"),
+            eq("medium"),
+            eq(5)))
+        .thenReturn(prose, strictJson);
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse(strictJson, "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals(strictJson, resp.message());
+    ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+    verify(questionGenerationAgent, times(2))
+        .process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            messageCaptor.capture(),
+            contains("rome context"),
+            eq("medium"),
+            eq(5));
+    List<String> attempts = messageCaptor.getAllValues();
+    assertFalse(attempts.get(0).contains("raw JSON array"));
+    assertTrue(attempts.get(1).contains("raw JSON array"));
+    assertTrue(attempts.get(1).contains("no prose"));
   }
 
   @Test
@@ -1145,7 +1190,7 @@ class OrchestratorServiceTest {
 
     assertEquals("ASSESSMENT", resp.agentType());
     verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
-    verify(questionGenerationAgent)
+    verify(questionGenerationAgent, atMost(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 

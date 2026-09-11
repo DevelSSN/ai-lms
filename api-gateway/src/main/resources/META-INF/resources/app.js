@@ -333,6 +333,11 @@ async function loadHistory(threadId) {
       if (message.role === "user") appendMessage("user", message.content);
       else if (message.role === "assistant") appendMessage("bot", message.content);
     }
+    const hasContentAnalysis = messages.some(
+      (message) =>
+        message.role === "assistant" && message.agentType === "CONTENT_ANALYSIS",
+    );
+    if (hasContentAnalysis) showQuizActionBar(threadId);
   } catch (error) {
     console.warn("Could not restore conversation history:", error);
   } finally {
@@ -807,7 +812,7 @@ async function uploadFile(file) {
     saveThreadId();
   }
 
-  appendMessage("user", `📎 Uploading: ${file.name}`);
+  showProcessingChip(file.name);
 
   try {
     await keycloak.updateToken(5);
@@ -837,7 +842,6 @@ async function uploadFile(file) {
     const data = await response.json();
     const uploadSessionId = data.sessionId || "";
     const docId = data.docId || "";
-    appendMessage("bot", data.message || "Uploaded — analyzing your document…");
 
     if (docId) {
       pollUploadStatus(docId, uploadSessionId);
@@ -845,8 +849,26 @@ async function uploadFile(file) {
       loadThreads();
     }
   } catch (error) {
+    hideProcessingChip();
     appendMessage("bot", `Upload failed: ${error.message}. Files up to 50MB supported.`);
   }
+}
+
+function showProcessingChip(fileName) {
+  const container = document.getElementById("chat-container");
+  if (container.querySelector(".processing-chip")) return;
+  const chip = document.createElement("div");
+  chip.classList.add("processing-chip");
+  chip.textContent = `⏳ Analyzing ${fileName || "document"}…`;
+  container.appendChild(chip);
+  requestAnimationFrame(() => {
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function hideProcessingChip() {
+  const chip = document.querySelector(".processing-chip");
+  if (chip) chip.remove();
 }
 
 const UPLOAD_POLL_INTERVAL_MS = 2500;
@@ -875,6 +897,7 @@ function pollUploadStatus(docId, sessionId) {
       }
       const status = await response.json();
       if (status.status === "INDEXED") {
+        hideProcessingChip();
         if (sessionId === currentThreadId) {
           await loadHistory(sessionId);
         }
@@ -883,6 +906,7 @@ function pollUploadStatus(docId, sessionId) {
         return;
       }
       if (status.status === "FAILED") {
+        hideProcessingChip();
         appendMessage(
           "bot",
           `Analysis failed: ${status.error || "Unknown error"}. Please try uploading again.`,
@@ -900,6 +924,10 @@ function pollUploadStatus(docId, sessionId) {
 }
 
 function showQuizActionBar(sessionId) {
+  if (!sessionId) return;
+  const container = document.getElementById("chat-container");
+  if (container.querySelector(".quiz-action-bar")) return;
+
   const bar = document.createElement("div");
   bar.classList.add("message", "bot-message", "quiz-action-bar");
   const btn = document.createElement("button");
