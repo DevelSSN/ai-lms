@@ -18,6 +18,7 @@ import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
+import com.ailms.orchestrator.agent.VideoAnswerWriterAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.QuizResultRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
@@ -45,6 +46,7 @@ class OrchestratorServiceTest {
   @Mock ContentAnalysisAgent contentAnalysisAgent;
   @Mock QuestionGenerationAgent questionGenerationAgent;
   @Mock ResponseVerifierAgent responseVerifierAgent;
+  @Mock VideoAnswerWriterAgent videoAnswerWriterAgent;
   @Mock InsightAgent insightAgent;
   @Mock ProfilingService profilingService;
   @Mock ConversationRepository conversationRepository;
@@ -70,6 +72,9 @@ class OrchestratorServiceTest {
     lenient()
         .when(youTubeLinkValidator.sanitize(any()))
         .thenAnswer(invocation -> invocation.getArgument(0));
+    lenient()
+        .when(videoAnswerWriterAgent.write(anyString(), anyString()))
+        .thenAnswer(invocation -> invocation.getArgument(1, String.class));
   }
 
   @Test
@@ -657,6 +662,96 @@ class OrchestratorServiceTest {
     assertTrue(resp.message().contains("couldn't find any YouTube videos"));
     assertEquals("VIDEO_SEARCH", resp.agentType());
     verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoSearch_writerProseRejectedTwice_deliversLinksNotFallback() {
+    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
+    when(youTubeSearchService.search("Emacs video"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult(
+                    "Emacs: iedit and slow-python", "abcdeFGHIJK", "Doom Emacs demo", "user-9"),
+                new YouTubeSearchService.VideoResult(
+                    "Emacs: Org mode basics", "zyxwvUTSRQP", "", "user-9")));
+    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn(
+            "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"no relevance explained\"}")
+        .thenReturn(
+            "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"still no relevance explained\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Emacs video", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=abcdeFGHIJK"));
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=zyxwvUTSRQP"));
+    assertFalse(resp.message().contains("I couldn't generate a good answer"));
+    verify(videoAnswerWriterAgent, times(2)).write(eq("Emacs video"), anyString());
+  }
+
+  @Test
+  void route_videoSearch_writerThrows_deliversPlainList() {
+    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
+    when(youTubeSearchService.search("Emacs video"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult(
+                    "Emacs: iedit and slow-python", "abcdeFGHIJK", "Doom Emacs demo", "user-9")));
+    when(videoAnswerWriterAgent.write(anyString(), anyString()))
+        .thenThrow(new IllegalStateException("ollama down"));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Emacs video", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=abcdeFGHIJK"));
+    assertFalse(resp.message().contains("I couldn't generate a good answer"));
+  }
+
+  @Test
+  void route_videoSearch_writerProseAccepted_containsAllLinksAndGroundedMetadata() {
+    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
+    when(youTubeSearchService.search("Emacs video"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult(
+                    "Emacs: iedit and slow-python", "abcdeFGHIJK", "Doom Emacs demo", "user-9")));
+    when(videoAnswerWriterAgent.write(anyString(), anyString()))
+        .thenAnswer(
+            inv -> {
+              String list = inv.getArgument(1, String.class);
+              return "Emacs videos that fit your request:\n" + list;
+            });
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("Emacs video", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=abcdeFGHIJK"));
+    assertTrue(resp.message().contains("Emacs videos that fit your request:"));
+    verify(videoAnswerWriterAgent).write(eq("Emacs video"), contains("description: Doom Emacs demo"));
   }
 
   @Test
@@ -1430,6 +1525,7 @@ class OrchestratorServiceTest {
     svc.contentAnalysisAgent = contentAnalysisAgent;
     svc.questionGenerationAgent = questionGenerationAgent;
     svc.responseVerifierAgent = responseVerifierAgent;
+    svc.videoAnswerWriterAgent = videoAnswerWriterAgent;
     svc.insightAgent = insightAgent;
     svc.profilingService = profilingService;
     svc.conversationRepository = conversationRepository;

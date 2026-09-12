@@ -23,7 +23,14 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class YouTubeSearchService {
 
-  public record VideoResult(String title, String videoId) {}
+  public record VideoResult(
+      String title, String videoId, String description, String channelTitle) {
+    public VideoResult(String title, String videoId) {
+      this(title, videoId, "", "");
+    }
+  }
+
+  private static final int MAX_DESCRIPTION_LENGTH = 200;
 
   private static final String SEARCH_ENDPOINT = "https://www.googleapis.com/youtube/v3/search";
 
@@ -151,13 +158,22 @@ public class YouTubeSearchService {
         String videoId = item.path("id").path("videoId").asText(null);
         if (videoId == null || videoId.isBlank()) continue;
         String title = item.path("snippet").path("title").asText("Untitled video");
-        results.add(new VideoResult(title, videoId));
+        String description =
+            trimDescription(item.path("snippet").path("description").asText(""));
+        String channelTitle = item.path("snippet").path("channelTitle").asText("");
+        results.add(new VideoResult(title, videoId, description, channelTitle));
       }
     } catch (Exception e) {
       log.warn("Failed to parse YouTube search response: {}", e.getMessage());
       return List.of();
     }
     return results;
+  }
+
+  private String trimDescription(String raw) {
+    String text = raw == null ? "" : raw.replaceAll("\\s+", " ").trim();
+    if (text.length() <= MAX_DESCRIPTION_LENGTH) return text;
+    return text.substring(0, MAX_DESCRIPTION_LENGTH).trim() + "...";
   }
 
   String extractQuery(String message) {

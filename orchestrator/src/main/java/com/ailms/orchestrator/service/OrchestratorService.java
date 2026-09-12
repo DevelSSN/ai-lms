@@ -24,6 +24,7 @@ import com.ailms.orchestrator.agent.QuestionGenerationAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.TitleGenerator;
+import com.ailms.orchestrator.agent.VideoAnswerWriterAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.QuizResultRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
@@ -91,6 +92,8 @@ public class OrchestratorService {
 
   @Inject ResponseVerifierAgent responseVerifierAgent;
 
+  @Inject VideoAnswerWriterAgent videoAnswerWriterAgent;
+
   ExecutorService executor = Executors.newFixedThreadPool(2);
 
   @Inject RedisChatMemoryStore chatMemoryStore;
@@ -119,6 +122,11 @@ public class OrchestratorService {
 
   private static final String VERIFIER_FALLBACK =
       "I'm sorry, I couldn't generate a good answer. Could you rephrase?";
+
+  private static final String VIDEO_REGENERATION_HINT =
+      "The previous answer was rejected because it did not explain how each video "
+          + "relates to the user's request. Make sure every video entry explicitly connects "
+          + "the video to the user's question while keeping all links verbatim.";
 
   private static final String UPLOAD_PREFIX = PromptPrefixes.UPLOAD_ANALYSIS;
 
@@ -255,7 +263,7 @@ public class OrchestratorService {
       if (agentResponse == null) {
         analysisCtx = resolveAnalysisContext(intent, message, sessionId, userId);
         if (INTENT_VIDEO_SEARCH.equals(intent)) {
-          agentResponse = tryVideoSearch(message, sessionId, userId);
+          agentResponse = buildVideoAnswer(message, sessionId, userId, null);
         }
         if (agentResponse == null) {
           agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
@@ -724,7 +732,8 @@ public class OrchestratorService {
     }
   }
 
-  private String tryVideoSearch(String message, String sessionId, String userId) {
+  private String buildVideoAnswer(
+      String message, String sessionId, String userId, String hint) {
     String messageTopic = youTubeSearchService.extractQuery(message);
     String contextTopic = resolveTopicFromContext(userId, sessionId);
     if (contextTopic == null || contextTopic.isBlank()) {
@@ -740,6 +749,25 @@ public class OrchestratorService {
       log.warn("No YouTube results for query='{}'", query);
       return NO_VIDEOS_FOR + query + "'. Try searching YouTube manually.";
     }
+    String plain = plainVideoList(results);
+    try {
+      String grounding = groundedVideoList(results);
+      if (hint != null && !hint.isBlank()) {
+        grounding = grounding + "\n\nHint: " + hint;
+      }
+      String prose = videoAnswerWriterAgent.write(message, grounding);
+      if (prose != null && !prose.isBlank()) {
+        return prose;
+      }
+      log.warn("Video answer writer produced no text for user={}, using plain list", userId);
+    } catch (Exception e) {
+      log.warn(
+          "Video answer writer failed for user={}: {}, using plain list", userId, e.getMessage());
+    }
+    return plain;
+  }
+
+  private String plainVideoList(List<YouTubeSearchService.VideoResult> results) {
     StringBuilder sb = new StringBuilder("Here's what I found on YouTube:");
     int n = 1;
     for (YouTubeSearchService.VideoResult result : results) {
@@ -749,6 +777,25 @@ public class OrchestratorService {
           .append(result.videoId())
           .append(" — ")
           .append(result.title());
+    }
+    return sb.toString();
+  }
+
+  private String groundedVideoList(List<YouTubeSearchService.VideoResult> results) {
+    StringBuilder sb = new StringBuilder();
+    int n = 1;
+    for (YouTubeSearchService.VideoResult result : results) {
+      sb.append(n++)
+          .append(". https://www.youtube.com/watch?v=")
+          .append(result.videoId())
+          .append(" — ")
+          .append(result.title());
+      if (result.description() != null && !result.description().isBlank()) {
+        sb.append("\n   description: ").append(result.description().trim());
+      }
+      if (result.channelTitle() != null && !result.channelTitle().isBlank()) {
+        sb.append("\n   channel: ").append(result.channelTitle());
+      }
     }
     return sb.toString();
   }
@@ -828,8 +875,14 @@ public class OrchestratorService {
       log.warn("Verifier rejected content analysis but response is substantial, delivering it");
       return answer;
     }
+    if (INTENT_VIDEO_SEARCH.equals(intent) && answer != null && answer.contains(VIDEO_LINK_PREFIX)) {
+      log.warn("Verifier rejected video answer but real links are present, delivering them");
+      return answer;
+    }
     return VERIFIER_FALLBACK;
   }
+
+  private static final String VIDEO_LINK_PREFIX = "https://www.youtube.com/watch?v=";
 
   private String regenerate(
       String intent,
@@ -839,7 +892,7 @@ public class OrchestratorService {
       String analysisCtx,
       String userId) {
     if (INTENT_VIDEO_SEARCH.equals(intent)) {
-      return tryVideoSearch(message, sessionId, userId);
+      return buildVideoAnswer(message, sessionId, userId, VIDEO_REGENERATION_HINT);
     }
     return dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
   }
