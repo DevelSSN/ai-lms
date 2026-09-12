@@ -1094,12 +1094,16 @@ function appendMessage(sender, text, timestamp) {
 }
 
 function appendAssistantContent(data) {
+  const metadata = data?.metadata;
   const msgEl = appendMessage("bot", data?.message || "", data?.timestamp);
-  if (Array.isArray(data?.metadata?.citations) && data.metadata.citations.length) {
-    attachCitations(msgEl, data.metadata.citations);
+  if (msgEl && Array.isArray(metadata?.citations) && metadata.citations.length) {
+    attachCitations(msgEl, metadata.citations);
   }
-  if (data?.metadata?.items && Array.isArray(data.metadata.items)) {
-    renderQuizCard(data.metadata, data?.timestamp);
+  // appendMessage already rendered the quiz card when the message text is quiz
+  // JSON (it returns null in that case), so the metadata branch must not render
+  // a second, identical card.
+  if (msgEl !== null && metadata?.items && Array.isArray(metadata.items)) {
+    renderQuizCard(metadata, data?.timestamp);
   }
 }
 
