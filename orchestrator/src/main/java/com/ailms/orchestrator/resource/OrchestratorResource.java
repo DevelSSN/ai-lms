@@ -8,6 +8,7 @@ import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.orchestrator.repository.ConversationRepository;
+import com.ailms.orchestrator.repository.UserProfileRepository;
 import com.ailms.orchestrator.service.AnalyticsService;
 import com.ailms.orchestrator.service.OrchestratorService;
 import com.ailms.orchestrator.service.SessionOwnershipException;
@@ -38,6 +39,8 @@ public class OrchestratorResource {
 
   @Inject AnalyticsService analyticsService;
 
+  @Inject UserProfileRepository userProfileRepository;
+
   @POST
   public Response processMessage(ChatRequest request, @HeaderParam("X-User-Id") String userId) {
     log.info("Orchestrate request from user={} session={}", userId, request.sessionId());
@@ -67,6 +70,14 @@ public class OrchestratorResource {
           .entity(Map.of("error", "Session does not belong to the authenticated user"))
           .build();
     }
+  }
+
+  @POST
+  @Path("/activity")
+  public Response recordActivity(@HeaderParam("X-User-Id") String userId) {
+    log.debug("Activity heartbeat for user={}", userId);
+    userProfileRepository.recordActivity(userId);
+    return Response.ok().build();
   }
 
   @POST

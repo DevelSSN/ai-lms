@@ -121,4 +121,18 @@ public class ChatResource {
       return Response.serverError().build();
     }
   }
+
+  @POST
+  @Path("/activity")
+  public Response recordActivity() {
+    String userId = jwt.getSubject();
+    log.debug("Activity heartbeat from user={}", userId);
+    try {
+      orchestrator.recordActivity(userId);
+      return Response.ok().build();
+    } catch (Exception e) {
+      log.warn("Failed to forward activity heartbeat for user={}: {}", userId, e.getMessage());
+      return Response.noContent().build();
+    }
+  }
 }

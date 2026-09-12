@@ -47,6 +47,12 @@ public class ProactiveAgent {
 
     for (String userId : inactiveUsers) {
       try {
+        // The user may still be engaged even without new chat messages (e.g. a playing
+        // YouTube video keeps a heartbeat active). Pausing stops the heartbeat, so the
+        // inactivity clock starts running again from that moment.
+        if (userProfileRepository.isActiveSince(userId, cutoff)) {
+          continue;
+        }
         if (!userProfileRepository.markProactiveSentIfNotRecent(userId, now)) {
           continue;
         }

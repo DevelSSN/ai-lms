@@ -96,4 +96,27 @@ class ProactiveAgentTest {
         .logMessage(anyString(), anyString(), anyString(), anyString(), anyString());
     verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
   }
+
+  @Test
+  void checkFollowUps_skipsUserStillActiveWatchingVideo() {
+    when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
+    when(userProfileRepository.isActiveSince(eq("user-1"), any())).thenReturn(true);
+
+    newAgent().checkFollowUps();
+    verifyNoInteractions(eventEmitter);
+    verify(userProfileRepository, never()).markProactiveSentIfNotRecent(anyString(), any());
+  }
+
+  @Test
+  void checkFollowUps_sendsFollowUpOnceWatchingStopped() {
+    when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
+    when(userProfileRepository.isActiveSince(eq("user-1"), any())).thenReturn(false);
+    when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
+    when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
+    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
+
+    newAgent().checkFollowUps();
+    verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
+    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
+  }
 }

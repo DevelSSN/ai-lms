@@ -67,6 +67,7 @@ async function initKeycloak() {
     startSSE();
     setupEventListeners();
   setupUploadHandlers();
+    loadYouTubeIframeApi();
   } catch (error) {
     console.error("Keycloak init failed:", error);
   }
@@ -354,6 +355,9 @@ function clearChat() {
   const chatContainer = document.getElementById("chat-container");
   chatContainer.innerHTML = "";
   lastRenderedMessage = "";
+  playingVideoIframes.clear();
+  ytAttachQueue = [];
+  syncVideoHeartbeat();
 }
 
 function showWelcome() {
@@ -607,10 +611,82 @@ async function switchThread(threadId) {
 
 let eventSource = null;
 let sseBackoffMs = 1000;
+let sseConnectedOnce = false;
 
 // Raw content of the last rendered message (text or quiz JSON), used to
 // dedupe SSE re-deliveries regardless of DOM timestamps.
 let lastRenderedMessage = "";
+
+// Watching a YouTube video keeps the user "active" for proactive follow-ups:
+// PLAYING sends a heartbeat, PAUSED/ENDED stops it, so the inactivity clock
+// (and therefore the follow-up timeout) restarts whenever the video is paused.
+const playingVideoIframes = new Set();
+let videoHeartbeatTimer = null;
+const VIDEO_HEARTBEAT_MS = 30000;
+let ytApiReady = false;
+let ytAttachQueue = [];
+
+function loadYouTubeIframeApi() {
+  if (window.YT && YT.Player) return;
+  if (document.getElementById("youtube-iframe-api")) return;
+  const script = document.createElement("script");
+  script.id = "youtube-iframe-api";
+  script.src = "https://www.youtube.com/iframe_api";
+  script.async = true;
+  window.onYouTubeIframeAPIReady = () => {
+    ytApiReady = true;
+    const queue = ytAttachQueue.splice(0, ytAttachQueue.length);
+    queue.forEach(attachVideoPlayer);
+  };
+  document.head.appendChild(script);
+}
+
+function attachVideoPlayer(iframe) {
+  if (!iframe || !window.YT || !YT.Player) {
+    if (iframe && ytAttachQueue.length < 50) ytAttachQueue.push(iframe);
+    return;
+  }
+  try {
+    new YT.Player(iframe, {
+      events: {
+        onStateChange: (event) => {
+          if (event.data === YT.PlayerState.PLAYING) playingVideoIframes.add(iframe);
+          else playingVideoIframes.delete(iframe);
+          syncVideoHeartbeat();
+        },
+      },
+    });
+  } catch (err) {
+    console.warn("Could not attach YouTube player tracking:", err);
+  }
+}
+
+function syncVideoHeartbeat() {
+  if (playingVideoIframes.size > 0 && !videoHeartbeatTimer) {
+    videoHeartbeatTimer = setInterval(sendVideoHeartbeat, VIDEO_HEARTBEAT_MS);
+    sendVideoHeartbeat();
+  } else if (playingVideoIframes.size === 0 && videoHeartbeatTimer) {
+    clearInterval(videoHeartbeatTimer);
+    videoHeartbeatTimer = null;
+  }
+}
+
+async function sendVideoHeartbeat() {
+  if (playingVideoIframes.size === 0) return;
+  try {
+    await keycloak.updateToken(5);
+  } catch (err) {
+    return;
+  }
+  try {
+    await fetch(`${API_BASE_URL}/v1/chat/activity`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${keycloak.token}` },
+    });
+  } catch (err) {
+    // Best-effort heartbeat; a dropped ping is harmless.
+  }
+}
 
 function toDate(value) {
   if (!value) return new Date();
@@ -651,8 +727,15 @@ async function connectSSE() {
   );
   eventSource = es;
 
-  es.onopen = () => {
+  es.onopen = async () => {
     sseBackoffMs = 1000;
+    // A follow-up can be fired while the SSE stream was down (e.g. the tab was
+    // in the background); it is persisted in history, so reload the current
+    // thread on reconnect to surface it without a manual refresh.
+    if (sseConnectedOnce && currentThreadId) {
+      await loadHistory(currentThreadId);
+    }
+    sseConnectedOnce = true;
   };
 
   es.onmessage = (event) => {
@@ -1049,8 +1132,19 @@ function appendMessage(sender, text, timestamp) {
       if (token.type === "video") {
         const videoContainer = document.createElement("div");
         videoContainer.classList.add("video-container");
-        videoContainer.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${token.videoId}?origin=${window.location.origin}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube-nocookie.com/embed/${token.videoId}?enablejsapi=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
+        iframe.title = "YouTube video player";
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute(
+          "allow",
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+        );
+        iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+        iframe.setAttribute("allowfullscreen", "");
+        videoContainer.appendChild(iframe);
         messageDiv.appendChild(videoContainer);
+        attachVideoPlayer(iframe);
         prevWasVideo = true;
       } else if (token.content.trim()) {
         // A trailing "— Title" belongs to the video above: render as caption.

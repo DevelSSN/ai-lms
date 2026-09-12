@@ -30,6 +30,8 @@ public class UserProfile {
 
   public Instant lastProactiveSentAt;
 
+  public Instant lastActivityAt;
+
   public Instant createdAt;
   public Instant updatedAt;
 

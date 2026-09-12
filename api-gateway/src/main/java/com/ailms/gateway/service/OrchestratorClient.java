@@ -57,6 +57,10 @@ public interface OrchestratorClient {
   void submitQuizResult(
       QuizResultRequest request, @HeaderParam("X-User-Id") String userId);
 
+  @POST
+  @Path("/activity")
+  void recordActivity(@HeaderParam("X-User-Id") String userId);
+
   @GET
   @Path("/analytics/student/{studentId}")
   StudentAnalytics getStudentAnalytics(
