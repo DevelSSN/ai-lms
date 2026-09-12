@@ -1,8 +1,9 @@
 # AI-LMS Orchestrator Integration Plan
 
 > Working branch: `shashank/hardening`
-> One commit per change. Full test run against a green baseline before starting:
-> 182 tests pass, 21 `@Disabled`.
+> One commit per change. Current baseline (runnable unit suites):
+> `orchestrator`: 179 tests / 0 failures / 10 skipped
+> `api-gateway`: 66 tests / 0 failures / 11 skipped
 
 ## Completed Phases (historical, checked)
 
@@ -22,23 +23,23 @@
 
 Fixes land first because they unblock the DB, tests, and downstream data flow.
 
-- [ ] A1. `ChatHistoryCacheService` / `ChatHistory.ChatMessage` — replace `||`-delimited Redis cache with JSON serialization; add `timestamp` to `ChatMessage` (`fixes 2.1, 22.6`)
+- [x] A1. `ChatHistoryCacheService` / `ChatHistory.ChatMessage` — replace `||`-delimited Redis cache with JSON serialization; add `timestamp` to `ChatMessage` (`fixes 2.1, 22.6`)
 - [ ] A2. `ContentEmbedding.embedding` — Hibernate pgvector `vector(768)` type mapping; add `quarkus-jdbc-postgresql` to `common`; H2-safe test schema (`fixes 6.2, 10.3, 22.5`)
 - [ ] A3. `QdrantInitializer` — align `qdrant.rest.*` keys with `quarkus.langchain4j.qdrant.*`; single port source of truth (10634) (`fixes 23.5`)
 - [ ] A4. Profiling persistence — write `ProfilingAgent` output into `UserProfile`; call `publishProfileUpdated` (`fixes 3.1, 3.2, 26.3`)
 - [ ] A5. Routing — remove `youtube`/`DOC_REFERENCE` keyword short-circuits; LLM classifier decides except explicit links (`fixes 4, 25.3`)
-- [ ] A6. `ResponseVerifierAgent` — JSON verdict parse (not `contains`); retry loop; fail-closed on LLM exception (`fixes 4`)
+- [x] A6. `ResponseVerifierAgent` — JSON verdict parse (not `contains`); retry loop; fail-closed on LLM exception (`fixes 4`)
 - [ ] A7. `InsightAgent` + `ResponseComposer` — feed real analytics; write `analysis`/`assessment`/`insights` scope keys (`fixes 4, 5`)
-- [ ] A8. Agent chat memory — distinct `@MemoryId` namespaces per agent (`conversation:`/`analysis:`/`assessment:`/`insight:`/`profiling:`)
+- [x] A8. Agent chat memory — distinct `@MemoryId` namespaces per agent (`conversation:`/`analysis:`/`assessment:`/`insight:`/`profiling:`)
 - [ ] A9. `ObjectStorageService.readFile` — throw on infra error instead of `null` (`fixes 8.2`)
 - [ ] A10. `YouTubeLinkValidator` fail-closed; `@Blocking` on YouTube HTTP calls (`fixes 8.1, 25.2, 25.4`)
 - [ ] A11. `ProactiveAgent` — `markProactiveSent` on Kafka ack; remove dead `ProactiveFollowUp` record (`fixes 7.3, 26.4`)
 
 ## Phase B — Security (critical)
 
-- [ ] B1. `SseBroadcastService` — per-user emitters; Jackson JSON (escape control chars); bounded registry + backpressure; keepalive NPE fix (`fixes 17.1, 17.3, 17.4, 17.5, 17.6`)
-- [ ] B2. `/api/updates` — OIDC auth (remove `@PermitAll`); scoped `TokenFromQueryFilter` fail-closed (`fixes 17.2`)
-- [ ] B3. IDOR / thread ownership — gateway verifies `sessionId` belongs to JWT subject; scoped listing; orchestrator server-side validation (`fixes 18.1–18.4`)
+- [~] B1. `SseBroadcastService` — per-user emitters; Jackson JSON (escape control chars); bounded registry + backpressure; keepalive NPE fix (`fixes 17.1, 17.3, 17.4, 17.5, 17.6`) — **partial**: registry leak/off-by-one + emitter race fixed (E8a/b); null-userId guard (E8g); keepalive-NPE + backpressure still to confirm
+- [x] B2. `/api/updates` — OIDC auth (remove `@PermitAll`); scoped `TokenFromQueryFilter` fail-closed (`fixes 17.2`) — `@RolesAllowed` on the SSE endpoint (InteractResource:62); token regex validation (E8h)
+- [x] B3. IDOR / thread ownership — gateway verifies `sessionId` belongs to JWT subject; scoped listing; orchestrator server-side validation (`fixes 18.1–18.4`) — orchestrator `enforceSessionOwnership` + gateway thread routing (J1)
 - [ ] B4. Upload — file-size limit; transactional S3→DB with orphan cleanup; filename sanitize (`fixes 9 DoS, audit`)
 - [ ] B5. Exposure — strip exception messages from responses; harden `/tmp` log; gate Swagger UI; don't commit default secrets (`13, 23.4`)
 
@@ -123,6 +124,23 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 - [x] H5. Class analytics endpoint — `GET /api/v1/analytics/class`: aggregated stats (avg score, topic coverage heatmap, active student count). Teacher role required.
 - [x] H6. Analytics dashboard frontend — `app.js` + `style.css`: teacher view with student selector, knowledge coverage bar chart, activity timeline, quiz score history. Vanilla JS + Chart.js (CDN, no build step).
 
+## Phase J — Live Delivery, Deterministic Quiz, Persistence Hardening (2026-09-11)
+
+Makes upload → analysis → quiz work end-to-end **on screen**: everything shown survives refresh, quiz output is deterministic JSON, and delivery no longer depends on luck (SSE reconnect, status ordering).
+
+- [x] J1. Async analysis runs in the current chat thread, not `upload:<id>` — `ContentResource`/`OrchestratorClient` pass the real `threadId`; fallback `"upload:"+docId` for no-thread callers (`8d42d85`).
+- [x] J2. Background jobs on a plain executor inside CDI request context + JTA (no long-held transaction holding a DB connection) (`0195f4f`, `a2a0e03`, `6ca6a86`).
+- [x] J3. Qdrant retrieval uses metadata-equality source filter (`source = "doc:<documentId>"`) instead of a lambda/client-side filter (`25d14c8`).
+- [x] J4. Verifier JSON parsing tolerant of thinking blocks / fences → verdicts parsed, not `contains()` (`7c547eb`); verifier verdicts logged and structurally valid quizzes kept (`3985531`).
+- [x] J5. Verifier prompt hardened — judged answer never needs its own verdict; accept grounded summaries + structured quizzes; reject only off-topic/empty/hallucinated/unanswered (`ef731fa`).
+- [x] J6. Friendly upload transcript (`📎 Uploaded document: <name>`) instead of the raw `"Analyze the uploaded file: <docId>"`; grounded-analysis fallback survives double rejection (`ef731fa`).
+- [x] J7. Persisted quiz JSON rendered as interactive cards (`tryParseQuizJson`), live **and** on history reload (`0633a12`).
+- [x] J8. SSE auto-reconnect with exponential backoff + message dedupe + ping skip; INDEXED event reloads history via `loadHistory(sessionId)` (`b089fcd`).
+- [x] J9. Deterministic quizzes — named `ollama-quiz` model (`format=json`, temperature 0, `@RegisterAiService(modelName="quiz")`); `enforceStructuredQuiz` regenerates once with a strict raw-JSON instruction if the model returns prose (`aa1097d`).
+- [x] J10. No transient transcript pollution — "uploading/analyzing" is an ephemeral `.processing-chip`; quiz bar is idempotent and re-derived from `agentType=CONTENT_ANALYSIS` in history (`aa1097d`).
+- [x] J11. `INDEXED` means "transcript persisted" — ingestion leaves status `PARSED`; `markIndexed` runs only after `route()` writes the transcript, so the client's reload deterministically sees the analysis (`db1b8ca`).
+- [x] J12. Proactive follow-ups persisted into the user's last session (survive refresh) in addition to the Kafka→SSE live push; `resolveLastSessionId` added; default cutoff 24h→**15m** (`AILMS_PROACTIVE_INACTIVITY_CUTOFF` overridable) (`db1b8ca`).
+
 ## Deferred (by decision)
 
 - **Phase 14 (GraalVM native build)** — not run in this session; only Dockerfile correctness fixes kept under D6.
@@ -134,18 +152,18 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 ## Known Bugs / Incomplete Items in "Completed" Phases (deep code audit — 2026-09-05)
 
 ### Phase 2 — Chat History & Memory
-- [ ] `ChatHistoryCacheService.java:31` — Redis delimiter `||` corrupts cache reads when message content contains `||` (`split("\\|\\|", 3)` truncates)
-- [ ] `ChatHistory.ChatMessage` drops `timestamp` — cannot render message times client-side
+- [x] `ChatHistoryCacheService.java:31` — Redis delimiter `||` corrupts cache reads when message content contains `||` (`split("\\|\\|", 3)` truncates) — **fixed**: history cache now JSON-serializes `CacheEntry` via Jackson; no `||` splitting remains
+- [x] `ChatHistory.ChatMessage` drops `timestamp` — cannot render message times client-side — **fixed**: `ChatMessage(role, content, agentType, timestamp)` flows through the history endpoint
 
 ### Phase 3 — Profiling Agent output never persists
 - [ ] `ProfilingAgent.process()` result is fire-and-forget — never written to `UserProfile`; `ProfilingService` only creates empty rows
 - [ ] `KafkaEventPublisher.publishProfileUpdated()` exists but is **never called**
 
 ### Phase 4 — Orchestration short-circuits & insufficient data
-- [ ] `OrchestratorService.java:75,141` — any message containing "youtube" force-routes to `VIDEO_SEARCH`, bypassing LLM classifier (e.g. "Explain what YouTube is")
+- [ ] `OrchestratorService.java:75,141` — any message containing "youtube" force-routes to `VIDEO_SEARCH`, bypassing LLM classifier (e.g. "Explain what YouTube is") — **partial**: only an explicit-link short-circuit (`isExplicitVideoLink`) remains (A5)
 - [ ] `OrchestratorService.java:148` — `DOC_REFERENCE` regex matches normal phrases ("Can I get a PDF of the syllabus")
 - [ ] `InsightAgent` is fed the raw user message, never real analytics — always answers "Not enough data"
-- [ ] `ResponseVerifierAgent` — fragile `contains("NEEDS_REWRITE")` string match + fail-open on LLM exceptions + rejected response accepted after single retry
+- [x] `ResponseVerifierAgent` — fragile `contains("NEEDS_REWRITE")` string match + fail-open on LLM exceptions + rejected response accepted after single retry — **fixed**: JSON verdict parse, retry + safe fallback, prompt hardened (A6 / J4-J5)
 
 ### Phase 5 — Response Composer fallback keys
 - [ ] `ResponseComposer.java` — fallback keys `analysis`/`assessment`/`insights` may never be populated (depends on unverified `AgenticScope` wiring)
@@ -156,9 +174,9 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 - [ ] `VectorDBService.ingestDocumentChunks` — no idempotency; partial Qdrant failure leaves counts inconsistent with PostgreSQL
 
 ### Phase 7 — Kafka
-- [ ] `KafkaEventSubscriber` — `handleContentAnalysisComplete`, `handleProfileUpdated`, `handleInsightGenerated` are no-op stubs
-- [ ] Proactive follow-ups generated but **never delivered to user** — only logged
-- [ ] `ProactiveAgent.java:52-53` — `markProactiveSent` races the async event emitter; user may never be re-pinged if delivery fails
+- [x] `KafkaEventSubscriber` — `handleContentAnalysisComplete`, `handleProfileUpdated`, `handleInsightGenerated` are no-op stubs — **fixed**: orchestrator `-in` channels/subscriber removed; gateway relays everything through `SseEventBridge` (E8j)
+- [x] Proactive follow-ups generated but **never delivered to user** — only logged — **fixed**: `proactive-events` → Kafka → `SseEventBridge` → per-user SSE, and the message is persisted into the user's last session (J12)
+- [~] `ProactiveAgent.java:52-53` — `markProactiveSent` races the async event emitter; user may never be re-pinged if delivery fails — **partial**: send is now `whenComplete`-logged and the follow-up is also persisted (J12); a full ack-based revert of `lastProactiveSentAt` remains open (A11)
 
 ### Phase 8 — Error handling gaps
 - [ ] `YouTubeLinkValidator` fail-open — oEmbed network error → invalid URL accepted
@@ -172,18 +190,18 @@ Role-based access and learning analytics dashboard. Depends on Phase B (SSE secu
 |------|--------|
 | 9. Object Storage & File Persistence | **Partially done, broken:** MinIO in compose but S3 creds never passed to app services; upload non-transactional (S3→DB, orphaned blobs on failure); **no file-size limit** (DoS); `/assess` & `/insights` are stub prompts — no real extraction/embeddings |
 | 10. pgvector | **Dangerously half-implemented:** `vector(768)` column declared in `ContentEmbedding` but no type mapping (see Phase 6 audit) |
-| 11. CAA → QGA | Not done: `AssessmentRequest.questionCount`/`difficulty` are dead fields, never reach orchestrator; `AssessmentItem` missing `explanation` & `sessionId` |
+| 11. CAA → QGA | **Done (Phase F):** analysis context piped to QGA; `questionCount`/`difficulty` wired; `AssessmentItem.explanation` + tracking; `QuizResult` persisted |
 | 12. OCR & Doc Processing | Implemented but not wired to audit: `AutoDetectParser` allocated per call; unsafe UTF-8 binary fallback for unsupported types |
-| 13. Auth RAMC | Not done. `AuthEnforcementTest` fully `@Disabled`; realm-export `redirectUris: ["*"]`; default secrets committed |
+| 13. Auth RAMC | **Partial (H1-H2):** realm roles + `@RolesAllowed` on gateway resources; `AuthEnforcementTest` still `@Disabled`; realm-export `redirectUris`/origins tightened (Keycloak commits) |
 | 14. GraalVM Native | **Buggy:** `Dockerfile.native` ignores `MODULE` build arg → both `orchestrator-native` AND `api-gateway-native` run the orchestrator binary; `graalvm-ce:latest` unpinned; no `USER 1001`. **Deferred.** |
-| 15. Kafka Expansion | Not done — channels exist but subscribers are no-ops |
-| 17. SSE Security | Not done — global broadcast, `@PermitAll`, token-in-query, no overflow control, keepalive NPE |
-| 18. IDOR / Thread Ownership | Not done — no ownership verification anywhere |
+| 15. Kafka Expansion | **Partial:** `content-analysis-complete` + `proactive-events` fully live (SseEventBridge); profile-updated/insight-generated still not emitted (A4) |
+| 17. SSE Security | **Mostly done:** per-user emitters, scoped broadcast, null-userId guard, `@RolesAllowed` on SSE endpoint, token-query validation, reconnect/backoff client (E8a/b/g/h, J8, B2); keepalive NPE + backpressure tracked under B1 |
+| 18. IDOR / Thread Ownership | **Done (J1, B3):** orchestrator `enforceSessionOwnership` server-side + gateway routes analysis in the owner's active thread |
 | 19. Input Validation & Error Mapping | Not done — bare 500s, unvalidated DTOs |
-| 20. Test Enablement | Not done — 21 tests `@Disabled`, gateway test port 10081 collides with Keycloak |
+| 20. Test Enablement | Not done — skipped tests remain (10 orchestrator / 11 gateway) |
 | 21. Observability | Not done |
 | 22. DB Schema Hardening | Not done |
 | 23. Container & Config Consolidation | Not done |
 | 24. Constants & Enum Centralization | Not done |
 | 25. YouTube Search Hardening | Not done |
-| 26. Proactive Notification Delivery | Not done — never delivered to user |
+| 26. Proactive Notification Delivery | **Done (J12, E8):** follow-ups delivered via SSE to the owning user, persisted into their last session; default cutoff 15m (overridable); email explicitly deferred |
