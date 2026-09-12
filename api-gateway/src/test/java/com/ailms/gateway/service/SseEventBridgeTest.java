@@ -28,26 +28,26 @@ class SseEventBridgeTest {
   @Test
   void onProactiveEvent_broadcastsFollowUpToOwningUser() {
     bridge.onProactiveEvent(new ProactiveEvent("user-1", "Time to review!", "FOLLOW_UP"));
-    verify(sse).broadcast("user-1", "Time to review!");
+    verify(sse).broadcastOrQueue("user-1", "Time to review!");
   }
 
   @Test
   void onContentAnalysisComplete_broadcastToOwningUser() {
     bridge.onContentAnalysisComplete(
         new AgentEvent("user-1", "sess-1", "analysis data", "CONTENT_ANALYSIS"));
-    verify(sse).broadcast("user-1", "analysis data");
+    verify(sse).broadcastOrQueue("user-1", "analysis data");
   }
 
   @Test
   void onProfileUpdated_broadcastToOwningUser() {
     bridge.onProfileUpdated(new AgentEvent("user-1", "sess-1", "profile data", "PROFILE_UPDATE"));
-    verify(sse).broadcast("user-1", "profile data");
+    verify(sse).broadcastOrQueue("user-1", "profile data");
   }
 
   @Test
   void onInsightGenerated_broadcastToOwningUser() {
     bridge.onInsightGenerated(new AgentEvent("user-1", "sess-1", "insight data", "INSIGHT"));
-    verify(sse).broadcast("user-1", "insight data");
+    verify(sse).broadcastOrQueue("user-1", "insight data");
   }
 
   @Test

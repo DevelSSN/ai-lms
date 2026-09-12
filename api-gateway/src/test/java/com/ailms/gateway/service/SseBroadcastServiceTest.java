@@ -53,6 +53,41 @@ class SseBroadcastServiceTest {
   }
 
   @Test
+  void broadcastOrQueue_withNoSubscribers_queuesAndReplaysOnSubscribe() {
+    List<String> received = new CopyOnWriteArrayList<>();
+    service.broadcastOrQueue("user-1", "follow up");
+
+    service.subscribe("user-1").subscribe().with(payload -> collect(payload, received));
+
+    assertEquals(1, received.size());
+    assertTrue(received.get(0).contains("follow up"));
+  }
+
+  @Test
+  void broadcastOrQueue_withSubscribersDeliversImmediately() {
+    List<String> received = new CopyOnWriteArrayList<>();
+    service.subscribe("user-1").subscribe().with(payload -> collect(payload, received));
+
+    service.broadcastOrQueue("user-1", "live");
+
+    assertEquals(1, received.size());
+    assertTrue(received.get(0).contains("live"));
+  }
+
+  @Test
+  void queuedEventReplayedOnceOnly() {
+    List<String> received = new CopyOnWriteArrayList<>();
+    service.broadcastOrQueue("user-1", "pending-1");
+    service.subscribe("user-1").subscribe().with(payload -> collect(payload, received));
+    service.broadcastOrQueue("user-1", "pending-2");
+    assertEquals(2, received.size());
+
+    service.subscribe("user-1").subscribe().with(payload -> collect(payload, received));
+    assertEquals(2, received.size());
+    assertTrue(received.get(1).contains("pending-2"));
+  }
+
+  @Test
   void escapesControlCharactersInPayload() {
     List<String> received = new CopyOnWriteArrayList<>();
     service.subscribe("user-1").subscribe().with(payload -> collect(payload, received));

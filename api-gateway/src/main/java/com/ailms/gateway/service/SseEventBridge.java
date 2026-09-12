@@ -21,7 +21,7 @@ public class SseEventBridge {
       return;
     }
     log.info("Relaying proactive follow-up to user={} type={}", event.userId(), event.eventType());
-    sse.broadcast(event.userId(), event.context());
+    sse.broadcastOrQueue(event.userId(), event.context());
   }
 
   @Incoming("content-analysis-complete")
@@ -31,7 +31,7 @@ public class SseEventBridge {
       return;
     }
     log.info("Relaying content analysis to user={}", event.userId());
-    sse.broadcast(event.userId(), event.data());
+    sse.broadcastOrQueue(event.userId(), event.data());
   }
 
   @Incoming("profile-updated")
@@ -41,7 +41,7 @@ public class SseEventBridge {
       return;
     }
     log.info("Relaying profile update to user={}", event.userId());
-    sse.broadcast(event.userId(), event.data());
+    sse.broadcastOrQueue(event.userId(), event.data());
   }
 
   @Incoming("insight-generated")
@@ -51,6 +51,6 @@ public class SseEventBridge {
       return;
     }
     log.info("Relaying insight to user={}", event.userId());
-    sse.broadcast(event.userId(), event.data());
+    sse.broadcastOrQueue(event.userId(), event.data());
   }
 }

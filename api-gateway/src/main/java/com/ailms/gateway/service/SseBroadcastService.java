@@ -20,12 +20,17 @@ public class SseBroadcastService {
 
   public static final int MAX_EMITTERS_PER_USER = 4;
 
+  public static final int MAX_PENDING_PER_USER = 20;
+
   private static final String PING_PAYLOAD = "{\"type\":\"ping\"}";
 
   private static final Duration KEEPALIVE_INTERVAL = Duration.ofSeconds(25);
 
   private final ConcurrentHashMap<String, CopyOnWriteArrayList<MultiEmitter<? super String>>>
       userEmitters = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<String, CopyOnWriteArrayList<String>> pendingByUser =
+      new ConcurrentHashMap<>();
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -50,6 +55,7 @@ public class SseBroadcastService {
         .emitter(
             em -> {
               list.add(em);
+              flushPending(userId, list);
               AtomicReference<Cancellable> keepaliveRef = new AtomicReference<>();
               Cancellable keepalive =
                   Multi.createFrom()
@@ -84,6 +90,49 @@ public class SseBroadcastService {
                         list.size());
                   });
             });
+  }
+
+  public void broadcastOrQueue(String userId, String message) {
+    CopyOnWriteArrayList<MultiEmitter<? super String>> list = userEmitters.get(userId);
+    if (list == null || list.isEmpty()) {
+      log.info("No active SSE subscribers for user={} — queueing event", userId);
+      queuePending(userId, message);
+      return;
+    }
+    broadcast(userId, message);
+  }
+
+  private void queuePending(String userId, String message) {
+    CopyOnWriteArrayList<String> queue =
+        pendingByUser.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
+    if (queue.size() >= MAX_PENDING_PER_USER) {
+      log.warn("Pending queue full for user={}, dropping oldest", userId);
+      queue.remove(0);
+    }
+    queue.add(message);
+    log.info("Buffered event for user={} (pending: {})", userId, queue.size());
+  }
+
+  private void flushPending(
+      String userId, CopyOnWriteArrayList<MultiEmitter<? super String>> targets) {
+    CopyOnWriteArrayList<String> queue = pendingByUser.remove(userId);
+    if (queue == null || queue.isEmpty()) {
+      return;
+    }
+    for (String message : queue) {
+      String payload = toPayload(userId, message);
+      for (MultiEmitter<? super String> emitter : targets) {
+        try {
+          if (emitter.isCancelled()) {
+            continue;
+          }
+          emitter.emit(payload);
+        } catch (Exception e) {
+          log.error("SSE replay failed for user={}: {}", userId, e.getMessage());
+        }
+      }
+    }
+    log.info("Replayed {} pending event(s) to user={}", queue.size(), userId);
   }
 
   public void broadcast(String userId, String message) {
