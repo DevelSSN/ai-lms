@@ -7,6 +7,7 @@ import com.ailms.common.dto.RetrievedChunk;
 import com.ailms.common.enums.IntentType;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ResponseComposer {
       metadata = buildCitationMetadata(agenticScope, response);
     }
 
-    return new ChatResponse(response, sessionId, intent, metadata);
+    return new ChatResponse(response, sessionId, intent, metadata, Instant.now());
   }
 
   private Object buildCitationMetadata(AgenticScope agenticScope, String response) {

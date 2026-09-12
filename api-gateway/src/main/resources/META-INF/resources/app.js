@@ -329,9 +329,14 @@ async function loadHistory(threadId) {
       showWelcome();
       return;
     }
+    messages.sort(
+      (a, b) => new Date(a?.timestamp ?? 0).getTime() - new Date(b?.timestamp ?? 0).getTime(),
+    );
+    lastRenderedMessage = "";
     for (const message of messages) {
-      if (message.role === "user") appendMessage("user", message.content);
-      else if (message.role === "assistant") appendMessage("bot", message.content);
+      if (message.role === "user") appendMessage("user", message.content, message.timestamp);
+      else if (message.role === "assistant")
+        appendMessage("bot", message.content, message.timestamp);
     }
     const hasContentAnalysis = messages.some(
       (message) =>
@@ -348,6 +353,7 @@ async function loadHistory(threadId) {
 function clearChat() {
   const chatContainer = document.getElementById("chat-container");
   chatContainer.innerHTML = "";
+  lastRenderedMessage = "";
 }
 
 function showWelcome() {
@@ -602,6 +608,26 @@ async function switchThread(threadId) {
 let eventSource = null;
 let sseBackoffMs = 1000;
 
+// Raw content of the last rendered message (text or quiz JSON), used to
+// dedupe SSE re-deliveries regardless of DOM timestamps.
+let lastRenderedMessage = "";
+
+function toDate(value) {
+  if (!value) return new Date();
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? new Date() : d;
+}
+
+function formatTimestamp(date) {
+  const d = date instanceof Date ? date : toDate(date);
+  if (isNaN(d.getTime())) return "";
+  const now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return time;
+  const datePart = d.toLocaleDateString([], { month: "short", day: "numeric" });
+  return `${datePart}, ${time}`;
+}
+
 function startSSE() {
   if (eventSource) {
     try {
@@ -634,11 +660,9 @@ async function connectSSE() {
       const data = JSON.parse(event.data);
       if (data.ping) return;
       if (data.user_id === currentUsername && data.response) {
-        const container = document.getElementById("chat-container");
-        const bots = container.querySelectorAll(".bot-message");
-        const last = bots[bots.length - 1];
-        if (!last || last.textContent.trim() !== data.response.trim()) {
-          appendMessage("bot", data.response);
+        const trimmed = String(data.response).trim();
+        if (trimmed !== lastRenderedMessage) {
+          appendMessage("bot", data.response, data.timestamp);
         }
       }
     } catch (e) {
@@ -1002,14 +1026,16 @@ function enhanceCodeBlocks(container) {
   });
 }
 
-function appendMessage(sender, text) {
+function appendMessage(sender, text, timestamp) {
+  lastRenderedMessage = String(text ?? "").trim();
   if (sender === "bot") {
     const quizItems = tryParseQuizJson(text);
     if (quizItems) {
-      renderQuizCard({ contentId: null, items: quizItems });
+      renderQuizCard({ contentId: null, items: quizItems }, timestamp);
       return null;
     }
   }
+  const ts = toDate(timestamp);
 
   const chatContainer = document.getElementById("chat-container");
   const messageDiv = document.createElement("div");
@@ -1054,6 +1080,12 @@ function appendMessage(sender, text) {
     enhanceCodeBlocks(messageDiv);
   }
 
+  const meta = document.createElement("div");
+  meta.classList.add("message-meta");
+  meta.dataset.ts = ts.toISOString();
+  meta.textContent = formatTimestamp(ts);
+  messageDiv.appendChild(meta);
+
   chatContainer.appendChild(messageDiv);
   requestAnimationFrame(() => {
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1062,12 +1094,12 @@ function appendMessage(sender, text) {
 }
 
 function appendAssistantContent(data) {
-  const msgEl = appendMessage("bot", data?.message || "");
+  const msgEl = appendMessage("bot", data?.message || "", data?.timestamp);
   if (Array.isArray(data?.metadata?.citations) && data.metadata.citations.length) {
     attachCitations(msgEl, data.metadata.citations);
   }
   if (data?.metadata?.items && Array.isArray(data.metadata.items)) {
-    renderQuizCard(data.metadata);
+    renderQuizCard(data.metadata, data?.timestamp);
   }
 }
 
@@ -1164,7 +1196,7 @@ function tryParseQuizJson(text) {
   return null;
 }
 
-function renderQuizCard(meta) {
+function renderQuizCard(meta, timestamp) {
   const container = document.getElementById("chat-container");
   const card = document.createElement("div");
   card.classList.add("quiz-card");
@@ -1187,6 +1219,12 @@ function renderQuizCard(meta) {
   result.classList.add("quiz-result");
   result.hidden = true;
   card.appendChild(result);
+
+  const metaEl = document.createElement("div");
+  metaEl.classList.add("message-meta");
+  metaEl.dataset.ts = toDate(timestamp).toISOString();
+  metaEl.textContent = formatTimestamp(toDate(timestamp));
+  card.appendChild(metaEl);
 
   checkBtn.addEventListener("click", () => evaluateQuiz(meta, questions, result));
 

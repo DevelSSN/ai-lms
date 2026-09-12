@@ -109,12 +109,17 @@ public class SseBroadcastService {
   }
 
   private String toPayload(String userId, String message) {
+    String timestamp = java.time.Instant.now().toString();
     try {
       return objectMapper.writeValueAsString(
-          Map.of("user_id", userId, "response", message == null ? "" : message));
+          Map.of(
+              "user_id", userId,
+              "response", message == null ? "" : message,
+              "timestamp", timestamp));
     } catch (Exception e) {
       log.error("Failed to serialize SSE payload, sending empty response", e);
-      return "{\"user_id\":\"" + escape(userId) + "\",\"response\":\"\"}";
+      return "{\"user_id\":\"" + escape(userId) + "\",\"response\":\"\",\"timestamp\":\""
+          + timestamp + "\"}";
     }
   }
 

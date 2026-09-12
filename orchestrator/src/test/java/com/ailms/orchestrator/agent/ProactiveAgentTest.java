@@ -49,8 +49,7 @@ class ProactiveAgentTest {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
     when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any(), any()))
-        .thenReturn(true);
+    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
@@ -61,7 +60,7 @@ class ProactiveAgentTest {
             eq(ChatRole.ASSISTANT.key()),
             anyString(),
             eq(EventTypeKeys.FOLLOW_UP));
-    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any(), any());
+    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
   }
 
   @Test
@@ -73,8 +72,7 @@ class ProactiveAgentTest {
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of(log));
     when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
     when(proactiveFollowUpAgent.generate(anyString())).thenReturn("Follow up message");
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any(), any()))
-        .thenReturn(true);
+    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
@@ -90,11 +88,12 @@ class ProactiveAgentTest {
   @Test
   void checkFollowUps_skipsRecentlyPingedUser() {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any(), any()))
-        .thenReturn(false);
+    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(false);
 
     newAgent().checkFollowUps();
     verifyNoInteractions(eventEmitter);
-    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any(), any());
+    verify(conversationRepository, never())
+        .logMessage(anyString(), anyString(), anyString(), anyString(), anyString());
+    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
   }
 }

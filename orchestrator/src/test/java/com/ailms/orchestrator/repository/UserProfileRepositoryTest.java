@@ -1,49 +1,30 @@
 package com.ailms.orchestrator.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.ailms.common.entity.UserProfile;
-import org.junit.jupiter.api.Disabled;
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-@Disabled("Needs Quarkus Arc for Panache")
 class UserProfileRepositoryTest {
 
   @Test
-  void findByExternalId_delegatesToFind() {
-    UserProfileRepository repo = spy(new UserProfileRepository());
-    UserProfile expected = new UserProfile();
-    expected.externalId = "user-1";
-
-    doReturn(expected).when(repo).find("externalId", "user-1");
-    UserProfile result = repo.findByExternalId("user-1");
-    assertEquals("user-1", result.externalId);
+  void shouldResend_neverSent_alwaysResends() {
+    assertTrue(UserProfileRepository.shouldResend(null, Instant.now()));
+    assertTrue(UserProfileRepository.shouldResend(null, null));
   }
 
   @Test
-  void findOrCreate_returnsExisting() {
-    UserProfileRepository repo = spy(new UserProfileRepository());
-    UserProfile existing = new UserProfile();
-    existing.externalId = "user-1";
-
-    doReturn(existing).when(repo).find("externalId", "user-1");
-    UserProfile result = repo.findOrCreate("user-1");
-    assertEquals("user-1", result.externalId);
+  void shouldResend_noUserActivityAfterPing_blocksRepeat() {
+    Instant sent = Instant.parse("2026-09-12T10:00:00Z");
+    assertFalse(UserProfileRepository.shouldResend(sent, Instant.parse("2026-09-12T09:00:00Z")));
+    assertFalse(UserProfileRepository.shouldResend(sent, sent));
+    assertFalse(UserProfileRepository.shouldResend(sent, null));
   }
 
   @Test
-  void findOrCreate_createsNew() {
-    UserProfileRepository repo = spy(new UserProfileRepository());
-    doReturn(null).when(repo).find("externalId", "new-user");
-    doNothing().when(repo).persist(any(UserProfile.class));
-
-    UserProfile result = repo.findOrCreate("new-user");
-    assertNotNull(result);
-    assertEquals("new-user", result.externalId);
-    verify(repo).persist(any(UserProfile.class));
+  void shouldResend_userActivityAfterPing_permitsRepeat() {
+    Instant sent = Instant.parse("2026-09-12T10:00:00Z");
+    assertTrue(UserProfileRepository.shouldResend(sent, Instant.parse("2026-09-12T10:30:00Z")));
   }
 }

@@ -47,7 +47,7 @@ public class ProactiveAgent {
 
     for (String userId : inactiveUsers) {
       try {
-        if (!userProfileRepository.markProactiveSentIfNotRecent(userId, now, cutoff)) {
+        if (!userProfileRepository.markProactiveSentIfNotRecent(userId, now)) {
           continue;
         }
         String followUpMessage = generateFollowUp(userId);

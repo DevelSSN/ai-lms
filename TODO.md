@@ -2,7 +2,7 @@
 
 > Working branch: `shashank/hardening`
 > One commit per change. Current baseline (runnable unit suites):
-> `orchestrator`: 179 tests / 0 failures / 10 skipped
+> `orchestrator`: 179 tests / 0 failures / 7 skipped
 > `api-gateway`: 66 tests / 0 failures / 11 skipped
 
 ## Completed Phases (historical, checked)
@@ -140,6 +140,7 @@ Makes upload → analysis → quiz work end-to-end **on screen**: everything sho
 - [x] J10. No transient transcript pollution — "uploading/analyzing" is an ephemeral `.processing-chip`; quiz bar is idempotent and re-derived from `agentType=CONTENT_ANALYSIS` in history (`aa1097d`).
 - [x] J11. `INDEXED` means "transcript persisted" — ingestion leaves status `PARSED`; `markIndexed` runs only after `route()` writes the transcript, so the client's reload deterministically sees the analysis (`db1b8ca`).
 - [x] J12. Proactive follow-ups persisted into the user's last session (survive refresh) in addition to the Kafka→SSE live push; `resolveLastSessionId` added; default cutoff 24h→**15m** (`AILMS_PROACTIVE_INACTIVITY_CUTOFF` overridable) (`db1b8ca`).
+- [x] J13. Proactive repeat guard — `findInactiveUsersSince` counts **user-initiated** messages only, and `markProactiveSentIfNotRecent` re-pings only when there is new user activity since the last ping (one follow-up per inactive episode, no nagging repeats while logged out); timestamps added to `ChatResponse`, SSE payloads, and per-message history, rendered as `.message-meta` client-side with chronological history ordering.
 
 ## Deferred (by decision)
 

@@ -225,10 +225,26 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   @SuppressWarnings("unchecked")
   public List<String> findInactiveUsersSince(Instant since) {
     return em.createQuery(
-            "SELECT DISTINCT userId FROM ConversationLog WHERE deleted = FALSE GROUP BY userId"
-                + " HAVING MAX(timestamp) < :since")
+            "SELECT DISTINCT c.userId FROM ConversationLog c WHERE (c.deleted IS NULL OR"
+                + " c.deleted = false) AND c.role = :role GROUP BY c.userId HAVING MAX(c.timestamp)"
+                + " < :since")
+        .setParameter("role", ChatRole.USER.key())
         .setParameter("since", since)
         .getResultList();
+  }
+
+  public Instant lastUserActivityAt(String userId) {
+    try {
+      return em.createQuery(
+              "select max(l.timestamp) from ConversationLog l where l.userId = :uid and"
+                  + " (l.deleted is null or l.deleted = false) and l.role = :role",
+              Instant.class)
+          .setParameter("uid", userId)
+          .setParameter("role", ChatRole.USER.key())
+          .getSingleResult();
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   public List<ConversationLog> findRecentByUserId(String userId, int limit) {

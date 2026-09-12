@@ -131,6 +131,7 @@ Supporting: `IntentClassifier` (LLM), `ResponseComposer`, `ResponseVerifierAgent
 
 ## Persistence & Delivery Invariants
 - **Anything shown survives refresh:** no transient "uploading"/"analyzing" messages in the transcript; quiz bars are re-derived from `agentType` in history; quiz cards are re-parsed from persisted JSON.
+- **Every message carries a timestamp:** persisted history serves `Instant` per message; live SSE payloads and `ChatResponse` carry a server timestamp; the frontend renders a `.message-meta` time under each message (and quiz card) and sorts history chronologically.
 - **`INDEXED` means "transcript persisted":** ingestion never flips status; `runAnalysisJob` marks INDEXED only after `route()` returns, so the `INDEXED`-triggered reload always contains the analysis.
 - **Thread ownership:** orchestrator rejects sessions owned by another user (`enforceSessionOwnership`); gateway routes async analysis in the active chat thread (fallback `upload:<docId>` only for no-thread callers).
 - **Sources:** retrieval filters on `source = "doc:<documentId>"` via metadata equality in the Qdrant/LangChain4j filter, not client-side post-filtering.
@@ -145,7 +146,7 @@ Supporting: `IntentClassifier` (LLM), `ResponseComposer`, `ResponseVerifierAgent
 - Concurrent discussion/summary: doc ingestion stays `PARSED` until the analysis is durably recorded.
 
 ## Test & Verification Status
-- `orchestrator`: 179 tests / 0 failures / 10 skipped
+- `orchestrator`: 179 tests / 0 failures / 7 skipped
 - `api-gateway`: 66 tests / 0 failures / 11 skipped
 - Manual verification required on a running cluster for UI-level behavior (SSE push, quiz cards, refresh persistence).
 
