@@ -3,50 +3,50 @@
   "per_label": {
     "CONVERSATION": [
       50,
-      0.5263157894736842,
+      0.5747126436781609,
       1.0,
-      0.6896551724137931
+      0.7299270072992701
     ],
     "VIDEO_SEARCH": [
       48,
       1.0,
-      0.8541666666666666,
-      0.9213483146067416
+      0.9375,
+      0.967741935483871
     ],
     "CONTENT_ANALYSIS": [
       40,
-      0.972972972972973,
+      0.9473684210526315,
       0.9,
-      0.935064935064935
+      0.9230769230769231
     ],
     "ASSESSMENT": [
       40,
       1.0,
-      0.775,
-      0.8732394366197184
+      0.8,
+      0.888888888888889
     ],
     "INSIGHT": [
       40,
       1.0,
-      0.35,
-      0.5185185185185185
+      0.4,
+      0.5714285714285715
     ]
   },
-  "accuracy": 0.7889908256880734,
-  "macro_precision": 0.8998577524893314,
-  "macro_recall": 0.7758333333333333,
-  "macro_f1": 0.7875652754447413,
+  "accuracy": 0.8211009174311926,
+  "macro_precision": 0.9044162129461585,
+  "macro_recall": 0.8075000000000001,
+  "macro_f1": 0.8162126652355048,
   "short_circuit_count": 17,
   "short_circuit_greeting": 9,
   "short_circuit_video_link": 8,
   "short_circuit_correct": 17,
   "router_served_frac": 7.79816513761468,
-  "median_all_latency_ms": 21288.5,
-  "median_classifier_latency_ms": 21794,
-  "median_short_latency_ms": 11734,
-  "median_latency_saved_ms": 10060,
-  "p95_all_latency_ms": 43384,
-  "p99_all_latency_ms": 53147,
+  "median_all_latency_ms": 28040.0,
+  "median_classifier_latency_ms": 28099,
+  "median_short_latency_ms": 69,
+  "median_latency_saved_ms": 28030,
+  "p95_all_latency_ms": 51378,
+  "p99_all_latency_ms": 57868,
   "confusion": {
     "CONVERSATION": {
       "CONVERSATION": 50,
@@ -56,8 +56,8 @@
       "INSIGHT": 0
     },
     "VIDEO_SEARCH": {
-      "CONVERSATION": 7,
-      "VIDEO_SEARCH": 41,
+      "CONVERSATION": 3,
+      "VIDEO_SEARCH": 45,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
       "INSIGHT": 0
@@ -70,18 +70,18 @@
       "INSIGHT": 0
     },
     "ASSESSMENT": {
-      "CONVERSATION": 8,
+      "CONVERSATION": 6,
       "VIDEO_SEARCH": 0,
-      "CONTENT_ANALYSIS": 1,
-      "ASSESSMENT": 31,
+      "CONTENT_ANALYSIS": 2,
+      "ASSESSMENT": 32,
       "INSIGHT": 0
     },
     "INSIGHT": {
-      "CONVERSATION": 26,
+      "CONVERSATION": 24,
       "VIDEO_SEARCH": 0,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 14
+      "INSIGHT": 16
     }
   }
 }
