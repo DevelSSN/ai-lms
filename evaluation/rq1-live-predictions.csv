@@ -8,7 +8,7 @@ Tell me something interesting.,CONVERSATION,CONVERSATION
 How are you today?,CONVERSATION,CONVERSATION
 Thanks for your help earlier.,CONVERSATION,CONVERSATION
 "That makes sense, thank you.",CONVERSATION,CONVERSATION
-I’m just checking in.,CONVERSATION,CONVERSATION
+I’m just checking in.,CONVERSATION,INSIGHT
 "Hey, I have a quick question.",CONVERSATION,CONVERSATION
 Good evening!,CONVERSATION,CONVERSATION
 Nice to see you again.,CONVERSATION,CONVERSATION
@@ -27,7 +27,7 @@ I need some motivation to study.,CONVERSATION,CONVERSATION
 I’m back again.,CONVERSATION,CONVERSATION
 Hey!,CONVERSATION,CONVERSATION
 Good afternoon.,CONVERSATION,CONVERSATION
-Can you help me figure out what to do next?,CONVERSATION,CONVERSATION
+Can you help me figure out what to do next?,CONVERSATION,INSIGHT
 I just wanted to say hi.,CONVERSATION,CONVERSATION
 How does this learning assistant work?,CONVERSATION,CONVERSATION
 What are you capable of?,CONVERSATION,CONVERSATION
@@ -44,14 +44,14 @@ Can you find a YouTube video on recursion?,VIDEO_SEARCH,VIDEO_SEARCH
 I want a video tutorial for learning SQL joins.,VIDEO_SEARCH,VIDEO_SEARCH
 Show me a good video about photosynthesis.,VIDEO_SEARCH,VIDEO_SEARCH
 Find a beginner-friendly video on Python classes.,VIDEO_SEARCH,VIDEO_SEARCH
-Can you recommend a video that teaches probability?,VIDEO_SEARCH,VIDEO_SEARCH
+Can you recommend a video that teaches probability?,VIDEO_SEARCH,CONVERSATION
 Search for a video explaining Newton’s laws.,VIDEO_SEARCH,VIDEO_SEARCH
 I need a video lesson on database normalization.,VIDEO_SEARCH,VIDEO_SEARCH
 Find a YouTube tutorial for FastAPI.,VIDEO_SEARCH,VIDEO_SEARCH
 Show me a video about machine learning basics.,VIDEO_SEARCH,VIDEO_SEARCH
 Can you look for a video explaining TCP and UDP?,VIDEO_SEARCH,VIDEO_SEARCH
 Find a video that teaches calculus derivatives.,VIDEO_SEARCH,VIDEO_SEARCH
-I want to watch a tutorial on linked lists.,VIDEO_SEARCH,CONVERSATION
+I want to watch a tutorial on linked lists.,VIDEO_SEARCH,VIDEO_SEARCH
 Search for a useful video about operating systems.,VIDEO_SEARCH,VIDEO_SEARCH
 Can you find a lecture on neural networks?,VIDEO_SEARCH,VIDEO_SEARCH
 Show me some videos for learning Java inheritance.,VIDEO_SEARCH,VIDEO_SEARCH
@@ -65,8 +65,8 @@ Show me a video explaining REST APIs.,VIDEO_SEARCH,VIDEO_SEARCH
 Can you search YouTube for a lesson on statistics?,VIDEO_SEARCH,VIDEO_SEARCH
 Find an easy video explaining object-oriented programming.,VIDEO_SEARCH,VIDEO_SEARCH
 I want a video about the water cycle.,VIDEO_SEARCH,VIDEO_SEARCH
-Search for a tutorial on pandas in Python.,VIDEO_SEARCH,CONVERSATION
-Can you find a lecture explaining operating system processes?,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a tutorial on pandas in Python.,VIDEO_SEARCH,VIDEO_SEARCH
+Can you find a lecture explaining operating system processes?,VIDEO_SEARCH,CONVERSATION
 Show me a video that explains gradient descent.,VIDEO_SEARCH,VIDEO_SEARCH
 Find a beginner video for learning C++ pointers.,VIDEO_SEARCH,VIDEO_SEARCH
 I need a video tutorial on HTML and CSS.,VIDEO_SEARCH,VIDEO_SEARCH
@@ -74,7 +74,7 @@ Search for a video explaining probability distributions.,VIDEO_SEARCH,VIDEO_SEAR
 Can you find a video on software engineering design patterns?,VIDEO_SEARCH,VIDEO_SEARCH
 Show me a good lecture about computer architecture.,VIDEO_SEARCH,VIDEO_SEARCH
 Find a video explaining how APIs work.,VIDEO_SEARCH,VIDEO_SEARCH
-I want to watch a tutorial on recursion and backtracking.,VIDEO_SEARCH,CONVERSATION
+I want to watch a tutorial on recursion and backtracking.,VIDEO_SEARCH,VIDEO_SEARCH
 Search for a video about linear regression.,VIDEO_SEARCH,VIDEO_SEARCH
 Can you find an educational video on chemical bonding?,VIDEO_SEARCH,VIDEO_SEARCH
 Show me a YouTube lesson about data structures.,VIDEO_SEARCH,VIDEO_SEARCH
@@ -82,7 +82,7 @@ Find a video explaining how RAG works.,VIDEO_SEARCH,VIDEO_SEARCH
 Summarize the PDF I uploaded.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you explain the main idea of this document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What are the key points in these lecture notes?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Break down this chapter into simple terms.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Break down this chapter into simple terms.,CONTENT_ANALYSIS,CONVERSATION
 Review my uploaded study material and explain it.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What does this paragraph mean?,CONTENT_ANALYSIS,CONVERSATION
 Summarize the important concepts from this chapter.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -99,7 +99,7 @@ Summarize this article for revision.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What does the uploaded chapter say about neural networks?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Analyze this study material and identify its main themes.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you give me an overview of this document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Explain the difficult parts of these lecture slides.,CONTENT_ANALYSIS,CONVERSATION
+Explain the difficult parts of these lecture slides.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What should I focus on in this uploaded chapter?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you compare the two approaches described in this PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Summarize the section about database normalization.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -107,10 +107,10 @@ Explain the example given in my notes.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you review my lecture material for important definitions?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What conclusions does this document reach?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Help me understand the content of this uploaded file.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you identify the key terms in this chapter?,CONTENT_ANALYSIS,CONVERSATION
+Can you identify the key terms in this chapter?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Give me a simplified explanation of these notes.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Analyze the uploaded material and organize the concepts.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-What is this document mainly about?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What is this document mainly about?,CONTENT_ANALYSIS,CONVERSATION
 Can you explain the diagram described in the study material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Summarize this content without leaving out the important details.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Review this chapter and highlight confusing concepts.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -122,26 +122,26 @@ Give me a revision-friendly summary of the uploaded material.,CONTENT_ANALYSIS,C
 Give me a quiz on Python basics.,ASSESSMENT,ASSESSMENT
 Test me on SQL joins.,ASSESSMENT,ASSESSMENT
 Create five practice questions on recursion.,ASSESSMENT,ASSESSMENT
-Can you make a test from the uploaded chapter?,ASSESSMENT,ASSESSMENT
+Can you make a test from the uploaded chapter?,ASSESSMENT,CONTENT_ANALYSIS
 Quiz me on the material I just studied.,ASSESSMENT,ASSESSMENT
 Give me some multiple-choice questions on machine learning.,ASSESSMENT,ASSESSMENT
 Create a short assessment on database normalization.,ASSESSMENT,ASSESSMENT
-Can you test my understanding of neural networks?,ASSESSMENT,CONVERSATION
+Can you test my understanding of neural networks?,ASSESSMENT,ASSESSMENT
 Make me a practice test on operating systems.,ASSESSMENT,ASSESSMENT
-Ask me questions about the uploaded PDF.,ASSESSMENT,ASSESSMENT
-Give me ten questions on computer networks.,ASSESSMENT,ASSESSMENT
+Ask me questions about the uploaded PDF.,ASSESSMENT,CONTENT_ANALYSIS
+Give me ten questions on computer networks.,ASSESSMENT,CONVERSATION
 Can you generate a quiz from these lecture notes?,ASSESSMENT,ASSESSMENT
 Test me on calculus derivatives.,ASSESSMENT,ASSESSMENT
 Create practice problems for probability.,ASSESSMENT,ASSESSMENT
 Give me an assessment on object-oriented programming.,ASSESSMENT,ASSESSMENT
-Can you make a beginner quiz on Java?,ASSESSMENT,CONVERSATION
-Ask me five questions about SQL.,ASSESSMENT,ASSESSMENT
+Can you make a beginner quiz on Java?,ASSESSMENT,ASSESSMENT
+Ask me five questions about SQL.,ASSESSMENT,CONVERSATION
 Create an exam-style test from this chapter.,ASSESSMENT,ASSESSMENT
 Can you evaluate my understanding of binary search?,ASSESSMENT,ASSESSMENT
 Give me practice questions on data structures.,ASSESSMENT,ASSESSMENT
 Quiz me on the concepts in my study material.,ASSESSMENT,ASSESSMENT
 Make a short test on software engineering.,ASSESSMENT,ASSESSMENT
-Can you generate questions based on this document?,ASSESSMENT,CONTENT_ANALYSIS
+Can you generate questions based on this document?,ASSESSMENT,ASSESSMENT
 Test me on Python classes and inheritance.,ASSESSMENT,ASSESSMENT
 Give me some MCQs on computer architecture.,ASSESSMENT,ASSESSMENT
 Create a practice assessment for my upcoming exam.,ASSESSMENT,ASSESSMENT
@@ -152,53 +152,53 @@ Test whether I understand database transactions.,ASSESSMENT,CONVERSATION
 Make me a quiz on probability distributions.,ASSESSMENT,ASSESSMENT
 Give me some practice questions on REST APIs.,ASSESSMENT,ASSESSMENT
 Can you assess my knowledge of operating system processes?,ASSESSMENT,ASSESSMENT
-Create a quiz that gets harder as I answer.,ASSESSMENT,CONVERSATION
+Create a quiz that gets harder as I answer.,ASSESSMENT,ASSESSMENT
 Give me an exam-style assessment on the uploaded material.,ASSESSMENT,ASSESSMENT
 Test my knowledge of electromagnetic induction.,ASSESSMENT,ASSESSMENT
-Can you create true-or-false questions about this chapter?,ASSESSMENT,ASSESSMENT
-Give me practice problems on dynamic programming.,ASSESSMENT,ASSESSMENT
-Can you evaluate what I learned from this lecture?,ASSESSMENT,CONVERSATION
+Can you create true-or-false questions about this chapter?,ASSESSMENT,CONVERSATION
+Give me practice problems on dynamic programming.,ASSESSMENT,CONVERSATION
+Can you evaluate what I learned from this lecture?,ASSESSMENT,INSIGHT
 Create a quick revision quiz for me.,ASSESSMENT,ASSESSMENT
 How am I doing in my studies?,INSIGHT,INSIGHT
 Can you show me my learning progress?,INSIGHT,INSIGHT
-What topics am I struggling with?,INSIGHT,CONVERSATION
-Which subjects should I focus on next?,INSIGHT,CONVERSATION
+What topics am I struggling with?,INSIGHT,INSIGHT
+Which subjects should I focus on next?,INSIGHT,INSIGHT
 Can you analyze my recent performance?,INSIGHT,INSIGHT
-What are my biggest knowledge gaps?,INSIGHT,CONVERSATION
-Am I improving compared with my previous sessions?,INSIGHT,CONVERSATION
+What are my biggest knowledge gaps?,INSIGHT,INSIGHT
+Am I improving compared with my previous sessions?,INSIGHT,INSIGHT
 Give me a report on my learning progress.,INSIGHT,INSIGHT
-What do my study patterns suggest?,INSIGHT,CONVERSATION
-Can you recommend what I should study next?,INSIGHT,CONVERSATION
-Which areas need more revision?,INSIGHT,CONVERSATION
-How consistent has my learning been?,INSIGHT,CONVERSATION
-What are my strengths and weaknesses as a learner?,INSIGHT,CONVERSATION
-Can you give me personalized study recommendations?,INSIGHT,CONVERSATION
-"Based on my progress, what should I work on?",INSIGHT,CONVERSATION
-Have I improved in SQL recently?,INSIGHT,CONVERSATION
-What concepts do I seem to have trouble with?,INSIGHT,CONVERSATION
+What do my study patterns suggest?,INSIGHT,INSIGHT
+Can you recommend what I should study next?,INSIGHT,INSIGHT
+Which areas need more revision?,INSIGHT,INSIGHT
+How consistent has my learning been?,INSIGHT,INSIGHT
+What are my strengths and weaknesses as a learner?,INSIGHT,INSIGHT
+Can you give me personalized study recommendations?,INSIGHT,INSIGHT
+"Based on my progress, what should I work on?",INSIGHT,INSIGHT
+Have I improved in SQL recently?,INSIGHT,INSIGHT
+What concepts do I seem to have trouble with?,INSIGHT,INSIGHT
 Can you analyze my performance across topics?,INSIGHT,INSIGHT
 Give me insights into my learning habits.,INSIGHT,INSIGHT
-Which topic should I revise before moving on?,INSIGHT,CONVERSATION
+Which topic should I revise before moving on?,INSIGHT,INSIGHT
 Can you identify gaps in my understanding from my history?,INSIGHT,INSIGHT
 How well am I progressing toward my learning goals?,INSIGHT,INSIGHT
 What should I prioritize this week based on my performance?,INSIGHT,INSIGHT
-Can you generate a progress report for me?,INSIGHT,CONVERSATION
-Which subjects am I strongest in?,INSIGHT,CONVERSATION
+Can you generate a progress report for me?,INSIGHT,INSIGHT
+Which subjects am I strongest in?,INSIGHT,INSIGHT
 Where am I losing marks most often?,INSIGHT,INSIGHT
 What patterns do you see in my assessment results?,INSIGHT,INSIGHT
-Can you recommend a personalized learning path?,INSIGHT,CONVERSATION
+Can you recommend a personalized learning path?,INSIGHT,INSIGHT
 How has my performance changed over time?,INSIGHT,INSIGHT
-Which concepts should I revisit based on my previous attempts?,INSIGHT,CONVERSATION
+Which concepts should I revisit based on my previous attempts?,INSIGHT,INSIGHT
 Can you tell me whether my study routine is working?,INSIGHT,INSIGHT
-What are my current learning gaps?,INSIGHT,CONVERSATION
-Give me feedback based on my past activity.,INSIGHT,CONVERSATION
-What should I improve to perform better?,INSIGHT,CONVERSATION
-Can you identify the areas where I need extra practice?,INSIGHT,CONVERSATION
+What are my current learning gaps?,INSIGHT,INSIGHT
+Give me feedback based on my past activity.,INSIGHT,INSIGHT
+What should I improve to perform better?,INSIGHT,INSIGHT
+Can you identify the areas where I need extra practice?,INSIGHT,INSIGHT
 How effective has my recent study activity been?,INSIGHT,INSIGHT
-What learning recommendations do you have for me?,INSIGHT,INSIGHT
+What learning recommendations do you have for me?,INSIGHT,CONVERSATION
 Can you compare my current progress with my earlier progress?,INSIGHT,INSIGHT
-Which topics are becoming stronger for me?,INSIGHT,CONVERSATION
-Give me an overview of my academic progress.,INSIGHT,CONVERSATION
+Which topics are becoming stronger for me?,INSIGHT,INSIGHT
+Give me an overview of my academic progress.,INSIGHT,INSIGHT
 Hi,CONVERSATION,CONVERSATION
 Hello,CONVERSATION,CONVERSATION
 yo,CONVERSATION,CONVERSATION

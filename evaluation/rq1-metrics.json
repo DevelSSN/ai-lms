@@ -3,61 +3,61 @@
   "per_label": {
     "CONVERSATION": [
       50,
-      0.5747126436781609,
-      1.0,
-      0.7299270072992701
+      0.7868852459016393,
+      0.96,
+      0.8648648648648649
     ],
     "VIDEO_SEARCH": [
       48,
       1.0,
-      0.9375,
-      0.967741935483871
+      0.9583333333333334,
+      0.9787234042553191
     ],
     "CONTENT_ANALYSIS": [
       40,
-      0.9473684210526315,
+      0.9230769230769231,
       0.9,
-      0.9230769230769231
+      0.9113924050632911
     ],
     "ASSESSMENT": [
       40,
       1.0,
-      0.8,
-      0.888888888888889
+      0.75,
+      0.8571428571428571
     ],
     "INSIGHT": [
       40,
-      1.0,
-      0.4,
-      0.5714285714285715
+      0.9285714285714286,
+      0.975,
+      0.951219512195122
     ]
   },
-  "accuracy": 0.8211009174311926,
-  "macro_precision": 0.9044162129461585,
-  "macro_recall": 0.8075000000000001,
-  "macro_f1": 0.8162126652355048,
+  "accuracy": 0.9128440366972477,
+  "macro_precision": 0.9277067195099983,
+  "macro_recall": 0.9086666666666666,
+  "macro_f1": 0.9126686087042909,
   "short_circuit_count": 17,
   "short_circuit_greeting": 9,
   "short_circuit_video_link": 8,
   "short_circuit_correct": 17,
   "router_served_frac": 7.79816513761468,
-  "median_all_latency_ms": 28040.0,
-  "median_classifier_latency_ms": 28099,
-  "median_short_latency_ms": 69,
-  "median_latency_saved_ms": 28030,
-  "p95_all_latency_ms": 51378,
-  "p99_all_latency_ms": 57868,
+  "median_all_latency_ms": 26072.5,
+  "median_classifier_latency_ms": 26406,
+  "median_short_latency_ms": 257,
+  "median_latency_saved_ms": 26149,
+  "p95_all_latency_ms": 51690,
+  "p99_all_latency_ms": 62426,
   "confusion": {
     "CONVERSATION": {
-      "CONVERSATION": 50,
+      "CONVERSATION": 48,
       "VIDEO_SEARCH": 0,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 0
+      "INSIGHT": 2
     },
     "VIDEO_SEARCH": {
-      "CONVERSATION": 3,
-      "VIDEO_SEARCH": 45,
+      "CONVERSATION": 2,
+      "VIDEO_SEARCH": 46,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
       "INSIGHT": 0
@@ -72,16 +72,16 @@
     "ASSESSMENT": {
       "CONVERSATION": 6,
       "VIDEO_SEARCH": 0,
-      "CONTENT_ANALYSIS": 2,
-      "ASSESSMENT": 32,
-      "INSIGHT": 0
+      "CONTENT_ANALYSIS": 3,
+      "ASSESSMENT": 30,
+      "INSIGHT": 1
     },
     "INSIGHT": {
-      "CONVERSATION": 24,
+      "CONVERSATION": 1,
       "VIDEO_SEARCH": 0,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 16
+      "INSIGHT": 39
     }
   }
 }
