@@ -1,87 +1,87 @@
 {
-  "n": 218,
+  "n": 436,
   "per_label": {
     "CONVERSATION": [
-      50,
-      0.7868852459016393,
-      0.96,
-      0.8648648648648649
+      28,
+      0.39215686274509803,
+      0.7142857142857143,
+      0.5063291139240506
     ],
     "VIDEO_SEARCH": [
-      48,
-      1.0,
-      0.9583333333333334,
-      0.9787234042553191
+      143,
+      0.8545454545454545,
+      0.986013986013986,
+      0.9155844155844156
     ],
     "CONTENT_ANALYSIS": [
-      40,
-      0.9230769230769231,
-      0.9,
-      0.9113924050632911
+      109,
+      1.0,
+      0.6422018348623854,
+      0.7821229050279329
     ],
     "ASSESSMENT": [
-      40,
-      1.0,
-      0.75,
-      0.8571428571428571
+      132,
+      0.9827586206896551,
+      0.8636363636363636,
+      0.9193548387096775
     ],
     "INSIGHT": [
-      40,
-      0.9285714285714286,
-      0.975,
-      0.951219512195122
+      24,
+      0.5882352941176471,
+      0.8333333333333334,
+      0.6896551724137931
     ]
   },
-  "accuracy": 0.9128440366972477,
-  "macro_precision": 0.9277067195099983,
-  "macro_recall": 0.9086666666666666,
-  "macro_f1": 0.9126686087042909,
-  "short_circuit_count": 17,
-  "short_circuit_greeting": 9,
-  "short_circuit_video_link": 8,
-  "short_circuit_correct": 17,
-  "router_served_frac": 7.79816513761468,
-  "median_all_latency_ms": 26072.5,
-  "median_classifier_latency_ms": 26406,
-  "median_short_latency_ms": 257,
-  "median_latency_saved_ms": 26149,
-  "p95_all_latency_ms": 51690,
-  "p99_all_latency_ms": 62426,
+  "accuracy": 0.8371559633027523,
+  "macro_precision": 0.7635392464195709,
+  "macro_recall": 0.8078942464263565,
+  "macro_f1": 0.762609289131974,
+  "short_circuit_count": 7,
+  "short_circuit_greeting": 7,
+  "short_circuit_video_link": 0,
+  "short_circuit_correct": 7,
+  "router_served_frac": 1.6055045871559634,
+  "median_all_latency_ms": 3166.5,
+  "median_classifier_latency_ms": 3200,
+  "median_short_latency_ms": 14,
+  "median_latency_saved_ms": 3186,
+  "p95_all_latency_ms": 10329,
+  "p99_all_latency_ms": 12944,
   "confusion": {
     "CONVERSATION": {
-      "CONVERSATION": 48,
-      "VIDEO_SEARCH": 0,
+      "CONVERSATION": 20,
+      "VIDEO_SEARCH": 7,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 0,
+      "INSIGHT": 1
+    },
+    "VIDEO_SEARCH": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 141,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
       "INSIGHT": 2
     },
-    "VIDEO_SEARCH": {
-      "CONVERSATION": 2,
-      "VIDEO_SEARCH": 46,
-      "CONTENT_ANALYSIS": 0,
-      "ASSESSMENT": 0,
-      "INSIGHT": 0
-    },
     "CONTENT_ANALYSIS": {
-      "CONVERSATION": 4,
-      "VIDEO_SEARCH": 0,
-      "CONTENT_ANALYSIS": 36,
-      "ASSESSMENT": 0,
-      "INSIGHT": 0
+      "CONVERSATION": 20,
+      "VIDEO_SEARCH": 13,
+      "CONTENT_ANALYSIS": 70,
+      "ASSESSMENT": 2,
+      "INSIGHT": 4
     },
     "ASSESSMENT": {
-      "CONVERSATION": 6,
-      "VIDEO_SEARCH": 0,
-      "CONTENT_ANALYSIS": 3,
-      "ASSESSMENT": 30,
-      "INSIGHT": 1
+      "CONVERSATION": 8,
+      "VIDEO_SEARCH": 3,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 114,
+      "INSIGHT": 7
     },
     "INSIGHT": {
-      "CONVERSATION": 1,
-      "VIDEO_SEARCH": 0,
+      "CONVERSATION": 3,
+      "VIDEO_SEARCH": 1,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 39
+      "INSIGHT": 20
     }
   }
 }

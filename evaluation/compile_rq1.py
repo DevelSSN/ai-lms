@@ -24,7 +24,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PREDS = HERE / "rq1-live-predictions.csv"
 LATS = HERE / "rq1-latencies.csv"
-N_EXPECTED = 218
+# Load corpus to determine expected unique utterances
+with open(HERE / "utterances.csv", newline="", encoding="utf-8") as f:
+    corpus_rows = list(csv.DictReader(f))
+N_EXPECTED = len({r["utterance"] for r in corpus_rows})
 
 LABELS = ["CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT"]
 
@@ -84,13 +87,23 @@ def p99(values: list[float]) -> float:
 
 
 def main() -> None:
-    preds = load_csv(PREDS)
-    lats = load_csv(LATS)
+    all_preds_raw = load_csv(PREDS)
+    all_lats_raw = load_csv(LATS)
+    
+    # De-duplicate: keep the last occurrence of each unique message
+    preds_map = {r["message"]: r for r in all_preds_raw}
+    lats_map = {r["message"]: r for r in all_lats_raw}
+    
+    # Convert back to lists for processing
+    preds = list(preds_map.values())
+    lats = list(lats_map.values())
+    
     n = len(preds)
     if n != N_EXPECTED or len(lats) != N_EXPECTED:
-        raise SystemExit(f"expected {N_EXPECTED} rows, found preds={n} lats={len(lats)}")
-
+        raise SystemExit(f"expected {N_EXPECTED} unique rows, found preds={n} lats={len(lats)}")
+    
     lat_by_msg = {r["message"]: int(r["latency_ms"]) for r in lats}
+
     for p in preds:
         if p["message"] not in lat_by_msg:
             raise SystemExit(f"no latency for message: {p['message']}")
