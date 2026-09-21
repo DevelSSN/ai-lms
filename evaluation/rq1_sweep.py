@@ -76,6 +76,9 @@ def post(message, user):
 
 
 def main():
+    # Ensure master seed is present in MinIO and DB
+    subprocess.run([sys.executable, str(HERE / "seed_science.py")], check=True)
+
     fresh = "--fresh" in sys.argv
     if fresh:
         for p in (PRED_CSV, LAT_CSV):
