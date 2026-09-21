@@ -29,6 +29,9 @@ final class TestRouter {
     if (message != null && EXPLICIT_VIDEO_LINK.matcher(message).find()) {
       return "VIDEO_SEARCH";
     }
+    if (TextUtils.isExplicitVideoRequest(message)) {
+      return "VIDEO_SEARCH";
+    }
     return normalizeIntent(classifier.apply(message));
   }
 

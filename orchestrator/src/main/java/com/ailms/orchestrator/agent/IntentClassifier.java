@@ -29,6 +29,9 @@ public interface IntentClassifier {
           "What is discussed in the chapter?"           -> CONTENT_ANALYSIS
           "Give me a summary of the paper"              -> CONTENT_ANALYSIS
           "Break down the key concepts in the text"     -> CONTENT_ANALYSIS
+          "What does the paper say about Cell Biology?" -> CONTENT_ANALYSIS
+          "Does the slide mention Psychology?"          -> CONTENT_ANALYSIS
+          "What are the main takeaways?"                -> CONTENT_ANALYSIS
 
       ASSESSMENT: the user wants to answer questions now to test what they learned —
       a quiz, a test, practice questions, or checking their understanding or readiness.
@@ -38,6 +41,8 @@ public interface IntentClassifier {
           "Check if I understood Microeconomics"        -> ASSESSMENT
           "Evaluate my knowledge of Ethics"             -> ASSESSMENT
           "Can I have a practice test for Calculus?"    -> ASSESSMENT
+          "Question me on World History"                -> ASSESSMENT
+          "Evaluate my understanding of World History"  -> ASSESSMENT
 
       VIDEO_SEARCH: the user asks you to find external video content — a video, a clip,
       a tutorial, or a visual guide on a topic.
@@ -49,6 +54,10 @@ public interface IntentClassifier {
           "I want to watch a video on Computer Architecture"  -> VIDEO_SEARCH
           "Look for educational videos about World History"   -> VIDEO_SEARCH
           "Suggest a video for Database Systems"        -> VIDEO_SEARCH
+          "Search for a clip about Psychology"          -> VIDEO_SEARCH
+          "Recommend a YouTube video about Data Structures" -> VIDEO_SEARCH
+          "Find some videos about Ethics"               -> VIDEO_SEARCH
+          "Do you have a video about Artificial Intelligence?" -> VIDEO_SEARCH
 
       INSIGHT: the user asks about their own learning state — progress, performance,
       knowledge gaps, what to study next, or a report and feedback on how they are doing.
@@ -58,6 +67,10 @@ public interface IntentClassifier {
           "What topics do I need to review?"            -> INSIGHT
           "Analyze my performance"                      -> INSIGHT
           "Tell me what I should study next"            -> INSIGHT
+          "How am I doing in Discrete Math?"            -> INSIGHT
+          "Am I good at Quantum Physics?"               -> INSIGHT
+          "Where do I stand in Linear Algebra?"         -> INSIGHT
+          "What's my level in Data Structures?"         -> INSIGHT
 
       CONVERSATION: the message has no learning task — a greeting, small talk, or a
       question about the assistant itself.
@@ -68,6 +81,8 @@ public interface IntentClassifier {
       RULES:
       - If the message points at the uploaded material, it is CONTENT_ANALYSIS, even if
         it is phrased as a question or a request.
+      - Asking what the material, file, document, or slide says about a topic is
+        CONTENT_ANALYSIS.
       - A request for a test, a video, or info about their learning is that intent.
         Never use CONVERSATION for these.
       - Use CONVERSATION only for greetings, small talk, or meta questions about the

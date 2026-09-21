@@ -246,6 +246,14 @@ public class OrchestratorService {
             INTENT_VIDEO_SEARCH,
             userId,
             message);
+      } else if (TextUtils.isExplicitVideoRequest(message)) {
+        intent = INTENT_VIDEO_SEARCH;
+        enrichedMessage = message;
+        log.info(
+            "Intent={} (explicit video request short-circuit) for user={} message={}",
+            INTENT_VIDEO_SEARCH,
+            userId,
+            message);
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
         intent = reclassifyContentIntent(intent, message, sessionId, userId);

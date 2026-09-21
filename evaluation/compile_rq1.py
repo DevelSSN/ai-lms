@@ -8,6 +8,7 @@ short-circuits:
 
   - bare greeting  -> CONVERSATION (no LLM call)
   - explicit video link -> VIDEO_SEARCH (no LLM call)
+  - explicit video request -> VIDEO_SEARCH (no LLM call)
   - else -> LLM classifier
 
 One-vs-rest P/R/F1 math is identical to RoutingMetrics.score (TP/FP/FN definitions and
@@ -46,6 +47,16 @@ BARE_GREETING = re.compile(
 )
 MAX_GREETING_LENGTH = 30
 
+# Mirrors TextUtils.EXPLICIT_VIDEO_REQUEST (request frame + video noun).
+EXPLICIT_VIDEO_REQUEST = re.compile(
+    r"(?i)(?:\b(?:search\s+for|look\s+for|find|get\s+me|recommend|suggest\s+(?:a|some)|"
+    r"link\s+(?:a|\w+\s+)?|show(?:\s+me)?|i\s+(?:need|want(?:\s+to\s+watch)?)|"
+    r"do\s+you\s+have|can\s+you\s+find|is\s+there|have\s+you\s+got|any)\b"
+    r"(?:.*?)\b(?:video|videos|clip|clips|tutorial|tutorials|youtube|"
+    r"visual\s+guide|educational\s+videos?)\b"
+    r"|\b(?:tutorial\s+videos?|video\s+examples?)\s+(?:about|on|for)\b)"
+)
+
 INTENT_NORMALIZER = {label: label for label in LABELS}
 
 
@@ -67,6 +78,10 @@ def is_bare_greeting(msg: str) -> bool:
 
 def is_explicit_video_link(msg: str) -> bool:
     return bool(msg) and bool(EXPLICIT_VIDEO_LINK.search(msg))
+
+
+def is_explicit_video_request(msg: str) -> bool:
+    return bool(msg) and bool(EXPLICIT_VIDEO_REQUEST.search(msg))
 
 
 def load_csv(path: Path) -> list[dict]:
@@ -113,7 +128,7 @@ def main() -> None:
         truth = normalize_intent(p["truth"])
         pred = normalize_intent(p["predicted"])
         lat = lat_by_msg[p["message"]]
-        if is_bare_greeting(p["message"]) or is_explicit_video_link(p["message"]):
+        if is_bare_greeting(p["message"]) or is_explicit_video_link(p["message"]) or is_explicit_video_request(p["message"]):
             sc_rows.append((pred, truth, lat, p["message"]))
         else:
             clf_rows.append((pred, truth, lat, p["message"]))
@@ -121,7 +136,11 @@ def main() -> None:
     # Short-circuit / router-served accounting.
     sc_correct = sum(1 for pred, truth, _, _ in sc_rows if pred == truth)
     sc_greetings = sum(1 for _, truth, _, msg in sc_rows if is_bare_greeting(msg))
-    sc_video = sum(1 for _, truth, _, msg in sc_rows if is_explicit_video_link(msg))
+    sc_video = sum(
+        1
+        for _, truth, _, msg in sc_rows
+        if is_explicit_video_link(msg) or is_explicit_video_request(msg)
+    )
     router_served_frac = len(sc_rows) / n * 100.0
 
     # Confusion matrix + one-vs-rest P/R/F1 (identical to RoutingMetrics.score).
@@ -196,7 +215,7 @@ def main() -> None:
     print(f"\nOverall accuracy:            {accuracy:.3f}")
     print(f"Macro P/R/F1:               {macro_p:.3f} / {macro_r:.3f} / {macro_f:.3f}")
     print(f"Short-circuited rows:       {len(sc_rows)} / {n} "
-          f"({sc_greetings} greeting, {sc_video} video-link)")
+          f"({sc_greetings} greeting, {sc_video} video-link/request)")
     print(f"Short-circuit correct:      {sc_correct}/{len(sc_rows)}")
     print(f"Router-served fraction (%): {router_served_frac:.1f}")
     print(f"Latency overall ms:         p50={median_all:.0f} p95={p95(all_lat)} p99={p99(all_lat)}")

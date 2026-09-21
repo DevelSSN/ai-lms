@@ -14,6 +14,20 @@ public final class TextUtils {
               + ")[\\s!.,'?]*$",
           Pattern.CASE_INSENSITIVE);
 
+  /**
+   * Syntactically rigid video-request surface forms, e.g. "find a video on X", "search for a clip
+   * about X". Requires a request frame plus a video noun so messages that merely mention videos
+   * (e.g. "Do you watch movies?") do not match. Mirrored in evaluation/compile_rq1.py.
+   */
+  private static final Pattern EXPLICIT_VIDEO_REQUEST =
+      Pattern.compile(
+          "(?i)(?:\\b(?:search\\s+for|look\\s+for|find|get\\s+me|recommend|suggest\\s+(?:a|some)|"
+              + "link\\s+(?:a|\\w+\\s+)?|show(?:\\s+me)?|i\\s+(?:need|want(?:\\s+to\\s+watch)?)|"
+              + "do\\s+you\\s+have|can\\s+you\\s+find|is\\s+there|have\\s+you\\s+got|any)\\b"
+              + "(?:.*?)\\b(?:video|videos|clip|clips|tutorial|tutorials|youtube|"
+              + "visual\\s+guide|educational\\s+videos?)\\b"
+              + "|\\b(?:tutorial\\s+videos?|video\\s+examples?)\\s+(?:about|on|for)\\b)");
+
   private static final Pattern THINK_BLOCK =
       Pattern.compile("(?is)\\bresponse\\s*<think\\b.*?</think\\s*>|<think\\b.*?</think\\s*>");
 
@@ -26,6 +40,10 @@ public final class TextUtils {
     String trimmed = message.trim();
     if (trimmed.isEmpty() || trimmed.length() > MAX_GREETING_LENGTH) return false;
     return BARE_GREETING.matcher(trimmed).matches();
+  }
+
+  public static boolean isExplicitVideoRequest(String message) {
+    return message != null && EXPLICIT_VIDEO_REQUEST.matcher(message).find();
   }
 
   public static String stripThinking(String text) {
