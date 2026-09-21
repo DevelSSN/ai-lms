@@ -1,660 +1,1201 @@
 message,truth,predicted
-Hi there,CONVERSATION,CONVERSATION
-Hi there,CONVERSATION,CONVERSATION
-What is my progress?,INSIGHT,INSIGHT
-What is the main point of the text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Quiz me on Linear Algebra,ASSESSMENT,ASSESSMENT
-Ask me some questions to check my understanding of Calculus,ASSESSMENT,ASSESSMENT
-Greetings,CONVERSATION,CONVERSATION
-Explain the findings in the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Any clips explaining Microeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
-What does the material say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Test me on the key concepts of Quantum Physics,ASSESSMENT,ASSESSMENT
-I'm new here,CONVERSATION,CONVERSATION
-Analyze my performance,INSIGHT,INSIGHT
-Ask me some questions to check my understanding of Database Systems,ASSESSMENT,ASSESSMENT
-I want a video on Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Quiz me on Database Systems,ASSESSMENT,ASSESSMENT
-I want a video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Test me on the key concepts of Quantum Physics,ASSESSMENT,ASSESSMENT
-I need an analysis of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you talk to me?,CONVERSATION,CONVERSATION
-Test my knowledge on Machine Learning,ASSESSMENT,ASSESSMENT
-I need an analysis of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I'm ready for a test on Cell Biology,ASSESSMENT,ASSESSMENT
-Provide feedback on my learning path,INSIGHT,INSIGHT
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-Create an assessment for Microeconomics,ASSESSMENT,ASSESSMENT
-What are my knowledge gaps?,INSIGHT,INSIGHT
-Find a video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Hi AI,CONVERSATION,CONVERSATION
-I'm ready for a test on Microeconomics,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Organic Chemistry?,ASSESSMENT,ASSESSMENT
-Evaluate my knowledge of Cell Biology,ASSESSMENT,ASSESSMENT
-I want to watch a video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Tell me what I should study next,INSIGHT,INSIGHT
-I have a general question,CONVERSATION,CONVERSATION
-What topics do I need to review?,INSIGHT,CONVERSATION
-What's up?,CONVERSATION,VIDEO_SEARCH
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-Yo,CONVERSATION,CONVERSATION
-I need learning insights,INSIGHT,INSIGHT
-Summarize the file in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-How am I doing in Software Engineering?,INSIGHT,INSIGHT
-Ask me some questions to check my understanding of Machine Learning,ASSESSMENT,ASSESSMENT
-Explain the findings in the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Suggest a video for Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Microeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
-I'm ready for a test on Quantum Physics,ASSESSMENT,ASSESSMENT
-Summarize the file in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Check if I understood Microeconomics,ASSESSMENT,INSIGHT
-I want to watch a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Can we just chat?,CONVERSATION,CONVERSATION
-Summarize this document,CONTENT_ANALYSIS,VIDEO_SEARCH
-Give me some questions on Psychology,ASSESSMENT,ASSESSMENT
-Where am I struggling?,INSIGHT,INSIGHT
-Give me some questions on Calculus,ASSESSMENT,ASSESSMENT
-Provide feedback on my learning path,INSIGHT,INSIGHT
-Explain the findings in the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Explain the second page of the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize this paper,CONTENT_ANALYSIS,VIDEO_SEARCH
-Create an assessment for Operating Systems,ASSESSMENT,ASSESSMENT
-Yo,CONVERSATION,CONVERSATION
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-Where can I find a video about World History?,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of my achievements,INSIGHT,CONVERSATION
-Hey,CONVERSATION,CONVERSATION
-What are my knowledge gaps?,INSIGHT,INSIGHT
-Analyze my performance,INSIGHT,INSIGHT
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-Quiz me on Computer Networks,ASSESSMENT,ASSESSMENT
-How does this system work?,CONVERSATION,VIDEO_SEARCH
-What does the document say about Algorithms?,CONTENT_ANALYSIS,INSIGHT
-I want to chat,CONVERSATION,CONVERSATION
-Show my learning report,INSIGHT,CONVERSATION
-Break down the key concepts in the text,CONTENT_ANALYSIS,CONVERSATION
-What can you do?,CONVERSATION,VIDEO_SEARCH
-Generate a quiz about Psychology,ASSESSMENT,ASSESSMENT
-Hi AI,CONVERSATION,CONVERSATION
-Explain the second page of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-How am I doing in Classical Mechanics?,INSIGHT,INSIGHT
-Quiz me on Data Structures,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Organic Chemistry?,ASSESSMENT,ASSESSMENT
-Search for tutorials about Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze my performance,INSIGHT,INSIGHT
-Review the document for me,CONTENT_ANALYSIS,CONVERSATION
-Show me a YouTube video for Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze the uploaded document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need a visual guide on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-I'm ready for a test on Classical Mechanics,ASSESSMENT,ASSESSMENT
-Look for educational videos about World History,VIDEO_SEARCH,VIDEO_SEARCH
-Evaluate my knowledge of Database Systems,ASSESSMENT,ASSESSMENT
-Tell me something interesting,CONVERSATION,VIDEO_SEARCH
-Review the text for me,CONTENT_ANALYSIS,VIDEO_SEARCH
-Analyze my performance,INSIGHT,INSIGHT
-Can I have a practice test for Psychology?,ASSESSMENT,ASSESSMENT
-Analyze the uploaded text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Greetings,CONVERSATION,CONVERSATION
-Are you a bot?,CONVERSATION,VIDEO_SEARCH
-How am I doing in Operating Systems?,INSIGHT,INSIGHT
-What topics do I need to review?,INSIGHT,CONVERSATION
-Create an assessment for Operating Systems,ASSESSMENT,ASSESSMENT
-Where can I find a video about World History?,VIDEO_SEARCH,VIDEO_SEARCH
-Test me on the key concepts of Classical Mechanics,ASSESSMENT,ASSESSMENT
-Hey,CONVERSATION,CONVERSATION
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-I need learning insights,INSIGHT,INSIGHT
-Find a lecture video on Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-Show me a YouTube video for Sociology,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze the uploaded article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-Quiz me on Machine Learning,ASSESSMENT,ASSESSMENT
-What's up?,CONVERSATION,VIDEO_SEARCH
-I want a test on Cell Biology,ASSESSMENT,ASSESSMENT
-Give me 5 questions on Psychology,ASSESSMENT,CONVERSATION
-Extract the main ideas from document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you help me learn?,CONVERSATION,INSIGHT
-Evaluate my knowledge of Ethics,ASSESSMENT,INSIGHT
-Review the file for me,CONTENT_ANALYSIS,ASSESSMENT
-What is discussed in the document?,CONTENT_ANALYSIS,CONVERSATION
-Show my learning report,INSIGHT,CONVERSATION
-Look for educational videos about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-How am I doing in Psychology?,INSIGHT,INSIGHT
-Extract the main ideas from article,CONTENT_ANALYSIS,CONVERSATION
-I need a visual guide on Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Machine Learning?,VIDEO_SEARCH,VIDEO_SEARCH
-Break down the key concepts in the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Check if I understood Machine Learning,ASSESSMENT,VIDEO_SEARCH
-What does the material say about Ethics?,CONTENT_ANALYSIS,INSIGHT
-Suggest a video for Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of the paper,CONTENT_ANALYSIS,CONVERSATION
-Hi there,CONVERSATION,CONVERSATION
-Analyze my performance,INSIGHT,INSIGHT
-Tell me what I should study next,INSIGHT,INSIGHT
-Find a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-What is your name?,CONVERSATION,CONVERSATION
-Who are you?,CONVERSATION,CONVERSATION
-What is discussed in the document?,CONTENT_ANALYSIS,CONVERSATION
-Provide feedback on my learning path,INSIGHT,INSIGHT
-What can you do?,CONVERSATION,VIDEO_SEARCH
-What is the main point of the document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Look for educational videos about Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-Show me a YouTube video for Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Give me 5 questions on Sociology,ASSESSMENT,ASSESSMENT
-Generate a quiz about Data Structures,ASSESSMENT,ASSESSMENT
-Show me a YouTube video for Psychology,VIDEO_SEARCH,VIDEO_SEARCH
-Where am I struggling?,INSIGHT,INSIGHT
-Suggest a video for Psychology,VIDEO_SEARCH,VIDEO_SEARCH
-What topics do I need to review?,INSIGHT,CONVERSATION
-Test me on the key concepts of World History,ASSESSMENT,ASSESSMENT
-Break down the key concepts in the text,CONTENT_ANALYSIS,CONVERSATION
-Can we just chat?,CONVERSATION,CONVERSATION
-Show my learning report,INSIGHT,CONVERSATION
-Show my learning report,INSIGHT,CONVERSATION
-I need a visual guide on Ethics,VIDEO_SEARCH,INSIGHT
-Find a video on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze the uploaded slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Suggest a video for Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
-Search for tutorials about Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Software Engineering?,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about World History,ASSESSMENT,ASSESSMENT
-Explain the findings in the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Are you a bot?,CONVERSATION,VIDEO_SEARCH
-Ask me some questions to check my understanding of Psychology,ASSESSMENT,ASSESSMENT
-Test my knowledge on Psychology,ASSESSMENT,ASSESSMENT
-Can you help me learn?,CONVERSATION,INSIGHT
-Summarize the text in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Get me a video tutorial for Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-Can we just chat?,CONVERSATION,CONVERSATION
-Find some videos for Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a progress report for me,INSIGHT,VIDEO_SEARCH
-What topics do I need to review?,INSIGHT,CONVERSATION
-Give me 5 questions on Database Systems,ASSESSMENT,CONVERSATION
-Check if I understood Software Engineering,ASSESSMENT,ASSESSMENT
-Generate a quiz about Machine Learning,ASSESSMENT,ASSESSMENT
-Search for a clip about Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-Quiz me on Thermodynamics,ASSESSMENT,ASSESSMENT
-I need learning insights,INSIGHT,INSIGHT
-Give me some questions on Computer Networks,ASSESSMENT,ASSESSMENT
-Tell me something interesting,CONVERSATION,VIDEO_SEARCH
-What does the paper say about Algorithms?,CONTENT_ANALYSIS,INSIGHT
-Find some videos for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Check if I understood Classical Mechanics,ASSESSMENT,INSIGHT
-How are you today?,CONVERSATION,CONVERSATION
-Generate a quiz about Calculus,ASSESSMENT,ASSESSMENT
-Explain the second page of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Explain the second page of the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Test my knowledge on Linear Algebra,ASSESSMENT,ASSESSMENT
-Hi AI,CONVERSATION,CONVERSATION
-Show me a YouTube video for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the chapter in three bullet points,CONTENT_ANALYSIS,CONVERSATION
-Greetings,CONVERSATION,CONVERSATION
-Find some videos for Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of my achievements,INSIGHT,CONVERSATION
-Greetings,CONVERSATION,CONVERSATION
-Good evening,CONVERSATION,CONVERSATION
-I need an analysis of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-Evaluate my knowledge of Computer Networks,ASSESSMENT,ASSESSMENT
-Find a lecture video on World History,VIDEO_SEARCH,VIDEO_SEARCH
-Review the text for me,CONTENT_ANALYSIS,VIDEO_SEARCH
-I want a test on Cell Biology,ASSESSMENT,ASSESSMENT
-Give me a summary of the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Break down the key concepts in the paper,CONTENT_ANALYSIS,VIDEO_SEARCH
-Analyze my performance,INSIGHT,INSIGHT
-Show me my growth over time,INSIGHT,INSIGHT
-Ask me some questions to check my understanding of Thermodynamics,ASSESSMENT,ASSESSMENT
-I want a test on Sociology,ASSESSMENT,ASSESSMENT
-What is your name?,CONVERSATION,CONVERSATION
-I'm bored,CONVERSATION,VIDEO_SEARCH
-Hello,CONVERSATION,CONVERSATION
-Can I have a practice test for Machine Learning?,ASSESSMENT,ASSESSMENT
-Search for tutorials about Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-What is the main point of the document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me a summary of my achievements,INSIGHT,CONVERSATION
-I want to chat,CONVERSATION,CONVERSATION
-Get me a video tutorial for Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Machine Learning,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Operating Systems?,ASSESSMENT,ASSESSMENT
-Look for educational videos about Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-I'm ready for a test on Discrete Math,ASSESSMENT,ASSESSMENT
-Hi AI,CONVERSATION,CONVERSATION
-Nice to meet you,CONVERSATION,CONVERSATION
-Get me a video tutorial for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-What is your name?,CONVERSATION,CONVERSATION
-Hello tutor,CONVERSATION,CONVERSATION
-Good morning,CONVERSATION,CONVERSATION
-Tell me more about the content in the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want a video on Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-Good afternoon,CONVERSATION,CONVERSATION
-Create an assessment for Ethics,ASSESSMENT,ASSESSMENT
-Can you help me learn?,CONVERSATION,INSIGHT
-Any clips explaining Computer Networks?,VIDEO_SEARCH,VIDEO_SEARCH
-Tell me more about the content in the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Search for tutorials about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-What topics do I need to review?,INSIGHT,CONVERSATION
-I want to chat,CONVERSATION,CONVERSATION
-Can I have a practice test for Psychology?,ASSESSMENT,ASSESSMENT
-Tell me what I should study next,INSIGHT,INSIGHT
-Analyze the uploaded material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need a visual guide on Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Review the PDF for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Generate a quiz about Machine Learning,ASSESSMENT,ASSESSMENT
-Extract the main ideas from text,CONTENT_ANALYSIS,CONVERSATION
-Tell me what I should study next,INSIGHT,INSIGHT
-Test my knowledge on Software Engineering,ASSESSMENT,ASSESSMENT
-What topics do I need to review?,INSIGHT,CONVERSATION
-Generate a progress report for me,INSIGHT,VIDEO_SEARCH
-Explain the second page of the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Where am I struggling?,INSIGHT,INSIGHT
-Search for a clip about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Break down the key concepts in the article,CONTENT_ANALYSIS,CONVERSATION
-What does the slide say about Classical Mechanics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Any clips explaining Psychology?,VIDEO_SEARCH,VIDEO_SEARCH
-I want to watch a video on Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Can I have a practice test for Machine Learning?,ASSESSMENT,ASSESSMENT
-Provide feedback on my learning path,INSIGHT,INSIGHT
-Analyze my performance,INSIGHT,INSIGHT
-How am I doing in Psychology?,INSIGHT,INSIGHT
-I want a test on Microeconomics,ASSESSMENT,ASSESSMENT
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-What is my progress?,INSIGHT,INSIGHT
-Evaluate my knowledge of Thermodynamics,ASSESSMENT,INSIGHT
-Any clips explaining Machine Learning?,VIDEO_SEARCH,VIDEO_SEARCH
-Find a video on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Can you help me learn?,CONVERSATION,INSIGHT
-Check if I understood Classical Mechanics,ASSESSMENT,INSIGHT
-I want a test on Organic Chemistry,ASSESSMENT,ASSESSMENT
-Generate a quiz about Machine Learning,ASSESSMENT,ASSESSMENT
-Quiz me on Machine Learning,ASSESSMENT,ASSESSMENT
-Give me a summary of the text,CONTENT_ANALYSIS,CONVERSATION
-Tell me what I should study next,INSIGHT,INSIGHT
-Look for educational videos about Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me a summary of the chapter,CONTENT_ANALYSIS,CONVERSATION
-Give me some questions on Quantum Physics,ASSESSMENT,ASSESSMENT
-What is my progress?,INSIGHT,INSIGHT
-Good evening,CONVERSATION,CONVERSATION
-How does this system work?,CONVERSATION,VIDEO_SEARCH
-I'm ready for a test on Linear Algebra,ASSESSMENT,ASSESSMENT
-Can you help me learn?,CONVERSATION,INSIGHT
-Analyze the uploaded slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-What is the main point of the text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Generate a quiz about Organic Chemistry,ASSESSMENT,ASSESSMENT
-What is your name?,CONVERSATION,CONVERSATION
-Evaluate my knowledge of Calculus,ASSESSMENT,ASSESSMENT
-Give me a summary of my achievements,INSIGHT,CONVERSATION
-Can we just chat?,CONVERSATION,CONVERSATION
-How are you today?,CONVERSATION,CONVERSATION
-Give me 5 questions on Organic Chemistry,ASSESSMENT,CONVERSATION
-Test me on the key concepts of Psychology,ASSESSMENT,ASSESSMENT
-Analyze the uploaded document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Analyze my performance,INSIGHT,INSIGHT
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-Tell me what I should study next,INSIGHT,INSIGHT
-I want to chat,CONVERSATION,CONVERSATION
-Hi there,CONVERSATION,CONVERSATION
-Show me my growth over time,INSIGHT,INSIGHT
-I need learning insights,INSIGHT,INSIGHT
-Check if I understood Classical Mechanics,ASSESSMENT,INSIGHT
-Generate a progress report for me,INSIGHT,VIDEO_SEARCH
-Summarize the document in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Where can I find a video about Data Structures?,VIDEO_SEARCH,VIDEO_SEARCH
-Tell me something interesting,CONVERSATION,VIDEO_SEARCH
-I need an analysis of the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Greetings,CONVERSATION,CONVERSATION
-Get me a video tutorial for Psychology,VIDEO_SEARCH,VIDEO_SEARCH
-What is discussed in the article?,CONTENT_ANALYSIS,CONVERSATION
-Search for a clip about Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a progress report for me,INSIGHT,VIDEO_SEARCH
-Tell me something interesting,CONVERSATION,VIDEO_SEARCH
-Can you talk to me?,CONVERSATION,CONVERSATION
-Give me a summary of the text,CONTENT_ANALYSIS,CONVERSATION
-What's up?,CONVERSATION,VIDEO_SEARCH
-Give me some questions on Microeconomics,ASSESSMENT,ASSESSMENT
-Give me some recommendations based on my progress,INSIGHT,INSIGHT
-I want a video on Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze the uploaded slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Ask me some questions to check my understanding of Data Structures,ASSESSMENT,ASSESSMENT
-Suggest a video for Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-I'm new here,CONVERSATION,CONVERSATION
-I want a test on Algorithms,ASSESSMENT,ASSESSMENT
-I'm ready for a test on Organic Chemistry,ASSESSMENT,ASSESSMENT
-Search for a clip about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-What does the PDF say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you talk to me?,CONVERSATION,CONVERSATION
-Show my learning report,INSIGHT,CONVERSATION
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-What is the main point of the article?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Generate a progress report for me,INSIGHT,VIDEO_SEARCH
-What is discussed in the material?,CONTENT_ANALYSIS,CONVERSATION
-Can you help me learn?,CONVERSATION,INSIGHT
-Get me a video tutorial for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Provide feedback on my learning path,INSIGHT,INSIGHT
-Analyze my performance,INSIGHT,INSIGHT
-Quiz me on the uploaded material,ASSESSMENT,ASSESSMENT
-Evaluate my knowledge of Psychology,ASSESSMENT,INSIGHT
-Test my knowledge on Calculus,ASSESSMENT,ASSESSMENT
-What does the chapter say about Organic Chemistry?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Hey,CONVERSATION,CONVERSATION
-Find a video on Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Where can I find a video about World History?,VIDEO_SEARCH,VIDEO_SEARCH
-Can I have a practice test for Calculus?,ASSESSMENT,ASSESSMENT
-Explain the findings in the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show me a YouTube video for Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-How am I doing in Organic Chemistry?,INSIGHT,INSIGHT
-Evaluate my knowledge of Operating Systems,ASSESSMENT,ASSESSMENT
-Find a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Psychology,ASSESSMENT,ASSESSMENT
-I'm new here,CONVERSATION,CONVERSATION
-Help me get started,CONVERSATION,VIDEO_SEARCH
-What are my knowledge gaps?,INSIGHT,INSIGHT
-Search for tutorials about Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-What topics do I need to review?,INSIGHT,CONVERSATION
-Nice to meet you,CONVERSATION,CONVERSATION
-Give me a summary of my achievements,INSIGHT,CONVERSATION
-I need a visual guide on Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-Look for educational videos about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-Can I have a practice test for Ethics?,ASSESSMENT,ASSESSMENT
-What are my knowledge gaps?,INSIGHT,INSIGHT
-What are my knowledge gaps?,INSIGHT,INSIGHT
-Find a video on World History,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Computer Networks?,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize this chapter,CONTENT_ANALYSIS,VIDEO_SEARCH
-What can you do?,CONVERSATION,VIDEO_SEARCH
-I need learning insights,INSIGHT,INSIGHT
-Review the article for me,CONTENT_ANALYSIS,VIDEO_SEARCH
-Show me a YouTube video for Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-I'm new here,CONVERSATION,CONVERSATION
-Check if I understood Thermodynamics,ASSESSMENT,INSIGHT
-I need an analysis of the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show my learning report,INSIGHT,CONVERSATION
-What is my progress?,INSIGHT,INSIGHT
-I need a visual guide on Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Thermodynamics,ASSESSMENT,ASSESSMENT
-Summarize the article in three bullet points,CONTENT_ANALYSIS,VIDEO_SEARCH
-Find a lecture video on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Where can I find a video about Classical Mechanics?,VIDEO_SEARCH,VIDEO_SEARCH
-What is the main point of the paper?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Find a lecture video on Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-Search for tutorials about Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize the article in three bullet points,CONTENT_ANALYSIS,VIDEO_SEARCH
-Suggest a video for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of the slide,CONTENT_ANALYSIS,CONVERSATION
-Test my knowledge on Ethics,ASSESSMENT,ASSESSMENT
-Quiz me on Cell Biology,ASSESSMENT,ASSESSMENT
-What is discussed in the file?,CONTENT_ANALYSIS,CONVERSATION
-Find a lecture video on Sociology,VIDEO_SEARCH,VIDEO_SEARCH
-How am I doing in World History?,INSIGHT,INSIGHT
-How am I doing in Linear Algebra?,INSIGHT,INSIGHT
-Show me a YouTube video for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Where can I find a video about Algorithms?,VIDEO_SEARCH,VIDEO_SEARCH
-Look for educational videos about Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Find some videos for Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
-Evaluate my knowledge of Software Engineering,ASSESSMENT,ASSESSMENT
-Look for educational videos about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Review the slide for me,CONTENT_ANALYSIS,CONVERSATION
-Show me a YouTube video for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Evaluate my knowledge of Discrete Math,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Classical Mechanics?,ASSESSMENT,ASSESSMENT
-Find a video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-I need an analysis of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a lecture video on Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
-Get me a video tutorial for Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-I'm ready for a test on Computer Networks,ASSESSMENT,ASSESSMENT
-Test my knowledge on Discrete Math,ASSESSMENT,ASSESSMENT
-Check if I understood Sociology,ASSESSMENT,VIDEO_SEARCH
-Check if I understood Sociology,ASSESSMENT,VIDEO_SEARCH
-Ask me some questions to check my understanding of Software Engineering,ASSESSMENT,ASSESSMENT
-Find a lecture video on Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-Give me 5 questions on Cell Biology,ASSESSMENT,CONVERSATION
-I want a test on Ethics,ASSESSMENT,ASSESSMENT
-Analyze the uploaded paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize the article in three bullet points,CONTENT_ANALYSIS,VIDEO_SEARCH
-How am I doing in Machine Learning?,INSIGHT,INSIGHT
-Give me 5 questions on Discrete Math,ASSESSMENT,CONVERSATION
-Show me a YouTube video for Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-Break down the key concepts in the file,CONTENT_ANALYSIS,VIDEO_SEARCH
-What does the slide say about Algorithms?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-What does the article say about Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a lecture video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-I need an analysis of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Test my knowledge on Computer Networks,ASSESSMENT,ASSESSMENT
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Give me some questions on Sociology,ASSESSMENT,ASSESSMENT
-Give me 5 questions on Machine Learning,ASSESSMENT,CONVERSATION
-Tell me more about the content in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can I have a practice test for Quantum Physics?,ASSESSMENT,ASSESSMENT
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Where can I find a video about Microeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Cell Biology,ASSESSMENT,ASSESSMENT
-Search for tutorials about Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-Suggest a video for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-I need a visual guide on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Can I have a practice test for World History?,ASSESSMENT,ASSESSMENT
-Can I have a practice test for World History?,ASSESSMENT,ASSESSMENT
-Find some videos for Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-Review the slide for me,CONTENT_ANALYSIS,CONVERSATION
-Ask me some questions to check my understanding of Software Engineering,ASSESSMENT,ASSESSMENT
-Find a lecture video on Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of the material,CONTENT_ANALYSIS,CONVERSATION
-Look for educational videos about Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Get me a video tutorial for Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-Break down the key concepts in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Any clips explaining Ethics?,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the slide in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Get me a video tutorial for Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the slide in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a video on Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-How am I doing in Computer Networks?,INSIGHT,INSIGHT
-Any clips explaining Linear Algebra?,VIDEO_SEARCH,VIDEO_SEARCH
-Find some videos for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Check if I understood Psychology,ASSESSMENT,ASSESSMENT
-Explain the findings in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need an analysis of the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Analyze the uploaded PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Search for tutorials about Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-What is the main point of the material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me 5 questions on World History,ASSESSMENT,CONVERSATION
-Create an assessment for Discrete Math,ASSESSMENT,ASSESSMENT
-Get me a video tutorial for Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
-Test my knowledge on World History,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Microeconomics?,ASSESSMENT,ASSESSMENT
-Show me a YouTube video for Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
-I need a visual guide on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-What does the paper say about Computer Networks?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Quiz me on Psychology,ASSESSMENT,ASSESSMENT
-Can I have a practice test for Cell Biology?,ASSESSMENT,ASSESSMENT
-Create an assessment for Thermodynamics,ASSESSMENT,ASSESSMENT
-Find some videos for World History,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Find a lecture video on Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
-What is discussed in the slide?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Ask me some questions to check my understanding of Ethics,ASSESSMENT,ASSESSMENT
-Show me a YouTube video for Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Look for educational videos about Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the second page of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-How am I doing in Computer Networks?,INSIGHT,INSIGHT
-Analyze the uploaded file,CONTENT_ANALYSIS,ASSESSMENT
-Break down the key concepts in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want a video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-What does the document say about Operating Systems?,CONTENT_ANALYSIS,INSIGHT
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Give me 5 questions on Linear Algebra,ASSESSMENT,CONVERSATION
-Create an assessment for Classical Mechanics,ASSESSMENT,ASSESSMENT
-I want to watch a video on World History,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Psychology,VIDEO_SEARCH,VIDEO_SEARCH
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Test my knowledge on Quantum Physics,ASSESSMENT,ASSESSMENT
-Search for tutorials about Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize this slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need a visual guide on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the material in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I'm feeling stuck,CONVERSATION,CONVERSATION
-I'm ready for a test on Algorithms,ASSESSMENT,ASSESSMENT
-Get me a video tutorial for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Analyze the uploaded file,CONTENT_ANALYSIS,ASSESSMENT
-Quiz me on Quantum Physics,ASSESSMENT,ASSESSMENT
-I want a test on Computer Networks,ASSESSMENT,ASSESSMENT
-Any clips explaining Thermodynamics?,VIDEO_SEARCH,VIDEO_SEARCH
-Can I have a practice test for Discrete Math?,ASSESSMENT,ASSESSMENT
-How am I doing in Discrete Math?,INSIGHT,INSIGHT
-Find a lecture video on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Quiz me on Ethics,ASSESSMENT,ASSESSMENT
-Tell me more about the content in the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Extract the main ideas from paper,CONTENT_ANALYSIS,VIDEO_SEARCH
-Review the slide for me,CONTENT_ANALYSIS,CONVERSATION
-I need an analysis of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize this slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Evaluate my knowledge of Software Engineering,ASSESSMENT,ASSESSMENT
-I'm ready for a test on Thermodynamics,ASSESSMENT,ASSESSMENT
-Find some videos for Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Give me 5 questions on Cell Biology,ASSESSMENT,CONVERSATION
-Can I have a practice test for Database Systems?,ASSESSMENT,ASSESSMENT
-Test me on the key concepts of Linear Algebra,ASSESSMENT,ASSESSMENT
-What is discussed in the PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Where can I find a video about Discrete Math?,VIDEO_SEARCH,VIDEO_SEARCH
-Test me on the key concepts of Organic Chemistry,ASSESSMENT,ASSESSMENT
-Explain the findings in the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-How am I doing in Microeconomics?,INSIGHT,INSIGHT
-Summarize this slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show me a YouTube video for Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Give me some questions on Operating Systems,ASSESSMENT,ASSESSMENT
-Give me a summary of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show me a YouTube video for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-I want a test on Ethics,ASSESSMENT,ASSESSMENT
-Search for tutorials about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-What does the PDF say about Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find some videos for Sociology,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Quantum Physics,ASSESSMENT,ASSESSMENT
-Ask me some questions to check my understanding of Algorithms,ASSESSMENT,ASSESSMENT
-Review the paper for me,CONTENT_ANALYSIS,CONVERSATION
-Tell me more about the content in the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need an analysis of the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Where can I find a video about Linear Algebra?,VIDEO_SEARCH,VIDEO_SEARCH
-I'm feeling stuck,CONVERSATION,CONVERSATION
-I want a test on Linear Algebra,ASSESSMENT,ASSESSMENT
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Test my knowledge on Thermodynamics,ASSESSMENT,ASSESSMENT
-Check if I understood Organic Chemistry,ASSESSMENT,INSIGHT
-Ask me some questions to check my understanding of Sociology,ASSESSMENT,ASSESSMENT
-Extract the main ideas from slide,CONTENT_ANALYSIS,VIDEO_SEARCH
-Suggest a video for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Give me a summary of the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want a video on Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Give me 5 questions on Cell Biology,ASSESSMENT,CONVERSATION
-I'm ready for a test on Software Engineering,ASSESSMENT,ASSESSMENT
-What is discussed in the chapter?,CONTENT_ANALYSIS,CONVERSATION
-Generate a quiz about Software Engineering,ASSESSMENT,ASSESSMENT
-Check if I understood Database Systems,ASSESSMENT,VIDEO_SEARCH
-Extract the main ideas from PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me a summary of the article,CONTENT_ANALYSIS,CONVERSATION
-Suggest a video for World History,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the second page of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a lecture video on Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-Evaluate my knowledge of Software Engineering,ASSESSMENT,ASSESSMENT
-Look for educational videos about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Find some videos for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Operating Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize this slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Explain the second page of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize this PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show me a YouTube video for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize this file,CONTENT_ANALYSIS,VIDEO_SEARCH
-Find some videos for World History,VIDEO_SEARCH,VIDEO_SEARCH
-Find a lecture video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Find a lecture video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a lecture video on Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-I want to watch a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-Where can I find a video about Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Evaluate my knowledge of Discrete Math,ASSESSMENT,ASSESSMENT
-Test my knowledge on Database Systems,ASSESSMENT,ASSESSMENT
-Extract the main ideas from chapter,CONTENT_ANALYSIS,VIDEO_SEARCH
-Explain the second page of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Ask me some questions to check my understanding of Linear Algebra,ASSESSMENT,ASSESSMENT
-What is discussed in the paper?,CONTENT_ANALYSIS,CONVERSATION
-Quiz me on Psychology,ASSESSMENT,ASSESSMENT
-Test me on the key concepts of Calculus,ASSESSMENT,ASSESSMENT
-Extract the main ideas from material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Show me a YouTube video for Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-Create an assessment for Classical Mechanics,ASSESSMENT,ASSESSMENT
-Check if I understood Discrete Math,ASSESSMENT,ASSESSMENT
-Analyze the uploaded paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Any clips explaining Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Show me a YouTube video for Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Test my knowledge on Thermodynamics,ASSESSMENT,ASSESSMENT
-Any clips explaining Linear Algebra?,VIDEO_SEARCH,VIDEO_SEARCH
-Give me some questions on Machine Learning,ASSESSMENT,ASSESSMENT
-Tell me more about the content in the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize the slide in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Suggest a video for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
-Extract the main ideas from chapter,CONTENT_ANALYSIS,VIDEO_SEARCH
-Get me a video tutorial for Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Extract the main ideas from PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me some questions on World History,ASSESSMENT,ASSESSMENT
-Find a lecture video on Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Get me a video tutorial for Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the slide in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want a video on Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the second page of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find some videos for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Tell me more about the content in the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Search for tutorials about Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
-I want a test on Operating Systems,ASSESSMENT,ASSESSMENT
-Look for educational videos about Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
-Quiz me on Ethics,ASSESSMENT,ASSESSMENT
-Summarize the paper in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need a visual guide on Cell Biology,VIDEO_SEARCH,INSIGHT
-I want a test on Operating Systems,ASSESSMENT,ASSESSMENT
-Search for tutorials about Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
-I want a test on Operating Systems,ASSESSMENT,ASSESSMENT
-Suggest a video for Sociology,VIDEO_SEARCH,VIDEO_SEARCH
-I need an analysis of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me some questions on Organic Chemistry,ASSESSMENT,ASSESSMENT
-I need a visual guide on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
-Suggest a video for Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
-I'm ready for a test on Machine Learning,ASSESSMENT,ASSESSMENT
-Explain the findings in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Where can I find a video about Linear Algebra?,VIDEO_SEARCH,VIDEO_SEARCH
-Any clips explaining Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Show me a YouTube video for Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
-I'm feeling stuck,CONVERSATION,CONVERSATION
-Give me 5 questions on Cell Biology,ASSESSMENT,CONVERSATION
-I need a visual guide on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
-What is discussed in the file?,CONTENT_ANALYSIS,CONVERSATION
-I want a video on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
-Where can I find a video about Operating Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Look for educational videos about Calculus,VIDEO_SEARCH,VIDEO_SEARCH
-Search for tutorials about Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
-Summarize the material in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Find a video on Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
-Review the slide for me,CONTENT_ANALYSIS,CONVERSATION
-Break down the key concepts in the material,CONTENT_ANALYSIS,VIDEO_SEARCH
-Search for a clip about Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
-What is the main point of the file?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need an analysis of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want to watch a video on World History,VIDEO_SEARCH,VIDEO_SEARCH
-I want a video on Sociology,VIDEO_SEARCH,VIDEO_SEARCH
-Find a lecture video on Psychology,VIDEO_SEARCH,VIDEO_SEARCH
-Generate a quiz about Database Systems,ASSESSMENT,ASSESSMENT
-Find a lecture video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Explain the findings in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I need an analysis of the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Explain the second page of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-I want a test on Discrete Math,ASSESSMENT,ASSESSMENT
-Any clips explaining Operating Systems?,VIDEO_SEARCH,VIDEO_SEARCH
-Search for a clip about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+I want to watch a video on Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Can you find a video on Cell Biology?,VIDEO_SEARCH,VIDEO_SEARCH
+Find a video about Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+What are my weak spots?,INSIGHT,INSIGHT
+Test me on Network Security,ASSESSMENT,ASSESSMENT
+What can you teach me?,CONVERSATION,CONVERSATION
+Does the section mention Quantum Physics?,CONTENT_ANALYSIS,CONVERSATION
+Find some videos for Cognitive Science,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Psychology knowledge?,INSIGHT,INSIGHT
+Find a video about Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
 Suggest a video for Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
-Give me some questions on Operating Systems,ASSESSMENT,ASSESSMENT
-Search for tutorials about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+Does the slide mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the paper say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for a clip about Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+How am I doing in Database Systems?,INSIGHT,INSIGHT
+Recommend a YouTube video about Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
+Ask me some questions on Database Systems,ASSESSMENT,VIDEO_SEARCH
+Are you ready?,CONVERSATION,CONVERSATION
+Can you talk to me?,CONVERSATION,CONVERSATION
+Am I good at Quantum Physics?,INSIGHT,INSIGHT
+Recommend a book,CONVERSATION,VIDEO_SEARCH
+Examine me on Linear Algebra,ASSESSMENT,ASSESSMENT
+Give me a learning report,INSIGHT,INSIGHT
+Find some videos about Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+What does the material say about Software Engineering?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Is there a clip on Machine Learning?,VIDEO_SEARCH,VIDEO_SEARCH
+Do you have a video about Artificial Intelligence?,VIDEO_SEARCH,VIDEO_SEARCH
+I'm happy today,CONVERSATION,CONVERSATION
+What are the main takeaways?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Linear Algebra?,INSIGHT,INSIGHT
+Find some videos about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Discrete Math knowledge?,INSIGHT,INSIGHT
+I'm frustrated,CONVERSATION,CONVERSATION
+Start a quiz on Human Anatomy,ASSESSMENT,ASSESSMENT
+Examine me on Thermodynamics,ASSESSMENT,ASSESSMENT
+One moment please,CONVERSATION,CONVERSATION
+Ha ha,CONVERSATION,CONVERSATION
+What's my level in Data Structures?,INSIGHT,INSIGHT
+Let's do a quiz on Statistics,ASSESSMENT,ASSESSMENT
+Where do I stand in Discrete Math?,INSIGHT,INSIGHT
+Is there a clip on Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
+Extract the main ideas from the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at Human Anatomy?,INSIGHT,INSIGHT
+How am I doing in Discrete Math?,INSIGHT,INSIGHT
+I want to watch a video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Look for educational videos about World History,VIDEO_SEARCH,VIDEO_SEARCH
+Can you find a video on Quantum Physics?,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a clip about Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Calculus?,INSIGHT,INSIGHT
+Quiz me on Thermodynamics,ASSESSMENT,ASSESSMENT
+What does the handout say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+You remind me of my teacher,CONVERSATION,CONVERSATION
+Find a lecture video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+What does the slide say about Software Engineering?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Look for educational videos on World History,VIDEO_SEARCH,VIDEO_SEARCH
+I'll come back later,CONVERSATION,CONVERSATION
+Recommend a YouTube video about Human Anatomy,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the file in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Question me on World History,ASSESSMENT,ASSESSMENT
+Quiz me on Linear Algebra,ASSESSMENT,ASSESSMENT
+Logging off,CONVERSATION,CONVERSATION
+Evaluate my understanding of World History,ASSESSMENT,ASSESSMENT
+Do you have a name?,CONVERSATION,CONVERSATION
+How am I doing in Ethics?,INSIGHT,INSIGHT
+I need an analysis of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test me on Classical Mechanics,ASSESSMENT,ASSESSMENT
+Show me a YouTube video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Take care,CONVERSATION,CONVERSATION
+What's my level in Database Systems?,INSIGHT,INSIGHT
+What's my learning path?,INSIGHT,INSIGHT
+What does the paper say about Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Let's do a quiz on Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Review the file for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Examine me on Human Anatomy,ASSESSMENT,ASSESSMENT
+What is water made of?,CONVERSATION,CONVERSATION
+Any clips on Big Data?,VIDEO_SEARCH,VIDEO_SEARCH
+Do you have a video about Ethics?,VIDEO_SEARCH,VIDEO_SEARCH
+Provide feedback on my learning path,INSIGHT,INSIGHT
+I need a visual guide on Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Compiler Design?,INSIGHT,INSIGHT
+What's my level in Operating Systems?,INSIGHT,INSIGHT
+How am I doing in Organic Chemistry?,INSIGHT,INSIGHT
+How are you doing?,CONVERSATION,CONVERSATION
+Any clips explaining Quantum Physics?,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the text in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Evaluate my understanding of Big Data,ASSESSMENT,ASSESSMENT
+Prepare a quiz for World History,ASSESSMENT,ASSESSMENT
+Good answer,CONVERSATION,CONVERSATION
+Get me a video tutorial for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Can I call you something?,CONVERSATION,CONVERSATION
+Can you repeat that?,CONVERSATION,CONVERSATION
+Hola,CONVERSATION,CONVERSATION
+Let's do a quiz on World History,ASSESSMENT,ASSESSMENT
+Look for educational videos about Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Can you find a video on Organic Chemistry?,VIDEO_SEARCH,VIDEO_SEARCH
+I'm ready for a test on Linear Programming,ASSESSMENT,ASSESSMENT
+Find a video on Linear Programming,VIDEO_SEARCH,VIDEO_SEARCH
+Question me on Compiler Design,ASSESSMENT,ASSESSMENT
+What does the file say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the notes mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I begin?,CONVERSATION,CONVERSATION
+How do I learn better?,CONVERSATION,INSIGHT
+Test my knowledge on Classical Mechanics,ASSESSMENT,ASSESSMENT
+What does the document say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the handout mention Thermodynamics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Not now,CONVERSATION,CONVERSATION
+Get me a video tutorial on Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+I feel bored,CONVERSATION,CONVERSATION
+Ask me some questions on Linear Programming,ASSESSMENT,ASSESSMENT
+What does the paper say about Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Molecular Biology?,INSIGHT,INSIGHT
+Link a video on Fluid Dynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Break down the key concepts in the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Any clips on World History?,VIDEO_SEARCH,VIDEO_SEARCH
+Evaluate my understanding of Macroeconomics,ASSESSMENT,ASSESSMENT
+Prepare a quiz for Cell Biology,ASSESSMENT,ASSESSMENT
+Find some videos for Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+What is the capital of Japan?,CONVERSATION,CONVERSATION
+Break down the key concepts in the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Genetics?,INSIGHT,INSIGHT
+Prepare a quiz for Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Find a video on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+What does the chapter say about Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test my knowledge on Operating Systems,ASSESSMENT,ASSESSMENT
+Create an assessment for Fluid Dynamics,ASSESSMENT,ASSESSMENT
+What's my level in Artificial Intelligence?,INSIGHT,INSIGHT
+Ask me some questions on Astrophysics,ASSESSMENT,ASSESSMENT
+Summarize the article in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the file mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Extract the main ideas from the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the text say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What is discussed in the slide?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Question me on Data Structures,ASSESSMENT,ASSESSMENT
+Check if I understood Calculus,ASSESSMENT,ASSESSMENT
+How am I doing in Linear Algebra?,INSIGHT,INSIGHT
+Question me on Human Anatomy,ASSESSMENT,ASSESSMENT
+How do you work?,CONVERSATION,CONVERSATION
+Is there a clip on Cell Biology?,VIDEO_SEARCH,VIDEO_SEARCH
+Skip that,CONVERSATION,CONVERSATION
+I want a test on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+How am I doing in Sociology?,INSIGHT,INSIGHT
+You're good at this,CONVERSATION,CONVERSATION
+I want to watch a video on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Human Anatomy?,INSIGHT,INSIGHT
+What does the report say about Discrete Math?,CONTENT_ANALYSIS,INSIGHT
+Are there gaps in my Cell Biology knowledge?,INSIGHT,INSIGHT
+What's my level in Computer Networks?,INSIGHT,INSIGHT
+Does the text mention Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at Fluid Dynamics?,INSIGHT,INSIGHT
+How long have you been here?,CONVERSATION,CONVERSATION
+Hello there,CONVERSATION,CONVERSATION
+Video examples for Calculus,VIDEO_SEARCH,VIDEO_SEARCH
+Does the notes mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's a good movie?,CONVERSATION,CONVERSATION
+Test my knowledge of Database Systems,ASSESSMENT,VIDEO_SEARCH
+Create an assessment for Astrophysics,ASSESSMENT,ASSESSMENT
+Goodbye,CONVERSATION,CONVERSATION
+Generate a quiz about Organic Chemistry,ASSESSMENT,ASSESSMENT
+Give me 10 questions on Data Structures,ASSESSMENT,VIDEO_SEARCH
+Are there gaps in my Macroeconomics knowledge?,INSIGHT,INSIGHT
+Is there a clip on Linear Algebra?,VIDEO_SEARCH,VIDEO_SEARCH
+Test my knowledge on Astrophysics,ASSESSMENT,ASSESSMENT
+What have I accomplished?,INSIGHT,INSIGHT
+I need a visual guide on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in Cognitive Science?,INSIGHT,INSIGHT
+Can you explain this text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I guess so,CONVERSATION,CONVERSATION
+Do you like music?,CONVERSATION,CONVERSATION
+Look for educational videos about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Game Theory?,INSIGHT,INSIGHT
+Search for tutorials about Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Can I have a practice test for Ethics?,ASSESSMENT,ASSESSMENT
+Look for educational videos about Fluid Dynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Ask me 5 questions on Quantum Physics,ASSESSMENT,INSIGHT
+What does the file say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me some questions on Linear Algebra,ASSESSMENT,ASSESSMENT
+Assess my understanding of Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Give me a summary of the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+See you later,CONVERSATION,CONVERSATION
+Is there a clip on Sociology?,VIDEO_SEARCH,VIDEO_SEARCH
+Any clips explaining Data Structures?,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in Discrete Math?,INSIGHT,INSIGHT
+I'm going now,CONVERSATION,CONVERSATION
+Give me a quiz on Organic Chemistry,ASSESSMENT,ASSESSMENT
+How am I doing in Genetics?,INSIGHT,INSIGHT
+Let me think,CONVERSATION,CONVERSATION
+Suggest a video on Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Link a video on Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Why should I study?,CONVERSATION,CONVERSATION
+I want to watch a video on Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
+Hiya,CONVERSATION,CONVERSATION
+I'm ready for a test on Cognitive Science,ASSESSMENT,ASSESSMENT
+I want a video on Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
+Test me on Algorithms,ASSESSMENT,ASSESSMENT
+What does the document say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Hey there,CONVERSATION,CONVERSATION
+How does this system work?,CONVERSATION,CONVERSATION
+Where do I stand in Data Structures?,INSIGHT,INSIGHT
+Are you a bot?,CONVERSATION,CONVERSATION
+Give me a summary of the notes,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the file mention Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the results in the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want a video on Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Machine Learning?,INSIGHT,INSIGHT
+What does the notes say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at World History?,INSIGHT,INSIGHT
+Suggest a video for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Check if I understood Software Engineering,ASSESSMENT,INSIGHT
+Find some videos for Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Do you have a video about Machine Learning?,VIDEO_SEARCH,VIDEO_SEARCH
+Who are you?,CONVERSATION,CONVERSATION
+Can you think?,CONVERSATION,CONVERSATION
+Summarize the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Start a quiz on Astrophysics,ASSESSMENT,ASSESSMENT
+Am I improving?,INSIGHT,INSIGHT
+Ask me 5 questions on Microeconomics,ASSESSMENT,ASSESSMENT
+Nice one,CONVERSATION,CONVERSATION
+I like this,CONVERSATION,CONVERSATION
+Do you have a video about Genetics?,VIDEO_SEARCH,VIDEO_SEARCH
+What does the PDF cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's my progress so far?,INSIGHT,INSIGHT
+Does the paper mention Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I'm bored,CONVERSATION,CONVERSATION
+That's it,CONVERSATION,CONVERSATION
+I want a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Psychology?,INSIGHT,INSIGHT
+Can you walk me through the PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Summarize this file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the file mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos about Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Cyber Security?,INSIGHT,INSIGHT
+Let's go,CONVERSATION,CONVERSATION
+Thanks,CONVERSATION,CONVERSATION
+Examine me on Microeconomics,ASSESSMENT,ASSESSMENT
+I don't know what to do,CONVERSATION,CONVERSATION
+How am I doing in Fluid Dynamics?,INSIGHT,INSIGHT
+Link a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+What is the main point of the file?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are there gaps in my Computer Architecture knowledge?,INSIGHT,INSIGHT
+Assess my understanding of Cyber Security,ASSESSMENT,ASSESSMENT
+Find a video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+I'm ready for a test on Compiler Design,ASSESSMENT,ASSESSMENT
+Are there gaps in my Compiler Design knowledge?,INSIGHT,INSIGHT
+Find a video about Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+Look for educational videos about Human Anatomy,VIDEO_SEARCH,VIDEO_SEARCH
+Create an assessment for Ethics,ASSESSMENT,ASSESSMENT
+Good evening,CONVERSATION,CONVERSATION
+Get me a video tutorial on Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+I need an analysis of the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Summarize my milestones,INSIGHT,CONVERSATION
+Give me a summary of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Examine me on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+What does the handout say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the findings in the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Evaluate my understanding of Data Structures,ASSESSMENT,INSIGHT
+Find a lecture video on Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+Let's take a quiz on World History,ASSESSMENT,ASSESSMENT
+A tutorial video about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+Does the paper mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can you help me with anything?,CONVERSATION,CONVERSATION
+Give me a summary of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are there gaps in my Cyber Security knowledge?,INSIGHT,INSIGHT
+Howdy,CONVERSATION,CONVERSATION
+What does the chapter say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I didn't get that,CONVERSATION,CONVERSATION
+Are there gaps in my World History knowledge?,INSIGHT,INSIGHT
+Explain the findings in the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the PDF say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Suggest a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+A tutorial video about Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
+I need learning insights,INSIGHT,INSIGHT
+Show a video demo of Genetics,VIDEO_SEARCH,VIDEO_SEARCH
+Does the text mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me 10 questions on Organic Chemistry,ASSESSMENT,ASSESSMENT
+What does the section say about Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the article say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Test my knowledge of Calculus,ASSESSMENT,ASSESSMENT
+Am I good at Operating Systems?,INSIGHT,INSIGHT
+Right,CONVERSATION,CONVERSATION
+Analyze the uploaded notes,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the slide mention Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Give me a quiz on Microeconomics,ASSESSMENT,ASSESSMENT
+Am I good at Game Theory?,INSIGHT,INSIGHT
+What does the article say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Summarize the slide in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Generate a quiz about Big Data,ASSESSMENT,ASSESSMENT
+What do I review next?,INSIGHT,INSIGHT
+Test me on Ethics,ASSESSMENT,ASSESSMENT
+I want to be tested on Machine Learning,ASSESSMENT,ASSESSMENT
+Do you watch movies?,CONVERSATION,CONVERSATION
+Any clips on Statistics?,VIDEO_SEARCH,VIDEO_SEARCH
+Is there a clip on World History?,VIDEO_SEARCH,VIDEO_SEARCH
+I need a learning plan,INSIGHT,INSIGHT
+Extract the main ideas from the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+How big is the sun?,CONVERSATION,CONVERSATION
+Definitely,CONVERSATION,CONVERSATION
+Does the handout mention World History?,CONTENT_ANALYSIS,CONVERSATION
+Does the section mention Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What day is it today?,CONVERSATION,CONVERSATION
+Am I good at Thermodynamics?,INSIGHT,INSIGHT
+I want a test on Compiler Design,ASSESSMENT,ASSESSMENT
+Does the file mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos on Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
+Test me on Compiler Design,ASSESSMENT,ASSESSMENT
+What does the paper say about Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+How far along am I?,INSIGHT,INSIGHT
+Assess my understanding of Discrete Math,ASSESSMENT,ASSESSMENT
+Am I good at Cyber Security?,INSIGHT,INSIGHT
+Is there a clip on Fluid Dynamics?,VIDEO_SEARCH,VIDEO_SEARCH
+Explain the second section of the handout,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test my knowledge of Cognitive Science,ASSESSMENT,ASSESSMENT
+Check if I understood Game Theory,ASSESSMENT,ASSESSMENT
+Find a video on World History,VIDEO_SEARCH,VIDEO_SEARCH
+Search for tutorials about Macroeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Test my knowledge of Psychology,ASSESSMENT,ASSESSMENT
+Evaluate my understanding of Linear Algebra,ASSESSMENT,ASSESSMENT
+What does the text say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Sounds good,CONVERSATION,CONVERSATION
+Find a video about Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+How am I doing in Game Theory?,INSIGHT,INSIGHT
+Search for a clip about Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Show me a YouTube video about Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+Explain the second page of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the findings in the notes,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Link a video on Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+Nice,CONVERSATION,CONVERSATION
+What is discussed in the section?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to talk,CONVERSATION,CONVERSATION
+I'll be right back,CONVERSATION,CONVERSATION
+Are you my tutor?,CONVERSATION,CONVERSATION
+I just joined,CONVERSATION,CONVERSATION
+Show a video demo of Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a clip about Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Suggest a video for Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Assess me on Software Engineering,ASSESSMENT,ASSESSMENT
+What does the slide say about Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find a lecture video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Does the chapter mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Tell me a story,CONVERSATION,CONVERSATION
+Make me a quiz on Linear Algebra,ASSESSMENT,ASSESSMENT
+Suggest a video for Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Create an assessment for Game Theory,ASSESSMENT,ASSESSMENT
+Are there gaps in my Genetics knowledge?,INSIGHT,INSIGHT
+I want a video on Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Can I have a practice test for Computer Architecture?,ASSESSMENT,VIDEO_SEARCH
+Great to be here,CONVERSATION,CONVERSATION
+Let's do a quiz on Operating Systems,ASSESSMENT,ASSESSMENT
+Assess my understanding of Statistics,ASSESSMENT,ASSESSMENT
+How am I doing in Cyber Security?,INSIGHT,INSIGHT
+Show a video demo of Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Ignore that,CONVERSATION,CONVERSATION
+Talk later,CONVERSATION,CONVERSATION
+Question me on Organic Chemistry,ASSESSMENT,ASSESSMENT
+Any clips on Linear Programming?,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Compiler Design?,INSIGHT,INSIGHT
+How am I doing in Cognitive Science?,INSIGHT,INSIGHT
+Am I good at Sociology?,INSIGHT,INSIGHT
+Break down the key concepts in the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I'm ready for a test on Cyber Security,ASSESSMENT,ASSESSMENT
+What should I revise?,INSIGHT,INSIGHT
+Am I good at Genetics?,INSIGHT,INSIGHT
+What does the section say about Software Engineering?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Bye,CONVERSATION,CONVERSATION
+Show my achievements,INSIGHT,INSIGHT
+How am I doing in Machine Learning?,INSIGHT,INSIGHT
+What does the report say about Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the material mention Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's up,CONVERSATION,CONVERSATION
+Recommend what to study,INSIGHT,INSIGHT
+Assess my understanding of Big Data,ASSESSMENT,ASSESSMENT
+What does the document say about Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me some questions on World History,ASSESSMENT,ASSESSMENT
+What does the material say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Summarize the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me a quiz on Big Data,ASSESSMENT,ASSESSMENT
+What does the chapter say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Good night,CONVERSATION,CONVERSATION
+Tell me more about the content in the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for tutorials about Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
+Test my knowledge of Ethics,ASSESSMENT,ASSESSMENT
+Compare this with the last chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Start a quiz on Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Assess me on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+I need an analysis of the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are the findings consistent?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos about Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Examine me on Classical Mechanics,ASSESSMENT,ASSESSMENT
+Question me on Cell Biology,ASSESSMENT,ASSESSMENT
+Show me a YouTube video on Calculus,VIDEO_SEARCH,VIDEO_SEARCH
+I'm stuck,CONVERSATION,CONVERSATION
+A tutorial video about Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
+Does the slide mention Software Engineering?,CONTENT_ANALYSIS,CONVERSATION
+I want a test on Statistics,ASSESSMENT,ASSESSMENT
+Assess my understanding of Sociology,ASSESSMENT,ASSESSMENT
+Suggest a video on Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+Hi there,CONVERSATION,CONVERSATION
+Assess me on Sociology,ASSESSMENT,ASSESSMENT
+Find some videos for Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Hi,CONVERSATION,CONVERSATION
+I need a visual guide on World History,VIDEO_SEARCH,VIDEO_SEARCH
+I'm new here,CONVERSATION,CONVERSATION
+Do you have a video about Macroeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
+Any study tips?,CONVERSATION,CONVERSATION
+Test my knowledge of Molecular Biology,ASSESSMENT,ASSESSMENT
+Let's do a quiz on Calculus,ASSESSMENT,ASSESSMENT
+Explain the second section of the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I need a visual guide on Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+I want a test on Linear Algebra,ASSESSMENT,ASSESSMENT
+Do you have a video about Cyber Security?,VIDEO_SEARCH,VIDEO_SEARCH
+Let's take a quiz on Thermodynamics,ASSESSMENT,ASSESSMENT
+Never mind,CONVERSATION,CONVERSATION
+Give me a summary of my achievements,INSIGHT,INSIGHT
+What is the main point of the report?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Link a video on Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+Does the section mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Break down the key concepts in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I need a visual guide on Linear Programming,VIDEO_SEARCH,VIDEO_SEARCH
+I want to be tested on Psychology,ASSESSMENT,ASSESSMENT
+Agreed,CONVERSATION,CONVERSATION
+Analyze my performance,INSIGHT,INSIGHT
+Does the report mention Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What is the main point of the PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Computer Networks?,INSIGHT,INSIGHT
+Does the notes mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Make me a quiz on Machine Learning,ASSESSMENT,ASSESSMENT
+Yeah,CONVERSATION,CONVERSATION
+Do you have a video about Calculus?,VIDEO_SEARCH,VIDEO_SEARCH
+Recommend a YouTube video about Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+Review the report for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test me on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+I need a visual guide for Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Organic Chemistry knowledge?,INSIGHT,INSIGHT
+Where do I stand in Computer Architecture?,INSIGHT,INSIGHT
+Can you find a video on Calculus?,VIDEO_SEARCH,VIDEO_SEARCH
+Let's take a quiz on Software Engineering,ASSESSMENT,ASSESSMENT
+Make me a plan,INSIGHT,CONVERSATION
+Give me 10 questions on Database Systems,ASSESSMENT,VIDEO_SEARCH
+Which topics do I struggle with?,INSIGHT,INSIGHT
+Are there gaps in my Network Security knowledge?,INSIGHT,INSIGHT
+OK,CONVERSATION,CONVERSATION
+Show my learning report,INSIGHT,INSIGHT
+Are you listening?,CONVERSATION,CONVERSATION
+Test me on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Recommend a YouTube video about Cognitive Science,VIDEO_SEARCH,VIDEO_SEARCH
+Any clips explaining Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
+Test my knowledge of Operating Systems,ASSESSMENT,ASSESSMENT
+I want to chat,CONVERSATION,CONVERSATION
+I want to be tested on Big Data,ASSESSMENT,ASSESSMENT
+Ask me some questions on Calculus,ASSESSMENT,ASSESSMENT
+Suggest a video for Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+What is the main point of the section?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Quiz me on Operating Systems,ASSESSMENT,ASSESSMENT
+Are there gaps in my Microeconomics knowledge?,INSIGHT,INSIGHT
+Tell me a joke,CONVERSATION,CONVERSATION
+Get me a video tutorial on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Find a lecture video on Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Generate a quiz about Cyber Security,ASSESSMENT,ASSESSMENT
+Does the document mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I need a visual guide on Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
+Evaluate my knowledge of Database Systems,ASSESSMENT,VIDEO_SEARCH
+How am I doing in Classical Mechanics?,INSIGHT,INSIGHT
+Summarize my learning,INSIGHT,INSIGHT
+Start a quiz on Genetics,ASSESSMENT,ASSESSMENT
+Explain the findings in the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Show my progress,INSIGHT,INSIGHT
+How's it going?,CONVERSATION,CONVERSATION
+Evaluate my knowledge of Cyber Security,ASSESSMENT,ASSESSMENT
+What does the notes say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the PDF mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Show my growth over time,INSIGHT,INSIGHT
+How am I doing in World History?,INSIGHT,INSIGHT
+A tutorial video about Cognitive Science,VIDEO_SEARCH,VIDEO_SEARCH
+Video examples for Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Make me a quiz on Calculus,ASSESSMENT,ASSESSMENT
+Hi AI,CONVERSATION,CONVERSATION
+I had a long day,CONVERSATION,CONVERSATION
+Let's move on,CONVERSATION,CONVERSATION
+I want a video on Macroeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+How am I doing in Calculus?,INSIGHT,INSIGHT
+Ask me some questions on Computer Networks,ASSESSMENT,ASSESSMENT
+Does the section mention Software Engineering?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Next question,CONVERSATION,CONVERSATION
+Ask me some questions on Molecular Biology,ASSESSMENT,ASSESSMENT
+Get me a video tutorial on Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Recommend a YouTube video about Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me 10 questions on Statistics,ASSESSMENT,ASSESSMENT
+A tutorial video about Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
+Namaste,CONVERSATION,CONVERSATION
+Can you find a video on Linear Programming?,VIDEO_SEARCH,VIDEO_SEARCH
+Assess my understanding of Organic Chemistry,ASSESSMENT,ASSESSMENT
+Show my learning summary,INSIGHT,INSIGHT
+What does the file say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Examine me on Macroeconomics,ASSESSMENT,ASSESSMENT
+Okay,CONVERSATION,CONVERSATION
+I want to be tested on Quantum Physics,ASSESSMENT,ASSESSMENT
+Hold on,CONVERSATION,CONVERSATION
+Thanks for your help,CONVERSATION,CONVERSATION
+Give me 5 questions on Machine Learning,ASSESSMENT,ASSESSMENT
+Quiz me on Database Systems,ASSESSMENT,ASSESSMENT
+Do you have a video about Database Systems?,VIDEO_SEARCH,VIDEO_SEARCH
+Find some videos about Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+What can I learn next?,INSIGHT,INSIGHT
+Can I have a practice test on Human Anatomy?,ASSESSMENT,ASSESSMENT
+Where do I stand in Operating Systems?,INSIGHT,INSIGHT
+That was helpful,CONVERSATION,CONVERSATION
+Summarize the document in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the section cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the article cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What are my knowledge gaps?,INSIGHT,INSIGHT
+What's your favorite color?,CONVERSATION,CONVERSATION
+What does the chapter say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find a video about Genetics,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the report in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the paper mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test my knowledge of Organic Chemistry,ASSESSMENT,ASSESSMENT
+What is the main point of the material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's your favorite subject?,CONVERSATION,CONVERSATION
+Give me a quiz on Classical Mechanics,ASSESSMENT,ASSESSMENT
+What's my level in Astrophysics?,INSIGHT,INSIGHT
+Summarize the handout,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Generate a quiz about Data Structures,ASSESSMENT,ASSESSMENT
+Link a video on Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Give me 10 questions on Discrete Math,ASSESSMENT,ASSESSMENT
+Give me some recommendations,INSIGHT,VIDEO_SEARCH
+What does the report say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Let's take a quiz on Calculus,ASSESSMENT,ASSESSMENT
+Summarize this chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at Microeconomics?,INSIGHT,INSIGHT
+What's my learning pattern?,INSIGHT,INSIGHT
+Search for tutorials about Calculus,VIDEO_SEARCH,VIDEO_SEARCH
+Does the paper mention Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to relax,CONVERSATION,CONVERSATION
+Give me 10 questions on Algorithms,ASSESSMENT,VIDEO_SEARCH
+Makes sense,CONVERSATION,CONVERSATION
+What is my progress?,INSIGHT,INSIGHT
+How am I doing in Quantum Physics?,INSIGHT,INSIGHT
+Show me a YouTube video on Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Maybe,CONVERSATION,CONVERSATION
+Give me 5 questions on Calculus,ASSESSMENT,ASSESSMENT
+Give me 5 questions on Software Engineering,ASSESSMENT,VIDEO_SEARCH
+Evaluate my knowledge of Psychology,ASSESSMENT,ASSESSMENT
+What does the document say about Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test my knowledge on Cell Biology,ASSESSMENT,ASSESSMENT
+I need a visual guide for Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+Give me feedback on my progress,INSIGHT,INSIGHT
+What does the article say about Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos about Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Artificial Intelligence?,INSIGHT,INSIGHT
+Alright,CONVERSATION,CONVERSATION
+Thank you,CONVERSATION,CONVERSATION
+Reduce this chapter to the essentials,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are there gaps in my Ethics knowledge?,INSIGHT,INSIGHT
+Really helpful,CONVERSATION,CONVERSATION
+What is the speed of light?,CONVERSATION,VIDEO_SEARCH
+Search for tutorials about Genetics,VIDEO_SEARCH,VIDEO_SEARCH
+What is your name?,CONVERSATION,CONVERSATION
+Find a lecture video on Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+I'm stressed,CONVERSATION,CONVERSATION
+Find some videos about Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
+What does the text cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can you find a video on Macroeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
+Oh I see,CONVERSATION,CONVERSATION
+Am I good at Data Structures?,INSIGHT,INSIGHT
+Get me a video tutorial for Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Give me a quiz on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+Is it raining?,CONVERSATION,CONVERSATION
+Are there gaps in my Database Systems knowledge?,INSIGHT,INSIGHT
+Show a video demo of Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Explain the second section of the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Absolutely,CONVERSATION,CONVERSATION
+Yo,CONVERSATION,CONVERSATION
+Prepare a quiz for Cognitive Science,ASSESSMENT,ASSESSMENT
+Are you real?,CONVERSATION,CONVERSATION
+Do you have a video about Fluid Dynamics?,VIDEO_SEARCH,VIDEO_SEARCH
+What did you say?,CONVERSATION,CONVERSATION
+Quiz me on Algorithms,ASSESSMENT,ASSESSMENT
+What does that mean?,CONVERSATION,CONVERSATION
+Question me on Database Systems,ASSESSMENT,VIDEO_SEARCH
+Prepare a quiz for Machine Learning,ASSESSMENT,ASSESSMENT
+Explain the second page of the report,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+How am I doing in Computer Networks?,INSIGHT,INSIGHT
+Examine me on Software Engineering,ASSESSMENT,ASSESSMENT
+Are there gaps in my Calculus knowledge?,INSIGHT,INSIGHT
+Explain the second section of the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+What does the chapter say about Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me some questions on Microeconomics,ASSESSMENT,ASSESSMENT
+Just checking in,CONVERSATION,CONVERSATION
+I'm excited,CONVERSATION,CONVERSATION
+Look for educational videos about Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+Give me 10 questions on Ethics,ASSESSMENT,ASSESSMENT
+What time is it?,CONVERSATION,CONVERSATION
+Tell me about yourself,CONVERSATION,CONVERSATION
+Can you explain that more?,CONVERSATION,CONVERSATION
+I like your style,CONVERSATION,CONVERSATION
+Does the article mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me some questions on Network Security,ASSESSMENT,ASSESSMENT
+Ask me 5 questions on Linear Algebra,ASSESSMENT,ASSESSMENT
+Ask me some questions on Ethics,ASSESSMENT,ASSESSMENT
+Show me a YouTube video on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+Does the material mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Is there a clip on Computer Networks?,VIDEO_SEARCH,VIDEO_SEARCH
+What does the slide say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Do you have a video about Big Data?,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in World History?,INSIGHT,INSIGHT
+What language do you speak?,CONVERSATION,CONVERSATION
+Give me 10 questions on Game Theory,ASSESSMENT,ASSESSMENT
+Am I good at Computer Architecture?,INSIGHT,INSIGHT
+Explain the findings in the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the report say about Thermodynamics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Do you have a video about Algorithms?,VIDEO_SEARCH,VIDEO_SEARCH
+How am I doing overall?,INSIGHT,INSIGHT
+Find some videos about Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
+Where are my knowledge gaps?,INSIGHT,INSIGHT
+Any clips explaining Statistics?,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Molecular Biology?,INSIGHT,INSIGHT
+I want to watch a video on Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Start a quiz on Machine Learning,ASSESSMENT,ASSESSMENT
+How was your day?,CONVERSATION,CONVERSATION
+What does the article say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the report mention Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the material mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test my knowledge of Statistics,ASSESSMENT,ASSESSMENT
+How am I doing in Software Engineering?,INSIGHT,INSIGHT
+Why is the sky blue?,CONVERSATION,CONVERSATION
+I need a visual guide for Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Does the notes mention Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at Macroeconomics?,INSIGHT,INSIGHT
+Am I good at Astrophysics?,INSIGHT,INSIGHT
+Does the slide mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Get me a video tutorial on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Network Security?,INSIGHT,INSIGHT
+Test my knowledge of Big Data,ASSESSMENT,ASSESSMENT
+Ask me 5 questions on Big Data,ASSESSMENT,ASSESSMENT
+Does the notes mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+How am I doing in Operating Systems?,INSIGHT,INSIGHT
+What does the section say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+How am I doing in Algorithms?,INSIGHT,INSIGHT
+Can I have a practice test on Classical Mechanics?,ASSESSMENT,ASSESSMENT
+Does the text mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Fair enough,CONVERSATION,CONVERSATION
+Make me a quiz on Linear Programming,ASSESSMENT,ASSESSMENT
+How old is the Earth?,CONVERSATION,CONVERSATION
+Can fish fly?,CONVERSATION,CONVERSATION
+Link a video on Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+Find a lecture video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Give me 5 questions on Data Structures,ASSESSMENT,VIDEO_SEARCH
+Test me on Astrophysics,ASSESSMENT,ASSESSMENT
+LOL,CONVERSATION,CONVERSATION
+Where do I stand in Big Data?,INSIGHT,INSIGHT
+Give me a quiz on Compiler Design,ASSESSMENT,ASSESSMENT
+I want a test on Game Theory,ASSESSMENT,ASSESSMENT
+Any clips on Compiler Design?,VIDEO_SEARCH,VIDEO_SEARCH
+What have I achieved?,INSIGHT,INSIGHT
+I want a test on Computer Networks,ASSESSMENT,ASSESSMENT
+What's my level in Organic Chemistry?,INSIGHT,INSIGHT
+Summarize this article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the section say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Say it again,CONVERSATION,CONVERSATION
+Talk to me,CONVERSATION,CONVERSATION
+Analyze my learning behavior,INSIGHT,INSIGHT
+Is there any news today?,CONVERSATION,CONVERSATION
+Show a video demo of Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Sure,CONVERSATION,CONVERSATION
+Find a video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Do you have a video about Cognitive Science?,VIDEO_SEARCH,VIDEO_SEARCH
+Ask me some questions on Compiler Design,ASSESSMENT,ASSESSMENT
+How have you been?,CONVERSATION,CONVERSATION
+Evaluate my knowledge of Sociology,ASSESSMENT,ASSESSMENT
+How am I doing in Astrophysics?,INSIGHT,INSIGHT
+Where do I stand in Machine Learning?,INSIGHT,INSIGHT
+Find some videos for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+What's your name?,CONVERSATION,CONVERSATION
+What does the PDF say about Software Engineering?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Generate a quiz about Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Suggest a video for World History,VIDEO_SEARCH,VIDEO_SEARCH
+Are you okay?,CONVERSATION,CONVERSATION
+What does the section say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I think so,CONVERSATION,CONVERSATION
+How am I doing in Microeconomics?,INSIGHT,INSIGHT
+Get me a video tutorial on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+What does the handout say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+Get me a video tutorial for Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Does the slide mention Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's my level in Computer Architecture?,INSIGHT,INSIGHT
+Whatever,CONVERSATION,CONVERSATION
+Review the slide for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Algorithms?,INSIGHT,INSIGHT
+Fine,CONVERSATION,CONVERSATION
+Can I have a practice test on Computer Networks?,ASSESSMENT,ASSESSMENT
+Great,CONVERSATION,CONVERSATION
+Prepare a quiz for Data Structures,ASSESSMENT,ASSESSMENT
+Create an assessment for Machine Learning,ASSESSMENT,ASSESSMENT
+Find a video on Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Prepare a quiz for Organic Chemistry,ASSESSMENT,ASSESSMENT
+Does the report mention Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to be tested on Classical Mechanics,ASSESSMENT,ASSESSMENT
+Give me a study plan,INSIGHT,INSIGHT
+Assess me on Machine Learning,ASSESSMENT,ASSESSMENT
+What's my level in Macroeconomics?,INSIGHT,INSIGHT
+Give me a quiz on Macroeconomics,ASSESSMENT,ASSESSMENT
+How can I improve?,INSIGHT,INSIGHT
+Evaluate my understanding of Microeconomics,ASSESSMENT,ASSESSMENT
+Suggest a video for Cognitive Science,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a clip about Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+I need an analysis of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me some questions on Cell Biology,ASSESSMENT,ASSESSMENT
+Show a video demo of Fluid Dynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Got it,CONVERSATION,CONVERSATION
+Find some videos for Linear Programming,VIDEO_SEARCH,VIDEO_SEARCH
+Does the report mention World History?,CONTENT_ANALYSIS,CONVERSATION
+Prepare a quiz for Artificial Intelligence,ASSESSMENT,ASSESSMENT
+What's my level in Classical Mechanics?,INSIGHT,INSIGHT
+What are you?,CONVERSATION,CONVERSATION
+Examine me on Sociology,ASSESSMENT,ASSESSMENT
+See you soon,CONVERSATION,CONVERSATION
+Can you find a video on Software Engineering?,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Thermodynamics?,INSIGHT,INSIGHT
+Let's have a conversation,CONVERSATION,CONVERSATION
+Chat with me,CONVERSATION,CONVERSATION
+What year is it?,CONVERSATION,CONVERSATION
+Does the section mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the file cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Wanna chat?,CONVERSATION,CONVERSATION
+Can you hear me?,CONVERSATION,CONVERSATION
+I'm a new user,CONVERSATION,CONVERSATION
+Analyze the uploaded chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find a lecture video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Ask me 5 questions on Machine Learning,ASSESSMENT,ASSESSMENT
+Let's take a quiz on Genetics,ASSESSMENT,ASSESSMENT
+Give me an example,CONVERSATION,CONVERSATION
+Check if I understood Organic Chemistry,ASSESSMENT,ASSESSMENT
+Explain the findings in the report,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to watch a video on Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in Human Anatomy?,INSIGHT,INSIGHT
+Show a video demo of Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Let's do a quiz on Cyber Security,ASSESSMENT,ASSESSMENT
+Start a quiz on Software Engineering,ASSESSMENT,ASSESSMENT
+What's my level in Quantum Physics?,INSIGHT,INSIGHT
+I want a test on World History,ASSESSMENT,ASSESSMENT
+Test my knowledge of Astrophysics,ASSESSMENT,ASSESSMENT
+Show me a YouTube video on Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Does the material mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test for Molecular Biology?,ASSESSMENT,ASSESSMENT
+Do you have a video about Human Anatomy?,VIDEO_SEARCH,VIDEO_SEARCH
+Does the article mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are there gaps in my Sociology knowledge?,INSIGHT,INSIGHT
+Quiz me on Psychology,ASSESSMENT,ASSESSMENT
+Any clips explaining Thermodynamics?,VIDEO_SEARCH,VIDEO_SEARCH
+Quiz me on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+I want to be tested on Genetics,ASSESSMENT,ASSESSMENT
+Test my knowledge on Machine Learning,ASSESSMENT,ASSESSMENT
+Hey,CONVERSATION,CONVERSATION
+What does the slide say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can you find a video on Data Structures?,VIDEO_SEARCH,VIDEO_SEARCH
+What does the file say about Machine Learning?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for tutorials about Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+Search for tutorials about Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
+Break down the key concepts in the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Cell Biology?,INSIGHT,INSIGHT
+Summarize the PDF in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find a video on Macroeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Wait a second,CONVERSATION,CONVERSATION
+Are there gaps in my Machine Learning knowledge?,INSIGHT,INSIGHT
+What music do you like?,CONVERSATION,CONVERSATION
+Search for tutorials about Astrophysics,VIDEO_SEARCH,VIDEO_SEARCH
+Link a video on Sociology,VIDEO_SEARCH,VIDEO_SEARCH
+Find a lecture video on Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Does the file mention Psychology?,CONTENT_ANALYSIS,CONVERSATION
+Suggest a video for Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Tell me what to study next,INSIGHT,INSIGHT
+Am I good at Classical Mechanics?,INSIGHT,INSIGHT
+I want to learn something new,CONVERSATION,CONVERSATION
+Ask me 5 questions on Network Security,ASSESSMENT,ASSESSMENT
+Show a video demo of Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
+Does the document mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me 5 questions on Astrophysics,ASSESSMENT,ASSESSMENT
+Get me a video tutorial on Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in Fluid Dynamics?,INSIGHT,INSIGHT
+Who made you?,CONVERSATION,CONVERSATION
+Search for a clip about Astrophysics,VIDEO_SEARCH,VIDEO_SEARCH
+Good to meet you,CONVERSATION,CONVERSATION
+What is the main point of the notes?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's my level in Software Engineering?,INSIGHT,INSIGHT
+What does the material say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for tutorials about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+Let's do a quiz on Microeconomics,ASSESSMENT,ASSESSMENT
+Find some videos for Linear Algebra,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Cognitive Science?,INSIGHT,INSIGHT
+Maybe later,CONVERSATION,CONVERSATION
+I'm feeling stuck,CONVERSATION,CONVERSATION
+Does the material mention Thermodynamics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the section say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for a clip about Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+Prepare a quiz for Big Data,ASSESSMENT,ASSESSMENT
+I need a visual guide on Macroeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Let's take a quiz on Molecular Biology,ASSESSMENT,ASSESSMENT
+Make me a quiz on Computer Networks,ASSESSMENT,ASSESSMENT
+Link a video on Algorithms,VIDEO_SEARCH,VIDEO_SEARCH
+How am I doing in Linear Programming?,INSIGHT,INSIGHT
+What is discussed in the PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Assess me on Statistics,ASSESSMENT,ASSESSMENT
+Link a video on Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Break down the key concepts in the handout,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Question me on Thermodynamics,ASSESSMENT,ASSESSMENT
+What is the main point of the slide?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Come on,CONVERSATION,CONVERSATION
+Are there gaps in my Computer Networks knowledge?,INSIGHT,INSIGHT
+What's my level in Network Security?,INSIGHT,INSIGHT
+Make me a quiz on Compiler Design,ASSESSMENT,ASSESSMENT
+Cool,CONVERSATION,CONVERSATION
+What does the notes say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Who wrote Romeo and Juliet?,CONVERSATION,CONVERSATION
+Find a video about Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+Does the document mention Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the text say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Let's do a quiz on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+Recommend a YouTube video about Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
+What does the slide say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+I need an analysis of the notes,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test on Thermodynamics?,ASSESSMENT,ASSESSMENT
+What am I good at?,INSIGHT,INSIGHT
+Can you find a video on Molecular Biology?,VIDEO_SEARCH,VIDEO_SEARCH
+What are my strengths?,INSIGHT,INSIGHT
+Quiz me on Game Theory,ASSESSMENT,ASSESSMENT
+Find a video about Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Signing out,CONVERSATION,CONVERSATION
+Evaluate my knowledge of Thermodynamics,ASSESSMENT,ASSESSMENT
+Get me a video tutorial for Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+How have I progressed?,INSIGHT,INSIGHT
+I want a test on Algorithms,ASSESSMENT,ASSESSMENT
+Can I have a practice test on Cognitive Science?,ASSESSMENT,ASSESSMENT
+I want a video on Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Make me a quiz on Sociology,ASSESSMENT,ASSESSMENT
+What does the material say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Evaluate my understanding of Classical Mechanics,ASSESSMENT,INSIGHT
+Test my knowledge of Sociology,ASSESSMENT,ASSESSMENT
+Suggest a video for Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Any feedback for me?,INSIGHT,CONVERSATION
+What does the slide say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Recommend a YouTube video about Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Big Data knowledge?,INSIGHT,INSIGHT
+Where do I stand in Ethics?,INSIGHT,INSIGHT
+Not bad,CONVERSATION,CONVERSATION
+I'm ready for a test on Genetics,ASSESSMENT,ASSESSMENT
+Test my knowledge on Game Theory,ASSESSMENT,ASSESSMENT
+Does the PDF mention World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to watch a video on Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+Test me on Quantum Physics,ASSESSMENT,ASSESSMENT
+Does the PDF mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want a test on Network Security,ASSESSMENT,ASSESSMENT
+Suggest a video on Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I stand in Linear Programming?,INSIGHT,INSIGHT
+What is discussed in the notes?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Nice to meet you,CONVERSATION,CONVERSATION
+Test my knowledge on Linear Algebra,ASSESSMENT,ASSESSMENT
+Does the section mention Psychology?,CONTENT_ANALYSIS,CONVERSATION
+What is discussed in the text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I want to be tested on Cyber Security,ASSESSMENT,ASSESSMENT
+Generate a quiz about Macroeconomics,ASSESSMENT,ASSESSMENT
+I want a test on Operating Systems,ASSESSMENT,ASSESSMENT
+What does the document say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Am I good at Linear Algebra?,INSIGHT,INSIGHT
+Let's take a quiz on Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Is anyone there?,CONVERSATION,CONVERSATION
+Question me on Software Engineering,ASSESSMENT,VIDEO_SEARCH
+Ask me 5 questions on Classical Mechanics,ASSESSMENT,ASSESSMENT
+Video examples for Ethics,VIDEO_SEARCH,VIDEO_SEARCH
+Recommend a YouTube video about Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Can we just chat?,CONVERSATION,CONVERSATION
+Show me a YouTube video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Look for educational videos on Game Theory,VIDEO_SEARCH,VIDEO_SEARCH
+Show me my recent activity,INSIGHT,INSIGHT
+Generate a quiz about Discrete Math,ASSESSMENT,ASSESSMENT
+This is fun,CONVERSATION,CONVERSATION
+What is the main point of the document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Let's talk,CONVERSATION,CONVERSATION
+Perfect,CONVERSATION,CONVERSATION
+I need an analysis of the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Plan my next study session,INSIGHT,INSIGHT
+Ask me 5 questions on Human Anatomy,ASSESSMENT,ASSESSMENT
+Where do I stand in Microeconomics?,INSIGHT,INSIGHT
+Find a lecture video on Fluid Dynamics,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize the material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the paper say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Do you have a video about Operating Systems?,VIDEO_SEARCH,VIDEO_SEARCH
+What does the paper say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the figures in the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Show my improvement,INSIGHT,INSIGHT
+What does the notes say about Thermodynamics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Link a video on Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Start a quiz on Microeconomics,ASSESSMENT,ASSESSMENT
+What's my level in Genetics?,INSIGHT,INSIGHT
+"Hello, anyone here?",CONVERSATION,CONVERSATION
+What's my level in Microeconomics?,INSIGHT,INSIGHT
+How many continents are there?,CONVERSATION,CONVERSATION
+Any clips explaining Network Security?,VIDEO_SEARCH,VIDEO_SEARCH
+Assess my understanding of Machine Learning,ASSESSMENT,ASSESSMENT
+Hello tutor,CONVERSATION,CONVERSATION
+Extract the main ideas from the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find some videos about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Human Anatomy knowledge?,INSIGHT,INSIGHT
+Find some videos for World History,VIDEO_SEARCH,VIDEO_SEARCH
+Assess my understanding of Computer Networks,ASSESSMENT,ASSESSMENT
+Are you free?,CONVERSATION,CONVERSATION
+Find a video on Sociology,VIDEO_SEARCH,VIDEO_SEARCH
+I want to be tested on Astrophysics,ASSESSMENT,ASSESSMENT
+How were you built?,CONVERSATION,CONVERSATION
+What does the slide say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What should I do first?,CONVERSATION,CONVERSATION
+Analyze the uploaded document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test on Cell Biology?,ASSESSMENT,ASSESSMENT
+What's my level in Thermodynamics?,INSIGHT,INSIGHT
+Analyze the uploaded article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the second page of the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Ask me 5 questions on Database Systems,ASSESSMENT,VIDEO_SEARCH
+Suggest a video on Cognitive Science,VIDEO_SEARCH,VIDEO_SEARCH
+Video examples for Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
+Give me a summary of the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's my next topic?,INSIGHT,INSIGHT
+Review the text for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Suggest a video on Sociology,VIDEO_SEARCH,VIDEO_SEARCH
+Generate a quiz about Calculus,ASSESSMENT,ASSESSMENT
+Tell me more about the content in the article,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's good,CONVERSATION,CONVERSATION
+Does the handout mention Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Search for tutorials about Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
+Where do I need improvement?,INSIGHT,INSIGHT
+Awesome,CONVERSATION,CONVERSATION
+Find some videos for Cell Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Show me a YouTube video about Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
+What can you do?,CONVERSATION,CONVERSATION
+Let's take a quiz on Operating Systems,ASSESSMENT,ASSESSMENT
+Am I good at Algorithms?,INSIGHT,INSIGHT
+What does the document cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Appreciate it,CONVERSATION,CONVERSATION
+Tell me about my study habits,INSIGHT,INSIGHT
+What does the slide say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Prepare a quiz for Compiler Design,ASSESSMENT,ASSESSMENT
+Link a video on Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Discrete Math?,INSIGHT,INSIGHT
+Does the chapter mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What is this chapter about?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Test me on Organic Chemistry,ASSESSMENT,ASSESSMENT
+Help me get started,CONVERSATION,CONVERSATION
+Explain the findings in the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me 5 questions on Fluid Dynamics,ASSESSMENT,ASSESSMENT
+Can I have a practice test for Compiler Design?,ASSESSMENT,ASSESSMENT
+Show a video demo of Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
+Any clips explaining Computer Architecture?,VIDEO_SEARCH,VIDEO_SEARCH
+I'm ready for a test on Statistics,ASSESSMENT,ASSESSMENT
+What does the PDF say about Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Any clips on Macroeconomics?,VIDEO_SEARCH,VIDEO_SEARCH
+Tell me more about the content in the document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Show me a YouTube video on Statistics,VIDEO_SEARCH,VIDEO_SEARCH
+Explain the second section of the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I need a visual guide for Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+What does the report say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+What does the article say about World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What is discussed in the handout?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Create an assessment for Organic Chemistry,ASSESSMENT,ASSESSMENT
+What does the PDF say about Database Systems?,CONTENT_ANALYSIS,VIDEO_SEARCH
+I want to watch a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
+What have you been up to?,CONVERSATION,CONVERSATION
+Find a video on Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+Progress report,INSIGHT,INSIGHT
+I want a video on Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a clip about Software Engineering,VIDEO_SEARCH,VIDEO_SEARCH
+Tell me something interesting,CONVERSATION,CONVERSATION
+Display my report,INSIGHT,INSIGHT
+Question me on Machine Learning,ASSESSMENT,ASSESSMENT
+Recommendations based on my progress,INSIGHT,INSIGHT
+Pause,CONVERSATION,CONVERSATION
+What is this document about?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I'm confused about things,CONVERSATION,CONVERSATION
+What's my level in Sociology?,INSIGHT,INSIGHT
+Can I have a practice test on Artificial Intelligence?,ASSESSMENT,ASSESSMENT
+Does the PDF mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me a full report,INSIGHT,INSIGHT
+Are there gaps in my Operating Systems knowledge?,INSIGHT,INSIGHT
+How are you?,CONVERSATION,CONVERSATION
+Where do I stand?,INSIGHT,INSIGHT
+Can you walk me through the article?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can we talk?,CONVERSATION,CONVERSATION
+Video examples for Astrophysics,VIDEO_SEARCH,VIDEO_SEARCH
+I want to watch a video on Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
+Summarize this paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find a lecture video on Astrophysics,VIDEO_SEARCH,VIDEO_SEARCH
+Doesn't matter,CONVERSATION,CONVERSATION
+I want to be tested on Data Structures,ASSESSMENT,ASSESSMENT
+Does the chapter mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Evaluate my knowledge of Computer Networks,ASSESSMENT,ASSESSMENT
+Evening,CONVERSATION,CONVERSATION
+Can you find a video on Sociology?,VIDEO_SEARCH,VIDEO_SEARCH
+Search for a clip about Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+What does the text say about Quantum Physics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What does the PDF say about Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Feedback on how I'm doing,INSIGHT,INSIGHT
+This is great,CONVERSATION,CONVERSATION
+What does the report say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Do you have a video about Statistics?,VIDEO_SEARCH,VIDEO_SEARCH
+Ask me some questions on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+How am I doing in Computer Architecture?,INSIGHT,INSIGHT
+What does the PDF say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+How am I doing in Macroeconomics?,INSIGHT,INSIGHT
+Show a video demo of Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
+What does the section say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Get me a video tutorial for Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
+Let me sign up,CONVERSATION,CONVERSATION
+What's my level in Game Theory?,INSIGHT,INSIGHT
+What's my level in Psychology?,INSIGHT,INSIGHT
+Extract the main ideas from the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Look for educational videos on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Create an assessment for Operating Systems,ASSESSMENT,ASSESSMENT
+What do I need to work on?,INSIGHT,INSIGHT
+Assess me on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Are there gaps in my Software Engineering knowledge?,INSIGHT,INSIGHT
+Let's do a quiz on Computer Architecture,ASSESSMENT,ASSESSMENT
+What does the document say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+An example please,CONVERSATION,CONVERSATION
+What should I remember from the file?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Where do I stand in Classical Mechanics?,INSIGHT,INSIGHT
+Hmm,CONVERSATION,CONVERSATION
+Link a video on Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
+Thank you very much,CONVERSATION,CONVERSATION
+Explain the findings in the chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Teach me something,CONVERSATION,CONVERSATION
+Am I good at Software Engineering?,INSIGHT,INSIGHT
+Give me 5 questions on Psychology,ASSESSMENT,ASSESSMENT
+What's my level in Cell Biology?,INSIGHT,INSIGHT
+This is boring,CONVERSATION,CONVERSATION
+Test my knowledge on Quantum Physics,ASSESSMENT,ASSESSMENT
+Are there gaps in my Fluid Dynamics knowledge?,INSIGHT,INSIGHT
+I want a test on Genetics,ASSESSMENT,ASSESSMENT
+Get me a video tutorial on World History,VIDEO_SEARCH,VIDEO_SEARCH
+Assess me on Calculus,ASSESSMENT,ASSESSMENT
+Does the text mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Summarize the notes in three bullet points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the chapter mention Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Find some videos for Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+A tutorial video about Database Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Show my learning path,INSIGHT,INSIGHT
+Can I have a practice test for Linear Algebra?,ASSESSMENT,ASSESSMENT
+Review the notes for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Who cares?,CONVERSATION,CONVERSATION
+I want to be tested on Macroeconomics,ASSESSMENT,ASSESSMENT
+Are you a teacher?,CONVERSATION,CONVERSATION
+What does the text say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Suggest a video for Psychology,VIDEO_SEARCH,VIDEO_SEARCH
+What's my level in Big Data?,INSIGHT,INSIGHT
+Can I have a practice test for Discrete Math?,ASSESSMENT,ASSESSMENT
+I'm ready for a test on Machine Learning,ASSESSMENT,ASSESSMENT
+Can I have a practice test for Cell Biology?,ASSESSMENT,ASSESSMENT
+Question me on Operating Systems,ASSESSMENT,ASSESSMENT
+Any clips on Classical Mechanics?,VIDEO_SEARCH,VIDEO_SEARCH
+Are there gaps in my Astrophysics knowledge?,INSIGHT,INSIGHT
+Suggest a video for Linear Programming,VIDEO_SEARCH,VIDEO_SEARCH
+Review the document for me,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Interesting,CONVERSATION,CONVERSATION
+Understood,CONVERSATION,CONVERSATION
+Are you a human?,CONVERSATION,CONVERSATION
+What's my level in Machine Learning?,INSIGHT,INSIGHT
+Does the text mention World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Evaluate my understanding of Operating Systems,ASSESSMENT,ASSESSMENT
+Just a moment,CONVERSATION,CONVERSATION
+Find some videos for Calculus,VIDEO_SEARCH,VIDEO_SEARCH
+Does the report mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me the key points,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can you find a video on Big Data?,VIDEO_SEARCH,VIDEO_SEARCH
+Can you help me learn?,CONVERSATION,CONVERSATION
+Give me 10 questions on Thermodynamics,ASSESSMENT,ASSESSMENT
+What tools do you have?,CONVERSATION,CONVERSATION
+Ask me some questions on Genetics,ASSESSMENT,ASSESSMENT
+How am I doing?,INSIGHT,INSIGHT
+Let's do a quiz on Cognitive Science,ASSESSMENT,ASSESSMENT
+Where do I stand in Network Security?,INSIGHT,INSIGHT
+Give me a progress update,INSIGHT,INSIGHT
+Are you there?,CONVERSATION,CONVERSATION
+Assess my understanding of Algorithms,ASSESSMENT,ASSESSMENT
+Ask me some questions on Statistics,ASSESSMENT,ASSESSMENT
+What do you recommend for me?,INSIGHT,CONVERSATION
+What is the main point of the text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can you walk me through the handout?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the findings in the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Is there a clip on Computer Architecture?,VIDEO_SEARCH,VIDEO_SEARCH
+Am I good at Calculus?,INSIGHT,INSIGHT
+Can I have a practice test on Network Security?,ASSESSMENT,ASSESSMENT
+Probably,CONVERSATION,CONVERSATION
+Am I good at Database Systems?,INSIGHT,INSIGHT
+Prepare a quiz for Game Theory,ASSESSMENT,ASSESSMENT
+Show me a YouTube video on Big Data,VIDEO_SEARCH,VIDEO_SEARCH
+Start a quiz on Computer Networks,ASSESSMENT,ASSESSMENT
+Good afternoon,CONVERSATION,CONVERSATION
+I want a video on Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
+Can you find a video on Human Anatomy?,VIDEO_SEARCH,VIDEO_SEARCH
+Do you have a video about Compiler Design?,VIDEO_SEARCH,VIDEO_SEARCH
+Generate a quiz about Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Test me on Data Structures,ASSESSMENT,ASSESSMENT
+What does the handout say about Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+I'm ready for a test on Microeconomics,ASSESSMENT,ASSESSMENT
+What does the chapter cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Explain the second section of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Are there gaps in my Statistics knowledge?,INSIGHT,INSIGHT
+Can you walk me through the document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the handout mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Let's take a quiz on Macroeconomics,ASSESSMENT,ASSESSMENT
+Find some videos for Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
+Explain the second page of the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test on Linear Algebra?,ASSESSMENT,ASSESSMENT
+Get me a video tutorial on Linear Programming,VIDEO_SEARCH,VIDEO_SEARCH
+What does the article say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the document mention Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Is there a clip on Big Data?,VIDEO_SEARCH,VIDEO_SEARCH
+Give me 10 questions on Linear Programming,ASSESSMENT,ASSESSMENT
+What is discussed in the document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Question me on Genetics,ASSESSMENT,ASSESSMENT
+Explain the second page of the PDF,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Build me a schedule,INSIGHT,CONVERSATION
+Can you walk me through the chapter?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Examine me on Organic Chemistry,ASSESSMENT,ASSESSMENT
+We're done,CONVERSATION,CONVERSATION
+Does the handout mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Video examples for Machine Learning,VIDEO_SEARCH,VIDEO_SEARCH
+I'm tired,CONVERSATION,CONVERSATION
+Test me on Artificial Intelligence,ASSESSMENT,ASSESSMENT
+Find a video on Operating Systems,VIDEO_SEARCH,VIDEO_SEARCH
+Share insights on my progress,INSIGHT,INSIGHT
+Break down the key concepts in the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the material mention World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test on Discrete Math?,ASSESSMENT,ASSESSMENT
+Do you know any trivia?,CONVERSATION,CONVERSATION
+Test my knowledge of Linear Algebra,ASSESSMENT,ASSESSMENT
+Summarize this document,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can I have a practice test on Ethics?,ASSESSMENT,ASSESSMENT
+I need an analysis of the handout,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Check if I understood Microeconomics,ASSESSMENT,ASSESSMENT
+Recommend a YouTube video about Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+Wow,CONVERSATION,CONVERSATION
+Find a video about Network Security,VIDEO_SEARCH,VIDEO_SEARCH
+What should I study next?,INSIGHT,INSIGHT
+What does the document say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What data is in the file?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the handout mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Show me a YouTube video on Artificial Intelligence,VIDEO_SEARCH,VIDEO_SEARCH
+Show my completed topics,INSIGHT,INSIGHT
+I want a test on Data Structures,ASSESSMENT,ASSESSMENT
+Suggest a video on Microeconomics,VIDEO_SEARCH,VIDEO_SEARCH
+What am I weak at?,INSIGHT,INSIGHT
+Does the slide mention Linear Algebra?,CONTENT_ANALYSIS,CONVERSATION
+What do I prioritize?,INSIGHT,CONVERSATION
+Good morning,CONVERSATION,CONVERSATION
+Give me 5 questions on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Quiz me on Software Engineering,ASSESSMENT,ASSESSMENT
+Does the paper mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Can we have small talk?,CONVERSATION,CONVERSATION
+Give me a quiz on Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Give me a summary of the report,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Hello,CONVERSATION,CONVERSATION
+How is my progress?,INSIGHT,INSIGHT
+Give me a summary of the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Very cool,CONVERSATION,CONVERSATION
+You're really smart,CONVERSATION,CONVERSATION
+No thanks,CONVERSATION,CONVERSATION
+Question me on Statistics,ASSESSMENT,ASSESSMENT
+What's my level in Linear Programming?,INSIGHT,INSIGHT
+Evaluate my performance,INSIGHT,INSIGHT
+Am I falling behind?,INSIGHT,INSIGHT
+Test me on Cyber Security,ASSESSMENT,ASSESSMENT
+I want to be tested on Cognitive Science,ASSESSMENT,ASSESSMENT
+A tutorial video about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
+Are you an AI?,CONVERSATION,CONVERSATION
+Get me a video tutorial for Sociology,VIDEO_SEARCH,VIDEO_SEARCH
+Sup,CONVERSATION,CONVERSATION
+What is discussed in the material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me a quiz on Thermodynamics,ASSESSMENT,ASSESSMENT
+I want to be tested on Computer Architecture,ASSESSMENT,ASSESSMENT
+Does the article mention World History?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+What's the weather like?,CONVERSATION,CONVERSATION
+Sounds great,CONVERSATION,CONVERSATION
+Do you have limits?,CONVERSATION,CONVERSATION
+Can I have a practice test for Psychology?,ASSESSMENT,ASSESSMENT
+Break down the key concepts in the notes,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Start a quiz on Network Security,ASSESSMENT,ASSESSMENT
+What did I study recently?,INSIGHT,INSIGHT
+Are there gaps in my Thermodynamics knowledge?,INSIGHT,INSIGHT
+Suggest a video on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
+What does the PDF say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Morning,CONVERSATION,CONVERSATION
+What is the capital of France?,CONVERSATION,CONVERSATION
+Condense this material,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Does the chapter mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+That's funny,CONVERSATION,CONVERSATION
+Test me on Genetics,ASSESSMENT,ASSESSMENT
+Look for educational videos on Computer Architecture,VIDEO_SEARCH,VIDEO_SEARCH
+Generate a quiz about Psychology,ASSESSMENT,ASSESSMENT
+Let's take a quiz on Big Data,ASSESSMENT,ASSESSMENT
+Give me some feedback,INSIGHT,INSIGHT
+What does the slide say about Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
