@@ -831,35 +831,35 @@ public class OrchestratorService {
   private String enforceStructuredQuiz(
       String intent, String sessionId, String enrichedMessage, String analysisCtx, String agentResponse) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
-    if (!parseQuizItems(agentResponse).isEmpty()) return agentResponse;
+    
+    // Soft parsing: check if a JSON array exists anywhere in the response
+    String jsonOnly = TextUtils.extractJsonArray(agentResponse);
+    if (jsonOnly != null && !parseQuizItems(jsonOnly).isEmpty()) {
+        return jsonOnly;
+    }
 
     log.warn(
         "Assessment output not parseable as structured quiz for session={}, "
-            + "regenerating with strict JSON-only instruction",
+            + "attempting single strict regeneration",
         sessionId);
-    String strictInstruction =
-        "IMPORTANT: Your entire reply MUST be a single raw JSON array of "
-            + "{{questionCount}} quiz objects — no prose, no intro sentence, no closing remark, "
-            + "no markdown fences. Each object exactly: "
-            + "{\"question\": \"...\", \"type\": \"multiple_choice\", "
-            + "\"options\": [\"A\", \"B\", \"C\"], \"answer\": \"A\", "
-            + "\"explanation\": \"<grounded in the content>\"}";
-    String strictMessage = enrichedMessage + "\n\n" + strictInstruction;
+    
+    // Move strict instruction to the system prompt in QuestionGenerationAgent
+    // to reduce context noise here. We just send a direct reminder.
+    String strictReminder = "\n\nIMPORTANT: Respond with a raw JSON array only. No prose.";
+    String strictMessage = enrichedMessage + strictReminder;
     try {
       String strict = dispatchAgent(intent, sessionId, strictMessage, analysisCtx);
       strict = youTubeLinkValidator.sanitize(strict);
       strict = TextUtils.stripThinking(strict);
-      if (strict != null && !parseQuizItems(strict).isEmpty()) {
+      
+      String strictJson = TextUtils.extractJsonArray(strict);
+      if (strictJson != null && !parseQuizItems(strictJson).isEmpty()) {
         log.info("Strict JSON regeneration produced a parseable quiz for session={}", sessionId);
-        return strict;
+        return strictJson;
       }
-      log.warn(
-          "Strict JSON regeneration still not parseable for session={}, "
-              + "keeping original response",
-          sessionId);
+      log.warn("Strict regeneration still not parseable for session={}, returning original", sessionId);
     } catch (Exception e) {
-      log.warn(
-          "Strict JSON quiz regeneration failed for session={}: {}", sessionId, e.getMessage());
+      log.warn("Strict JSON quiz regeneration failed for session={}: {}", sessionId, e.getMessage());
     }
     return agentResponse;
   }

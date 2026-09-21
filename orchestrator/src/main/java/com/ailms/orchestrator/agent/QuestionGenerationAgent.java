@@ -36,8 +36,10 @@ public interface QuestionGenerationAgent {
       Include multiple choice, true/false, and short answer when appropriate.
 
       OUTPUT FORMAT:
-      Reply with a single JSON array of exactly {{questionCount}} objects. No extra text, no
-      markdown fences. The JSON object schema per question is:
+      Reply with a raw JSON array of exactly {{questionCount}} objects. 
+      IMPORTANT: Do not use markdown code blocks (no ```json). 
+      Do not include any introductory or concluding text.
+      The JSON object schema per question is:
       {
         "question": "<the question text>",
         "type": "multiple_choice | true_false | short_answer",
