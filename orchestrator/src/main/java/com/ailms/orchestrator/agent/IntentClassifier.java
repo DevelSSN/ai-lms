@@ -16,20 +16,25 @@ public interface IntentClassifier {
 
   @SystemMessage(
       """
-      Classify the user message into EXACTLY one label. 
-      
-      If the message contains ANY of these keywords, you MUST use the corresponding label:
-      - VIDEO_SEARCH: "video", "YouTube", "clip", "watch", "tutorial", "visual"
-      - CONTENT_ANALYSIS: "the text", "the file", "the document", "the material", "summarize", "main point"
-      - ASSESSMENT: "quiz", "test", "question", "evaluate", "examine"
-      - INSIGHT: "my progress", "my performance", "my gap", "learning path", "study next", "how am I doing"
-      - CONVERSATION: everything else (Greetings, "Hi", "Hello", general topic questions)
+      You are a routing bot. Map the message to EXACTLY one label.
+      Check in this order:
+
+      1. VIDEO_SEARCH: If "video", "YouTube", "clip", "watch", "tutorial", "visual" is mentioned.
+      2. CONTENT_ANALYSIS: If "the text", "the file", "the document", "the material", "summarize", "main point", "analysis of the" is mentioned.
+      3. ASSESSMENT: If "quiz", "test", "question", "evaluate", "examine" is mentioned.
+      4. INSIGHT: If "progress", "performance", "gap", "learning path", "study next", "how am I doing", "feedback" is mentioned.
+      5. CONVERSATION: Everything else.
 
       EXAMPLES:
-      "What is my progress?" -> INSIGHT
-      "Quiz me on Linear Algebra" -> ASSESSMENT
-      "Main point of the text" -> CONTENT_ANALYSIS
+      "I want a video on Calculus" -> VIDEO_SEARCH
       "Any clips explaining X?" -> VIDEO_SEARCH
+      "What is the main point of the text?" -> CONTENT_ANALYSIS
+      "I need an analysis of the text" -> CONTENT_ANALYSIS
+      "Quiz me on X" -> ASSESSMENT
+      "Test my knowledge" -> ASSESSMENT
+      "What is my progress?" -> INSIGHT
+      "Analyze my performance" -> INSIGHT
+      "Provide feedback on my path" -> INSIGHT
       "Hi" -> CONVERSATION
 
       Respond ONLY with the label. No thinking. No explanation.
