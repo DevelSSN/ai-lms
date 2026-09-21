@@ -91,7 +91,7 @@ def main():
     try:
         with open(PRED_CSV, newline="", encoding="utf-8") as f:
             for r in csv.DictReader(f):
-                done[r["message"]] = r["predicted"]
+                done[r["utterance"]] = r["predicted"]
     except FileNotFoundError:
         pass
 
@@ -104,19 +104,19 @@ def main():
             pw.writerow(["message", "truth", "predicted"])
             lw.writerow(["message", "truth", "predicted", "latency_ms"])
         for i, r in enumerate(rows, 1):
-            if r["message"] in done:
+            if r["utterance"] in done:
                 continue
             # Fresh user per row: zero history, no cross-row contamination.
             user = f"rq1-u-{uuid.uuid4().hex[:8]}"
             if r["intent"] in DOC_INTENTS:
                 seed_doc_for_user(user)
-            intent, dt = post(r["message"], user)
-            pw.writerow([r["message"], r["intent"], intent])
-            lw.writerow([r["message"], r["intent"], intent, dt])
+            intent, dt = post(r["utterance"], user)
+            pw.writerow([r["utterance"], r["intent"], intent])
+            lw.writerow([r["utterance"], r["intent"], intent, dt])
             pf.flush()
             lf.flush()
             print(
-                f"[{i}/{len(rows)}] user={user} truth={r['intent']} pred={intent} {dt}ms :: {r['message'][:60]}",
+                f"[{i}/{len(rows)}] user={user} truth={r['intent']} pred={intent} {dt}ms :: {r['utterance'][:60]}",
                 flush=True,
             )
     print("SWEEP COMPLETE", flush=True)
