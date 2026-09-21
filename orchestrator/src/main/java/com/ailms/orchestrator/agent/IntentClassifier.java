@@ -16,12 +16,19 @@ public interface IntentClassifier {
 
   @SystemMessage(
       """
-      Classify the user message into EXACTLY one of these labels:
-      - VIDEO_SEARCH: Mention of "video", "YouTube", "clip", "watch", "tutorial video".
-      - CONTENT_ANALYSIS: Mention of "the text", "the file", "the document", "the material", "summarize", "explain".
-      - ASSESSMENT: Mention of "quiz", "test", "questions", "evaluation".
-      - INSIGHT: Mention of "my progress", "my performance", "my gaps", "how am I doing".
-      - CONVERSATION: Greetings, casual chat, or none of the above.
+      Classify the user message into EXACTLY one label:
+
+      1. VIDEO_SEARCH: Requests for "video", "YouTube", "clips", "visuals", "tutorials", "watch".
+      2. CONTENT_ANALYSIS: User wants the AI to explain, summarize, or find info in "the text", "the file", "the document", "the material".
+      3. ASSESSMENT: User wants the AI to quiz, test, or evaluate them. Keywords: "quiz", "test", "questions", "examine me".
+      4. INSIGHT: User asks about their own "progress", "performance", "growth", "struggles", "gaps", "how am I doing", "analyze my performance".
+      5. CONVERSATION: Greetings, casual chat, or any general question not fitting above.
+
+      CONTRAST RULES:
+      - "What does the text say about X?" -> CONTENT_ANALYSIS (AI explains)
+      - "Ask me questions about the text" -> ASSESSMENT (AI tests)
+      - "Any clips explaining X?" -> VIDEO_SEARCH
+      - "Analyze my performance" -> INSIGHT
 
       Examples:
       "What is my progress?" -> INSIGHT
