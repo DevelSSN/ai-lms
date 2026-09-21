@@ -20,6 +20,18 @@ class ChatRequestTest {
     ChatRequest req = new ChatRequest("hello", null);
     assertNull(req.sessionId());
   }
+
+  @Test
+  void bypassRoutesDefaultsNull() {
+    ChatRequest req = new ChatRequest("hello", "sess-1");
+    assertNull(req.bypassRoutes());
+  }
+
+  @Test
+  void createWithBypassRoutes() {
+    ChatRequest req = new ChatRequest("hello", "sess-1", true);
+    assertEquals(true, req.bypassRoutes());
+  }
 }
 
 class ChatResponseTest {

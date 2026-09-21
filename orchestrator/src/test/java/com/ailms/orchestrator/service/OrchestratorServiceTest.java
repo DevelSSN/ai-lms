@@ -256,6 +256,28 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_bypassRoutes_forcesPureClassifierOnShortCircuitableMessage() {
+    when(intentClassifier.classify("hello")).thenReturn("CONVERSATION");
+    when(conversationAgent.process(anyString(), eq("hello"))).thenReturn("classifier-routed reply");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONVERSATION");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("hello", "sess-1", true), "user-1");
+
+    assertNotEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
+    assertEquals("classifier-routed reply", resp.message());
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(intentClassifier).classify("hello");
+    verify(conversationAgent).process(anyString(), eq("hello"));
+  }
+
+  @Test
   void route_generatesSessionWhenMissing() {
     when(responseComposer.compose(any(AgenticScope.class), anyString()))
         .thenAnswer(

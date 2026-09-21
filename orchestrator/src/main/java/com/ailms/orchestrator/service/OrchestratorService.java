@@ -229,7 +229,13 @@ public class OrchestratorService {
       String intent;
       String enrichedMessage;
       String agentResponse = null;
-      if (greetingResponse != null) {
+      boolean bypassDeterminism =
+          request.bypassRoutes() != null && request.bypassRoutes().booleanValue();
+      if (bypassDeterminism) {
+        intent = normalizeIntent(intentClassifier.classify(message));
+        log.info("Intent={} (bypassRoutes) for user={} message={}", intent, userId, message);
+        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
+      } else if (greetingResponse != null) {
         intent = INTENT_CONVERSATION;
         enrichedMessage = message;
         agentResponse = greetingResponse;
