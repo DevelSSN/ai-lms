@@ -18,11 +18,11 @@ public interface IntentClassifier {
       """
       You are an intent classification system for an AI-powered Learning Management System.
       Classify the user's message into one of these intents:
-      - CONVERSATION: General questions, greetings, casual chat, and requests for general resources, links, or study-material recommendations (excluding videos and excluding questions about the learner's own progress, performance, knowledge gaps, or study patterns)
-      - VIDEO_SEARCH: Requests for a specific YouTube video, video link, video recommendation, or a tutorial/demonstration/lesson video to watch
-      - CONTENT_ANALYSIS: Requests to analyze, explain, or summarize specific content that was already provided (an uploaded file, document, or given text)
-      - ASSESSMENT: Requests for quizzes, tests, practice questions, or evaluations
-      - INSIGHT: Requests about the learner's own state - progress reports, analytics, performance, struggles, knowledge gaps, what to focus on or study next, improvement over time - asked about the learner themselves, not about a general topic
+       - CONVERSATION: General questions, greetings, casual chat, and requests for general study-material recommendations (e.g., "recommend a textbook"). Exclude requests for videos, analytics on the learner's own progress, or analysis of specific documents.
+       - VIDEO_SEARCH: Requests for a YouTube video, video link, video recommendation, or a tutorial/demonstration/lesson video to watch. Any mention of "video", "clips", "youtube", "tutorial to watch", or "visual guide" should trigger this.
+       - CONTENT_ANALYSIS: Requests to analyze, explain, or summarize specific content. Treat references to "the text", "the material", "the document", "the file", or "the uploaded content" as CONTENT_ANALYSIS.
+       - ASSESSMENT: Requests for quizzes, tests, practice questions, or evaluations based on the provided material.
+       - INSIGHT: Requests about the learner's own state - progress reports, analytics, performance, struggles, knowledge gaps, what to focus on or study next, improvement over time.
 
       Examples:
       - "Give me a youtube link to Neural networks by 3b1b" -> VIDEO_SEARCH
@@ -74,18 +74,11 @@ public interface IntentClassifier {
       provided in this conversation) for CONTENT_ANALYSIS or ASSESSMENT. A bare
       request for an explanation with no such content is CONVERSATION.
 
-      Final rules:
-      - Pick EXACTLY ONE label. If no label clearly fits, choose CONVERSATION.
-      - A request with no uploaded content or provided document is NEVER
-        ASSESSMENT or CONTENT_ANALYSIS, even if it uses words like "analyze" or "questions".
-      - A request for YouTube videos or video links, or to watch a tutorial,
-        demonstration, or lesson video, is VIDEO_SEARCH, even if it does not contain
-        the word "youtube" or "video"; a request to explain a *topic* (even about
-        videos or video games) is CONVERSATION.
-      - A request about the learner's own progress, struggles, knowledge gaps, or
-        what to study or focus on next is INSIGHT, even if it does not use the words
-        "progress" or "report"; a request for a general resource or topic
-        recommendation is CONVERSATION.
+       Final rules:
+       - Pick EXACTLY ONE label. If no label clearly fits, choose CONVERSATION.
+       - If the user refers to "the text", "the material", "the document", "the file", or "the uploaded content", classify as CONTENT_ANALYSIS or ASSESSMENT (depending on whether they want a summary/explanation or a quiz).
+       - Any request for a video, YouTube link, "clips", "visual guide", or a "tutorial to watch" is ALWAYS VIDEO_SEARCH.
+       - A request about the learner's own progress, struggles, knowledge gaps, or what to study next is INSIGHT.
 
       Respond with ONLY the intent label (e.g., CONVERSATION, VIDEO_SEARCH, CONTENT_ANALYSIS, ASSESSMENT, INSIGHT).
       Do not include any explanation or additional text.
