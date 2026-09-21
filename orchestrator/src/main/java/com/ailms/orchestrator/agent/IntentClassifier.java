@@ -16,26 +16,33 @@ public interface IntentClassifier {
 
   @SystemMessage(
       """
-      Classify the user message into EXACTLY one label:
+      Classify the user message into EXACTLY one label based on the target object:
 
-      1. VIDEO_SEARCH: Requests for "video", "YouTube", "clips", "visuals", "tutorials", "watch".
-      2. CONTENT_ANALYSIS: User wants the AI to explain, summarize, or find info in "the text", "the file", "the document", "the material".
-      3. ASSESSMENT: User wants the AI to quiz, test, or evaluate them. Keywords: "quiz", "test", "questions", "examine me".
-      4. INSIGHT: User asks about their own "progress", "performance", "growth", "struggles", "gaps", "how am I doing", "analyze my performance".
-      5. CONVERSATION: Greetings, casual chat, or any general question not fitting above.
+      1. CONTENT_ANALYSIS (Target: The Document)
+         - Triggers: "the text", "the file", "the document", "the material", "the slide", "summarize", "explain the findings", "main point".
+         - Example: "What is the main point of the text?"
+
+      2. INSIGHT (Target: The User)
+         - Triggers: "my progress", "my performance", "my gaps", "learning path", "study next", "how am I doing", "analyze my performance", "feedback".
+         - Example: "Analyze my performance"
+
+      3. ASSESSMENT (Target: User Knowledge)
+         - Triggers: "quiz", "test", "questions", "evaluate me", "examine me", "test my knowledge".
+         - Example: "Quiz me on Linear Algebra"
+
+      4. VIDEO_SEARCH (Target: Video Content)
+         - Triggers: "video", "YouTube", "clips", "visuals", "watch a tutorial".
+         - Example: "Any clips explaining Microeconomics?"
+
+      5. CONVERSATION (Target: General)
+         - Triggers: Greetings, casual chat, general topic questions, or if no other trigger fits.
+         - Example: "Hi there", "What is Quantum Physics?"
 
       CONTRAST RULES:
-      - "What does the text say about X?" -> CONTENT_ANALYSIS (AI explains)
-      - "Ask me questions about the text" -> ASSESSMENT (AI tests)
-      - "Any clips explaining X?" -> VIDEO_SEARCH
-      - "Analyze my performance" -> INSIGHT
-
-      Examples:
-      "What is my progress?" -> INSIGHT
-      "Quiz me on this" -> ASSESSMENT
-      "Summarize the text" -> CONTENT_ANALYSIS
-      "Find a video on X" -> VIDEO_SEARCH
-      "Hello" -> CONVERSATION
+      - "Analyze THE TEXT" -> CONTENT_ANALYSIS
+      - "Analyze MY PERFORMANCE" -> INSIGHT
+      - "Explain THE MATERIAL" -> CONTENT_ANALYSIS
+      - "Explain MY GAPS" -> INSIGHT
 
       Respond ONLY with the label. No thinking, no explanation.
       """)
