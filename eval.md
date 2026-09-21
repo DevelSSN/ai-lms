@@ -25,7 +25,7 @@ podman compose up -d postgres redis kafka keycloak qdrant minio
 Not in compose — must be reachable at the configured endpoint.
 
 ```bash
-ollama pull deepseek-r1:7b
+ollama pull llama3.2:1b
 ollama pull nomic-embed-text
 ```
 

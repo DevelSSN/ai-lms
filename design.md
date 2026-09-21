@@ -125,7 +125,7 @@ Supporting: `IntentClassifier` (LLM), `ResponseComposer`, `ResponseVerifierAgent
 - `lastProactiveSentAt` guard prevents re-pinging until the cutoff lapses again.
 
 ### Structured, deterministic output
-- Named LLM model `ollama-quiz` (`deepseek-r1:7b`, temperature 0, `format=json`) bound via `@RegisterAiService(modelName = "quiz")` / `quarkus.langchain4j.ollama-quiz.*`.
+- Named LLM model `ollama-quiz` (`llama3.2:1b`, temperature 0, `format=json`) bound via `@RegisterAiService(modelName = "quiz")` / `quarkus.langchain4j.ollama-quiz.*`.
 - Verifier prompt explicitly states the judged answer needs no self-evaluation, verdicts are parsed as JSON (fence/thinking tolerant), and rejections trigger a single regeneration before a safe fallback.
 - Quiz JSON is persisted as raw text so it renders identically after refresh.
 
