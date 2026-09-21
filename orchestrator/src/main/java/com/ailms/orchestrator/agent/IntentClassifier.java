@@ -16,45 +16,53 @@ public interface IntentClassifier {
 
   @SystemMessage(
       """
-      Assign the user's message to exactly one intent. Output the intent label and nothing else.
+      The user is a learner talking to a tutoring assistant. Choose exactly one intent
+      for their message and output only the intent label.
 
-      === INTENTS ===
-      CONTENT_ANALYSIS: the message is about uploaded study material (text, file, document,
-      slide, PDF, paper, chapter, article). Summarizing, reviewing, breaking down, or asking
-      what it says are all this intent.
+      CONTENT_ANALYSIS — the user points at material already in the system (the text,
+      the file, the document, the slide, the PDF, the paper, the chapter, the article,
+      the notes, "this", "uploaded") and asks you to explain, summarize, review, break
+      down, or extract from it.
+        Examples:
+        "Summarize the document"
+        "What does the material say about X?"
+        "Review the slide for me"
 
-      ASSESSMENT: the user wants to be tested — a quiz, test, questions, or a check of their
-      understanding of a topic.
+      ASSESSMENT — the user wants to answer questions now to test what they learned:
+      a quiz, a test, practice questions, or checking their understanding and readiness.
+        Examples:
+        "Quiz me on this topic"
+        "Give me some questions on X"
+        "I'm ready for a test on X"
 
-      VIDEO_SEARCH: the user asks for a video, clip, visual guide, or tutorial on a topic.
+      VIDEO_SEARCH — the user asks you to find external video content: a video, clip,
+      tutorial, or visual guide on a topic.
+        Examples:
+        "Find a video on X"
+        "Show me a YouTube video on X"
+        "I need a visual guide on X"
 
-      INSIGHT: the user asks about their own learning — progress, performance, knowledge gaps,
-      what to study next, or a report on how they are doing.
+      INSIGHT — the user asks about their own learning state: progress, performance,
+      knowledge gaps, what to study next, or a report and feedback on how they are doing.
+        Examples:
+        "What is my progress?"
+        "Where are my knowledge gaps?"
+        "Show my learning report"
 
-      CONVERSATION: greetings, small talk, questions about the assistant, or chat with no task.
+      CONVERSATION — the message has no learning task: a greeting, small talk, or a
+      question about the assistant itself.
+        Examples:
+        "Hi"
+        "What can you do?"
 
-      === RULE ===
-      Pick the intent whose meaning fits best. Match on meaning: different wording that means
-      the same thing gets the same intent.
-
-      === EXAMPLES ===
-      "Summarize the findings in the material"    -> CONTENT_ANALYSIS
-      "What is the main point of the text?"        -> CONTENT_ANALYSIS
-      "What does the document say about X?"         -> CONTENT_ANALYSIS
-      "Quiz me on Linear Algebra"                   -> ASSESSMENT
-      "Give me some questions on Psychology"        -> ASSESSMENT
-      "Check if I understood Microeconomics"        -> ASSESSMENT
-      "Find a video on Calculus"                    -> VIDEO_SEARCH
-      "Any clips explaining Machine Learning?"      -> VIDEO_SEARCH
-      "I need a visual guide on Algorithms"         -> VIDEO_SEARCH
-      "How am I doing in the course?"               -> INSIGHT
-      "What are my knowledge gaps?"                 -> INSIGHT
-      "Show my learning report"                     -> INSIGHT
-      "I'm new here"                                -> CONVERSATION
-      "What's up?"                                  -> CONVERSATION
-      "Can you talk to me?"                         -> CONVERSATION
-
-      Label:
+      RULES:
+      - Whenever the message points at the uploaded material, it is CONTENT_ANALYSIS.
+      - A request for a test, a video, or info about their learning is that intent —
+        never fall back to CONVERSATION for it.
+      - Use CONVERSATION only for greetings, small talk, or meta questions about the
+        assistant, never as the general default.
+      - Pick the single intent that fits best.
+      Output only the label.
       """)
   @Agent(
       name = "IntentClassifier",
