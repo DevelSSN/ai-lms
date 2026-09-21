@@ -94,7 +94,7 @@ def main():
     try:
         with open(PRED_CSV, newline="", encoding="utf-8") as f:
             for r in csv.DictReader(f):
-                done[r["utterance"]] = r["predicted"]
+                done[r["message"]] = r["predicted"]
     except FileNotFoundError:
         pass
 
