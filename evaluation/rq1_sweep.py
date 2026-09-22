@@ -10,8 +10,10 @@ per-user Science.pdf seed; all other rows run doc-less.
 
 Usage:
   python3 evaluation/rq1_sweep.py [--fresh]
+  python3 evaluation/rq1_sweep.py --corpus probe-novel/heldout-218.csv --out-prefix probe-218 --fresh
   tail -f evaluation/rq1_sweep.log
 """
+import argparse
 import csv
 import json
 import subprocess
@@ -22,9 +24,6 @@ import uuid
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CORPUS = HERE / "utterances.csv"
-PRED_CSV = HERE / "rq1-live-predictions.csv"
-LAT_CSV = HERE / "rq1-latencies.csv"
 ENDPOINT = "http://localhost:10082/api/v1/orchestrate"
 # Rows whose truth needs an uploaded file get a per-user Science.pdf seed;
 # all other rows run doc-less, so doc-gating only affects doc-dependent intents.
@@ -76,30 +75,47 @@ def post(message, user):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="RQ1 live routing sweep")
+    parser.add_argument("--fresh", action="store_true", help="restart from scratch")
+    parser.add_argument(
+        "--corpus",
+        default=str(HERE / "utterances.csv"),
+        help="input corpus CSV with utterance,intent headers (default utterances.csv)",
+    )
+    parser.add_argument(
+        "--out-prefix",
+        default="rq1-live",
+        help="output prefix -> <prefix>-predictions.csv and <prefix>-latencies.csv",
+    )
+    args = parser.parse_args()
+
+    corpus = Path(args.corpus)
+    pred_csv = HERE / f"{args.out_prefix}-predictions.csv"
+    lat_csv = HERE / f"{args.out_prefix}-latencies.csv"
+
     # Ensure master seed is present in MinIO and DB
     subprocess.run([sys.executable, str(HERE / "seed_science.py")], check=True)
 
-    fresh = "--fresh" in sys.argv
-    if fresh:
-        for p in (PRED_CSV, LAT_CSV):
+    if args.fresh:
+        for p in (pred_csv, lat_csv):
             try:
                 p.unlink()
             except FileNotFoundError:
                 pass
 
-    with open(CORPUS, newline="", encoding="utf-8") as f:
+    with open(corpus, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
 
     done = {}
     try:
-        with open(PRED_CSV, newline="", encoding="utf-8") as f:
+        with open(pred_csv, newline="", encoding="utf-8") as f:
             for r in csv.DictReader(f):
                 done[r["message"]] = r["predicted"]
     except FileNotFoundError:
         pass
 
-    with open(PRED_CSV, "a", newline="", encoding="utf-8") as pf, open(
-        LAT_CSV, "a", newline="", encoding="utf-8"
+    with open(pred_csv, "a", newline="", encoding="utf-8") as pf, open(
+        lat_csv, "a", newline="", encoding="utf-8"
     ) as lf:
         pw = csv.writer(pf)
         lw = csv.writer(lf)
