@@ -1,0 +1,91 @@
+{
+  "n": 218,
+  "per_label": {
+    "CONVERSATION": [
+      50,
+      0.9782608695652174,
+      0.9,
+      0.9375
+    ],
+    "VIDEO_SEARCH": [
+      48,
+      0.8727272727272727,
+      1.0,
+      0.9320388349514563
+    ],
+    "CONTENT_ANALYSIS": [
+      40,
+      0.9069767441860465,
+      0.975,
+      0.9397590361445783
+    ],
+    "ASSESSMENT": [
+      40,
+      1.0,
+      0.75,
+      0.8571428571428571
+    ],
+    "INSIGHT": [
+      40,
+      0.9090909090909091,
+      1.0,
+      0.9523809523809523
+    ]
+  },
+  "accuracy": 0.926605504587156,
+  "macro_precision": 0.933411159113889,
+  "macro_recall": 0.925,
+  "macro_f1": 0.9237643361239689,
+  "short_circuit_count": 52,
+  "short_circuit_greeting": 9,
+  "short_circuit_video_link": 8,
+  "short_circuit_video_request": 35,
+  "short_circuit_correct": 52,
+  "false_short_circuits": 0,
+  "router_served_frac": 23.853211009174313,
+  "classifier_observed_count": 166,
+  "classifier_observed_correct": 150,
+  "median_all_latency_ms": 3204.5,
+  "median_classifier_latency_ms": 3814.0,
+  "median_short_latency_ms": 1920.0,
+  "median_latency_saved_ms": 1894.0,
+  "p95_all_latency_ms": 6963,
+  "p99_all_latency_ms": 8870,
+  "confusion": {
+    "CONVERSATION": {
+      "CONVERSATION": 45,
+      "VIDEO_SEARCH": 3,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 0,
+      "INSIGHT": 2
+    },
+    "VIDEO_SEARCH": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 48,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 0,
+      "INSIGHT": 0
+    },
+    "CONTENT_ANALYSIS": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 0,
+      "CONTENT_ANALYSIS": 39,
+      "ASSESSMENT": 0,
+      "INSIGHT": 1
+    },
+    "ASSESSMENT": {
+      "CONVERSATION": 1,
+      "VIDEO_SEARCH": 4,
+      "CONTENT_ANALYSIS": 4,
+      "ASSESSMENT": 30,
+      "INSIGHT": 1
+    },
+    "INSIGHT": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 0,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 0,
+      "INSIGHT": 40
+    }
+  }
+}

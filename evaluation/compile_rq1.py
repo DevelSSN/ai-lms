@@ -155,17 +155,25 @@ def dedupe_map(raw_rows: list[dict]) -> dict:
 
 def main() -> None:
     monolithic = "--monolithic" in sys.argv
+    probe = "--probe" in sys.argv
 
-    if monolithic:
+    if probe:
+        PREDS = HERE / "probe-218-predictions.csv"
+        LATS = HERE / "probe-218-latencies.csv"
+        out_json = HERE / "probe-218-metrics.json"
+        corpus_path = HERE / "probe-novel" / "heldout-218.csv"
+    elif monolithic:
         PREDS = HERE / "rq1-monolithic-predictions.csv"
         LATS = HERE / "rq1-monolithic-latencies.csv"
         out_json = HERE / "rq1-monolithic-metrics.json"
+        corpus_path = HERE / "utterances.csv"
     else:
         PREDS = HERE / "rq1-live-predictions.csv"
         LATS = HERE / "rq1-latencies.csv"
         out_json = HERE / "rq1-metrics.json"
+        corpus_path = HERE / "utterances.csv"
 
-    with open(HERE / "utterances.csv", newline="", encoding="utf-8") as f:
+    with open(corpus_path, newline="", encoding="utf-8") as f:
         corpus_rows = list(csv.DictReader(f))
     n_expected = len({r["utterance"] for r in corpus_rows})
 
@@ -198,11 +206,23 @@ def main() -> None:
 
         sc_correct = sum(1 for pred, truth, _, _ in sc_rows if pred == truth)
         sc_greetings = sum(1 for _, _, _, msg in sc_rows if is_bare_greeting(msg))
+        sc_links = sum(1 for _, _, _, msg in sc_rows if is_explicit_video_link(msg))
         sc_video = sum(
             1
             for _, _, _, msg in sc_rows
             if is_explicit_video_link(msg) or is_explicit_video_request(msg)
         )
+        # A false short-circuit is a router-served row whose fixed intent is wrong
+        # for its label (e.g. a greeting regex firing on a non-greeting row).
+        false_sc = [
+            (pred, truth, msg)
+            for pred, truth, _, msg in sc_rows
+            if (is_bare_greeting(msg) and truth != "CONVERSATION")
+            or (
+                (is_explicit_video_link(msg) or is_explicit_video_request(msg))
+                and truth != "VIDEO_SEARCH"
+            )
+        ]
 
         scores = scores_for(rows)
         median_all = p50(all_lat)
@@ -218,9 +238,15 @@ def main() -> None:
             "macro_f1": scores["macro_f1"],
             "short_circuit_count": len(sc_rows),
             "short_circuit_greeting": sc_greetings,
-            "short_circuit_video_link": sc_video,
+            "short_circuit_video_link": sc_links,
+            "short_circuit_video_request": sc_video - sc_links,
             "short_circuit_correct": sc_correct,
+            "false_short_circuits": len(false_sc),
             "router_served_frac": len(sc_rows) / scores["n"] * 100.0,
+            "classifier_observed_count": len(clf_rows),
+            "classifier_observed_correct": sum(
+                1 for pred, truth, _, _ in clf_rows if pred == truth
+            ),
             "median_all_latency_ms": median_all,
             "median_classifier_latency_ms": median_clf,
             "median_short_latency_ms": median_sc,
@@ -241,8 +267,11 @@ def main() -> None:
         print(f"\nOverall accuracy:            {scores['accuracy']:.3f}")
         print(f"Macro P/R/F1:               {scores['macro_precision']:.3f} / {scores['macro_recall']:.3f} / {scores['macro_f1']:.3f}")
         print(f"Short-circuited rows:       {len(sc_rows)} / {scores['n']} "
-              f"({sc_greetings} greeting, {sc_video} video-link/request)")
+              f"({sc_greetings} greeting, {sc_links} link, {sc_video - sc_links} request)")
         print(f"Short-circuit correct:      {sc_correct}/{len(sc_rows)}")
+        print(f"False short-circuits:       {len(false_sc)}")
+        print(f"Classifier-observed:        {report['classifier_observed_correct']}/{len(clf_rows)} "
+              f"({report['classifier_observed_correct'] / len(clf_rows):.3f})")
         print(f"Router-served fraction (%): {len(sc_rows) / scores['n'] * 100.0:.1f}")
         print(f"Latency overall ms:         p50={median_all:.0f} p95={p95(all_lat)} p99={p99(all_lat)}")
         print(f"Latency short-circuit ms:   p50={median_sc:.0f}")
