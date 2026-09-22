@@ -1,0 +1,85 @@
+{
+  "n": 1200,
+  "per_label": {
+    "CONVERSATION": [
+      220,
+      0.9575471698113207,
+      0.9227272727272727,
+      0.9398148148148149
+    ],
+    "VIDEO_SEARCH": [
+      250,
+      0.8680555555555556,
+      1.0,
+      0.929368029739777
+    ],
+    "CONTENT_ANALYSIS": [
+      260,
+      0.9375,
+      0.9230769230769231,
+      0.9302325581395349
+    ],
+    "ASSESSMENT": [
+      270,
+      0.9959016393442623,
+      0.9,
+      0.9455252918287939
+    ],
+    "INSIGHT": [
+      200,
+      0.965,
+      0.965,
+      0.965
+    ]
+  },
+  "accuracy": 0.9408333333333333,
+  "macro_precision": 0.9448008729422277,
+  "macro_recall": 0.9421608391608393,
+  "macro_f1": 0.9419881389045841,
+  "confusion": {
+    "CONVERSATION": {
+      "CONVERSATION": 203,
+      "VIDEO_SEARCH": 2,
+      "CONTENT_ANALYSIS": 13,
+      "ASSESSMENT": 1,
+      "INSIGHT": 1
+    },
+    "VIDEO_SEARCH": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 250,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 0,
+      "INSIGHT": 0
+    },
+    "CONTENT_ANALYSIS": {
+      "CONVERSATION": 6,
+      "VIDEO_SEARCH": 13,
+      "CONTENT_ANALYSIS": 240,
+      "ASSESSMENT": 0,
+      "INSIGHT": 1
+    },
+    "ASSESSMENT": {
+      "CONVERSATION": 0,
+      "VIDEO_SEARCH": 22,
+      "CONTENT_ANALYSIS": 0,
+      "ASSESSMENT": 243,
+      "INSIGHT": 5
+    },
+    "INSIGHT": {
+      "CONVERSATION": 3,
+      "VIDEO_SEARCH": 1,
+      "CONTENT_ANALYSIS": 3,
+      "ASSESSMENT": 0,
+      "INSIGHT": 193
+    }
+  },
+  "median_all_latency_ms": 3356.0,
+  "p95_all_latency_ms": 8012,
+  "p99_all_latency_ms": 9439,
+  "router_servable_subset": {
+    "count": 267,
+    "correct": 267,
+    "accuracy": 1.0,
+    "median_latency_ms": 2333
+  }
+}
