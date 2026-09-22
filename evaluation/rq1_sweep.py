@@ -90,6 +90,12 @@ def main():
     args = parser.parse_args()
 
     corpus = Path(args.corpus)
+    if not corpus.exists() and not corpus.is_absolute():
+        alt = HERE / args.corpus
+        if alt.exists():
+            corpus = alt
+        else:
+            sys.exit(f"corpus not found: {args.corpus} (cwd) nor {alt}")
     pred_csv = HERE / f"{args.out_prefix}-predictions.csv"
     lat_csv = HERE / f"{args.out_prefix}-latencies.csv"
 
