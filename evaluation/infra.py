@@ -135,6 +135,22 @@ def psql(sql: str, timeout: int = 60) -> subprocess.CompletedProcess:
     )
 
 
+def psql_stdin(sql: str, timeout: int = 900) -> subprocess.CompletedProcess:
+    """Run psql with SQL on stdin.
+
+    Large statements (e.g. a 500-row vector INSERT) exceed the kernel
+    ARG_MAX when passed as a `-c` argument to podman exec (E2BIG), so bulk
+    writes stream the SQL through stdin instead.
+    """
+    return subprocess.run(
+        ["podman", "exec", "-i", PG_CONTAINER, "psql", "-U", PG_USER, "-d", PG_DB, "-t", "-A", "-F", ","],
+        input=sql,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+
+
 _PG_COLUMN_CACHE: dict[tuple[str, str], str] = {}
 
 
@@ -308,7 +324,7 @@ def pg_upsert_vectors(table: str, rows: list[tuple[str, str, str, list[float]]])
         f"CREATE TABLE IF NOT EXISTS {table} (id uuid PRIMARY KEY, source text, "
         "document_id text, embedding vector(768));"
     )
-    r = psql(create)
+    r = psql_stdin(create)
     if r.returncode != 0:
         raise RuntimeError(f"pg table create failed ({table}): {r.stderr.strip()}")
     values = []
@@ -318,8 +334,8 @@ def pg_upsert_vectors(table: str, rows: list[tuple[str, str, str, list[float]]])
                       f"'{doc_id.replace(chr(39), chr(39)+chr(39))}', '{v}'::vector)")
     for start in range(0, len(values), 500):
         batch = ",\n".join(values[start:start + 500])
-        r = psql(f"INSERT INTO {table} (id, source, document_id, embedding) VALUES {batch} "
-                 "ON CONFLICT (id) DO NOTHING;")
+        r = psql_stdin(f"INSERT INTO {table} (id, source, document_id, embedding) VALUES {batch} "
+                       "ON CONFLICT (id) DO NOTHING;")
         if r.returncode != 0:
             raise RuntimeError(f"pg upsert failed ({table}): {r.stderr.strip()}")
 
