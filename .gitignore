@@ -5,3 +5,4 @@ target/
 *.iml
 .idea/
 __pycache__/
+evaluation/env.json
