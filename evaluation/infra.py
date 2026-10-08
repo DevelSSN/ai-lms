@@ -141,21 +141,25 @@ def pg_count(query) -> int:
     return len(rows)
 
 
-def pg_vector_k(query_vector: list[float], k: int) -> list[dict]:
+def pg_vector_k(query_vector: list[float], k: int, table: str = "content_embeddings") -> list[dict]:
     """Top-k from pgvector by cosine distance, mirroring the deployed retriever."""
-    return pg_ranked(query_vector, k)[:k]
+    return pg_ranked(query_vector, k, table)[:k]
 
 
-def pg_ranked(query_vector: list[float], k: int) -> list[dict]:
-    """Candidates (top k*OVERFETCH) from pgvector, min-score filtered, full order."""
+def pg_ranked(query_vector: list[float], k: int, table: str = "content_embeddings") -> list[dict]:
+    """Candidates (top k*OVERFETCH) from pgvector, min-score filtered, full order.
+
+    `table` selects the embedding table so chunk-ablation arms can read their own
+    scratch table instead of polluting the deployed content_embeddings.
+    """
     vec = "[" + ",".join(repr(float(x)) for x in query_vector) + "]"
     sql = (
-        "SELECT source, document_id, (1 - (embedding <=> '" + vec + "'::vector)) AS score "
-        "FROM content_embeddings ORDER BY embedding <=> '" + vec + "'::vector LIMIT " + str(k * OVERFETCH) + ";"
+        f"SELECT source, document_id, (1 - (embedding <=> '{vec}'::vector)) AS score "
+        f"FROM {table} ORDER BY embedding <=> '{vec}'::vector LIMIT {k * OVERFETCH};"
     )
     r = psql(sql)
     if r.returncode != 0:
-        raise RuntimeError(f"pgvector search failed: {r.stderr.strip()}")
+        raise RuntimeError(f"pgvector search failed ({table}): {r.stderr.strip()}")
     scored = []
     for line in r.stdout.splitlines():
         parts = line.split(",", 2)
@@ -239,6 +243,28 @@ def _apply_filter_only(scored: list[dict]) -> list[dict]:
     return [s for s in scored if s["score"] is None or s["score"] >= MIN_SCORE]
 
 
+def pg_upsert_vectors(table: str, rows: list[tuple[str, str, str, list[float]]]) -> None:
+    """Bulk upsert (id, source, document_id, embedding) into a scratch embedding table."""
+    create = (
+        f"CREATE TABLE IF NOT EXISTS {table} (id uuid PRIMARY KEY, source text, "
+        "document_id text, embedding vector(768));"
+    )
+    r = psql(create)
+    if r.returncode != 0:
+        raise RuntimeError(f"pg table create failed ({table}): {r.stderr.strip()}")
+    values = []
+    for doc_uuid, source, doc_id, vec in rows:
+        v = "[" + ",".join(repr(float(x)) for x in vec) + "]"
+        values.append(f"('{doc_uuid}', '{source.replace(chr(39), chr(39)+chr(39))}', "
+                      f"'{doc_id.replace(chr(39), chr(39)+chr(39))}', '{v}'::vector)")
+    for start in range(0, len(values), 500):
+        batch = ",\n".join(values[start:start + 500])
+        r = psql(f"INSERT INTO {table} (id, source, document_id, embedding) VALUES {batch} "
+                 "ON CONFLICT (id) DO NOTHING;")
+        if r.returncode != 0:
+            raise RuntimeError(f"pg upsert failed ({table}): {r.stderr.strip()}")
+
+
 # ---------------------------------------------------------------------------
 # Ollama
 # ---------------------------------------------------------------------------
@@ -253,12 +279,64 @@ def ollama_embed(text: str, model: str = EMBED_MODEL) -> list[float]:
     return data["embeddings"][0]
 
 
+def ollama_chat(prompt: str, model: str = CHAT_MODEL, system: str | None = None) -> str:
+    """One-shot non-streaming chat completion; full response text."""
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+    body = json.dumps({"model": model, "messages": messages,
+                       "options": {"temperature": 0.0}, "stream": False}).encode()
+    req = urllib.request.Request(
+        f"{OLLAMA}/api/chat", data=body, headers={"Content-Type": "application/json"}, method="POST"
+    )
+    with urllib.request.urlopen(req, timeout=300) as resp:
+        data = json.load(resp)
+    return data.get("message", {}).get("content", "")
+
+
 def ollama_models() -> list[str]:
     try:
         with urllib.request.urlopen(f"{OLLAMA}/api/tags", timeout=5) as resp:
             return sorted(m["name"] for m in json.load(resp).get("models", []))
     except Exception:
         return []
+
+
+def ollama_chat_stream(prompt: str, model: str = CHAT_MODEL) -> dict:
+    """Time-to-first-token via the streaming /api/chat endpoint (T=0 fixed).
+
+    Returns {ttft_s, first_token_s, tokens, elapsed_s} or propagates errors.
+    """
+    import time as _t
+    body = json.dumps(
+        {"model": model, "messages": [{"role": "user", "content": prompt}],
+         "options": {"temperature": 0.0}, "stream": True}
+    ).encode()
+    req = urllib.request.Request(
+        f"{OLLAMA}/api/chat", data=body, headers={"Content-Type": "application/json"}, method="POST"
+    )
+    started = _t.perf_counter()
+    ttft = None
+    first_token_s = None
+    tokens = 0
+    ndata = b""
+    with urllib.request.urlopen(req, timeout=600) as resp:
+        for chunk in iter(lambda: resp.read(4096), b""):
+            ndata += chunk
+            while b"\n" in ndata:
+                line, ndata = ndata.split(b"\n", 1)
+                if not line.strip():
+                    continue
+                msg = json.loads(line)
+                content = msg.get("message", {}).get("content", "")
+                if content:
+                    if ttft is None:
+                        ttft = _t.perf_counter() - started
+                        first_token_s = content  # exact first token text
+                    tokens += 1
+    return {"ttft_s": ttft, "first_token_s": first_token_s,
+            "tokens": tokens, "elapsed_s": _t.perf_counter() - started}
 
 
 # ---------------------------------------------------------------------------
