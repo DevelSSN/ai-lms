@@ -39,6 +39,7 @@ QRELS_A = DS / "qrels-a.jsonl"
 QRELS_B = DS / "qrels-b.jsonl"
 FLAT_COLLECTION = "ailms-eval-flat"
 FLAT_CHUNK_SIZE = 800
+EMBED_BATCH = 64
 
 ANALYSIS_K = 8
 ASSESSMENT_K = 3
@@ -119,15 +120,16 @@ def build_flat_collection() -> None:
         source = f"doc:{doc_id}"
         chunks = flat_chunk(text)
         points = []
-        for i, chunk in enumerate(chunks):
-            vec = infra.ollama_embed(chunk)
-            points.append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "vector": vec,
-                    "payload": {"source": source, "type": "document", "chunkIndex": i},
-                }
-            )
+        for idx in range(0, len(chunks), EMBED_BATCH):
+            batch = chunks[idx:idx + EMBED_BATCH]
+            for vec in infra.ollama_embed_many(batch):
+                points.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "vector": vec,
+                        "payload": {"source": source, "type": "document", "chunkIndex": len(points)},
+                    }
+                )
         for start in range(0, len(points), 200):
             infra.qdrant_upsert(FLAT_COLLECTION, points[start : start + 200])
         print(f"  {doc_id}: {len(chunks)} flat chunks")

@@ -45,6 +45,7 @@ MANIFEST = DS / "corpus-manifest.json"
 QUERIES = DS / "queries.jsonl"
 
 CHUNK_CONFIGS = [(400, 50), (1600, 200)]
+EMBED_BATCH = 64
 ZERO_SHOT_INTENTS = ["CONVERSATION", "VIDEO_SEARCH", "CONTENT_ANALYSIS", "ASSESSMENT", "INSIGHT"]
 ZERO_SHOT_SYSTEM = (
     "Classify the learner's intent. Return ONLY one of: "
@@ -90,18 +91,19 @@ def build_arm(size: int, overlap: int) -> str:
     infra.qdrant_recreate_collection(collection)
     infra.psql(f"DROP TABLE IF EXISTS {table};")
     docs = extract_corpus_text()
-    for idx, (doc_id, text) in enumerate(docs.items()):
+    for doc_id, text in docs.items():
         source = f"doc:{doc_id}"
         chunks = chunk_window(text, size, overlap)
-        if idx == 0:
-            print(f"  {doc_id}: {len(chunks)} chunks @ {size}/{overlap}")
+        print(f"  {doc_id}: {len(chunks)} chunks @ {size}/{overlap}")
         qpoints = []
         pg_rows = []
-        for chunk in chunks:
-            vec = infra.ollama_embed(chunk)
-            cid = str(uuid.uuid4())
-            qpoints.append({"id": cid, "vector": vec, "payload": {"source": source, "type": "document"}})
-            pg_rows.append((cid, source, doc_id, vec))
+        for idx in range(0, len(chunks), EMBED_BATCH):
+            batch = chunks[idx:idx + EMBED_BATCH]
+            vecs = infra.ollama_embed_many(batch)
+            for vec in vecs:
+                cid = str(uuid.uuid4())
+                qpoints.append({"id": cid, "vector": vec, "payload": {"source": source, "type": "document"}})
+                pg_rows.append((cid, source, doc_id, vec))
         for start in range(0, len(qpoints), 200):
             infra.qdrant_upsert(collection, qpoints[start:start + 200])
         infra.pg_upsert_vectors(table, pg_rows)

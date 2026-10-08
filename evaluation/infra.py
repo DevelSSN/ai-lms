@@ -354,6 +354,34 @@ def ollama_embed(text: str, model: str = EMBED_MODEL) -> list[float]:
     return data["embeddings"][0]
 
 
+def ollama_embed_many(texts: list[str], model: str = EMBED_MODEL, batch: int = 64) -> list[list[float]]:
+    """Batch-embed a list of texts via a single /api/embed request per batch.
+
+    One HTTP call per <=`batch` inputs instead of one call per chunk — the
+    dominant cost is request round-trips, not the model. If a model rejects
+    list input (embedding count mismatch), degrades to sequential embeds for
+    that batch so vectors stay identical to the deployed single-input path.
+    """
+    out: list[list[float]] = []
+    for start in range(0, len(texts), batch):
+        chunk = texts[start:start + batch]
+        embs: list[list[float]] = []
+        try:
+            body = json.dumps({"model": model, "input": chunk}).encode()
+            req = urllib.request.Request(
+                f"{OLLAMA}/api/embed", data=body, headers={"Content-Type": "application/json"}, method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=900) as resp:
+                data = json.load(resp)
+            embs = data.get("embeddings") or []
+        except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError):
+            embs = []
+        if len(embs) != len(chunk):
+            embs = [ollama_embed(t, model) for t in chunk]
+        out.extend(embs)
+    return out
+
+
 def ollama_chat(prompt: str, model: str = CHAT_MODEL, system: str | None = None) -> str:
     """One-shot non-streaming chat completion; full response text."""
     messages = []
