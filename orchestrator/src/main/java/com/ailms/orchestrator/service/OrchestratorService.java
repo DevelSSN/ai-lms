@@ -634,6 +634,7 @@ public class OrchestratorService {
       List<String> chunks = contentDocumentService.chunkContent(docId, CHUNK_SIZE, CHUNK_OVERLAP);
       if (!chunks.isEmpty()) {
         vectorDBService.ingestDocumentChunks(chunks, docId, "document");
+        contentDocumentService.markIndexed(docId);
         String contentBody = resolveUploadedContent(message);
         List<RetrievedChunk> context =
             vectorDBService.retrieveRelevantContext(

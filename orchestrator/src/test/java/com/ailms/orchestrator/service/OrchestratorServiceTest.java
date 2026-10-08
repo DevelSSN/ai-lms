@@ -1224,6 +1224,26 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_uploadFile_marksDocumentIndexedAfterIngest() {
+    String uploadMsg = "Analyze the uploaded file: doc-1";
+    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.chunkContent(eq("doc-1"), anyInt(), anyInt()))
+        .thenReturn(List.of("chunk one", "chunk two"));
+    when(contentDocumentService.resolveContent("doc-1"))
+        .thenReturn("File: notes.pdf\n\nContent:\nsample text");
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString()))
+        .thenReturn("Analysis complete");
+    when(responseComposer.compose(any(AgenticScope.class), eq("upload-user-1")))
+        .thenReturn(new ChatResponse("Analysis complete", "upload-user-1", "CONTENT_ANALYSIS"));
+
+    OrchestratorService svc = buildService();
+    svc.route(new ChatRequest(uploadMsg, "upload-user-1"), "user-1");
+
+    verify(vectorDBService).ingestDocumentChunks(anyList(), eq("doc-1"), eq("document"));
+    verify(contentDocumentService).markIndexed("doc-1");
+  }
+
+  @Test
   void route_uploadFile_logsFriendlyUserMessage() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
     when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
