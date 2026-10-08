@@ -97,13 +97,16 @@ def check_qrels():
         if missing_q:
             FAILS.append(f"{name}: {len(missing_q)} queries without judgments: {sorted(missing_q)[:6]}")
 
-    a = {(r["query"], r["doc"]) for r in load(DS / "qrels-a.jsonl")}
-    b = {(r["query"], r["doc"]) for r in load(DS / "qrels-b.jsonl")}
+    a = {(r["query"], r["doc"]): r["relevance"] for r in load(DS / "qrels-a.jsonl")}
+    b = {(r["query"], r["doc"]): r["relevance"] for r in load(DS / "qrels-b.jsonl")}
     if a and b:
-        if a == b:
+        common = a.keys() & b.keys()
+        if not common:
+            FAILS.append("qrels-a and qrels-b judged no common pairs -> kappa undefined")
+        elif a == b:
             FAILS.append("qrels-a == qrels-b (identical judgments) -> kappa needs disagreement")
-        elif not (a and b):
-            FAILS.append("qrels empty")
+        elif all(a[k] == b[k] for k in common):
+            FAILS.append("qrels-a and qrels-b agree on every common pair -> kappa needs disagreement")
 
 
 def check_rq5():
