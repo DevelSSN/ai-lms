@@ -139,7 +139,7 @@ def chunk_arm(size: int, overlap: int, qrels_rel: dict[str, set[str]]) -> dict:
         for store, call in (("qdrant", lambda: infra.qdrant_ranked(vec, k, collection)),
                             ("pgvector", lambda: infra.pg_ranked(vec, k, table))):
             ranked = call()
-            ids = [(r["doc_id"] or ((r.get("source") or "")[4:] if (r.get("source") or "").startswith("doc:") else "")) for r in ranked]
+            ids = metrics.ranked_doc_ids(ranked)
             p.append({"store": store, "P@k": metrics.precision_at_k(ids[:k], rel), "k": k})
     per_store = {}
     for store in ("qdrant", "pgvector"):

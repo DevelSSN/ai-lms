@@ -65,6 +65,30 @@ def list_agreement(a: Sequence[str], b: Sequence[str], k: int) -> float:
     return len(set(a[:k]) & set(b[:k])) / k
 
 
+def doc_from_source(source: str | None) -> str:
+    """Strip the 'doc:' source prefix to the document id ('' when absent)."""
+    if source and source.startswith("doc:"):
+        return source[4:]
+    return source or ""
+
+
+def ranked_doc_ids(ranked: Sequence[dict]) -> list[str]:
+    """Map chunk-level ranked hits to ordered DISTINCT document ids.
+
+    Retrieval is chunk-level but relevance is judged per document, so a
+    document whose chunks fill several ranks must count once. Preserves the
+    rank of each document's first hit; drops empty/unmappable entries.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    for r in ranked:
+        did = r.get("doc_id") or doc_from_source(r.get("source"))
+        if did and did not in seen:
+            seen.add(did)
+            out.append(did)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Inter-annotator agreement
 # ---------------------------------------------------------------------------

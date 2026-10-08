@@ -59,23 +59,17 @@ def doc_ids_for_query(relevant_filenames: set[str], inv_manifest: dict[str, str]
 
 
 def score_retrieval(ranked: list[dict], relevant: set[str], k: int) -> dict:
-    retrieved_ids = [r["doc_id"] or _doc_from_source(r["source"]) for r in ranked]
-    top_k = retrieved_ids[:k]
-    relevant_doc_ids = {rid for rid in retrieved_ids if rid in relevant}
+    docs = metrics.ranked_doc_ids(ranked)
+    top_k = docs[:k]
+    relevant_doc_ids = {rid for rid in docs if rid in relevant}
     return {
         "P@k": metrics.precision_at_k(top_k, relevant),
         "R@k": metrics.recall_at_k(top_k, relevant),
         "nDCG@k": metrics.ndcg_at_k(top_k, relevant),
-        "MRR": metrics.reciprocal_rank(retrieved_ids, relevant),
+        "MRR": metrics.reciprocal_rank(docs, relevant),
         "k": k,
         "retrieved_relevant": len(relevant_doc_ids),
     }
-
-
-def _doc_from_source(source: str | None) -> str:
-    if source and source.startswith("doc:"):
-        return source[4:]
-    return source or ""
 
 
 def run_store(store_name: str, query: dict, k: int, doc_to_relevant: dict[str, set[str]]):
@@ -182,8 +176,8 @@ def main() -> int:
         q_scores = score_retrieval(ranked_q, relevant, k)
         p_scores = score_retrieval(ranked_p, relevant, k)
         agree = metrics.list_agreement(
-            [r["doc_id"] or _doc_from_source(r["source"]) for r in ranked_q[:k]],
-            [r["doc_id"] or _doc_from_source(r["source"]) for r in ranked_p[:k]],
+            metrics.ranked_doc_ids(ranked_q)[:k],
+            metrics.ranked_doc_ids(ranked_p)[:k],
             k,
         )
         entry = {
