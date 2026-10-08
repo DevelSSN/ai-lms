@@ -1,22 +1,93 @@
-{"query": "What is the main topic of Business?", "doc": "Business.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Business.", "doc": "Business.pdf", "relevance": 1.0}
-{"query": "Give me 3 quiz questions from Business.", "doc": "Business.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Complex Molecular Synthesis?", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Complex Molecular Synthesis.", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Eng Comp?", "doc": "Eng Comp.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0}
-{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Fin?", "doc": "Fin.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Fin.", "doc": "Fin.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
-{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Math?", "doc": "Math.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Math.", "doc": "Math.pdf", "relevance": 1.0}
-{"query": "Give me 3 quiz questions from Math.", "doc": "Math.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0}
-{"query": "What is the main topic of Python?", "doc": "Python.pdf", "relevance": 1.0}
-{"query": "Summarize key concepts in Python.", "doc": "Python.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Business?", "doc": "Business.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Business.", "doc": "Business.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Business.", "doc": "Business.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Complex Molecular Synthesis?", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Complex Molecular Synthesis.", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Eng Comp?", "doc": "Eng Comp.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Fin?", "doc": "Fin.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Fin.", "doc": "Fin.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Math?", "doc": "Math.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Math.", "doc": "Math.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Math.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of Python?", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Python.", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Python.", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in Science.", "doc": "Science.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "What is the main topic of emacs?", "doc": "emacs.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Summarize key concepts in emacs.", "doc": "emacs.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from emacs.", "doc": "emacs.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:25:31Z", "prefilled_gold": true}
+{"query": "Give me 3 quiz questions from Business.", "doc": "Fin.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:32:16Z"}
+{"query": "Give me 3 quiz questions from Business.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:32:43Z"}
+{"query": "Give me 3 quiz questions from Business.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:09Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Business.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:24Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Fin.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:29Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:37Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:45Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:53Z"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Science.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:33:57Z"}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:34:07Z"}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:34:20Z"}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Business.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:34:28Z"}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:34:47Z"}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:35:51Z"}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:36:01Z"}
+{"query": "Give me 3 quiz questions from Python.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:36:05Z"}
+{"query": "Give me 3 quiz questions from Python.", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:36:17Z"}
+{"query": "Give me 3 quiz questions from Python.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:00Z"}
+{"query": "Summarize key concepts in Business.", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:06Z"}
+{"query": "Summarize key concepts in Business.", "doc": "Fin.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:12Z"}
+{"query": "Summarize key concepts in Business.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:25Z"}
+{"query": "Summarize key concepts in Business.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:32Z"}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Business.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:37Z"}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Fin.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:42Z"}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:46Z"}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:52Z"}
+{"query": "Summarize key concepts in Fin.", "doc": "Business.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:37:58Z"}
+{"query": "Summarize key concepts in Fin.", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:06Z"}
+{"query": "Summarize key concepts in Fin.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:16Z"}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:32Z"}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:43Z"}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:52Z"}
+{"query": "Summarize key concepts in Math.", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:38:57Z"}
+{"query": "Summarize key concepts in Math.", "doc": "Fin.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:06Z"}
+{"query": "Summarize key concepts in Math.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:12Z"}
+{"query": "Summarize key concepts in Math.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:18Z"}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:33Z"}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:39Z"}
+{"query": "Summarize key concepts in Python.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:44Z"}
+{"query": "Summarize key concepts in Python.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:49Z"}
+{"query": "Summarize key concepts in Science.", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:39:55Z"}
+{"query": "Summarize key concepts in Science.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:01Z"}
+{"query": "Summarize key concepts in Science.", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:10Z"}
+{"query": "Summarize key concepts in Science.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:14Z"}
+{"query": "What is the main topic of Business?", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:19Z"}
+{"query": "What is the main topic of Business?", "doc": "Fin.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:26Z"}
+{"query": "What is the main topic of Eng Comp?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:32Z"}
+{"query": "What is the main topic of Eng Comp?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:38Z"}
+{"query": "What is the main topic of Eng Comp?", "doc": "emacs.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:40:59Z"}
+{"query": "What is the main topic of Fin?", "doc": "Business.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:04Z"}
+{"query": "What is the main topic of Fin?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:15Z"}
+{"query": "What is the main topic of Fin?", "doc": "Science.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:27Z"}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "doc": "Math.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:44Z"}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:51Z"}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:41:57Z"}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "doc": "Python.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:02Z"}
+{"query": "What is the main topic of Math?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:13Z"}
+{"query": "What is the main topic of Math?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:19Z"}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:25Z"}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:31Z"}
+{"query": "What is the main topic of Python?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:37Z"}
+{"query": "What is the main topic of Python?", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:45Z"}
+{"query": "What is the main topic of Python?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:51Z"}
+{"query": "What is the main topic of Science?", "doc": "Eng Comp.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:42:57Z"}
+{"query": "What is the main topic of Science?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:43:03Z"}
+{"query": "What is the main topic of Science?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 0.0, "annotator": "annotator-b", "timestamp": "2026-10-08T11:43:09Z"}

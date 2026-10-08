@@ -1,0 +1,79 @@
+{
+  "evl-business": {
+    "filename": "Business.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 2843,
+    "pgvector_chunks": 2843,
+    "filetype": "application/pdf"
+  },
+  "evl-complex-molecular-synthesis": {
+    "filename": "Complex Molecular Synthesis.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 835,
+    "pgvector_chunks": 835,
+    "filetype": "application/pdf"
+  },
+  "evl-eng-comp": {
+    "filename": "Eng Comp.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 701,
+    "pgvector_chunks": 701,
+    "filetype": "application/pdf"
+  },
+  "evl-fin": {
+    "filename": "Fin.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 3355,
+    "pgvector_chunks": 3355,
+    "filetype": "application/pdf"
+  },
+  "evl-introduction-to-computer-science-web": {
+    "filename": "Introduction_To_Computer_Science_-_WEB.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 3983,
+    "pgvector_chunks": 3983,
+    "filetype": "application/pdf"
+  },
+  "evl-introduction-to-python-programming-web": {
+    "filename": "Introduction_to_Python_Programming-WEB.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 904,
+    "pgvector_chunks": 904,
+    "filetype": "application/pdf"
+  },
+  "evl-math": {
+    "filename": "Math.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 1904,
+    "pgvector_chunks": 1904,
+    "filetype": "application/pdf"
+  },
+  "evl-principles-of-data-science-web": {
+    "filename": "Principles-of-Data-Science-WEB.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 1986,
+    "pgvector_chunks": 1986,
+    "filetype": "application/pdf"
+  },
+  "evl-python": {
+    "filename": "Python.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 1121,
+    "pgvector_chunks": 1121,
+    "filetype": "application/pdf"
+  },
+  "evl-science": {
+    "filename": "Science.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 522,
+    "pgvector_chunks": 522,
+    "filetype": "application/pdf"
+  },
+  "evl-emacs": {
+    "filename": "emacs.pdf",
+    "status": "PARSED",
+    "qdrant_chunks": 3076,
+    "pgvector_chunks": 3076,
+    "filetype": "application/pdf"
+  }
+}

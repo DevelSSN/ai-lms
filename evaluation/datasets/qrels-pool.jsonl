@@ -1,0 +1,93 @@
+{"query": "What is the main topic of Business?", "intent": "CONTENT_ANALYSIS", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Business?", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "What is the main topic of Business?", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 10}
+{"query": "Summarize key concepts in Business.", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Business.", "intent": "CONTENT_ANALYSIS", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 4}
+{"query": "Summarize key concepts in Business.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 19}
+{"query": "Summarize key concepts in Business.", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 25}
+{"query": "Summarize key concepts in Business.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 28}
+{"query": "Give me 3 quiz questions from Business.", "intent": "ASSESSMENT", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from Business.", "intent": "ASSESSMENT", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 6}
+{"query": "Give me 3 quiz questions from Business.", "intent": "ASSESSMENT", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 10}
+{"query": "Give me 3 quiz questions from Business.", "intent": "ASSESSMENT", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 22}
+{"query": "What is the main topic of Complex Molecular Synthesis?", "intent": "CONTENT_ANALYSIS", "doc": "Complex Molecular Synthesis.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Complex Molecular Synthesis.", "intent": "CONTENT_ANALYSIS", "doc": "Complex Molecular Synthesis.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Eng Comp?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Eng Comp?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "What is the main topic of Eng Comp?", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 5}
+{"query": "What is the main topic of Eng Comp?", "intent": "CONTENT_ANALYSIS", "doc": "emacs.pdf", "pooled_from": "qdrant", "rank": 29}
+{"query": "Summarize key concepts in Eng Comp.", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Eng Comp.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 4}
+{"query": "Summarize key concepts in Eng Comp.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 15}
+{"query": "Summarize key concepts in Eng Comp.", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 19}
+{"query": "Summarize key concepts in Eng Comp.", "intent": "CONTENT_ANALYSIS", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 30}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 5}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 14}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 19}
+{"query": "Give me 3 quiz questions from Eng Comp.", "intent": "ASSESSMENT", "doc": "Science.pdf", "pooled_from": "qdrant", "rank": 24}
+{"query": "What is the main topic of Fin?", "intent": "CONTENT_ANALYSIS", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Fin?", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 5}
+{"query": "What is the main topic of Fin?", "intent": "CONTENT_ANALYSIS", "doc": "Science.pdf", "pooled_from": "qdrant", "rank": 28}
+{"query": "What is the main topic of Fin?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 29}
+{"query": "Summarize key concepts in Fin.", "intent": "CONTENT_ANALYSIS", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Fin.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Summarize key concepts in Fin.", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Summarize key concepts in Fin.", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 16}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 16}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 28}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 13}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "intent": "ASSESSMENT", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "intent": "ASSESSMENT", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 11}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "intent": "ASSESSMENT", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 19}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 5}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "What is the main topic of Math?", "intent": "CONTENT_ANALYSIS", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Math?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "What is the main topic of Math?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 29}
+{"query": "Summarize key concepts in Math.", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Math.", "intent": "CONTENT_ANALYSIS", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Summarize key concepts in Math.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 5}
+{"query": "Summarize key concepts in Math.", "intent": "CONTENT_ANALYSIS", "doc": "Fin.pdf", "pooled_from": "qdrant", "rank": 12}
+{"query": "Summarize key concepts in Math.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 21}
+{"query": "Give me 3 quiz questions from Math.", "intent": "ASSESSMENT", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from Math.", "intent": "ASSESSMENT", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 4}
+{"query": "Give me 3 quiz questions from Math.", "intent": "ASSESSMENT", "doc": "Business.pdf", "pooled_from": "qdrant", "rank": 6}
+{"query": "Give me 3 quiz questions from Math.", "intent": "ASSESSMENT", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 11}
+{"query": "Give me 3 quiz questions from Math.", "intent": "ASSESSMENT", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 12}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 18}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 9}
+{"query": "What is the main topic of Python?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Python?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "What is the main topic of Python?", "intent": "CONTENT_ANALYSIS", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 8}
+{"query": "What is the main topic of Python?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 17}
+{"query": "Summarize key concepts in Python.", "intent": "CONTENT_ANALYSIS", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Python.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Summarize key concepts in Python.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Give me 3 quiz questions from Python.", "intent": "ASSESSMENT", "doc": "Introduction_to_Python_Programming-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from Python.", "intent": "ASSESSMENT", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Give me 3 quiz questions from Python.", "intent": "ASSESSMENT", "doc": "Python.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Give me 3 quiz questions from Python.", "intent": "ASSESSMENT", "doc": "Math.pdf", "pooled_from": "pgvector", "rank": 24}
+{"query": "What is the main topic of Science?", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "What is the main topic of Science?", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 14}
+{"query": "What is the main topic of Science?", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 25}
+{"query": "Summarize key concepts in Science.", "intent": "CONTENT_ANALYSIS", "doc": "Principles-of-Data-Science-WEB.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in Science.", "intent": "CONTENT_ANALYSIS", "doc": "Eng Comp.pdf", "pooled_from": "qdrant", "rank": 2}
+{"query": "Summarize key concepts in Science.", "intent": "CONTENT_ANALYSIS", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "pooled_from": "qdrant", "rank": 3}
+{"query": "Summarize key concepts in Science.", "intent": "CONTENT_ANALYSIS", "doc": "Science.pdf", "pooled_from": "qdrant", "rank": 12}
+{"query": "Summarize key concepts in Science.", "intent": "CONTENT_ANALYSIS", "doc": "Math.pdf", "pooled_from": "qdrant", "rank": 16}
+{"query": "What is the main topic of emacs?", "intent": "CONTENT_ANALYSIS", "doc": "emacs.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Summarize key concepts in emacs.", "intent": "CONTENT_ANALYSIS", "doc": "emacs.pdf", "pooled_from": "qdrant", "rank": 1}
+{"query": "Give me 3 quiz questions from emacs.", "intent": "ASSESSMENT", "doc": "emacs.pdf", "pooled_from": "qdrant", "rank": 1}
