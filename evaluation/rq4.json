@@ -1,0 +1,63 @@
+{
+  "environment": {
+    "embed_model": "nomic-embed-text",
+    "min_score": 0.5,
+    "overfetch": 3
+  },
+  "chunk_ablations": [
+    {
+      "chunk": 400,
+      "overlap": 50,
+      "collection": "ailms-eval-chunk-400-50",
+      "qdrant": {
+        "precision_at_k": {
+          "mean": 0.6369047619047619,
+          "sd": 0.31850852082254677,
+          "n": 28
+        }
+      },
+      "pgvector": {
+        "precision_at_k": {
+          "mean": 0.6333333333333334,
+          "sd": 0.3206539100668387,
+          "n": 28
+        }
+      }
+    },
+    {
+      "chunk": 1600,
+      "overlap": 200,
+      "collection": "ailms-eval-chunk-1600-200",
+      "qdrant": {
+        "precision_at_k": {
+          "mean": 0.6583333333333333,
+          "sd": 0.34559247153055983,
+          "n": 28
+        }
+      },
+      "pgvector": {
+        "precision_at_k": {
+          "mean": 0.6583333333333333,
+          "sd": 0.34559247153055983,
+          "n": 28
+        }
+      }
+    }
+  ],
+  "classifier_ablation": {
+    "zero_shot": {
+      "correct": 53,
+      "n": 218,
+      "accuracy": 0.24311926605504589,
+      "delta_vs_fewshot": -0.6834862385321101
+    },
+    "few_shot_negatives_reused": {
+      "correct": 202,
+      "n": 218,
+      "accuracy": 0.926605504587156
+    }
+  },
+  "deterministic_off": {
+    "accuracy": 0.9408333333333333
+  }
+}
