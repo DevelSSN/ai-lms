@@ -1,0 +1,854 @@
+{
+  "queries_evaluated": 28,
+  "cohens_kappa_a_vs_b": 0.6217803886127429,
+  "per_query": [
+    {
+      "query": "What is the main topic of Business?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.6666666666666666,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "pgvector": {
+        "P@k": 0.6666666666666666,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "agreement": 0.375,
+      "target_doc": "Business.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Business.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.375,
+      "target_doc": "Business.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from Business.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 0.5,
+        "R@k": 0.5,
+        "nDCG@k": 0.6131471927654584,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.5,
+        "R@k": 0.5,
+        "nDCG@k": 0.6131471927654584,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.6666666666666666,
+      "target_doc": "Business.pdf"
+    },
+    {
+      "query": "What is the main topic of Complex Molecular Synthesis?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.125,
+      "target_doc": "Complex Molecular Synthesis.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Complex Molecular Synthesis.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.125,
+      "target_doc": "Complex Molecular Synthesis.pdf"
+    },
+    {
+      "query": "What is the main topic of Eng Comp?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.3333333333333333,
+        "R@k": 1.0,
+        "nDCG@k": 0.5,
+        "MRR": 0.3333333333333333,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.3333333333333333,
+        "R@k": 1.0,
+        "nDCG@k": 0.5,
+        "MRR": 0.3333333333333333,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.375,
+      "target_doc": "Eng Comp.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Eng Comp.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.25,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.25,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.5,
+      "target_doc": "Eng Comp.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from Eng Comp.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 0.0,
+        "R@k": 0.0,
+        "nDCG@k": 0.0,
+        "MRR": 0.0,
+        "k": 3,
+        "retrieved_relevant": 0
+      },
+      "pgvector": {
+        "P@k": 0.0,
+        "R@k": 0.0,
+        "nDCG@k": 0.0,
+        "MRR": 0.0,
+        "k": 3,
+        "retrieved_relevant": 0
+      },
+      "agreement": 1.0,
+      "target_doc": "Eng Comp.pdf"
+    },
+    {
+      "query": "What is the main topic of Fin?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 0.6666666666666666,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 0.6666666666666666,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "agreement": 0.25,
+      "target_doc": "Fin.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Fin.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.75,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 0.75,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.5,
+      "target_doc": "Fin.pdf"
+    },
+    {
+      "query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.5,
+        "R@k": 0.5,
+        "nDCG@k": 0.6131471927654584,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.5,
+        "R@k": 0.5,
+        "nDCG@k": 0.6131471927654584,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.25,
+      "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.5,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.5,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.25,
+      "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.3333333333333333,
+      "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf"
+    },
+    {
+      "query": "What is the main topic of Introduction_to_Python_Programming-WEB?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.6666666666666666,
+        "R@k": 1.0,
+        "nDCG@k": 0.9197207891481876,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "pgvector": {
+        "P@k": 0.6666666666666666,
+        "R@k": 1.0,
+        "nDCG@k": 0.9197207891481876,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "agreement": 0.375,
+      "target_doc": "Introduction_to_Python_Programming-WEB.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.375,
+      "target_doc": "Introduction_to_Python_Programming-WEB.pdf"
+    },
+    {
+      "query": "What is the main topic of Math?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.5,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.5,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.25,
+      "target_doc": "Math.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Math.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.4,
+        "R@k": 1.0,
+        "nDCG@k": 0.6509209298071326,
+        "MRR": 0.5,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "pgvector": {
+        "P@k": 0.4,
+        "R@k": 1.0,
+        "nDCG@k": 0.6509209298071326,
+        "MRR": 0.5,
+        "k": 8,
+        "retrieved_relevant": 2
+      },
+      "agreement": 0.625,
+      "target_doc": "Math.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from Math.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 0.3333333333333333,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.3333333333333333,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "agreement": 1.0,
+      "target_doc": "Math.pdf"
+    },
+    {
+      "query": "What is the main topic of Principles-of-Data-Science-WEB?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.375,
+      "target_doc": "Principles-of-Data-Science-WEB.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Principles-of-Data-Science-WEB.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.375,
+      "target_doc": "Principles-of-Data-Science-WEB.pdf"
+    },
+    {
+      "query": "What is the main topic of Python?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.75,
+        "R@k": 1.0,
+        "nDCG@k": 0.9060254355346823,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 0.75,
+        "R@k": 1.0,
+        "nDCG@k": 0.9060254355346823,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.5,
+      "target_doc": "Python.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Python.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 3
+      },
+      "agreement": 0.375,
+      "target_doc": "Python.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from Python.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 3
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 3
+      },
+      "agreement": 1.0,
+      "target_doc": "Python.pdf"
+    },
+    {
+      "query": "What is the main topic of Science?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.0,
+        "R@k": 0.0,
+        "nDCG@k": 0.0,
+        "MRR": 0.0,
+        "k": 8,
+        "retrieved_relevant": 0
+      },
+      "pgvector": {
+        "P@k": 0.0,
+        "R@k": 0.0,
+        "nDCG@k": 0.0,
+        "MRR": 0.0,
+        "k": 8,
+        "retrieved_relevant": 0
+      },
+      "agreement": 0.25,
+      "target_doc": "Science.pdf"
+    },
+    {
+      "query": "Summarize key concepts in Science.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 0.2,
+        "R@k": 1.0,
+        "nDCG@k": 0.43067655807339306,
+        "MRR": 0.25,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 0.2,
+        "R@k": 1.0,
+        "nDCG@k": 0.43067655807339306,
+        "MRR": 0.25,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.625,
+      "target_doc": "Science.pdf"
+    },
+    {
+      "query": "What is the main topic of emacs?",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.125,
+      "target_doc": "emacs.pdf"
+    },
+    {
+      "query": "Summarize key concepts in emacs.",
+      "intent": "CONTENT_ANALYSIS",
+      "k": 8,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 8,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.125,
+      "target_doc": "emacs.pdf"
+    },
+    {
+      "query": "Give me 3 quiz questions from emacs.",
+      "intent": "ASSESSMENT",
+      "k": 3,
+      "qdrant": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "pgvector": {
+        "P@k": 1.0,
+        "R@k": 1.0,
+        "nDCG@k": 1.0,
+        "MRR": 1.0,
+        "k": 3,
+        "retrieved_relevant": 1
+      },
+      "agreement": 0.3333333333333333,
+      "target_doc": "emacs.pdf"
+    }
+  ],
+  "k8": {
+    "qdrant": {
+      "MRR": {
+        "mean": 0.8674242424242423,
+        "sd": 0.2984296320914619,
+        "n": 22,
+        "ci95": [
+          0.7257168301550021,
+          1.0
+        ]
+      },
+      "P@k": {
+        "mean": 0.7053030303030302,
+        "sd": 0.3231944704116481,
+        "n": 22,
+        "ci95": [
+          0.5147918617519895,
+          0.8958141988540709
+        ]
+      },
+      "R@k": {
+        "mean": 0.9166666666666667,
+        "sd": 0.2398743057096415,
+        "n": 22,
+        "ci95": [
+          0.801172559072864,
+          1.0
+        ]
+      },
+      "nDCG@k": {
+        "mean": 0.8645677684240387,
+        "sd": 0.2634383345218322,
+        "n": 22,
+        "ci95": [
+          0.7215778993142725,
+          1.0
+        ]
+      }
+    },
+    "pgvector": {
+      "MRR": {
+        "mean": 0.8674242424242423,
+        "sd": 0.2984296320914619,
+        "n": 22,
+        "ci95": [
+          0.7257168301550021,
+          1.0
+        ]
+      },
+      "P@k": {
+        "mean": 0.7053030303030302,
+        "sd": 0.3231944704116481,
+        "n": 22,
+        "ci95": [
+          0.5147918617519895,
+          0.8958141988540709
+        ]
+      },
+      "R@k": {
+        "mean": 0.9166666666666667,
+        "sd": 0.2398743057096415,
+        "n": 22,
+        "ci95": [
+          0.801172559072864,
+          1.0
+        ]
+      },
+      "nDCG@k": {
+        "mean": 0.8645677684240387,
+        "sd": 0.2634383345218322,
+        "n": 22,
+        "ci95": [
+          0.7215778993142725,
+          1.0
+        ]
+      }
+    },
+    "agreement_mean": {
+      "n": 22,
+      "mean": 0.3409090909090909,
+      "sd": 0.15030632502323826,
+      "iqr": 0.125,
+      "min": 0.125,
+      "max": 0.625,
+      "p50": 0.375,
+      "p95": 0.6187499999999999,
+      "p99": 0.625
+    },
+    "n_queries": 22
+  },
+  "k3": {
+    "qdrant": {
+      "MRR": {
+        "mean": 0.8333333333333334,
+        "sd": 0.408248290463863,
+        "n": 6,
+        "ci95": [
+          0.535128829802743,
+          1.0
+        ]
+      },
+      "P@k": {
+        "mean": 0.638888888888889,
+        "sd": 0.4270918020840571,
+        "n": 6,
+        "ci95": [
+          0.2545506997619182,
+          1.0
+        ]
+      },
+      "R@k": {
+        "mean": 0.75,
+        "sd": 0.4183300132670378,
+        "n": 6,
+        "ci95": [
+          0.4035176772185917,
+          1.0
+        ]
+      },
+      "nDCG@k": {
+        "mean": 0.7688578654609097,
+        "sd": 0.40720878583584713,
+        "n": 6,
+        "ci95": [
+          0.43153713140909455,
+          1.0
+        ]
+      }
+    },
+    "pgvector": {
+      "MRR": {
+        "mean": 0.8333333333333334,
+        "sd": 0.408248290463863,
+        "n": 6,
+        "ci95": [
+          0.535128829802743,
+          1.0
+        ]
+      },
+      "P@k": {
+        "mean": 0.638888888888889,
+        "sd": 0.4270918020840571,
+        "n": 6,
+        "ci95": [
+          0.2545506997619182,
+          1.0
+        ]
+      },
+      "R@k": {
+        "mean": 0.75,
+        "sd": 0.4183300132670378,
+        "n": 6,
+        "ci95": [
+          0.4035176772185917,
+          1.0
+        ]
+      },
+      "nDCG@k": {
+        "mean": 0.7688578654609097,
+        "sd": 0.40720878583584713,
+        "n": 6,
+        "ci95": [
+          0.43153713140909455,
+          1.0
+        ]
+      }
+    },
+    "agreement_mean": {
+      "n": 6,
+      "mean": 0.7222222222222222,
+      "sd": 0.327730693416725,
+      "iqr": 0.6666666666666667,
+      "min": 0.3333333333333333,
+      "max": 1.0,
+      "p50": 0.8333333333333333,
+      "p95": 1.0,
+      "p99": 1.0
+    },
+    "n_queries": 6
+  },
+  "flat_baseline": {
+    "k8": {
+      "P@k": {
+        "mean": 0.6462121212121212,
+        "sd": 0.3467891960726956,
+        "n": 22,
+        "ci95": [
+          0.4464083157189825,
+          0.84601592670526
+        ]
+      }
+    },
+    "k3": {
+      "P@k": {
+        "mean": 0.611111111111111,
+        "sd": 0.44305337860837524,
+        "n": 6,
+        "ci95": [
+          0.22103145268517432,
+          1.0
+        ]
+      }
+    }
+  }
+}

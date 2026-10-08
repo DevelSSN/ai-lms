@@ -1,0 +1,29 @@
+query,k,qdrant_P@k,qdrant_R@k,qdrant_nDCG@k,qdrant_MRR,pg_P@k,pg_R@k,pg_nDCG@k,pg_MRR,agreement
+What is the main topic of Business?,8,0.6667,1.0000,1.0000,1.0000,0.6667,1.0000,1.0000,1.0000,0.3750
+Summarize key concepts in Business.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3750
+Give me 3 quiz questions from Business.,3,0.5000,0.5000,0.6131,1.0000,0.5000,0.5000,0.6131,1.0000,0.6667
+What is the main topic of Complex Molecular Synthesis?,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.1250
+Summarize key concepts in Complex Molecular Synthesis.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.1250
+What is the main topic of Eng Comp?,8,0.3333,1.0000,0.5000,0.3333,0.3333,1.0000,0.5000,0.3333,0.3750
+Summarize key concepts in Eng Comp.,8,0.2500,1.0000,1.0000,1.0000,0.2500,1.0000,1.0000,1.0000,0.5000
+Give me 3 quiz questions from Eng Comp.,3,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,1.0000
+What is the main topic of Fin?,8,1.0000,0.6667,1.0000,1.0000,1.0000,0.6667,1.0000,1.0000,0.2500
+Summarize key concepts in Fin.,8,0.7500,1.0000,1.0000,1.0000,0.7500,1.0000,1.0000,1.0000,0.5000
+What is the main topic of Introduction_To_Computer_Science_-_WEB?,8,0.5000,0.5000,0.6131,1.0000,0.5000,0.5000,0.6131,1.0000,0.2500
+Summarize key concepts in Introduction_To_Computer_Science_-_WEB.,8,0.5000,1.0000,1.0000,1.0000,0.5000,1.0000,1.0000,1.0000,0.2500
+Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.,3,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3333
+What is the main topic of Introduction_to_Python_Programming-WEB?,8,0.6667,1.0000,0.9197,1.0000,0.6667,1.0000,0.9197,1.0000,0.3750
+Summarize key concepts in Introduction_to_Python_Programming-WEB.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3750
+What is the main topic of Math?,8,0.5000,1.0000,1.0000,1.0000,0.5000,1.0000,1.0000,1.0000,0.2500
+Summarize key concepts in Math.,8,0.4000,1.0000,0.6509,0.5000,0.4000,1.0000,0.6509,0.5000,0.6250
+Give me 3 quiz questions from Math.,3,0.3333,1.0000,1.0000,1.0000,0.3333,1.0000,1.0000,1.0000,1.0000
+What is the main topic of Principles-of-Data-Science-WEB?,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3750
+Summarize key concepts in Principles-of-Data-Science-WEB.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3750
+What is the main topic of Python?,8,0.7500,1.0000,0.9060,1.0000,0.7500,1.0000,0.9060,1.0000,0.5000
+Summarize key concepts in Python.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3750
+Give me 3 quiz questions from Python.,3,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000
+What is the main topic of Science?,8,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.2500
+Summarize key concepts in Science.,8,0.2000,1.0000,0.4307,0.2500,0.2000,1.0000,0.4307,0.2500,0.6250
+What is the main topic of emacs?,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.1250
+Summarize key concepts in emacs.,8,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.1250
+Give me 3 quiz questions from emacs.,3,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.3333
