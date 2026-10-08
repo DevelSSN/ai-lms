@@ -88,8 +88,10 @@ def main() -> int:
                     manifest = _json.loads((DS / "corpus-manifest.json").read_text())
                     doc_id = next((d for d, m in manifest.items() if m["filename"] == doc), None)
                     if doc_id:
-                        r = infra.psql(f"SELECT left(extractedtext, 200) FROM content_documents "
-                                       f"WHERE id = '{doc_id}';")
+                        r = infra.psql(
+                            f"SELECT left({infra.pg_column('content_documents', 'extractedText')}, 200) "
+                            f"FROM content_documents WHERE id = '{doc_id}';"
+                        )
                         if r.returncode == 0 and r.stdout.strip():
                             print(f"    snippet: {r.stdout.strip()[:200]!r}")
                 except Exception as e:

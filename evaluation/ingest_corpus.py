@@ -7,7 +7,7 @@ For each PDF in evaluation/files/:
   3. Trigger the deployed parse -> boundary-snapped chunk -> dual-write path by
      POSTing the upload-analysis prefix message to the orchestrator, exactly as
      the gateway upload flow does ("Analyze the uploaded file: <docId>").
-  4. Wait for status=INDEXED and ==1 pgvector rows, then verify the Qdrant point
+  4. Wait for status=INDEXED and >0 pgvector rows, then verify the Qdrant point
      count equals the pgvector chunk count (dual-write parity).
 
 Writes datasets/corpus-manifest.json: {doc_id: {filename, qdrant_chunks,
@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import uuid
 from pathlib import Path
 
 import infra
@@ -40,6 +39,15 @@ def doc_id_for(filename: str) -> str:
     return f"evl-{slug}"
 
 
+def docid_col() -> str:
+    if not docid_col.cache:
+        docid_col.cache.append(infra.pg_column("content_embeddings", "documentId"))
+    return docid_col.cache[0]
+
+
+docid_col.cache = []
+
+
 def seed_doc(filename: str) -> tuple[str, str]:
     data = (FILES / filename).read_bytes()
     doc_id = doc_id_for(filename)
@@ -50,9 +58,14 @@ def seed_doc(filename: str) -> tuple[str, str]:
     else:
         print(f"  MinIO key present, skipping: {key}")
 
+    cols = ", ".join(
+        infra.pg_column("content_documents", c)
+        for c in ("id", "userId", "sessionId", "fileName", "fileType",
+                  "fileSize", "storagePath", "status", "uploadedAt")
+    )
     sql = (
-        "INSERT INTO content_documents (id, userid, sessionid, filename, filetype, filesize,"
-        f" storagepath, status, uploadedat) VALUES ('{doc_id}', 'eval-user', 'eval-ingest',"
+        "INSERT INTO content_documents (" + cols + ")"
+        f" VALUES ('{doc_id}', 'eval-user', 'eval-ingest',"
         f" '{filename.replace(chr(39), chr(39)+chr(39))}', '{PDF_TYPE}', {len(data)},"
         f" '{key.replace(chr(39), chr(39)+chr(39))}', 'UPLOADED', now())"
         " ON CONFLICT (id) DO NOTHING;"
@@ -60,6 +73,9 @@ def seed_doc(filename: str) -> tuple[str, str]:
     r = infra.psql(sql)
     if r.returncode != 0:
         raise RuntimeError(f"seed INSERT failed for {filename}: {r.stderr.strip()}")
+    r = infra.psql(f"SELECT 1 FROM content_documents WHERE id = '{doc_id}';")
+    if r.returncode != 0 or not r.stdout.strip():
+        raise RuntimeError(f"seed row missing for {filename} (id={doc_id})")
     return doc_id, key
 
 
@@ -73,38 +89,42 @@ def trigger_ingest(doc_id: str, filename: str) -> None:
     print(f"  orchestrator ingest trigger OK (doc={full_id})")
 
 
-def _pg_int(sql: str) -> int | None:
+def _pg_int(sql: str) -> int:
     r = infra.psql(sql)
     if r.returncode != 0:
-        return None
+        raise RuntimeError(f"psql failed: {r.stderr.strip()}")
     rows = [ln for ln in r.stdout.splitlines() if ln.strip()]
-    return int(rows[0]) if rows else None
+    if not rows:
+        raise RuntimeError(f"psql returned no rows for: {sql}")
+    return int(rows[0])
 
 
 def verify(doc_id: str, filename: str) -> dict:
-    def rows_indexed() -> bool:
-        return (_pg_int(
-            f"SELECT count(*) FROM content_embeddings WHERE document_id = '{doc_id}';"
-        ) or 0) > 0
+    col = docid_col()
+    doc_filter = {"must": [{"key": "source", "match": {"value": f"doc:{doc_id}"}}]}
 
-    infra.wait_for(rows_indexed, f"pgvector rows for {doc_id}")
-    r = infra.psql(f"SELECT status FROM content_documents WHERE id = '{doc_id}';")
+    def rows_indexed() -> bool:
+        return _pg_int(
+            f"SELECT count(*) FROM content_embeddings WHERE {col} = '{doc_id}';"
+        ) > 0
+
+    try:
+        infra.wait_for(rows_indexed, f"pgvector rows for {doc_id}", timeout_s=600)
+    except TimeoutError as e:
+        raise RuntimeError(
+            f"{e}. inspect the orchestrator log for the deciding line right after the "
+            "trigger: 'Ingested N chunks ... (Qdrant + pgvector)' (write committed, check "
+            "the pgvector schema) or 'Chunk ingestion failed for docId=...' (embed/write "
+            "failed, and the route still returned 200)."
+        ) from e
+
+    status_col = infra.pg_column("content_documents", "status")
+    r = infra.psql(f"SELECT {status_col} FROM content_documents WHERE id = '{doc_id}';")
     status = (r.stdout.strip().splitlines()[0] if r.returncode == 0 and r.stdout.strip() else "UNKNOWN")
     pgv = _pg_int(
-        f"SELECT count(*) FROM content_embeddings WHERE document_id = '{doc_id}';"
-    ) or 0
-
-    source = f"doc:{doc_id}"
-    body = json.dumps({"filter": {"must": [{"key": "source", "match": {"value": source}}]}}).encode()
-    import urllib.request
-    req = urllib.request.Request(
-        f"{infra.QDRANT}/collections/{infra.QDRANT_COLLECTION}/points/count",
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
+        f"SELECT count(*) FROM content_embeddings WHERE {col} = '{doc_id}';"
     )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        qdrant_count = json.load(resp)["result"]["count"]
+    qdrant_count = infra.qdrant_count(infra.QDRANT_COLLECTION, doc_filter)
 
     if status != "INDEXED":
         raise RuntimeError(f"{doc_id} ended in status {status}, expected INDEXED")
@@ -130,6 +150,7 @@ def main() -> int:
         files = [args.file]
 
     existing = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    docid_col()  # fail fast: resolve physical column names before any upload/trigger
     for filename in files:
         print(filename)
         doc_id, _ = seed_doc(filename)

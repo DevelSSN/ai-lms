@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import time
 import urllib.error
@@ -39,6 +40,7 @@ MINIO_REGION = "us-east-1"
 
 QDRANT = os.environ.get("AILMS_QDRANT_REST", "http://localhost:10633")
 QDRANT_COLLECTION = os.environ.get("AILMS_QDRANT_COLLECTION", "ailms-content")
+QDRANT_API_KEY = os.environ.get("AILMS_QDRANT_API_KEY", "qdrant")
 PG_CONTAINER = os.environ.get("AILMS_PG_CONTAINER", "postgres")
 PG_USER = os.environ.get("AILMS_PG_USER", "ailms")
 PG_DB = os.environ.get("AILMS_PG_DB", "ailms")
@@ -133,6 +135,39 @@ def psql(sql: str, timeout: int = 60) -> subprocess.CompletedProcess:
     )
 
 
+_PG_COLUMN_CACHE: dict[tuple[str, str], str] = {}
+
+
+def pg_column(table: str, logical: str) -> str:
+    """Resolve the physical column backing an entity field.
+
+    Tolerates either snake_case (Hibernate 6 / Quarkus 3) or all-lowercase
+    (Hibernate 5) physical naming so the same scripts run against either schema.
+    """
+    key = (table, logical)
+    if key in _PG_COLUMN_CACHE:
+        return _PG_COLUMN_CACHE[key]
+
+    r = psql(
+        "SELECT column_name FROM information_schema.columns "
+        f"WHERE table_name = '{table}' ORDER BY ordinal_position;"
+    )
+    if r.returncode != 0:
+        raise RuntimeError(f"column probe failed for {table}: {r.stderr.strip()}")
+    cols = [ln.strip() for ln in r.stdout.splitlines() if ln.strip()]
+
+    snake = re.sub(r"(?<!^)(?=[A-Z])", "_", logical).lower()
+    candidates = {logical.lower(), snake}
+    matches = [c for c in candidates if c in cols]
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"cannot resolve {table}.{logical}: saw columns {cols}, "
+            f"wanted one of {sorted(candidates)}"
+        )
+    _PG_COLUMN_CACHE[key] = matches[0]
+    return matches[0]
+
+
 def pg_count(query) -> int:
     r = psql(query)
     if r.returncode != 0:
@@ -153,8 +188,9 @@ def pg_ranked(query_vector: list[float], k: int, table: str = "content_embedding
     scratch table instead of polluting the deployed content_embeddings.
     """
     vec = "[" + ",".join(repr(float(x)) for x in query_vector) + "]"
+    doc_col = pg_column("content_embeddings", "documentId")
     sql = (
-        f"SELECT source, document_id, (1 - (embedding <=> '{vec}'::vector)) AS score "
+        f"SELECT source, {doc_col}, (1 - (embedding <=> '{vec}'::vector)) AS score "
         f"FROM {table} ORDER BY embedding <=> '{vec}'::vector LIMIT {k * OVERFETCH};"
     )
     r = psql(sql)
@@ -177,6 +213,26 @@ def pg_ranked(query_vector: list[float], k: int, table: str = "content_embedding
 # Qdrant (REST)
 # ---------------------------------------------------------------------------
 
+def _qdrant_headers() -> dict:
+    headers = {"Content-Type": "application/json"}
+    if QDRANT_API_KEY:
+        headers["api-key"] = QDRANT_API_KEY
+    return headers
+
+
+def qdrant_count(collection: str, query_filter: dict) -> int:
+    """Point count in `collection` matching a Qdrant filter (e.g. source key)."""
+    body = json.dumps({"filter": query_filter}).encode()
+    req = urllib.request.Request(
+        f"{QDRANT}/collections/{collection}/points/count",
+        data=body,
+        headers=_qdrant_headers(),
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.load(resp)["result"]["count"]
+
+
 def qdrant_search(query_vector: list[float], k: int, collection: str = QDRANT_COLLECTION) -> list[dict]:
     return qdrant_ranked(query_vector, k, collection)[:k]
 
@@ -188,7 +244,7 @@ def qdrant_ranked(query_vector: list[float], k: int, collection: str = QDRANT_CO
     req = urllib.request.Request(
         f"{QDRANT}/collections/{collection}/points/search",
         data=body,
-        headers={"Content-Type": "application/json"},
+        headers=_qdrant_headers(),
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=90) as resp:
@@ -210,7 +266,7 @@ def qdrant_upsert(collection: str, points: list[dict]) -> None:
     req = urllib.request.Request(
         f"{QDRANT}/collections/{collection}/points?wait=true",
         data=body,
-        headers={"Content-Type": "application/json"},
+        headers=_qdrant_headers(),
         method="PUT",
     )
     with urllib.request.urlopen(req, timeout=180) as resp:
@@ -223,8 +279,11 @@ def qdrant_recreate_collection(collection: str, size: int = QDRANT_VECTOR_SIZE) 
         ("DELETE", f"{QDRANT}/collections/{collection}"),
         ("PUT", f"{QDRANT}/collections/{collection}"),
     ):
+        headers = _qdrant_headers() if method == "PUT" else None
+        if method == "DELETE" and QDRANT_API_KEY:
+            headers = {"api-key": QDRANT_API_KEY}
         req = urllib.request.Request(url, data=body if method == "PUT" else None,
-                                     method=method)
+                                     headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 resp.read()

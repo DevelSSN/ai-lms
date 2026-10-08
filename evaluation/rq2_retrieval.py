@@ -98,7 +98,10 @@ def extract_corpus_text() -> dict[str, str]:
     manifest = json.loads(MANIFEST.read_text())
     out = {}
     for doc_id in manifest:
-        r = infra.psql(f"SELECT extractedtext FROM content_documents WHERE id = '{doc_id}';")
+        r = infra.psql(
+            f"SELECT {infra.pg_column('content_documents', 'extractedText')} "
+            f"FROM content_documents WHERE id = '{doc_id}';"
+        )
         if r.returncode != 0:
             continue
         text = r.stdout
