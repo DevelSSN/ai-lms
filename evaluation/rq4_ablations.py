@@ -153,21 +153,27 @@ def chunk_arm(size: int, overlap: int, qrels_rel: dict[str, set[str]]) -> dict:
 def zero_shot_accuracy() -> dict:
     held = HERE / "probe-novel" / "heldout-218.csv"
     preds = HERE / "probe-218-predictions.csv"
-    rows = list(csv.DictReader(open(held)))
+    held_reader = csv.DictReader(open(held))
+    headers = set(held_reader.fieldnames or [])
+    if not {"utterance", "intent"} <= headers:
+        raise SystemExit(
+            f"heldout CSV schema drift: {sorted(headers)} — expected 'utterance','intent'"
+        )
+    rows = list(held_reader)
     fs = {}
     if preds.exists():
-        fs_rows = {r["message"]: r["predicted"] for r in csv.DictReader(open(preds))}
-        fs = {"correct": sum(1 for r in rows if fs_rows.get(r["message"]) == r["truth"]),
+        fs_rows = {p["message"]: p["predicted"] for p in csv.DictReader(open(preds))}
+        fs = {"correct": sum(1 for r in rows if fs_rows.get(r["utterance"]) == r["intent"]),
               "n": len(rows)}
 
     zs_correct = 0
     for row in rows:
-        out = infra.ollama_chat(row["message"], system=ZERO_SHOT_SYSTEM)
+        out = infra.ollama_chat(row["utterance"], system=ZERO_SHOT_SYSTEM)
         predicted = out.strip().split()[0].upper() if out else ""
         predicted = predicted.strip(".,:;\"'")
         norm = next((i for i in ZERO_SHOT_INTENTS
                      if predicted.startswith(i) or i.startswith(predicted)), None)
-        if norm == row["truth"]:
+        if norm == row["intent"]:
             zs_correct += 1
 
     zs = {"correct": zs_correct, "n": len(rows), "accuracy": zs_correct / len(rows)}
