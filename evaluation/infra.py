@@ -204,7 +204,7 @@ def pg_ranked(query_vector: list[float], k: int, table: str = "content_embedding
     scratch table instead of polluting the deployed content_embeddings.
     """
     vec = "[" + ",".join(repr(float(x)) for x in query_vector) + "]"
-    doc_col = pg_column("content_embeddings", "documentId")
+    doc_col = pg_column(table, "documentId")
     sql = (
         f"SELECT source, {doc_col}, (1 - (embedding <=> '{vec}'::vector)) AS score "
         f"FROM {table} ORDER BY embedding <=> '{vec}'::vector LIMIT {k * OVERFETCH};"
