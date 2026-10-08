@@ -60,33 +60,40 @@ def _summary(xs: list[float]) -> dict:
 def ttft_pass() -> dict:
     pool = load_primary()
     out = {}
+    raw = []  # (intent, prompt, run, ttft_s, tokens, elapsed_s)
     for intent in INTENTS:
         prompt = pool[intent][0]
         for _ in range(WARMUP):
             infra.ollama_chat_stream(prompt)
         ttfts, tokens = [], []
-        for _ in range(RUNS):
+        for run in range(RUNS):
             r = infra.ollama_chat_stream(prompt)
             ttfts.append(r["ttft_s"])
             tokens.append(r["tokens"])
+            raw.append((intent, prompt, run, r["ttft_s"], r["tokens"], r["elapsed_s"]))
         out[intent] = {"prompt": prompt, **{"ttft": _summary(ttfts)},
                        "tokens_mean": statistics.mean(tokens) if tokens else 0.0}
+    save_csv(HERE / "rq3-ttft.csv", ["intent", "prompt", "run", "ttft_s", "tokens", "elapsed_s"], raw)
     return out
 
 
 def e2e_pass() -> dict:
     pool = load_primary()
     out = {}
+    raw = []  # (intent, prompt, run, e2e_s)
     for intent in INTENTS:
         prompt = pool[intent][0]
         for _ in range(WARMUP):
             infra.orchestrate(prompt, session_id="eval-rq3", user_id="eval-rq3")
         lat = []
-        for _ in range(RUNS):
+        for run in range(RUNS):
             t0 = time.perf_counter()
             infra.orchestrate(prompt, session_id="eval-rq3", user_id="eval-rq3")
-            lat.append(time.perf_counter() - t0)
+            d = time.perf_counter() - t0
+            lat.append(d)
+            raw.append((intent, prompt, run, d))
         out[intent] = {"prompt": prompt, "e2e_s": _summary(lat)}
+    save_csv(HERE / "rq3-e2e.csv", ["intent", "prompt", "run", "e2e_s"], raw)
     return out
 
 
@@ -121,6 +128,8 @@ def throughput_pass(concurrency: int) -> dict:
         t.join()
     lat = [x for x in done if x >= 0.0]
     completed = len(lat)
+    save_csv(HERE / f"rq3-throughput-c{concurrency}.csv",
+             ["concurrency", "latency_s"], [(concurrency, x) for x in lat])
     return {
         "concurrency": concurrency,
         "window_s": WINDOW_S,
@@ -128,6 +137,13 @@ def throughput_pass(concurrency: int) -> dict:
         "per_min": completed * 60.0 / WINDOW_S,
         "latency": _summary(lat) if lat else None,
     }
+
+
+def save_csv(path: Path, header: list[str], rows: list[tuple]) -> None:
+    with open(path, "w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(header)
+        w.writerows(rows)
 
 
 def main() -> int:
