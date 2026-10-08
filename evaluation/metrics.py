@@ -142,6 +142,10 @@ def wald_ci(successes: int, n: int, z: float = 1.96) -> dict[str, float]:
     if n <= 0:
         return {"point": None, "lo": None, "hi": None}
     p = successes / n
+    if not 0.0 <= p <= 1.0:
+        raise ValueError(
+            f"wald_ci: p={p!r} (successes={successes!r}, n={n!r}) outside [0,1]"
+        )
     se = math.sqrt(p * (1 - p) / n)
     lo = max(0.0, p - z * se)
     hi = min(1.0, p + z * se)
@@ -206,6 +210,13 @@ def aggregate_over_queries(per_query: Sequence[dict]) -> dict:
         if not vals:
             continue
         s = summary(vals)
-        ci = wald_ci(sum(vals), len(vals))  # mean proportion CI (valid for 0/1 metrics)
+        s_vals = sum(vals)
+        if not 0.0 <= (s_vals / len(vals)) <= 1.0:
+            raise ValueError(
+                f"aggregate_over_queries: metric {k!r} values outside [0,1]: "
+                f"sum={s_vals} n={len(vals)} "
+                f"vals={vals[:8]}{'...' if len(vals) > 8 else ''}"
+            )
+        ci = wald_ci(s_vals, len(vals))  # mean proportion CI (valid for 0/1 metrics)
         out[k] = {"mean": s["mean"], "sd": s["sd"], "n": s["n"], "ci95": [ci["lo"], ci["hi"]]}
     return out
