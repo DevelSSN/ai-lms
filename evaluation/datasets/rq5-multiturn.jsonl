@@ -1,0 +1,120 @@
+{"conv_id": "c0", "turn": 1, "user": "What are the main differences between a sole proprietorship and a corporation?"}
+{"conv_id": "c0", "turn": 2, "user": "Rename \"sole proprietorship\" to \"single-owner\" and restate its biggest risk."}
+{"conv_id": "c1", "turn": 1, "user": "What are the typical stages of the business decision-making process, in order?"}
+{"conv_id": "c1", "turn": 2, "user": "Which stage did you list third, and why is it important?"}
+{"conv_id": "c2", "turn": 1, "user": "Explain the difference between fixed costs and variable costs with one example each."}
+{"conv_id": "c2", "turn": 2, "user": "Give two more examples of a fixed cost, like the ones you just mentioned."}
+{"conv_id": "c3", "turn": 1, "user": "Name the four main functions of management in order."}
+{"conv_id": "c3", "turn": 2, "user": "Go back to staffing, the third one, and tell me more about it."}
+{"conv_id": "c4", "turn": 1, "user": "What does SWOT stand for and what does each letter mean?"}
+{"conv_id": "c4", "turn": 2, "user": "Which of the four did you say looks at internal factors? Repeat them."}
+{"conv_id": "c5", "turn": 1, "user": "What does a cash flow statement contain?"}
+{"conv_id": "c5", "turn": 2, "user": "List those three sections again in the same order."}
+{"conv_id": "c6", "turn": 1, "user": "What is the difference between debt financing and equity financing?"}
+{"conv_id": "c6", "turn": 2, "user": "Rename the first one to \"borrowed capital\" and list its main drawback."}
+{"conv_id": "c7", "turn": 1, "user": "Explain how present value relates to compound interest."}
+{"conv_id": "c7", "turn": 2, "user": "Which formula did you give for present value? Write it again."}
+{"conv_id": "c8", "turn": 1, "user": "What are the main components of a corporate balance sheet?"}
+{"conv_id": "c8", "turn": 2, "user": "Which of the three components did you say is reported at a point in time?"}
+{"conv_id": "c9", "turn": 1, "user": "Define supply and demand and how they set a market price."}
+{"conv_id": "c9", "turn": 2, "user": "Which curve did you say shifts when income rises? Restate that effect."}
+{"conv_id": "c10", "turn": 1, "user": "Compare renewable and non-renewable energy sources."}
+{"conv_id": "c10", "turn": 2, "user": "Rename \"non-renewable\" to \"depletable\" and repeat its main drawback."}
+{"conv_id": "c11", "turn": 1, "user": "List the main components of a personal budget."}
+{"conv_id": "c11", "turn": 2, "user": "Which component did you say should be prioritized first?"}
+{"conv_id": "c12", "turn": 1, "user": "What were the main organic reaction mechanisms, such as SN1, SN2, E1, and E2?"}
+{"conv_id": "c12", "turn": 2, "user": "Which mechanism did you describe second? Explain it again in one sentence."}
+{"conv_id": "c13", "turn": 1, "user": "Explain how NMR spectroscopy helps identify molecular structure."}
+{"conv_id": "c13", "turn": 2, "user": "What signal did you say corresponds to hydrogen? Repeat what that shows."}
+{"conv_id": "c14", "turn": 1, "user": "How do you perform a titration correctly?"}
+{"conv_id": "c14", "turn": 2, "user": "Where exactly did you say to add the indicator?"}
+{"conv_id": "c15", "turn": 1, "user": "What is the difference between addition and condensation polymerization?"}
+{"conv_id": "c15", "turn": 2, "user": "Rename the second one to \"step-growth\" and give a fresh example."}
+{"conv_id": "c16", "turn": 1, "user": "How do catalysts lower activation energy?"}
+{"conv_id": "c16", "turn": 2, "user": "Tell me more about that energy diagram you mentioned."}
+{"conv_id": "c17", "turn": 1, "user": "List the main functional groups that appear in organic chemistry."}
+{"conv_id": "c17", "turn": 2, "user": "You mentioned the hydroxyl group \u2014 what does it do?"}
+{"conv_id": "c18", "turn": 1, "user": "Name Newton's three laws of motion briefly."}
+{"conv_id": "c18", "turn": 2, "user": "Give another real-world example of the law about equal and opposite forces."}
+{"conv_id": "c19", "turn": 1, "user": "What are the main phases of the water cycle?"}
+{"conv_id": "c19", "turn": 2, "user": "Which phase did you say comes before condensation?"}
+{"conv_id": "c20", "turn": 1, "user": "What are the main strategies for climate change adaptation?"}
+{"conv_id": "c20", "turn": 2, "user": "Go back to the strategy about coastal protection and give more detail."}
+{"conv_id": "c21", "turn": 1, "user": "What are the key elements of a strong thesis statement?"}
+{"conv_id": "c21", "turn": 2, "user": "Rephrase the second element in simpler words."}
+{"conv_id": "c22", "turn": 1, "user": "What structure does a well-formed problem statement usually follow?"}
+{"conv_id": "c22", "turn": 2, "user": "What word did you say should appear in the first sentence?"}
+{"conv_id": "c23", "turn": 1, "user": "Explain the typical peer-review steps for an engineering report."}
+{"conv_id": "c23", "turn": 2, "user": "Which step came right before the one you called 'final revision'?"}
+{"conv_id": "c24", "turn": 1, "user": "What are the main categories of variables in programming?"}
+{"conv_id": "c24", "turn": 2, "user": "Rename the second category with the term \"mutable\" \u2014 does that still fit its definition?"}
+{"conv_id": "c25", "turn": 1, "user": "Explain how binary search works step by step."}
+{"conv_id": "c25", "turn": 2, "user": "What was the very first step you stated?"}
+{"conv_id": "c26", "turn": 1, "user": "Compare stacks and queues with one example each."}
+{"conv_id": "c26", "turn": 2, "user": "Swap those examples so the queue now uses the stack's example."}
+{"conv_id": "c27", "turn": 1, "user": "What is the difference between compiled and interpreted languages?"}
+{"conv_id": "c27", "turn": 2, "user": "Which one did you say executes line by line?"}
+{"conv_id": "c28", "turn": 1, "user": "List the five major components of a computer."}
+{"conv_id": "c28", "turn": 2, "user": "Which component did you list after memory?"}
+{"conv_id": "c29", "turn": 1, "user": "What is the difference between a list and a tuple in Python?"}
+{"conv_id": "c29", "turn": 2, "user": "Which of the two is immutable again?"}
+{"conv_id": "c30", "turn": 1, "user": "How do a for loop and a while loop differ?"}
+{"conv_id": "c30", "turn": 2, "user": "Change the while-loop example so it prints a countdown \u2014 which example is that?"}
+{"conv_id": "c31", "turn": 1, "user": "What does a Python function's return statement do?"}
+{"conv_id": "c31", "turn": 2, "user": "What happens when a function has no return \u2014 restate what you said."}
+{"conv_id": "c32", "turn": 1, "user": "Summarize how a Python dictionary stores data."}
+{"conv_id": "c32", "turn": 2, "user": "Rename \"key\" to \"label\" in your explanation and repeat it."}
+{"conv_id": "c33", "turn": 1, "user": "What are the primitive data types in Python?"}
+{"conv_id": "c33", "turn": 2, "user": "Which type did you list last?"}
+{"conv_id": "c34", "turn": 1, "user": "What are the steps to solve a quadratic equation by factoring?"}
+{"conv_id": "c34", "turn": 2, "user": "What did you say to do immediately after factoring?"}
+{"conv_id": "c35", "turn": 1, "user": "Explain the difference between mean, median, and mode."}
+{"conv_id": "c35", "turn": 2, "user": "Which of the three is most affected by outliers? Repeat why."}
+{"conv_id": "c36", "turn": 1, "user": "What is the chain rule and how is it applied?"}
+{"conv_id": "c36", "turn": 2, "user": "Which part did you say to differentiate first, the outer or the inner?"}
+{"conv_id": "c37", "turn": 1, "user": "State the Pythagorean theorem and its main uses."}
+{"conv_id": "c37", "turn": 2, "user": "Rename \"hypotenuse\" to \"longest side\" and restate the relation."}
+{"conv_id": "c38", "turn": 1, "user": "What are the distance and midpoint formulas in coordinate geometry?"}
+{"conv_id": "c38", "turn": 2, "user": "Write the midpoint formula again, the one you gave second."}
+{"conv_id": "c39", "turn": 1, "user": "List the basic exponent properties."}
+{"conv_id": "c39", "turn": 2, "user": "Which exponent property applies when you multiply terms with the same base?"}
+{"conv_id": "c40", "turn": 1, "user": "What are the main steps of the data science project lifecycle, in order?"}
+{"conv_id": "c40", "turn": 2, "user": "Which step did you place between cleaning and modeling?"}
+{"conv_id": "c41", "turn": 1, "user": "Explain the difference between supervised and unsupervised learning."}
+{"conv_id": "c41", "turn": 2, "user": "Rename the second one to \"self-labeled\" \u2014 does that fit its definition?"}
+{"conv_id": "c42", "turn": 1, "user": "What is cross-validation and why is it used?"}
+{"conv_id": "c42", "turn": 2, "user": "How many folds did you say is typical? Repeat that."}
+{"conv_id": "c43", "turn": 1, "user": "What are precision and recall and how do they differ?"}
+{"conv_id": "c43", "turn": 2, "user": "Which one did you say rewards avoiding false positives?"}
+{"conv_id": "c44", "turn": 1, "user": "Summarize what a confusion matrix contains."}
+{"conv_id": "c44", "turn": 2, "user": "Which quadrant did you call true positives?"}
+{"conv_id": "c45", "turn": 1, "user": "What does the bias-variance tradeoff describe?"}
+{"conv_id": "c45", "turn": 2, "user": "Which error source did you say is high variance? Restate it."}
+{"conv_id": "c46", "turn": 1, "user": "What are the main ways to navigate buffers in Emacs?"}
+{"conv_id": "c46", "turn": 2, "user": "Which navigation command did you list second?"}
+{"conv_id": "c47", "turn": 1, "user": "Explain the difference between C-x C-f and C-x C-s."}
+{"conv_id": "c47", "turn": 2, "user": "Which of the two opens a file? Repeat its binding."}
+{"conv_id": "c48", "turn": 1, "user": "What basic editing modes does Emacs support?"}
+{"conv_id": "c48", "turn": 2, "user": "Rename \"insert mode\" to \"editing mode\" and describe it."}
+{"conv_id": "c49", "turn": 1, "user": "How do you search and replace text in Emacs?"}
+{"conv_id": "c49", "turn": 2, "user": "What key sequence starts a search \u2014 the first one you listed?"}
+{"conv_id": "c50", "turn": 1, "user": "What does the minibuffer do in Emacs?"}
+{"conv_id": "c50", "turn": 2, "user": "What did you say appears in it after M-x?"}
+{"conv_id": "c51", "turn": 1, "user": "List the common Emacs keybindings for saving and quitting."}
+{"conv_id": "c51", "turn": 2, "user": "Which of them quits Emacs entirely?"}
+{"conv_id": "c52", "turn": 1, "user": "What is opportunity cost in economics?"}
+{"conv_id": "c52", "turn": 2, "user": "Tell me more about that 'next best alternative' you mentioned."}
+{"conv_id": "c53", "turn": 1, "user": "Describe the main steps of the scientific method in order."}
+{"conv_id": "c53", "turn": 2, "user": "What was the step right after forming a hypothesis?"}
+{"conv_id": "c54", "turn": 1, "user": "What are the main causes of market failure?"}
+{"conv_id": "c54", "turn": 2, "user": "Restate the cause involving information, which you listed second."}
+{"conv_id": "c55", "turn": 1, "user": "Explain the four pillars of data quality."}
+{"conv_id": "c55", "turn": 2, "user": "Rename the third pillar to \"reliability\" and redefine it."}
+{"conv_id": "c56", "turn": 1, "user": "What is the difference between knowledge and skill in learning?"}
+{"conv_id": "c56", "turn": 2, "user": "You mentioned \"declarative\" for one of them \u2014 which was it, and what does that mean?"}
+{"conv_id": "c57", "turn": 1, "user": "Describe the typical phases of a software project lifecycle."}
+{"conv_id": "c57", "turn": 2, "user": "Rewrite the phase that follows Initiation under the name \"Planning\" and continue from there."}
+{"conv_id": "c58", "turn": 1, "user": "What are the main differences between TCP and UDP?"}
+{"conv_id": "c58", "turn": 2, "user": "Which one did you say is connection-oriented? Repeat its reliability guarantee."}
+{"conv_id": "c59", "turn": 1, "user": "What does a business's break-even point represent?"}
+{"conv_id": "c59", "turn": 2, "user": "Which formula did you give for it? Write it again."}

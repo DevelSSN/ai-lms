@@ -1,0 +1,22 @@
+{"query": "What is the main topic of Business?", "doc": "Business.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Business.", "doc": "Business.pdf", "relevance": 1.0}
+{"query": "Give me 3 quiz questions from Business.", "doc": "Business.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Complex Molecular Synthesis?", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Complex Molecular Synthesis.", "doc": "Complex Molecular Synthesis.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Eng Comp?", "doc": "Eng Comp.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0}
+{"query": "Give me 3 quiz questions from Eng Comp.", "doc": "Eng Comp.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Fin?", "doc": "Fin.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Fin.", "doc": "Fin.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "doc": "Introduction_To_Computer_Science_-_WEB.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "doc": "Introduction_to_Python_Programming-WEB.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Math?", "doc": "Math.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Math.", "doc": "Math.pdf", "relevance": 1.0}
+{"query": "Give me 3 quiz questions from Math.", "doc": "Math.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "doc": "Principles-of-Data-Science-WEB.pdf", "relevance": 1.0}
+{"query": "What is the main topic of Python?", "doc": "Python.pdf", "relevance": 1.0}
+{"query": "Summarize key concepts in Python.", "doc": "Python.pdf", "relevance": 1.0}

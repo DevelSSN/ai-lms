@@ -1,0 +1,28 @@
+{"query": "What is the main topic of Business?", "target_doc": "Business.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Business.", "target_doc": "Business.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from Business.", "target_doc": "Business.pdf", "intent": "ASSESSMENT"}
+{"query": "What is the main topic of Complex Molecular Synthesis?", "target_doc": "Complex Molecular Synthesis.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Complex Molecular Synthesis.", "target_doc": "Complex Molecular Synthesis.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "What is the main topic of Eng Comp?", "target_doc": "Eng Comp.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Eng Comp.", "target_doc": "Eng Comp.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from Eng Comp.", "target_doc": "Eng Comp.pdf", "intent": "ASSESSMENT"}
+{"query": "What is the main topic of Fin?", "target_doc": "Fin.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Fin.", "target_doc": "Fin.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "What is the main topic of Introduction_To_Computer_Science_-_WEB?", "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Introduction_To_Computer_Science_-_WEB.", "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from Introduction_To_Computer_Science_-_WEB.", "target_doc": "Introduction_To_Computer_Science_-_WEB.pdf", "intent": "ASSESSMENT"}
+{"query": "What is the main topic of Introduction_to_Python_Programming-WEB?", "target_doc": "Introduction_to_Python_Programming-WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Introduction_to_Python_Programming-WEB.", "target_doc": "Introduction_to_Python_Programming-WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "What is the main topic of Math?", "target_doc": "Math.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Math.", "target_doc": "Math.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from Math.", "target_doc": "Math.pdf", "intent": "ASSESSMENT"}
+{"query": "What is the main topic of Principles-of-Data-Science-WEB?", "target_doc": "Principles-of-Data-Science-WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Principles-of-Data-Science-WEB.", "target_doc": "Principles-of-Data-Science-WEB.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "What is the main topic of Python?", "target_doc": "Python.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Python.", "target_doc": "Python.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from Python.", "target_doc": "Python.pdf", "intent": "ASSESSMENT"}
+{"query": "What is the main topic of Science?", "target_doc": "Science.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in Science.", "target_doc": "Science.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "What is the main topic of emacs?", "target_doc": "emacs.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Summarize key concepts in emacs.", "target_doc": "emacs.pdf", "intent": "CONTENT_ANALYSIS"}
+{"query": "Give me 3 quiz questions from emacs.", "target_doc": "emacs.pdf", "intent": "ASSESSMENT"}
