@@ -66,13 +66,17 @@ def kappa_from_files(a_path: Path, b_path: Path):
 def table7(rq2: dict) -> list[list[str]]:
     g = {"k8": rq2.get("k8", {}), "k3": rq2.get("k3", {})}
     kappa = kappa_from_files(DS / "qrels-a.jsonl", DS / "qrels-b.jsonl")
+    if kappa is None:
+        kappa = rq2.get("cohens_kappa_a_vs_b")
     flat = rq2.get("flat_baseline", {})
     rows = []
     for label, key in (("Precision@k", "P@k"), ("Recall@k", "R@k"),
                        ("nDCG@k", "nDCG@k"), ("MRR", "MRR")):
-        v8, v3 = g["k8"].get("qdrant", {}).get(key), g["k3"].get("qdrant", {}).get(key)
-        s8, s3 = g["k8"].get("qdrant", {}).get("sd_"+key), g["k3"].get("qdrant", {}).get("sd_"+key)
-        rows.append([label, fmt(v8, s8), fmt(v3, s3)])
+        cells = []
+        for side in g.values():
+            agg = (side.get("qdrant") or {}).get(key) or {}
+            cells.append(fmt(agg.get("mean"), agg.get("sd")))
+        rows.append([label, *cells])
     rows.append(["Cohen's kappa (gold annotators)", fmt(kappa), fmt(kappa)])
     a_mean = (g["k8"].get("agreement_mean") or {}).get("mean")
     a_mean3 = (g["k3"].get("agreement_mean") or {}).get("mean")
