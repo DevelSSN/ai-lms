@@ -64,7 +64,7 @@ class VectorDBServiceTest {
   }
 
   @Test
-  void ingestDocumentChunks_embedsThenPersistsThenPurgesOld() {
+  void ingestDocumentChunks_purgesStaleThenEmbedsThenPersists() {
     when(embeddingModel.embed(any(TextSegment.class)))
         .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f, 0.3f})));
 
@@ -72,10 +72,10 @@ class VectorDBServiceTest {
     svc.ingestDocumentChunks(List.of("chunk one", "chunk two"), "doc-1", "document");
 
     InOrder order = inOrder(embeddingStore, contentEmbeddingRepository);
+    order.verify(embeddingStore).removeAll(any(Filter.class));
     order.verify(embeddingStore, times(2)).add(any(Embedding.class), any(TextSegment.class));
     order.verify(contentEmbeddingRepository)
         .replaceAll(eq("doc-1"), eq("doc:doc-1"), eq("document"), any());
-    order.verify(embeddingStore).removeAll(any(Filter.class));
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<ContentEmbedding>> captor = ArgumentCaptor.forClass(List.class);
@@ -99,6 +99,21 @@ class VectorDBServiceTest {
     assertThrows(
         RuntimeException.class,
         () -> svc.ingestDocumentChunks(List.of("a", "b"), "doc-1", "document"));
+    verify(contentEmbeddingRepository, never())
+        .replaceAll(any(), any(), any(), any());
+  }
+
+  @Test
+  void ingestDocumentChunks_purgeFailureAbortsBeforeEmbeddingOrPersistence() {
+    doThrow(new RuntimeException("qdrant down"))
+        .when(embeddingStore)
+        .removeAll(any(Filter.class));
+
+    VectorDBService svc = newService();
+    assertThrows(
+        IllegalStateException.class,
+        () -> svc.ingestDocumentChunks(List.of("a", "b"), "doc-1", "document"));
+    verify(embeddingStore, never()).add(any(Embedding.class), any(TextSegment.class));
     verify(contentEmbeddingRepository, never())
         .replaceAll(any(), any(), any(), any());
   }
