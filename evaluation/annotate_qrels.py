@@ -36,7 +36,20 @@ def existing_rows(annotator: str) -> list[dict]:
     p = DS / f"qrels-{annotator}.jsonl"
     if not p.exists():
         return []
-    return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+    rows = []
+    dropped = 0
+    for l in p.read_text().splitlines():
+        if not l.strip():
+            continue
+        r = json.loads(l)
+        if all(k in r for k in ("query", "doc", "relevance", "annotator", "timestamp")):
+            rows.append(r)
+        else:
+            dropped += 1
+    if dropped:
+        print(f"note: skipped {dropped} legacy/incomplete row(s) in {p.name} "
+              f"(missing annotator/timestamp — re-judging them from the pool)")
+    return rows
 
 
 def main() -> int:
