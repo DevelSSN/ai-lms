@@ -1,5 +1,10 @@
 # AI-LMS Evaluation Plan (RQ1–RQ4)
 
+> **SUPERSEDED (Phase 10.2 of `SN-Tasks.md`).** This plan targets the old IEEE
+> `paper.tex` structure (deepseek model, IEEE Tables V–IX). The canonical Springer
+> runbook is `../test.md` (Tables 5–10, llama3.2:3b + nomic-embed-text, RQ1–RQ5).
+> Kept in the tree for history; do not execute from this file.
+
 Execution plan to obtain all hard numbers for the paper's §Evaluation tables
 (`tab:evalsetup`, `tab:rq1`–`tab:rq4`) and the abstract/conclusion `%TODO-RESULTS`
 slots in `paper.tex` (MP-All/paper.tex).
