@@ -33,7 +33,9 @@ import random
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import infra
 
@@ -57,20 +59,51 @@ def load_convs() -> dict[str, dict]:
     return convs
 
 
-def send(message: str, user: str, session: str) -> dict:
-    return infra.orchestrate(message, session_id=session, user_id=user)
+def send(message: str, user: str, session: str, timeout: int) -> dict:
+    try:
+        return infra.orchestrate(message, session_id=session, user_id=user, timeout=timeout)
+    except TimeoutError as exc:
+        raise RuntimeError(
+            f"orchestrator request timed out after {timeout}s (session={session})") from exc
 
 
 def run_conv(conv: dict, config: str, user_id: str, session_t1: str, session_t2: str,
-             topic_label: str) -> dict:
-    t1 = send(conv[1], user_id, session_t1)
+             topic_label: str, timeout: int) -> dict:
+    t1 = send(conv[1], user_id, session_t1, timeout)
     t1_text = t1.get("response") or t1.get("reply") or t1.get("message") or ""
     if config == "c":
-        send(PROFILE_UPDATE.format(topic=topic_label), user_id, session_t2)
-    t2 = send(conv[2], user_id, session_t2)
+        send(PROFILE_UPDATE.format(topic=topic_label), user_id, session_t2, timeout)
+    t2 = send(conv[2], user_id, session_t2, timeout)
     t2_text = t2.get("response") or t2.get("reply") or t2.get("message") or ""
     return {"turn1_user": conv[1], "turn2_user": conv[2],
             "turn1_system": t1_text, "turn2_system": t2_text}
+
+
+def completed_set() -> set[tuple[str, str]]:
+    out = set()
+    if not RESPONSES.exists():
+        return out
+    for line in RESPONSES.read_text().splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        out.add((r["conv_id"], r["label"]))
+    return out
+
+
+def wait_for_orchestrator(timeout_s: int = 180, poll_s: float = 3.0) -> None:
+    base = urlsplit(infra.ORCHESTRATE)
+    health = f"{base.scheme}://{base.netloc}/q/health"
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(health, timeout=2) as resp:
+                if resp.status == 200:
+                    return
+        except Exception:
+            pass
+        time.sleep(poll_s)
+    raise RuntimeError(f"orchestrator not healthy at {health}")
 
 
 def main() -> int:
@@ -78,43 +111,63 @@ def main() -> int:
     ap.add_argument("--configs", default="a,b,c")
     ap.add_argument("--sessions", default=None,
                     help="fixed session base e.g. eval-rq5 (default: per-conv random)")
+    ap.add_argument("--timeout", type=int, default=600,
+                    help="per-request timeout in seconds (default: %(default)s)")
+    ap.add_argument("--resume", action="store_true",
+                    help="skip convs already present in rq5-responses.jsonl")
     ap.add_argument("--restart", action="store_true")
     ap.add_argument("--container", default="orchestrator")
+    ap.add_argument("--restart-helper", default=None,
+                    help="script to restart the orchestrator (default: podman restart --container)")
     args = ap.parse_args()
 
     random.seed(20241001)
     convs = load_convs()
     vc = [c for c in args.configs.split(",") if c in LABELS] or list(LABELS)
 
-    responses: list[dict] = []
-    raw_rows: list[tuple[str, str, str, str]] = []
-    blind_map: dict[str, dict] = {}
+    if not args.resume:
+        for p in (RESPONSES, RAW, RESTART_RESPONSES):
+            p.unlink(missing_ok=True)
+    done = completed_set() if args.resume else set()
 
-    for conv_id in sorted(convs, key=lambda c: int(c[1:])):
-        conv = convs[conv_id]
-        perm = random.sample(list(vc), len(vc))
-        anon = ANON[: len(vc)]
-        labels_for_conv = dict(zip(perm, anon))
-        base = args.sessions or f"eval-rq5-{conv_id}"
-        for config in vc:
-            anon_label = labels_for_conv[config]
-            t1_session = f"{base}-t1-{config}"
-            t2_session = f"{base}-t1-{config}" if config in ("b", "c") else f"{base}-t2-{config}"
-            out = run_conv(conv, config, "eval-user-rq5", t1_session, t2_session, conv[1][:80])
-            responses.append({"conv_id": conv_id, "label": anon_label, **out})
-            raw_rows.append((conv_id, config, out["turn2_system"]))
-            time.sleep(0.5)  # pacing: the numbers box is a single CPU box
+    with open(RESPONSES, "a") as responses_file, open(RAW, "a", newline="") as raw_file:
+        raw_w = csv.writer(raw_file)
+        if raw_file.tell() == 0:
+            raw_w.writerow(["conv_id", "config", "turn2_system"])
+        try:
+            for conv_id in sorted(convs, key=lambda c: int(c[1:])):
+                conv = convs[conv_id]
+                perm = random.sample(list(vc), len(vc))
+                anon = ANON[: len(vc)]
+                labels_for_conv = dict(zip(perm, anon))
+                base = args.sessions or f"eval-rq5-{conv_id}"
+                for config in vc:
+                    anon_label = labels_for_conv[config]
+                    if (conv_id, anon_label) in done:
+                        print(f"  {conv_id}/{config}: already recorded, skipping")
+                        continue
+                    t1_session = f"{base}-t1-{config}"
+                    t2_session = f"{base}-t1-{config}" if config in ("b", "c") else f"{base}-t2-{config}"
+                    out = run_conv(conv, config, "eval-user-rq5", t1_session, t2_session,
+                                   conv[1][:80], args.timeout)
+                    responses_file.write(json.dumps({"conv_id": conv_id, "label": anon_label, **out}) + "\n")
+                    responses_file.flush()
+                    raw_w.writerow((conv_id, config, out["turn2_system"]))
+                    raw_file.flush()
+                    time.sleep(0.5)  # pacing: the numbers box is a single CPU box
+        except Exception:
+            print(f"\npartial results kept in {RESPONSES}; fix state and re-run with --resume",
+                  file=sys.stderr)
+            raise
 
-    RESPONSES.write_text("".join(json.dumps(r) + "\n" for r in responses))
     BLIND_MAP.write_text(json.dumps(blind_map_full(convs, vc), indent=2) + "\n")
-    with open(RAW, "w") as fh:
-        w = csv.writer(fh)
-        w.writerow(["conv_id", "config", "turn2_system"])
-        w.writerows(raw_rows)
-    print(f"wrote {RESPONSES} ({len(responses)} turns), {BLIND_MAP}, {RAW}")
+    n = len(RESPONSES.read_text().splitlines())
+    print(f"wrote {RESPONSES} ({n} turns), {BLIND_MAP}, {RAW}")
 
     if args.restart:
-        run_restart_test(convs, args.container)
+        restart_cmd = [args.restart_helper] if args.restart_helper \
+            else ["podman", "restart", "-t", "10", args.container]
+        run_restart_test(convs, restart_cmd, args.timeout)
     return 0
 
 
@@ -129,21 +182,23 @@ def blind_map_full(convs, vc):
     return out
 
 
-def run_restart_test(convs, container: str) -> None:
+def run_restart_test(convs, restart_cmd, timeout: int) -> None:
     picks = ["c" + str(i) for i in range(6)]  # subset (6 conversations)
     rows = []
     for cid in picks:
+        if cid not in convs:
+            raise ValueError(f"restart-pick conv {cid!r} missing from {MULTITURN}")
         conv = convs[cid]
         user = "eval-user-rq5-restart"
         session = f"eval-rq5-restart-{cid}"
-        t1 = send(conv[1], user, session)
+        t1 = send(conv[1], user, session, timeout)
         t1_text = t1.get("response") or ""
-        print(f"  restart test {cid}: restarting {container} ...")
-        r = subprocess.run(["podman", "restart", "-t", "10", container],
-                           capture_output=True, text=True, timeout=120)
+        print(f"  restart test {cid}: restarting orchestrator ...")
+        r = subprocess.run(restart_cmd, capture_output=True, text=True, timeout=120)
         if r.returncode != 0:
-            raise RuntimeError(f"podman restart failed: {r.stderr.strip()}")
-        t2 = send(conv[2], user, session)
+            raise RuntimeError(f"restart failed: {r.stderr.strip()}")
+        wait_for_orchestrator()
+        t2 = send(conv[2], user, session, timeout)
         t2_text = t2.get("response") or ""
         rows.append({"conv_id": cid, "restarted_after": "turn1",
                      "turn1_user": conv[1], "turn2_user": conv[2],
