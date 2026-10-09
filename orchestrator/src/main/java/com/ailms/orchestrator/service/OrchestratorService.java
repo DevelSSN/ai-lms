@@ -880,6 +880,10 @@ public class OrchestratorService {
   }
 
   private String lastUsableAnswer(String intent, String answer) {
+    if (INTENT_CONVERSATION.equals(intent) && answer != null && !answer.isBlank()) {
+      log.warn("Verifier rejected conversation answer but non-blank; delivering it");
+      return answer;
+    }
     if (INTENT_ASSESSMENT.equals(intent) && !parseQuizItems(answer).isEmpty()) {
       log.warn("Verifier rejected assessment but quiz is structurally valid, delivering it");
       return answer;
