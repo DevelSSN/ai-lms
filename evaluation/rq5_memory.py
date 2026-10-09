@@ -148,7 +148,8 @@ def main() -> int:
                         continue
                     t1_session = f"{base}-t1-{config}"
                     t2_session = f"{base}-t1-{config}" if config in ("b", "c") else f"{base}-t2-{config}"
-                    out = run_conv(conv, config, "eval-user-rq5", t1_session, t2_session,
+                    user_id = f"eval-user-rq5-{conv_id.lower()}-{config}"
+                    out = run_conv(conv, config, user_id, t1_session, t2_session,
                                    conv[1][:80], args.timeout)
                     responses_file.write(json.dumps({"conv_id": conv_id, "label": anon_label, **out}) + "\n")
                     responses_file.flush()
@@ -189,7 +190,7 @@ def run_restart_test(convs, restart_cmd, timeout: int) -> None:
         if cid not in convs:
             raise ValueError(f"restart-pick conv {cid!r} missing from {MULTITURN}")
         conv = convs[cid]
-        user = "eval-user-rq5-restart"
+        user = f"eval-user-rq5-restart-{cid}"
         session = f"eval-rq5-restart-{cid}"
         t1 = send(conv[1], user, session, timeout)
         t1_text = t1.get("response") or ""

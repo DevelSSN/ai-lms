@@ -83,11 +83,12 @@ def e2e_pass() -> dict:
     raw = []  # (intent, prompt, run, e2e_s)
     for intent in INTENTS:
         prompt = pool[intent][0]
-        sid = f"eval-rq3-{intent.lower()}"
         for _ in range(WARMUP):
+            sid = f"warm-{intent.lower()}-{time.time_ns()}"
             infra.orchestrate(prompt, session_id=sid, user_id=sid)
         lat = []
         for run in range(RUNS):
+            sid = f"eval-rq3-{intent.lower()}-r{run}"
             t0 = time.perf_counter()
             infra.orchestrate(prompt, session_id=sid, user_id=sid)
             d = time.perf_counter() - t0
