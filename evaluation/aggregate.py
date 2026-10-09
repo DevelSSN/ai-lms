@@ -87,6 +87,19 @@ def table7(rq2: dict) -> list[list[str]]:
     return rows
 
 
+def _pooled(csv_name: str, col: str) -> dict | None:
+    p = HERE / csv_name
+    if not p.exists():
+        return None
+    try:
+        vals = [float(r[col]) for r in csv.DictReader(open(p))]
+    except Exception:
+        return None
+    if not vals:
+        return None
+    return metrics.percentiles(vals, [50, 95, 99])
+
+
 def table8(rq3: dict) -> list[list[str]]:
     stages = rq3.get("stage_timings", {})  # from the @QuarkusTest, seconds
     ttft = {k: v.get("ttft", {}) for k, v in rq3.get("ttft", {}).items()}
@@ -103,8 +116,19 @@ def table8(rq3: dict) -> list[list[str]]:
     stage_row("Tika extraction", stages.get("tika"))
     stage_row("Embedding", stages.get("embedding"))
     stage_row("Vector retrieval", stages.get("retrieval"))
-    # TTFT and e2e are measured client-side here; ms conversion happens below.
-    for label, src in (("LLM time-to-first-token", ttft), ("End-to-end total", e2e)):
+    # TTFT and e2e are measured client-side here; pool across runs from the raw
+    # CSVs so the row reflects the whole distribution, not an intent-equal mean.
+    pooled = {
+        "LLM time-to-first-token": _pooled("rq3-ttft.csv", "ttft_s"),
+        "End-to-end total": _pooled("rq3-e2e.csv", "e2e_s"),
+    }
+    for label in ("LLM time-to-first-token", "End-to-end total"):
+        p = pooled[label]
+        if p:
+            msvals = {kk: (vv * 1000.0 if vv is not None else None) for kk, vv in p.items()}
+            rows.append([label, *[fmt(msvals.get(q)) for q in ("p50", "p95", "p99")]])
+            continue
+        src = ttft if label.startswith("LLM") else e2e
         ms = {k: {kk: (vv * 1000.0 if vv is not None else None)
                   for kk, vv in v.items() if kk in ("p50", "p95", "p99")} for k, v in src.items()}
         p50 = statistics.fmean([v["p50"] for v in ms.values() if v.get("p50") is not None]) if ms else None
