@@ -33,6 +33,7 @@ import random
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -65,6 +66,12 @@ def send(message: str, user: str, session: str, timeout: int) -> dict:
     except TimeoutError as exc:
         raise RuntimeError(
             f"orchestrator request timed out after {timeout}s (session={session})") from exc
+    except urllib.error.HTTPError as exc:
+        hint = (" A 403 means the session id is already owned by a different "
+                "user id (stale sweep data) - re-run with a fresh --sessions "
+                "namespace") if exc.code == 403 else ""
+        raise RuntimeError(
+            f"orchestrator returned HTTP {exc.code} for session={session}{hint}") from exc
 
 
 def run_conv(conv: dict, config: str, user_id: str, session_t1: str, session_t2: str,
@@ -140,7 +147,7 @@ def main() -> int:
                 perm = random.sample(list(vc), len(vc))
                 anon = ANON[: len(vc)]
                 labels_for_conv = dict(zip(perm, anon))
-                base = args.sessions or f"eval-rq5-{conv_id}"
+                base = args.sessions or f"eval-rq5-v2-{conv_id}"
                 for config in vc:
                     anon_label = labels_for_conv[config]
                     if (conv_id, anon_label) in done:
@@ -191,7 +198,7 @@ def run_restart_test(convs, restart_cmd, timeout: int) -> None:
             raise ValueError(f"restart-pick conv {cid!r} missing from {MULTITURN}")
         conv = convs[cid]
         user = f"eval-user-rq5-restart-{cid}"
-        session = f"eval-rq5-restart-{cid}"
+        session = f"eval-rq5-v2-restart-{cid}"
         t1 = send(conv[1], user, session, timeout)
         t1_text = t1.get("response") or ""
         print(f"  restart test {cid}: restarting orchestrator ...")
