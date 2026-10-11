@@ -23,6 +23,7 @@ the same way. This is the "restart recovery" row of Table 10.
 
 Usage:
   python3 evaluation/rq5_memory.py [--configs a,b,c] [--restart] [--container <name>]
+  python3 evaluation/rq5_memory.py --restart --restart-helper evaluation/restart-orchestrator.sh
 """
 from __future__ import annotations
 
