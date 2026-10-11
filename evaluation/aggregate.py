@@ -166,26 +166,41 @@ def table9(rq2: dict, rq4: dict) -> list[list[str]]:
 def table10() -> list[list[str]]:
     blind = load(HERE / "rq5-blind-map.json", {})
     resp_present = (HERE / "rq5-responses.jsonl").exists()
-    scores: dict[str, dict[tuple[str, str], int]] = {}
+    raw: dict[str, dict[tuple[str, str], int]] = {}
     for ann in ("a", "b"):
         p = HERE / f"rq5-scores-{ann}.csv"
         if p.exists():
-            rows = csv.DictReader(open(p))
-            scores[ann] = {(r["conv_id"], r["label"]): int(r["success"]) for r in rows}
-    n_judged = len(next(iter(scores.values()), {}))
-    if not resp_present or n_judged < 20:
+            raw[ann] = {(r["conv_id"], r["label"]): int(r["success"])
+                        for r in csv.DictReader(open(p))}
+    final_p = HERE / "rq5-scores-final.csv"  # consensus after disagreement adjudication
+    final = None
+    if final_p.exists():
+        final = {(r["conv_id"], r["label"]): int(r["success"])
+                 for r in csv.DictReader(open(final_p))}
+    n_src = final or next(iter(raw.values()), {})
+    n_judged = len(n_src)
+    if not resp_present or n_judged < 20 or "a" not in raw:
         return _pending_r5_rows()
     config_success = {"a": [], "b": [], "c": []}
     aligned_a, aligned_b = [], []
-    for (conv_id, label), a_s in scores["a"].items():
-        b_s = scores["b"].get((conv_id, label))
+    for (conv_id, label), a_s in raw["a"].items():
+        b_s = raw["b"].get((conv_id, label))
         if b_s is None:
             continue
         aligned_a.append(a_s)
         aligned_b.append(b_s)
-        config = (blind.get(conv_id) or {}).get(label)
+        config = None
+        for cfg, lab in (blind.get(conv_id) or {}).items():
+            if lab == label:
+                config = cfg
+                break
         if config in config_success:
-            config_success[config].extend([a_s, b_s])
+            if final is not None:
+                value = final.get((conv_id, label))
+                if value is not None:
+                    config_success[config].append(value)
+            else:
+                config_success[config].extend([a_s, b_s])
     kappa = metrics.cohens_kappa(aligned_a, aligned_b)
     rows = [["Continuation success rate",
              *[fmt(statistics.fmean(s), nd=3) if s else "[PENDING]" for s in
