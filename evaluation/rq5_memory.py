@@ -17,23 +17,33 @@ rq5-blind-map.json so annotators can judge blind (per rq5-rubric.md) and the
 scores are unblinded only in aggregate.py.
 
 Restart test (--restart): 6 conversations, config (b); after turn 1 the
-orchestrator is restarted BY HAND -- it runs under `mvn quarkus:dev`, so the
-operator stops the dev process and starts it again (no script, no podman). The
-script watches /q/health go down and then come back, replays turn 2 on the SAME
-session so the Redis window has to survive the bounce, and records whether the
-continuation still resolves. This is the "restart recovery" row of Table 10.
-Outputs are written as rq5-restart.jsonl and rq5-restart.csv.
+orchestrator is bounced, then turn 2 is replayed on the SAME session so the
+Redis window has to survive the process restart. By default the bounce is driven
+by the sibling helper evaluation/restart-orchestrator.sh, which stops the
+`mvn quarkus:dev` dev server and relaunches it detached (see the script header);
+pass --manual-restart to fall back to the old interactive "stop/start it by
+hand" prompt (requires a TTY).
+
+The restart arm is resumable: each conversation is appended to
+rq5-restart.jsonl as soon as its turn 2 is scored, and a re-run skips the ones
+already recorded, so an interrupted run continues where it left off. Use
+--fresh to discard previous restart output and start over. Outputs are
+rq5-restart.jsonl and rq5-restart.csv (the restart-recovery row of Table 10).
 
 Usage:
   python3 evaluation/rq5_memory.py [--configs a,b,c]
-  python3 evaluation/rq5_memory.py --restart
+  python3 evaluation/rq5_memory.py --restart            # auto-bounce, resumes
+  python3 evaluation/rq5_memory.py --restart --fresh    # start over
+  python3 evaluation/rq5_memory.py --restart --manual-restart
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import json
+import os
 import random
+import subprocess
 import sys
 import time
 import urllib.error
@@ -51,6 +61,7 @@ BLIND_MAP = HERE / "rq5-blind-map.json"
 RAW = HERE / "rq5-raw.csv"
 RESTART_RESPONSES = HERE / "rq5-restart.jsonl"
 RESTART_CSV = HERE / "rq5-restart.csv"
+RESTART_HELPER = HERE / "restart-orchestrator.sh"
 LABELS = ("a", "b", "c")
 ANON = ("x", "y", "z")
 PROFILE_UPDATE = "Update my profile: our current learning topic is {topic}."
@@ -147,17 +158,22 @@ def main() -> int:
     ap.add_argument("--resume", action="store_true",
                     help="skip convs already present in rq5-responses.jsonl")
     ap.add_argument("--restart", action="store_true",
-                    help="run ONLY the manual-restart arm (config b) instead of the sweep")
+                    help="run ONLY the restart-recovery arm (config b) instead of the sweep")
+    ap.add_argument("--restart-helper", default=os.environ.get("AILMS_RESTART_HELPER"),
+                    help="script that bounces the orchestrator "
+                         "(default: sibling restart-orchestrator.sh)")
+    ap.add_argument("--manual-restart", action="store_true",
+                    help="ignore the helper and prompt for a hand-driven restart (TTY only)")
+    ap.add_argument("--fresh", action="store_true",
+                    help="with --restart, discard existing rq5-restart.* and start over")
     args = ap.parse_args()
 
     random.seed(20241001)
     convs = load_convs()
 
     if args.restart:
-        if not args.resume:
-            for p in (RESTART_RESPONSES, RESTART_CSV):
-                p.unlink(missing_ok=True)
-        run_restart_test(convs, args.timeout)
+        helper = None if args.manual_restart else resolve_restart_helper(args.restart_helper)
+        run_restart_test(convs, args.timeout, helper, fresh=args.fresh)
         return 0
 
     vc = [c for c in args.configs.split(",") if c in LABELS] or list(LABELS)
@@ -215,36 +231,93 @@ def blind_map_full(convs, vc):
     return out
 
 
-def run_restart_test(convs, timeout: int) -> None:
-    """Manual-restart arm. The orchestrator runs under `mvn quarkus:dev`, so the
-    operator stops the dev process and starts it again; the script only watches
-    /q/health fall and recover, then replays turn 2 on the same session."""
-    picks = ["c" + str(i) for i in range(6)]  # subset (6 conversations)
-    rows = []
+def resolve_restart_helper(explicit: str | None) -> Path | None:
+    """Locate the orchestrator bounce helper, or None to fall back to manual."""
+    candidate = Path(explicit) if explicit else RESTART_HELPER
+    if candidate.exists() and os.access(candidate, os.X_OK):
+        return candidate
+    print(f"note: restart helper not found/executable at {candidate}; "
+          "falling back to the interactive manual restart", file=sys.stderr)
+    return None
+
+
+def run_restart_test(convs, timeout: int, helper: Path | None, fresh: bool = False) -> None:
+    """Restart-recovery arm: after turn 1 the orchestrator is bounced (via
+    `helper`, or by hand when helper is None), then turn 2 is replayed on the
+    same session. Results are appended per conversation so an interrupted run
+    resumes instead of starting over."""
+    picks = [f"c{i}" for i in range(6)]  # subset (6 conversations)
+    if fresh:
+        for p in (RESTART_RESPONSES, RESTART_CSV):
+            p.unlink(missing_ok=True)
+    done = restart_done_set()
+    if done:
+        print(f"  resuming restart arm: {len(done)}/{len(picks)} already recorded")
     for cid in picks:
         if cid not in convs:
             raise ValueError(f"restart-pick conv {cid!r} missing from {MULTITURN}")
+        if cid in done:
+            print(f"  restart test {cid}: already recorded, skipping")
+            continue
         conv = convs[cid]
         user = f"eval-user-rq5-restart-{cid}"
         session = f"eval-rq5-v2-restart-{cid}"
         t1 = send(conv[1], user, session, timeout)
         t1_text = t1.get("response") or t1.get("reply") or t1.get("message") or ""
         print(f"  restart test {cid}: turn 1 sent (session={session}).")
-        manual_restart(cid)
+        bounce(helper, cid)
         t2 = send(conv[2], user, session, timeout)
         t2_text = t2.get("response") or t2.get("reply") or t2.get("message") or ""
-        rows.append({"conv_id": cid, "restarted_after": "turn1",
-                     "turn1_user": conv[1], "turn2_user": conv[2],
-                     "turn1_system": t1_text, "turn2_system": t2_text})
+        append_restart_row({"conv_id": cid, "restarted_after": "turn1",
+                            "turn1_user": conv[1], "turn2_user": conv[2],
+                            "turn1_system": t1_text, "turn2_system": t2_text})
+        print(f"  restart test {cid}: turn 2 recorded ({RESTART_RESPONSES.name})")
         time.sleep(1.0)
-    RESTART_RESPONSES.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    write_restart_csv()
+    print(f"wrote {RESTART_RESPONSES}, {RESTART_CSV}")
+
+
+def restart_done_set() -> set[str]:
+    if not RESTART_RESPONSES.exists():
+        return set()
+    out = set()
+    for line in RESTART_RESPONSES.read_text().splitlines():
+        if line.strip():
+            out.add(json.loads(line)["conv_id"])
+    return out
+
+
+def append_restart_row(row: dict) -> None:
+    with open(RESTART_RESPONSES, "a") as f:
+        f.write(json.dumps(row) + "\n")
+        f.flush()
+
+
+def write_restart_csv() -> None:
+    rows = []
+    if RESTART_RESPONSES.exists():
+        rows = [json.loads(l) for l in RESTART_RESPONSES.read_text().splitlines() if l.strip()]
     with open(RESTART_CSV, "w", newline="") as raw_file:
         raw_w = csv.writer(raw_file)
         raw_w.writerow(["conv_id", "restarted_after", "turn1_system", "turn2_system"])
         for r in rows:
             raw_w.writerow([r["conv_id"], r["restarted_after"],
                             r["turn1_system"], r["turn2_system"]])
-    print(f"wrote {RESTART_RESPONSES}, {RESTART_CSV}")
+
+
+def bounce(helper: Path | None, cid: str) -> None:
+    """Bounce the orchestrator: use the helper script when available, else prompt."""
+    if helper is None:
+        manual_restart(cid)
+        return
+    base = urlsplit(infra.ORCHESTRATE)
+    port = str(base.port or (443 if base.scheme == "https" else 80))
+    print(f"    [{cid}] bouncing orchestrator via {helper.name} (port {port}) ...")
+    proc = subprocess.run([str(helper)], env={**os.environ, "PORT": port})
+    if proc.returncode != 0:
+        raise RuntimeError(f"{helper.name} exited {proc.returncode}")
+    wait_for_orchestrator(timeout_s=300)
+    print(f"    [{cid}] healthy again; replaying turn 2 on the same session")
 
 
 def manual_restart(cid: str) -> None:
@@ -264,4 +337,10 @@ def manual_restart(cid: str) -> None:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        print("\ninterrupted - progress is saved; re-run the same command to "
+              "continue, or run evaluation/restart-orchestrator.sh --continue "
+              "to bounce the orchestrator and resume", file=sys.stderr)
+        raise SystemExit(130)
