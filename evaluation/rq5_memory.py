@@ -17,13 +17,16 @@ rq5-blind-map.json so annotators can judge blind (per rq5-rubric.md) and the
 scores are unblinded only in aggregate.py.
 
 Restart test (--restart): 6 conversations, config (b); after turn 1 the
-orchestrator container is restarted (Redis window survives) and turn 2 is sent
-again; whether the continuation is still resolved after the restart is judged
-the same way. This is the "restart recovery" row of Table 10.
+orchestrator is restarted BY HAND -- it runs under `mvn quarkus:dev`, so the
+operator stops the dev process and starts it again (no script, no podman). The
+script watches /q/health go down and then come back, replays turn 2 on the SAME
+session so the Redis window has to survive the bounce, and records whether the
+continuation still resolves. This is the "restart recovery" row of Table 10.
+Outputs are written as rq5-restart.jsonl and rq5-restart.csv.
 
 Usage:
-  python3 evaluation/rq5_memory.py [--configs a,b,c] [--restart] [--container <name>]
-  python3 evaluation/rq5_memory.py --restart --restart-helper evaluation/restart-orchestrator.sh
+  python3 evaluation/rq5_memory.py [--configs a,b,c]
+  python3 evaluation/rq5_memory.py --restart
 """
 from __future__ import annotations
 
@@ -31,7 +34,6 @@ import argparse
 import csv
 import json
 import random
-import subprocess
 import sys
 import time
 import urllib.error
@@ -48,6 +50,7 @@ RESPONSES = HERE / "rq5-responses.jsonl"
 BLIND_MAP = HERE / "rq5-blind-map.json"
 RAW = HERE / "rq5-raw.csv"
 RESTART_RESPONSES = HERE / "rq5-restart.jsonl"
+RESTART_CSV = HERE / "rq5-restart.csv"
 LABELS = ("a", "b", "c")
 ANON = ("x", "y", "z")
 PROFILE_UPDATE = "Update my profile: our current learning topic is {topic}."
@@ -114,6 +117,26 @@ def wait_for_orchestrator(timeout_s: int = 180, poll_s: float = 3.0) -> None:
     raise RuntimeError(f"orchestrator not healthy at {health}")
 
 
+def wait_for_orchestrator_down(timeout_s: int = 300, poll_s: float = 1.0) -> None:
+    """Block until /q/health stops answering 200 (operator stopped the dev run)."""
+    base = urlsplit(infra.ORCHESTRATE)
+    health = f"{base.scheme}://{base.netloc}/q/health"
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        up = False
+        try:
+            with urllib.request.urlopen(health, timeout=2) as resp:
+                up = resp.status == 200
+        except Exception:
+            up = False
+        if not up:
+            return
+        time.sleep(poll_s)
+    raise RuntimeError(
+        f"orchestrator never went down at {health} within {timeout_s}s; "
+        "stop the `mvn quarkus:dev` process by hand and re-run")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--configs", default="a,b,c")
@@ -123,18 +146,24 @@ def main() -> int:
                     help="per-request timeout in seconds (default: %(default)s)")
     ap.add_argument("--resume", action="store_true",
                     help="skip convs already present in rq5-responses.jsonl")
-    ap.add_argument("--restart", action="store_true")
-    ap.add_argument("--container", default="orchestrator")
-    ap.add_argument("--restart-helper", default=None,
-                    help="script to restart the orchestrator (default: podman restart --container)")
+    ap.add_argument("--restart", action="store_true",
+                    help="run ONLY the manual-restart arm (config b) instead of the sweep")
     args = ap.parse_args()
 
     random.seed(20241001)
     convs = load_convs()
+
+    if args.restart:
+        if not args.resume:
+            for p in (RESTART_RESPONSES, RESTART_CSV):
+                p.unlink(missing_ok=True)
+        run_restart_test(convs, args.timeout)
+        return 0
+
     vc = [c for c in args.configs.split(",") if c in LABELS] or list(LABELS)
 
     if not args.resume:
-        for p in (RESPONSES, RAW, RESTART_RESPONSES):
+        for p in (RESPONSES, RAW):
             p.unlink(missing_ok=True)
     done = completed_set() if args.resume else set()
 
@@ -172,11 +201,6 @@ def main() -> int:
     BLIND_MAP.write_text(json.dumps(blind_map_full(convs, vc), indent=2) + "\n")
     n = len(RESPONSES.read_text().splitlines())
     print(f"wrote {RESPONSES} ({n} turns), {BLIND_MAP}, {RAW}")
-
-    if args.restart:
-        restart_cmd = [args.restart_helper] if args.restart_helper \
-            else ["podman", "restart", "-t", "10", args.container]
-        run_restart_test(convs, restart_cmd, args.timeout)
     return 0
 
 
@@ -191,7 +215,10 @@ def blind_map_full(convs, vc):
     return out
 
 
-def run_restart_test(convs, restart_cmd, timeout: int) -> None:
+def run_restart_test(convs, timeout: int) -> None:
+    """Manual-restart arm. The orchestrator runs under `mvn quarkus:dev`, so the
+    operator stops the dev process and starts it again; the script only watches
+    /q/health fall and recover, then replays turn 2 on the same session."""
     picks = ["c" + str(i) for i in range(6)]  # subset (6 conversations)
     rows = []
     for cid in picks:
@@ -201,20 +228,39 @@ def run_restart_test(convs, restart_cmd, timeout: int) -> None:
         user = f"eval-user-rq5-restart-{cid}"
         session = f"eval-rq5-v2-restart-{cid}"
         t1 = send(conv[1], user, session, timeout)
-        t1_text = t1.get("response") or ""
-        print(f"  restart test {cid}: restarting orchestrator ...")
-        r = subprocess.run(restart_cmd, capture_output=True, text=True, timeout=120)
-        if r.returncode != 0:
-            raise RuntimeError(f"restart failed: {r.stderr.strip()}")
-        wait_for_orchestrator()
+        t1_text = t1.get("response") or t1.get("reply") or t1.get("message") or ""
+        print(f"  restart test {cid}: turn 1 sent (session={session}).")
+        manual_restart(cid)
         t2 = send(conv[2], user, session, timeout)
-        t2_text = t2.get("response") or ""
+        t2_text = t2.get("response") or t2.get("reply") or t2.get("message") or ""
         rows.append({"conv_id": cid, "restarted_after": "turn1",
                      "turn1_user": conv[1], "turn2_user": conv[2],
                      "turn1_system": t1_text, "turn2_system": t2_text})
         time.sleep(1.0)
     RESTART_RESPONSES.write_text("".join(json.dumps(r) + "\n" for r in rows))
-    print(f"wrote {RESTART_RESPONSES}")
+    with open(RESTART_CSV, "w", newline="") as raw_file:
+        raw_w = csv.writer(raw_file)
+        raw_w.writerow(["conv_id", "restarted_after", "turn1_system", "turn2_system"])
+        for r in rows:
+            raw_w.writerow([r["conv_id"], r["restarted_after"],
+                            r["turn1_system"], r["turn2_system"]])
+    print(f"wrote {RESTART_RESPONSES}, {RESTART_CSV}")
+
+
+def manual_restart(cid: str) -> None:
+    """Pause for a hand-driven bounce of the `mvn quarkus:dev` orchestrator."""
+    if not sys.stdin.isatty():
+        raise RuntimeError(
+            "manual restart needs an interactive terminal; re-run "
+            "`python3 evaluation/rq5_memory.py --restart` from a TTY")
+    print(f"    [{cid}] restart the orchestrator BY HAND now:")
+    print("      - stop the running `mvn quarkus:dev` process (Ctrl-C)")
+    print("      - start it again:  mvn quarkus:dev")
+    print("    waiting for the dev server to go down ...")
+    wait_for_orchestrator_down()
+    print("    ... down; waiting for it to come back healthy ...")
+    wait_for_orchestrator(timeout_s=300)
+    print(f"    [{cid}] healthy again; replaying turn 2 on the same session")
 
 
 if __name__ == "__main__":
