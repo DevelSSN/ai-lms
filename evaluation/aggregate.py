@@ -201,10 +201,20 @@ def table10() -> list[list[str]]:
              *[fmt(statistics.fmean(s), nd=3) if s else "[PENDING]" for s in
                (config_success["a"], config_success["b"], config_success["c"])]],
             ["Cohen's kappa (annotators)", fmt(kappa), "—", "—"]]
-    restart = HERE / "rq5-restart.jsonl"
-    if restart.exists():
+    restart_scores = HERE / "rq5-restart-scores.csv"
+    restart_resp = HERE / "rq5-restart.jsonl"
+    if restart_scores.exists():
+        vals = [int(r["success"]) for r in csv.DictReader(open(restart_scores))
+                if r.get("success") in ("0", "1")]
+        if vals:
+            rows.append(["Restart recovery", "n/a",
+                         f"{fmt(statistics.fmean(vals), nd=3)} "
+                         f"({sum(vals)}/{len(vals)})", "—"])
+        else:
+            rows.append(["Restart recovery", "n/a", "[PENDING]", "—"])
+    elif restart_resp.exists():
         rows.append(["Restart recovery", "n/a",
-                     "scored from rq5-restart.jsonl responses", "—"])
+                     "unscored (rq5-restart-scores.csv missing)", "—"])
     else:
         rows.append(["Restart recovery", "n/a", "[PENDING]", "[PENDING]"])
     return rows
