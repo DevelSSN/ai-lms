@@ -2,6 +2,6 @@
 
 | Memory configuration | (a) none             | (b) window           | (c) window + profile |
 |---|---|---|---|
-| Continuation success rate | 0.283                | 0.658                | 0.642                |
-| Cohen's kappa (annotators) | 0.1502               | —                    | —                    |
+| Continuation success rate | 0.300                | 0.708                | 0.650                |
+| Cohen's kappa (annotators) | 0.4300               | —                    | —                    |
 | Restart recovery     | n/a                  | [PENDING]            | [PENDING]            |

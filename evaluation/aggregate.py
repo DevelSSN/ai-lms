@@ -164,6 +164,13 @@ def table9(rq2: dict, rq4: dict) -> list[list[str]]:
 
 
 def table10() -> list[list[str]]:
+    """Full-sample continuation-success rate from the two annotator sheets.
+
+    Every (conversation, configuration) pair is judged by both annotators, so a
+    configuration's rate pools both votes (2 x pairs judgments). The adjudicated
+    rq5-scores-final.csv is deliberately not used: it was only partially
+    populated (disagreements left unresolved), which would bias the cells.
+    """
     blind = load(HERE / "rq5-blind-map.json", {})
     resp_present = (HERE / "rq5-responses.jsonl").exists()
     raw: dict[str, dict[tuple[str, str], int]] = {}
@@ -172,14 +179,7 @@ def table10() -> list[list[str]]:
         if p.exists():
             raw[ann] = {(r["conv_id"], r["label"]): int(r["success"])
                         for r in csv.DictReader(open(p))}
-    final_p = HERE / "rq5-scores-final.csv"  # consensus after disagreement adjudication
-    final = None
-    if final_p.exists():
-        final = {(r["conv_id"], r["label"]): int(r["success"])
-                 for r in csv.DictReader(open(final_p))}
-    n_src = final or next(iter(raw.values()), {})
-    n_judged = len(n_src)
-    if not resp_present or n_judged < 20 or "a" not in raw:
+    if not resp_present or len(raw.get("a", {})) < 20 or len(raw.get("b", {})) < 20:
         return _pending_r5_rows()
     config_success = {"a": [], "b": [], "c": []}
     aligned_a, aligned_b = [], []
@@ -195,12 +195,7 @@ def table10() -> list[list[str]]:
                 config = cfg
                 break
         if config in config_success:
-            if final is not None:
-                value = final.get((conv_id, label))
-                if value is not None:
-                    config_success[config].append(value)
-            else:
-                config_success[config].extend([a_s, b_s])
+            config_success[config].extend([a_s, b_s])
     kappa = metrics.cohens_kappa(aligned_a, aligned_b)
     rows = [["Continuation success rate",
              *[fmt(statistics.fmean(s), nd=3) if s else "[PENDING]" for s in
