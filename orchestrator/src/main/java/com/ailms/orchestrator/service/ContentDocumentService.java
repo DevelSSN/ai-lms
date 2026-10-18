@@ -43,6 +43,18 @@ public class ContentDocumentService {
 
   @Transactional
   public String resolveRecentDocumentId(String userId, String sessionId) {
+    return resolveRecentDocumentId(userId, sessionId, true);
+  }
+
+  /**
+   * Resolves the most recent document for the user. When {@code fallbackToUserWide} is false,
+   * only documents belonging to the given session are considered and no user-wide fallback is
+   * performed — used by the document gate, where "uploaded doc exists" means "this conversation
+   * has a doc", not "the user uploaded something once".
+   */
+  @Transactional
+  public String resolveRecentDocumentId(
+      String userId, String sessionId, boolean fallbackToUserWide) {
     try {
       if (sessionId != null && !sessionId.isBlank()) {
         @SuppressWarnings("unchecked")
@@ -58,6 +70,7 @@ public class ContentDocumentService {
                 .getResultList();
         if (!scoped.isEmpty()) return scoped.get(0);
       }
+      if (!fallbackToUserWide) return null;
       @SuppressWarnings("unchecked")
       java.util.List<String> userWide =
           Panache.getEntityManager()

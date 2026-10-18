@@ -1275,6 +1275,8 @@ class OrchestratorServiceTest {
   void route_docReference_question_routesToAssessmentWithContext() {
     String msg = "Questions based on the document";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("rome context"));
@@ -1299,6 +1301,8 @@ class OrchestratorServiceTest {
   void route_assessment_proseOutput_triggersStrictJsonRegen() {
     String msg = "Questions based on the document";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("rome context"));
@@ -1316,6 +1320,8 @@ class OrchestratorServiceTest {
             eq("medium"),
             eq(5)))
         .thenReturn(prose, strictJson);
+    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"grounded\"}");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse(strictJson, "sess-1", "ASSESSMENT"));
 
@@ -1338,33 +1344,42 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_docReference_question_fallsBackToUserWideDocument() {
+  void route_docReference_question_withoutSessionDocument_ignoresUserWideDocument() {
+    // Doc exists user-wide (uploaded in some other thread) but not in this session:
+    // the gate must not bleed it in — no session doc means CONVERSATION.
     String msg = "Questions based on the document";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn(null);
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
-    when(contentDocumentService.resolveRecentDocumentId("user-1", null)).thenReturn("doc-9");
-    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
-        .thenReturn(chunks("rome context"));
-    when(questionGenerationAgent.process(
-            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), contains("rome context"), eq("medium"), eq(5)))
-        .thenReturn("Rome questions");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("No document in this thread - let's talk instead.");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
-        .thenReturn(new ChatResponse("Rome questions", "sess-1", "ASSESSMENT"));
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msgState = scope.readState("response", "");
+              String intent = scope.readState("intent", "");
+              return new ChatResponse(msgState, "sess-1", intent);
+            });
 
     OrchestratorService svc = buildService();
     ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
-    assertEquals("ASSESSMENT", resp.agentType());
-    verify(contentDocumentService, atLeastOnce()).resolveRecentDocumentId("user-1", null);
-    verify(questionGenerationAgent, atMost(2))
-        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(contentDocumentService, never()).resolveRecentDocumentId("user-1", null);
+    verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
+    verify(questionGenerationAgent, never())
+        .process(anyString(), anyString(), anyString(), anyString(), anyInt());
+    verify(vectorDBService, never()).retrieveRelevantContext(anyString(), anyInt(), anyString());
   }
 
   @Test
   void route_docReference_summarize_routesToContentAnalysis() {
     String msg = "Summarize the uploaded document";
     when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("rome context"));
@@ -1386,9 +1401,9 @@ class OrchestratorServiceTest {
   void route_classifiedAssessment_withoutAnyDocument_reclassifiesToConversation() {
     String msg = "Questions based on the document";
     when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn(null);
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn(null);
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
-    when(contentDocumentService.resolveRecentDocumentId("user-1", null)).thenReturn(null);
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Let me help you with that.");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -1534,8 +1549,47 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_verifier_doubleRejected_contentAnalysis_returnsFallback() {
+    // Long but off-topic answer: length alone must not override the verifier.
+    String offTopicDump =
+        "Version control systems such as Git, CVS, and Bazaar track file history. Emacs, a"
+            + " programmable editor, also ships built-in version control integration and many"
+            + " extensions for browsing change sets across large projects over time.";
+    when(intentClassifier.classify("What is neovim?")).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(chunks("emacs manual context"));
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
+        .thenReturn(offTopicDump, offTopicDump + " (second attempt)");
+    when(responseVerifierAgent.verify(eq("What is neovim?"), anyString(), anyString()))
+        .thenReturn(
+            "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"off-topic\"}",
+            "{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"still off-topic\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "CONTENT_ANALYSIS");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("What is neovim?", "sess-1"), "user-1");
+
+    assertEquals(
+        "I'm sorry, I couldn't generate a good answer. Could you rephrase?", resp.message());
+    verify(contentAnalysisAgent, times(2))
+        .process(eq(ChatMemoryKeys.analysis("sess-1")), anyString());
+    verify(responseVerifierAgent, times(2)).verify(anyString(), anyString(), anyString());
+  }
+
+  @Test
   void route_profilingAgent_receivesRawMessage_notEnriched() {
     when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("some context from vector db"));

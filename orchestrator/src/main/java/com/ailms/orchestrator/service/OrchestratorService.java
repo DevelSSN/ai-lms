@@ -438,7 +438,7 @@ public class OrchestratorService {
     if (INTENT_VIDEO_SEARCH.equals(intent) || INTENT_INSIGHT.equals(intent)) return intent;
     // Upload/assessment messages carry their own target document reference.
     if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return intent;
-    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+    String activeDocId = resolveSessionDocumentId(sessionId, userId);
     if (activeDocId == null) {
       log.info(
           "No session document for intent={}, forcing CONVERSATION for user={} session={}",
@@ -448,6 +448,37 @@ public class OrchestratorService {
       return INTENT_CONVERSATION;
     }
     return intent;
+  }
+
+  /**
+   * Session-scoped document lookup: content documents of this session plus this session's upload
+   * history. Deliberately excludes the user-wide fallback — a doc uploaded in some other thread
+   * must not turn unrelated questions in a fresh thread into content analysis.
+   */
+  private String resolveSessionDocumentId(String sessionId, String userId) {
+    if (sessionId == null || sessionId.isBlank()) return null;
+    try {
+      String fromContent =
+          contentDocumentService.resolveRecentDocumentId(userId, sessionId, false);
+      if (fromContent != null && !fromContent.isEmpty()) return fromContent;
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve session document for session={} user={}: {}",
+          sessionId,
+          userId,
+          e.getMessage());
+    }
+    try {
+      String fromHistory = conversationRepository.lastUploadedDocumentId(userId, sessionId);
+      if (fromHistory != null && !fromHistory.isEmpty()) return fromHistory;
+    } catch (Exception e) {
+      log.warn(
+          "Failed to resolve session upload history for session={} user={}: {}",
+          sessionId,
+          userId,
+          e.getMessage());
+    }
+    return null;
   }
 
   private String dispatchAgent(
@@ -858,7 +889,7 @@ public class OrchestratorService {
     
     // Move strict instruction to the system prompt in QuestionGenerationAgent
     // to reduce context noise here. We just send a direct reminder.
-    String strictReminder = "\n\nIMPORTANT: Respond with a raw JSON array only. No prose.";
+    String strictReminder = "\n\nIMPORTANT: Respond with a raw JSON array only, no prose.";
     String strictMessage = enrichedMessage + strictReminder;
     try {
       String strict = dispatchAgent(intent, sessionId, strictMessage, analysisCtx);
@@ -878,18 +909,8 @@ public class OrchestratorService {
   }
 
   private String lastUsableAnswer(String intent, String answer) {
-    if (INTENT_CONVERSATION.equals(intent) && answer != null && !answer.isBlank()) {
-      log.warn("Verifier rejected conversation answer but non-blank; delivering it");
-      return answer;
-    }
     if (INTENT_ASSESSMENT.equals(intent) && !parseQuizItems(answer).isEmpty()) {
       log.warn("Verifier rejected assessment but quiz is structurally valid, delivering it");
-      return answer;
-    }
-    if (INTENT_CONTENT_ANALYSIS.equals(intent)
-        && answer != null
-        && answer.trim().length() > 150) {
-      log.warn("Verifier rejected content analysis but response is substantial, delivering it");
       return answer;
     }
     if (INTENT_VIDEO_SEARCH.equals(intent) && answer != null && answer.contains(VIDEO_LINK_PREFIX)) {
