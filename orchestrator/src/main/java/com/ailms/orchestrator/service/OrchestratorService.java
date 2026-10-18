@@ -864,6 +864,10 @@ public class OrchestratorService {
       String userId) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
     if (INTENT_CONVERSATION.equals(intent)) return agentResponse;
+    // Upload analysis is system-triggered ("Analyze the uploaded file: <id>") — there is
+    // no real student question for the verifier to judge against, and it routinely rejects
+    // the conversational analysis summary. Deliver it as-is.
+    if (message != null && message.startsWith(UPLOAD_PREFIX)) return agentResponse;
 
     String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
     Verdict first = verifyResponse(message, context, agentResponse);
