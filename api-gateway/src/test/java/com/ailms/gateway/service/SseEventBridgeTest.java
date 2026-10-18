@@ -28,7 +28,7 @@ class SseEventBridgeTest {
   @Test
   void onProactiveEvent_broadcastsFollowUpToOwningUser() {
     bridge.onProactiveEvent(new ProactiveEvent("user-1", "Time to review!", "FOLLOW_UP"));
-    verify(sse).broadcastOrQueue("user-1", "Time to review!");
+    verify(sse).broadcastOrQueue("user-1", "Time to review!", "FOLLOW_UP");
   }
 
   @Test

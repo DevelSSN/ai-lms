@@ -337,7 +337,9 @@ async function loadHistory(threadId) {
     for (const message of messages) {
       if (message.role === "user") appendMessage("user", message.content, message.timestamp);
       else if (message.role === "assistant")
-        appendMessage("bot", message.content, message.timestamp);
+        appendMessage("bot", message.content, message.timestamp, {
+          eventType: message.agentType,
+        });
     }
     const hasContentAnalysis = messages.some(
       (message) =>
@@ -744,8 +746,11 @@ async function connectSSE() {
       if (data.ping) return;
       if (data.user_id === currentUsername && data.response) {
         const trimmed = String(data.response).trim();
-        if (trimmed !== lastRenderedMessage) {
-          appendMessage("bot", data.response, data.timestamp);
+        // Follow-ups use a constant generic nudge that can legitimately repeat
+        // (e.g. after a failed send was retried), so never drop them on text dedupe.
+        const isFollowUp = data.event_type === "FOLLOW_UP";
+        if (isFollowUp || trimmed !== lastRenderedMessage) {
+          appendMessage("bot", data.response, data.timestamp, { eventType: data.event_type });
         }
       }
     } catch (e) {
@@ -1109,7 +1114,7 @@ function enhanceCodeBlocks(container) {
   });
 }
 
-function appendMessage(sender, text, timestamp) {
+function appendMessage(sender, text, timestamp, options) {
   lastRenderedMessage = String(text ?? "").trim();
   if (sender === "bot") {
     const quizItems = tryParseQuizJson(text);
@@ -1123,6 +1128,9 @@ function appendMessage(sender, text, timestamp) {
   const chatContainer = document.getElementById("chat-container");
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message", `${sender}-message`);
+  if (options?.eventType === "FOLLOW_UP") {
+    messageDiv.classList.add("follow-up-message");
+  }
 
   const tokens = tokenizeYouTubeLinks(text);
 
@@ -1177,7 +1185,9 @@ function appendMessage(sender, text, timestamp) {
   const meta = document.createElement("div");
   meta.classList.add("message-meta");
   meta.dataset.ts = ts.toISOString();
-  meta.textContent = formatTimestamp(ts);
+  const label =
+    options?.eventType === "FOLLOW_UP" ? "Check-in · " + formatTimestamp(ts) : formatTimestamp(ts);
+  meta.textContent = label;
   messageDiv.appendChild(meta);
 
   chatContainer.appendChild(messageDiv);

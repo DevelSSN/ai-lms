@@ -665,6 +665,15 @@ main::-webkit-scrollbar-thumb:hover,
     text-align: left;
 }
 
+.follow-up-message {
+    border-left: 3px solid var(--accent, #0a84ff);
+    padding-left: 10px;
+}
+
+.follow-up-message .message-meta {
+    font-style: italic;
+}
+
 .video-container {
     width: 100%;
     margin-top: 1rem;

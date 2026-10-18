@@ -30,26 +30,28 @@ public class UserProfileRepository implements PanacheRepository<UserProfile> {
   }
 
   /**
-   * Marks the profile as pinged, returning whether a follow-up should be sent. A follow-up is only
-   * allowed when the user has either never been pinged before, or has had activity (chat message or
-   * video watching) since the previous ping. This ensures a user who stays logged out or
-   * unresponsive receives at most one follow-up per inactive period, instead of a nagging repeat
-   * every scheduler cycle.
-   *
-   * @return true if the profile was marked (a follow-up should be sent), false otherwise.
+   * Returns whether a proactive follow-up may be sent now. A follow-up is only allowed when the
+   * user has either never been pinged before (including when no profile row exists yet), or has had
+   * activity (chat message or video watching) since the previous ping. This ensures a user who
+   * stays logged out or unresponsive receives at most one follow-up per inactive period, instead of
+   * a nagging repeat every scheduler cycle.
+   */
+  public boolean canSendProactive(String externalId) {
+    UserProfile profile = findByExternalId(externalId);
+    if (profile == null) return true;
+    return shouldResend(profile.lastProactiveSentAt, effectiveLastActivityAt(externalId));
+  }
+
+  /**
+   * Records that a proactive follow-up was sent. Must only be called after the follow-up has been
+   * successfully persisted and/or delivered, so that transient generation or delivery failures are
+   * retried on the next scheduler cycle instead of silently swallowing the ping.
    */
   @Transactional
-  public boolean markProactiveSentIfNotRecent(String externalId, Instant at) {
-    UserProfile profile = findByExternalId(externalId);
-    if (profile == null) return false;
-    Instant lastSent = profile.lastProactiveSentAt;
-    if (lastSent != null
-        && !shouldResend(lastSent, effectiveLastActivityAt(externalId))) {
-      return false;
-    }
+  public void markProactiveSent(String externalId, Instant at) {
+    UserProfile profile = findOrCreate(externalId);
     profile.lastProactiveSentAt = at;
     persist(profile);
-    return true;
   }
 
   /**

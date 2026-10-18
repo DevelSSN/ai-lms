@@ -12,6 +12,7 @@ import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +50,9 @@ class ProactiveAgentTest {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
     when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
+    when(userProfileRepository.canSendProactive("user-1")).thenReturn(true);
+    when(eventEmitter.send(any(com.ailms.common.dto.ProactiveEvent.class)))
+        .thenReturn(CompletableFuture.<Void>completedFuture(null));
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
@@ -60,7 +63,7 @@ class ProactiveAgentTest {
             eq(ChatRole.ASSISTANT.key()),
             anyString(),
             eq(EventTypeKeys.FOLLOW_UP));
-    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
+    verify(userProfileRepository).markProactiveSent(eq("user-1"), any());
   }
 
   @Test
@@ -72,7 +75,9 @@ class ProactiveAgentTest {
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of(log));
     when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
     when(proactiveFollowUpAgent.generate(anyString())).thenReturn("Follow up message");
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
+    when(userProfileRepository.canSendProactive("user-1")).thenReturn(true);
+    when(eventEmitter.send(any(com.ailms.common.dto.ProactiveEvent.class)))
+        .thenReturn(CompletableFuture.<Void>completedFuture(null));
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
@@ -88,13 +93,14 @@ class ProactiveAgentTest {
   @Test
   void checkFollowUps_skipsRecentlyPingedUser() {
     when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(false);
+    when(userProfileRepository.canSendProactive("user-1")).thenReturn(false);
 
     newAgent().checkFollowUps();
     verifyNoInteractions(eventEmitter);
     verify(conversationRepository, never())
         .logMessage(anyString(), anyString(), anyString(), anyString(), anyString());
-    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
+    verify(userProfileRepository).canSendProactive("user-1");
+    verify(userProfileRepository, never()).markProactiveSent(anyString(), any());
   }
 
   @Test
@@ -104,7 +110,8 @@ class ProactiveAgentTest {
 
     newAgent().checkFollowUps();
     verifyNoInteractions(eventEmitter);
-    verify(userProfileRepository, never()).markProactiveSentIfNotRecent(anyString(), any());
+    verify(userProfileRepository, never()).canSendProactive(anyString());
+    verify(userProfileRepository, never()).markProactiveSent(anyString(), any());
   }
 
   @Test
@@ -113,10 +120,26 @@ class ProactiveAgentTest {
     when(userProfileRepository.isActiveSince(eq("user-1"), any())).thenReturn(false);
     when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
     when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
-    when(userProfileRepository.markProactiveSentIfNotRecent(eq("user-1"), any())).thenReturn(true);
+    when(userProfileRepository.canSendProactive("user-1")).thenReturn(true);
+    when(eventEmitter.send(any(com.ailms.common.dto.ProactiveEvent.class)))
+        .thenReturn(CompletableFuture.<Void>completedFuture(null));
 
     newAgent().checkFollowUps();
     verify(eventEmitter).send(any(com.ailms.common.dto.ProactiveEvent.class));
-    verify(userProfileRepository).markProactiveSentIfNotRecent(eq("user-1"), any());
+    verify(userProfileRepository).markProactiveSent(eq("user-1"), any());
+  }
+
+  @Test
+  void checkFollowUps_kafkaSendFailure_doesNotMarkSent() {
+    when(conversationRepository.findInactiveUsersSince(any())).thenReturn(List.of("user-1"));
+    when(conversationRepository.findRecentByUserId("user-1", 5)).thenReturn(List.of());
+    when(conversationRepository.resolveLastSessionId("user-1")).thenReturn("sess-1");
+    when(userProfileRepository.canSendProactive("user-1")).thenReturn(true);
+    CompletableFuture<Void> failed = new CompletableFuture<>();
+    failed.completeExceptionally(new RuntimeException("broker down"));
+    when(eventEmitter.send(any(com.ailms.common.dto.ProactiveEvent.class))).thenReturn(failed);
+
+    newAgent().checkFollowUps();
+    verify(userProfileRepository, never()).markProactiveSent(anyString(), any());
   }
 }

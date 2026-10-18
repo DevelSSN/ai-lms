@@ -53,7 +53,7 @@ public class ProactiveAgent {
         if (userProfileRepository.isActiveSince(userId, cutoff)) {
           continue;
         }
-        if (!userProfileRepository.markProactiveSentIfNotRecent(userId, now)) {
+        if (!userProfileRepository.canSendProactive(userId)) {
           continue;
         }
         String followUpMessage = generateFollowUp(userId);
@@ -67,11 +67,14 @@ public class ProactiveAgent {
               EventTypeKeys.FOLLOW_UP);
         }
         ProactiveEvent event = new ProactiveEvent(userId, followUpMessage, EventTypeKeys.FOLLOW_UP);
-        eventEmitter.send(event).whenComplete((result, error) -> {
-          if (error != null) {
-            log.error("Kafka send failed for user={}: {}", userId, error.getMessage());
-          }
-        });
+        try {
+          eventEmitter.send(event).toCompletableFuture().join();
+        } catch (Exception e) {
+          // Not marked as sent: the next scheduler cycle will retry this user.
+          log.error("Kafka send failed for user={}, will retry next cycle: {}", userId, e.getMessage());
+          continue;
+        }
+        userProfileRepository.markProactiveSent(userId, now);
         log.info("Sent follow-up event for user={}", userId);
       } catch (Exception e) {
         log.error("Failed to generate follow-up for user={}: {}", userId, e.getMessage());

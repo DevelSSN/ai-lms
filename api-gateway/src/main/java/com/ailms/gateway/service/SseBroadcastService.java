@@ -93,23 +93,27 @@ public class SseBroadcastService {
   }
 
   public void broadcastOrQueue(String userId, String message) {
+    broadcastOrQueue(userId, message, null);
+  }
+
+  public void broadcastOrQueue(String userId, String message, String eventType) {
     CopyOnWriteArrayList<MultiEmitter<? super String>> list = userEmitters.get(userId);
     if (list == null || list.isEmpty()) {
       log.info("No active SSE subscribers for user={} — queueing event", userId);
-      queuePending(userId, message);
+      queuePending(userId, toPayload(userId, message, eventType));
       return;
     }
-    broadcast(userId, message);
+    emitPayload(userId, toPayload(userId, message, eventType));
   }
 
-  private void queuePending(String userId, String message) {
+  private void queuePending(String userId, String payload) {
     CopyOnWriteArrayList<String> queue =
         pendingByUser.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>());
     if (queue.size() >= MAX_PENDING_PER_USER) {
       log.warn("Pending queue full for user={}, dropping oldest", userId);
       queue.remove(0);
     }
-    queue.add(message);
+    queue.add(payload);
     log.info("Buffered event for user={} (pending: {})", userId, queue.size());
   }
 
@@ -119,8 +123,7 @@ public class SseBroadcastService {
     if (queue == null || queue.isEmpty()) {
       return;
     }
-    for (String message : queue) {
-      String payload = toPayload(userId, message);
+    for (String payload : queue) {
       for (MultiEmitter<? super String> emitter : targets) {
         try {
           if (emitter.isCancelled()) {
@@ -136,12 +139,15 @@ public class SseBroadcastService {
   }
 
   public void broadcast(String userId, String message) {
+    emitPayload(userId, toPayload(userId, message, null));
+  }
+
+  private void emitPayload(String userId, String payload) {
     CopyOnWriteArrayList<MultiEmitter<? super String>> list = userEmitters.get(userId);
     if (list == null || list.isEmpty()) {
       log.warn("SSE broadcast skipped for user={} — no active subscribers", userId);
       return;
     }
-    String payload = toPayload(userId, message);
     for (MultiEmitter<? super String> emitter : list) {
       try {
         if (emitter.isCancelled()) {
@@ -157,14 +163,17 @@ public class SseBroadcastService {
     log.debug("SSE broadcast sent to {} subscribers for user={}", list.size(), userId);
   }
 
-  private String toPayload(String userId, String message) {
+  private String toPayload(String userId, String message, String eventType) {
     String timestamp = java.time.Instant.now().toString();
     try {
-      return objectMapper.writeValueAsString(
-          Map.of(
-              "user_id", userId,
-              "response", message == null ? "" : message,
-              "timestamp", timestamp));
+      Map<String, String> payload = new java.util.LinkedHashMap<>();
+      payload.put("user_id", userId);
+      payload.put("response", message == null ? "" : message);
+      payload.put("timestamp", timestamp);
+      if (eventType != null && !eventType.isBlank()) {
+        payload.put("event_type", eventType);
+      }
+      return objectMapper.writeValueAsString(payload);
     } catch (Exception e) {
       log.error("Failed to serialize SSE payload, sending empty response", e);
       return "{\"user_id\":\"" + escape(userId) + "\",\"response\":\"\",\"timestamp\":\""

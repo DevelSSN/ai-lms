@@ -21,7 +21,7 @@ public class SseEventBridge {
       return;
     }
     log.info("Relaying proactive follow-up to user={} type={}", event.userId(), event.eventType());
-    sse.broadcastOrQueue(event.userId(), event.context());
+    sse.broadcastOrQueue(event.userId(), event.context(), event.eventType());
   }
 
   @Incoming("content-analysis-complete")
