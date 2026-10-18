@@ -298,7 +298,7 @@ async function loadHistory(threadId) {
   } catch (err) {
     console.error("Token refresh failed before history fetch:", err);
     if (spinner) spinner.hidden = true;
-    return;
+    return 0;
   }
 
   try {
@@ -316,7 +316,7 @@ async function loadHistory(threadId) {
         clearChat();
         showWelcome();
         loadThreads();
-        return;
+        return 0;
       }
       throw new Error("History fetch failed");
     }
@@ -325,10 +325,11 @@ async function loadHistory(threadId) {
     const messages = history?.messages || [];
     clearChat();
     if (!messages.length) {
-      currentThreadId = null;
-      localStorage.removeItem(threadIdKey());
+      // Empty history is normal right after an upload: the async analysis job
+      // logs its messages only after it finishes. Keep the thread id so the
+      // next message (or the analysis result) lands in the same session.
       showWelcome();
-      return;
+      return 0;
     }
     messages.sort(
       (a, b) => new Date(a?.timestamp ?? 0).getTime() - new Date(b?.timestamp ?? 0).getTime(),
@@ -346,8 +347,10 @@ async function loadHistory(threadId) {
         message.role === "assistant" && message.agentType === "CONTENT_ANALYSIS",
     );
     if (hasContentAnalysis) showQuizActionBar(threadId);
+    return messages.length;
   } catch (error) {
     console.warn("Could not restore conversation history:", error);
+    return 0;
   } finally {
     if (spinner) spinner.hidden = true;
   }
@@ -956,7 +959,12 @@ async function uploadFile(file) {
     const docId = data.docId || "";
 
     if (docId) {
-      pollUploadStatus(docId, uploadSessionId);
+      if (uploadSessionId && uploadSessionId !== currentThreadId) {
+        currentThreadId = uploadSessionId;
+        saveThreadId();
+      }
+      appendMessage("bot", `📎 Uploaded **${file.name}** — analyzing…`);
+      pollUploadStatus(docId, uploadSessionId, file.name);
     } else {
       loadThreads();
     }
@@ -986,11 +994,12 @@ function hideProcessingChip() {
 const UPLOAD_POLL_INTERVAL_MS = 2500;
 const UPLOAD_POLL_MAX_MS = 5 * 60 * 1000;
 
-function pollUploadStatus(docId, sessionId) {
+function pollUploadStatus(docId, sessionId, fileName) {
   const startedAt = Date.now();
 
   const check = async () => {
     if (Date.now() - startedAt > UPLOAD_POLL_MAX_MS) {
+      hideProcessingChip();
       appendMessage(
         "bot",
         "Your document is still processing. Once ready, the analysis will appear.",
@@ -1010,10 +1019,23 @@ function pollUploadStatus(docId, sessionId) {
       const status = await response.json();
       if (status.status === "INDEXED") {
         hideProcessingChip();
-        if (sessionId === currentThreadId) {
-          await loadHistory(sessionId);
+        if (sessionId && sessionId !== currentThreadId) {
+          currentThreadId = sessionId;
+          saveThreadId();
         }
-        showQuizActionBar(sessionId);
+        // The async analysis job marks the doc INDEXED before its chat
+        // messages are committed, so history can lag a moment. Retry a
+        // few times before falling back to the optimistic upload note.
+        let rendered = 0;
+        for (let i = 0; i < 4; i++) {
+          rendered = await loadHistory(sessionId || currentThreadId);
+          if (rendered > 0) break;
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+        if (rendered > 0) {
+          appendMessage("bot", `✅ ${fileName || "Document"} is ready — ask me anything about it.`);
+        }
+        showQuizActionBar(sessionId || currentThreadId);
         loadThreads();
         return;
       }

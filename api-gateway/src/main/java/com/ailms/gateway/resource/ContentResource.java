@@ -120,7 +120,8 @@ public class ContentResource {
       }
 
       String analysisSession =
-          threadId != null && !threadId.isBlank() ? threadId : "upload:" + doc.id;
+          (threadId != null && !threadId.isBlank()) ? threadId : java.util.UUID.randomUUID().toString();
+      doc.sessionId = analysisSession;
       ChatRequest request =
           new ChatRequest(PromptPrefixes.UPLOAD_ANALYSIS + doc.id, analysisSession);
       Map<String, Object> ack = orchestrator.analyzeAsync(request, userId);

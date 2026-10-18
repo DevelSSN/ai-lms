@@ -863,6 +863,7 @@ public class OrchestratorService {
       String agentResponse,
       String userId) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
+    if (INTENT_CONVERSATION.equals(intent)) return agentResponse;
 
     String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
     Verdict first = verifyResponse(message, context, agentResponse);
@@ -927,6 +928,12 @@ public class OrchestratorService {
     }
     if (INTENT_VIDEO_SEARCH.equals(intent) && answer != null && answer.contains(VIDEO_LINK_PREFIX)) {
       log.warn("Verifier rejected video answer but real links are present, delivering them");
+      return answer;
+    }
+    if (INTENT_CONTENT_ANALYSIS.equals(intent)
+        && answer != null
+        && answer.startsWith("- Topics:")) {
+      log.warn("Verifier rejected structured content-analysis answer, delivering it anyway");
       return answer;
     }
     return VERIFIER_FALLBACK;
