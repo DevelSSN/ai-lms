@@ -10,8 +10,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
 import io.quarkus.redis.datasource.list.ListCommands;
+import io.quarkus.redis.datasource.value.ValueCommands;
 import java.time.Instant;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -23,28 +25,65 @@ class ChatHistoryCacheServiceTest {
   @Mock RedisDataSource redisDS;
   @Mock ListCommands<String, String> lists;
   @Mock KeyCommands<String> keys;
+  @Mock ValueCommands<String, String> values;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  private static final String KEY = "history:user-1:sess-1";
+  private static final String SEEDED_KEY = KEY + ":seeded";
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(redisDS.list(String.class)).thenReturn(lists);
+    lenient().when(redisDS.key()).thenReturn(keys);
+    lenient().when(redisDS.value(String.class)).thenReturn(values);
+  }
+
   @Test
-  void cacheMessage() {
-    when(redisDS.list(String.class)).thenReturn(lists);
-    when(redisDS.key()).thenReturn(keys);
+  void cacheMessage_whenSeeded_appendsAndRefreshesTtl() {
+    when(keys.exists(SEEDED_KEY)).thenReturn(true);
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
     cache.cacheMessage("user-1", "sess-1", "user", "hello", null);
 
-    verify(lists)
-        .rpush(eq("history:user-1:sess-1"), startsWith("{\"role\":\"user\",\"content\":\"hello\""));
-    verify(keys).expire(eq("history:user-1:sess-1"), anyLong());
+    verify(lists).rpush(eq(KEY), startsWith("{\"role\":\"user\",\"content\":\"hello\""));
+    verify(keys).expire(eq(KEY), anyLong());
+    verify(keys).expire(eq(SEEDED_KEY), anyLong());
+  }
+
+  @Test
+  void cacheMessage_whenNotSeeded_skipsCache() {
+    when(keys.exists(SEEDED_KEY)).thenReturn(false);
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    cache.cacheMessage("user-1", "sess-1", "user", "hello", null);
+
+    verify(lists, never()).rpush(anyString(), anyString());
+  }
+
+  @Test
+  void seedHistory_storesAllMessagesAndMarksSeeded() {
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    Instant ts = Instant.parse("2026-09-05T10:00:00Z");
+    cache.seedHistory(
+        "user-1",
+        "sess-1",
+        List.of(
+            new ChatHistory.ChatMessage("user", "hello", null, ts),
+            new ChatHistory.ChatMessage("assistant", "hi", "CONVERSATION", ts)));
+
+    verify(keys).del(eq(KEY));
+    verify(lists, times(2)).rpush(eq(KEY), anyString());
+    verify(values).set(eq(SEEDED_KEY), eq("1"));
+    verify(keys).expire(eq(KEY), anyLong());
+    verify(keys).expire(eq(SEEDED_KEY), anyLong());
   }
 
   @Test
   void getCachedHistory_returnsMessages() {
-    when(redisDS.list(String.class)).thenReturn(lists);
-    when(redisDS.key()).thenReturn(keys);
+    when(keys.exists(SEEDED_KEY)).thenReturn(true);
     String ts = "2026-09-05T10:00:00Z";
-    when(lists.lrange("history:user-1:sess-1", 0, -1))
+    when(lists.lrange(KEY, 0, -1))
         .thenReturn(
             List.of(
                 "{\"role\":\"user\",\"content\":\"hello\",\"agentType\":null,\"timestamp\":\""
@@ -66,11 +105,19 @@ class ChatHistoryCacheServiceTest {
   }
 
   @Test
+  void getCachedHistory_notSeededReturnsNull_evenWhenListHasEntries() {
+    when(keys.exists(SEEDED_KEY)).thenReturn(false);
+
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    assertNull(cache.getCachedHistory("user-1", "sess-1"));
+    verify(lists, never()).lrange(anyString(), anyLong(), anyLong());
+  }
+
+  @Test
   void getCachedHistory_handlesDelimiterInContent() {
-    when(redisDS.list(String.class)).thenReturn(lists);
-    when(redisDS.key()).thenReturn(keys);
+    when(keys.exists(SEEDED_KEY)).thenReturn(true);
     String ts = "2026-09-05T10:00:00Z";
-    when(lists.lrange("history:user-1:sess-1", 0, -1))
+    when(lists.lrange(KEY, 0, -1))
         .thenReturn(
             List.of(
                 "{\"role\":\"user\",\"content\":\"a || b ||"
@@ -90,11 +137,19 @@ class ChatHistoryCacheServiceTest {
 
   @Test
   void getCachedHistory_emptyReturnsNull() {
-    when(redisDS.list(String.class)).thenReturn(lists);
-    when(redisDS.key()).thenReturn(keys);
-    when(lists.lrange("history:user-1:sess-1", 0, -1)).thenReturn(List.of());
+    when(keys.exists(SEEDED_KEY)).thenReturn(true);
+    when(lists.lrange(KEY, 0, -1)).thenReturn(List.of());
 
     ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
     assertNull(cache.getCachedHistory("user-1", "sess-1"));
+  }
+
+  @Test
+  void deleteHistory_removesListAndSeedMarker() {
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    cache.deleteHistory("user-1", "sess-1");
+
+    verify(keys).del(eq(KEY));
+    verify(keys).del(eq(SEEDED_KEY));
   }
 }

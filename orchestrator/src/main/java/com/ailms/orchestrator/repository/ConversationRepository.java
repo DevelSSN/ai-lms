@@ -74,6 +74,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
                         log.timestamp))
             .toList();
 
+    historyCache.seedHistory(userId, sessionId, messages);
+
     return new ChatHistory(sessionId, messages);
   }
 
