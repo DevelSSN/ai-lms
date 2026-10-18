@@ -48,6 +48,9 @@ public final class TextUtils {
 
   public static String stripThinking(String text) {
     if (text == null) return null;
+    if (!THINK_BLOCK.matcher(text).find() && !THINK_REMNANT.matcher(text).find()) {
+      return text;
+    }
     String stripped = THINK_BLOCK.matcher(text).replaceAll(" ");
     stripped = THINK_REMNANT.matcher(stripped).replaceAll(" ");
     return stripped.replaceAll("\\s+", " ").trim();

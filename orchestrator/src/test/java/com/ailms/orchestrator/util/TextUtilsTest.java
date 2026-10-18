@@ -74,6 +74,13 @@ class TextUtilsTest {
   }
 
   @Test
+  void preservesNewlinesWithoutThinkBlock() {
+    String markdown = "## Key concepts\n- one\n- two\n\n## Summary\nText.";
+    assertEquals(markdown, TextUtils.stripThinking(markdown));
+    assertEquals("line1\nline2", TextUtils.stripThinking("line1\nline2"));
+  }
+
+  @Test
   void handlesNull() {
     assertNull(TextUtils.stripThinking(null));
   }
