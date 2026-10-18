@@ -233,6 +233,7 @@ public class OrchestratorService {
           request.bypassRoutes() != null && request.bypassRoutes().booleanValue();
       if (bypassDeterminism) {
         intent = normalizeIntent(intentClassifier.classify(message));
+        intent = applyDocumentGate(intent, message, sessionId, userId);
         log.info("Intent={} (bypassRoutes) for user={} message={}", intent, userId, message);
         enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
       } else if (greetingResponse != null) {
@@ -262,7 +263,7 @@ public class OrchestratorService {
             message);
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
-        intent = reclassifyContentIntent(intent, message, sessionId, userId);
+        intent = applyDocumentGate(intent, message, sessionId, userId);
         log.info("Intent={} for user={} message={}", intent, userId, message);
         enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
       }
@@ -430,23 +431,20 @@ public class OrchestratorService {
     return normalized;
   }
 
-  private String reclassifyContentIntent(
+  private String applyDocumentGate(
       String intent, String message, String sessionId, String userId) {
-    if (!IntentType.isAnalysis(intent)) return intent;
+    if (INTENT_CONVERSATION.equals(intent)) return intent;
+    // Video search and insight are doc-independent (exempt by design).
+    if (INTENT_VIDEO_SEARCH.equals(intent) || INTENT_INSIGHT.equals(intent)) return intent;
+    // Upload/assessment messages carry their own target document reference.
     if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return intent;
-    String activeDocId = null;
-    try {
-      activeDocId = resolveActiveDocumentId(message, sessionId, userId);
-    } catch (Exception e) {
-      log.warn(
-          "Failed to resolve active document for intent={} session={}: {}",
-          intent,
-          sessionId,
-          e.getMessage());
-    }
+    String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
     if (activeDocId == null) {
       log.info(
-          "No session document for intent={}, reclassifying to {}", intent, INTENT_CONVERSATION);
+          "No session document for intent={}, forcing CONVERSATION for user={} session={}",
+          intent,
+          userId,
+          sessionId);
       return INTENT_CONVERSATION;
     }
     return intent;

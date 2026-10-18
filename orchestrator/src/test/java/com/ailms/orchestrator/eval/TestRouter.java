@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Replicates the deterministic routing prefix of {@code OrchestratorService.route} for offline
  * scoring: bare-greeting short-circuit, explicit-video-link short-circuit, else classifier. Test
- * scope only. Does not replicate {@code reclassifyContentIntent} (needs session/document state).
+ * scope only. Does not replicate {@code applyDocumentGate} (needs session/document state).
  */
 final class TestRouter {
 
