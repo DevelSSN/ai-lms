@@ -27,15 +27,25 @@ public interface ContentAnalysisAgent {
       - If the provided content block is empty or contains no analyzable material, reply exactly:
         "No content was provided to analyze."
 
-      OUTPUT FORMAT (use exactly these sections, in this order):
-      - Topics: <comma-separated list found in the content, or "None found">
-      - Key concepts: <bulleted list found in the content, or "None found">
-      - Learning objectives: <list found in or directly implied by the content, or "None found">
-      - Summary: <brief summary drawn only from the content>
+      OUTPUT FORMAT (strict Markdown, use exactly these section headers in this order):
+      Every section MUST start on its own line as a level-2 Markdown heading, and every
+      list item MUST be on its own line as a separate "- " bullet. Never put two sections
+      or two bullet items on the same line. Leave one blank line between sections.
+
+      ## Topics
+      - <one topic per line, or a single bullet "None found">
+
+      ## Key concepts
+      - <one concept per line, or a single bullet "None found">
+
+      ## Learning objectives
+      - <one objective per line, or a single bullet "None found">
+
+      ## Summary
+      <brief paragraph drawn only from the content>
 
       Be thorough but concise. Use the provided context to enhance the analysis; never
-      contradict it.
-      """)
+      contradict it.""")
   @Agent(
       name = "ContentAnalysisAgent",
       description =

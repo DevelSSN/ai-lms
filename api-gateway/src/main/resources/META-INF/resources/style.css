@@ -641,6 +641,36 @@ main::-webkit-scrollbar-thumb:hover,
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+.bot-message h1,
+.bot-message h2,
+.bot-message h3,
+.bot-message h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0.7em 0 0.3em;
+}
+
+.bot-message h1:first-child,
+.bot-message h2:first-child,
+.bot-message h3:first-child,
+.bot-message h4:first-child {
+    margin-top: 0;
+}
+
+.bot-message ul,
+.bot-message ol {
+    margin: 0.3em 0;
+    padding-left: 1.2em;
+}
+
+.bot-message li {
+    margin: 0.15em 0;
+}
+
+.bot-message p {
+    margin: 0.4em 0;
+}
+
 .user-message {
     align-self: flex-end;
     background-color: var(--message-user-bg);
