@@ -1606,6 +1606,64 @@ class OrchestratorServiceTest {
         .process(eq(ChatMemoryKeys.profiling("sess-1")), eq("quiz me"));
   }
 
+  @Test
+  void route_questionGenerationMessage_overridesClassifierToAssessment() {
+    String msg = "Generate 10 questions on Emacs commands";
+    when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(chunks("emacs context"));
+    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}");
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(10)))
+        .thenReturn("Ten Emacs questions");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Ten Emacs questions", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("ASSESSMENT", resp.agentType());
+    verify(intentClassifier).classify(msg);
+    verify(questionGenerationAgent, atLeastOnce())
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(10));
+    verify(contentAnalysisAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_verifier_rejectionFeedback_includedInRegeneration() {
+    String msg = "explain recursion";
+    when(intentClassifier.classify(msg)).thenReturn("CONVERSATION");
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("First attempt without examples")
+        .thenReturn("Second attempt with concrete examples");
+    when(responseVerifierAgent.verify(eq(msg), anyString(), eq("First attempt without examples")))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"lacks concrete examples\"}");
+    when(responseVerifierAgent.verify(
+            eq(msg), anyString(), eq("Second attempt with concrete examples")))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"good\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msgState = scope.readState("response", "");
+              String intent = scope.readState("intent", "");
+              return new ChatResponse(msgState, "sess-1", intent);
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("Second attempt with concrete examples", resp.message());
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(conversationAgent, times(2)).process(eq("conversation:sess-1"), captor.capture());
+    assertFalse(captor.getAllValues().get(0).contains("lacks concrete examples"));
+    assertTrue(captor.getAllValues().get(1).contains("lacks concrete examples"));
+  }
+
   private static List<RetrievedChunk> chunks(String... texts) {
     return java.util.Arrays.stream(texts)
         .map(t -> new RetrievedChunk(t, "doc:doc-9", 0.7, 0))

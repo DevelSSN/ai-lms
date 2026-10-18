@@ -58,6 +58,44 @@ class TextUtilsTest {
   }
 
   @Test
+  void recognizesQuestionGenerationRequests() {
+    for (String message :
+        new String[] {
+          "Generate 10 questions on Emacs commands",
+          "generate a quiz on recursion",
+          "Create 5 questions about closures",
+          "Make me a quiz on sorting",
+          "Write 3 questions about the uploaded document",
+          "Give me some questions on pipes",
+          "quiz me",
+          "Quiz me on regular expressions"
+        }) {
+      assertTrue(
+          TextUtils.isQuestionGenerationRequest(message),
+          "should be a question generation request: '" + message + "'");
+    }
+  }
+
+  @Test
+  void rejectsNonQuestionGenerationRequests() {
+    for (String message :
+        new String[] {
+          "Questions based on the document",
+          "What questions should I ask my teacher?",
+          "Generate assessment for content doc-1",
+          "explain recursion",
+          "Find a video about Emacs",
+          "Can you make sense of these instructions?",
+          "",
+          null
+        }) {
+      assertFalse(
+          TextUtils.isQuestionGenerationRequest(message),
+          "should NOT be a question generation request: '" + message + "'");
+    }
+  }
+
+  @Test
   void stripsThinkBlocks() {
     assertEquals(
         "The answer is 42.",

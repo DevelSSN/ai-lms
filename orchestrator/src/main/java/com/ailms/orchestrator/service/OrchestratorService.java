@@ -263,6 +263,16 @@ public class OrchestratorService {
             message);
       } else {
         intent = normalizeIntent(intentClassifier.classify(message));
+        if (TextUtils.isQuestionGenerationRequest(message)
+            && !INTENT_ASSESSMENT.equals(intent)) {
+          log.info(
+              "Intent={} (question-generation override, classifier said {}) for user={} message={}",
+              INTENT_ASSESSMENT,
+              intent,
+              userId,
+              message);
+          intent = INTENT_ASSESSMENT;
+        }
         intent = applyDocumentGate(intent, message, sessionId, userId);
         log.info("Intent={} for user={} message={}", intent, userId, message);
         enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
@@ -855,17 +865,19 @@ public class OrchestratorService {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
 
     String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
-    if (verifyResponse(message, context, agentResponse)) return agentResponse;
+    Verdict first = verifyResponse(message, context, agentResponse);
+    if (first.accepted()) return agentResponse;
 
     log.info("Response rejected by verifier for intent={}, regenerating once", intent);
-    String retried = regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId);
+    String retried =
+        regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId, first.reason());
     if (retried == null || retried.isBlank()) {
       log.warn("Retry returned blank response for intent={}, returning fallback", intent);
       return VERIFIER_FALLBACK;
     }
     retried = youTubeLinkValidator.sanitize(retried);
     retried = TextUtils.stripThinking(retried);
-    if (verifyResponse(message, context, retried)) return retried;
+    if (verifyResponse(message, context, retried).accepted()) return retried;
 
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
@@ -928,27 +940,45 @@ public class OrchestratorService {
       String message,
       String enrichedMessage,
       String analysisCtx,
-      String userId) {
+      String userId,
+      String verifierFeedback) {
+    String feedback = feedbackInstruction(verifierFeedback);
     if (INTENT_VIDEO_SEARCH.equals(intent)) {
-      return buildVideoAnswer(message, sessionId, userId, VIDEO_REGENERATION_HINT);
+      return buildVideoAnswer(message, sessionId, userId, VIDEO_REGENERATION_HINT + feedback);
     }
-    return dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
+    return dispatchAgent(intent, sessionId, enrichedMessage + feedback, analysisCtx);
   }
 
-  private boolean verifyResponse(String userQuestion, String context, String answer) {
+  /**
+   * Feeds the verifier's rejection reason into the single regeneration attempt; without it the
+   * retry repeats the same mistakes and the rejection (and fallback) is near-certain.
+   */
+  private static String feedbackInstruction(String verifierFeedback) {
+    if (verifierFeedback == null || verifierFeedback.isBlank()) return "";
+    return "\n\nA quality verifier rejected your previous attempt with this feedback:\n"
+        + verifierFeedback.trim()
+        + "\nAddress this feedback and improve your answer.";
+  }
+
+  private record Verdict(boolean accepted, String reason) {}
+
+  private Verdict verifyResponse(String userQuestion, String context, String answer) {
     try {
-      String result = responseVerifierAgent.verify(userQuestion, context, answer);
-      return isAccepted(result);
+      return parseVerdict(responseVerifierAgent.verify(userQuestion, context, answer));
     } catch (Exception e) {
       log.warn("Response verifier raised an error, failing closed: {}", e.getMessage());
-      return false;
+      return new Verdict(false, "verifier error: " + e.getMessage());
     }
   }
 
   boolean isAccepted(String result) {
+    return parseVerdict(result).accepted();
+  }
+
+  private Verdict parseVerdict(String result) {
     if (result == null || result.isBlank()) {
       log.warn("Verifier returned no verdict, failing closed");
-      return false;
+      return new Verdict(false, "no verdict returned");
     }
     try {
       String candidate = TextUtils.extractJsonObject(TextUtils.stripThinking(result));
@@ -956,22 +986,20 @@ public class OrchestratorService {
       JsonNode verdict = parsed.get("verdict");
       if (verdict == null || verdict.asText().isBlank()) {
         log.warn("Verifier output had no verdict field, failing closed: {}", snippet(result));
-        return false;
+        return new Verdict(false, "verifier output had no verdict field");
       }
       String decision = verdict.asText().trim();
       JsonNode reason = parsed.get("reason");
+      String reasonText = reason == null ? "" : reason.asText().trim();
       if ("ACCEPT".equalsIgnoreCase(decision)) {
-        log.info("Verifier accepted answer: {}", reason == null ? "" : reason.asText());
-        return true;
+        log.info("Verifier accepted answer: {}", reasonText);
+        return new Verdict(true, reasonText);
       }
-      log.warn(
-          "Verifier rejected answer ({}): {}",
-          decision,
-          reason == null ? "" : reason.asText().trim());
-      return false;
+      log.warn("Verifier rejected answer ({}): {}", decision, reasonText);
+      return new Verdict(false, reasonText.isBlank() ? decision : reasonText);
     } catch (Exception e) {
       log.warn("Verifier output was not valid JSON, failing closed: {}", snippet(result));
-      return false;
+      return new Verdict(false, "malformed verifier output: " + snippet(result));
     }
   }
 

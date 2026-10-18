@@ -33,6 +33,19 @@ public final class TextUtils {
 
   private static final Pattern THINK_REMNANT = Pattern.compile("(?is)</?think\\s*>");
 
+  /**
+   * Explicit quiz/question generation asks: a generation verb ("generate", "create", "make"...)
+   * within 40 characters of a "quiz"/"question" noun, plus the bare "quiz me" form. Lets a
+   * deterministic route beat the classifier, which otherwise tends to answer generation asks
+   * with content analysis. Phrasings without a generation verb ("Questions based on the
+   * document", "What questions should I ask?") are left to the classifier.
+   */
+  private static final Pattern QUESTION_GENERATION =
+      Pattern.compile(
+          "(?i)\\b(?:generate|create|make|write|draft|give|come\\s+up\\s+with)\\b"
+              + ".{0,40}\\b(?:quiz|quizzes|questions?)\\b"
+              + "|^\\s*quiz\\s+me\\b");
+
   private TextUtils() {}
 
   public static boolean isBareGreeting(String message) {
@@ -44,6 +57,10 @@ public final class TextUtils {
 
   public static boolean isExplicitVideoRequest(String message) {
     return message != null && EXPLICIT_VIDEO_REQUEST.matcher(message).find();
+  }
+
+  public static boolean isQuestionGenerationRequest(String message) {
+    return message != null && QUESTION_GENERATION.matcher(message).find();
   }
 
   public static String stripThinking(String text) {
