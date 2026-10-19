@@ -334,10 +334,15 @@ fi
 # 8. SSE stream -----------------------------------------------------------------
 say "8. SSE /api/updates?token=..."
 if [[ -n "$TOKEN" ]] && ! skipflag sse; then
-  SSE=$(curl -s --max-time 6 -N -H "Authorization: Bearer $TOKEN" \
+  SSE=$(curl -s --max-time 6 -N \
         "$GATEWAY_URL/api/updates?token=$TOKEN" | head -c 400 || true)
-  [[ -n "$SSE" ]] && ok "SSE connected (stream data received)" \
-                   || skip "SSE connected but idle in 6s window (no proactive event fired)"
+  if [[ "$SSE" == *'"error"'* ]]; then
+    bad "SSE rejected the query token (no Authorization header): $SSE"
+  elif [[ -n "$SSE" ]]; then
+    ok "SSE connected via query token (stream data received)"
+  else
+    skip "SSE connected but idle in 6s window (no proactive event fired)"
+  fi
 else
   skip "sse — token missing or --skip=sse"
 fi
