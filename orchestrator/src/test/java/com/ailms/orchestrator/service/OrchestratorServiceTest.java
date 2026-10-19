@@ -1543,8 +1543,6 @@ class OrchestratorServiceTest {
             eq("medium"),
             eq(5)))
         .thenReturn(prose, strictJson);
-    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
-        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"grounded\"}");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse(strictJson, "sess-1", "ASSESSMENT"));
 
@@ -1687,7 +1685,10 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_verifier_doubleRejection_deliversStructuredAssessment() {
+  void route_verifier_skippedForAssessment_quizDelivered() {
+    // ASSESSMENT is artifact generation: the sufficiency verifier is skipped so it cannot
+    // invent rubric requirements and reject a valid quiz. enforceStructuredQuiz still
+    // validates structure downstream.
     String quiz =
         "[{\"question\":\"What is the primary use of Emacs?\",\"type\":\"multiple_choice\","
             + "\"options\":[\"Editing text\",\"Compiling code only\"],\"answer\":\"Editing"
@@ -1696,10 +1697,7 @@ class OrchestratorServiceTest {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
-        .thenReturn(quiz)
         .thenReturn(quiz);
-    when(responseVerifierAgent.verify(eq("quiz me"), anyString(), eq(quiz)))
-        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"off-topic\"}");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(
             inv -> {
@@ -1712,7 +1710,10 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
     assertEquals(quiz, resp.message());
-    verify(responseVerifierAgent, times(2)).verify(anyString(), anyString(), anyString());
+    verify(responseVerifierAgent, never()).verify(anyString(), anyString(), anyString());
+    // Single generation — no verifier-driven regeneration.
+    verify(questionGenerationAgent, times(1))
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
   @Test
@@ -1844,8 +1845,6 @@ class OrchestratorServiceTest {
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("emacs context"));
-    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
-        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}");
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(10)))
         .thenReturn("Ten Emacs questions");

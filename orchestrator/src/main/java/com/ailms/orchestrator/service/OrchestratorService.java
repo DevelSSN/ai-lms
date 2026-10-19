@@ -1090,6 +1090,11 @@ public class OrchestratorService {
       String userId) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
     if (INTENT_CONVERSATION.equals(intent)) return agentResponse;
+    // Assessment is artifact generation, not QA: the verifier's sufficiency rubric keeps
+    // inventing requirements the student never asked for ("explain every command", "add a
+    // summary/next steps") and rejecting valid quizzes. enforceStructuredQuiz already
+    // validates structure (parseable JSON) and grounds via strict regeneration.
+    if (INTENT_ASSESSMENT.equals(intent)) return agentResponse;
     // Upload analysis is system-triggered ("Analyze the uploaded file: <id>") — there is
     // no real student question for the verifier to judge against, and it routinely rejects
     // the conversational analysis summary. Deliver it as-is.
