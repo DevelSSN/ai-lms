@@ -91,6 +91,8 @@ public class OrchestratorService {
 
   @Inject YouTubeSearchService youTubeSearchService;
 
+  @Inject SessionTopicStore sessionTopicStore;
+
   @Inject TitleGenerator titleGenerator;
 
   @Inject ResponseVerifierAgent responseVerifierAgent;
@@ -315,6 +317,7 @@ public class OrchestratorService {
       }
 
       scope.writeState("intent", intent);
+      recordSessionTopic(sessionId, message, intent);
 
       String analysisCtx = "";
       if (agentResponse == null) {
@@ -1015,10 +1018,28 @@ public class OrchestratorService {
     }
   }
 
+  /**
+   * Records what the session is currently about so a later topicless request ("list videos") can
+   * be answered against it. Assessment turns are system prompts rather than topics, so they never
+   * overwrite the stored topic; a topicless request yields a blank topic and cannot clobber either.
+   */
+  private void recordSessionTopic(String sessionId, String message, String intent) {
+    if (sessionId == null || sessionId.isBlank() || message == null || message.isBlank()) return;
+    if (INTENT_ASSESSMENT.equals(intent)) return;
+    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return;
+    if (TextUtils.isBareGreeting(message)) return;
+    String topic = youTubeSearchService.extractQuery(message);
+    if (topic == null || topic.isBlank()) return;
+    sessionTopicStore.setTopic(sessionId, topic);
+  }
+
   private String buildVideoAnswer(
       String message, String sessionId, String userId, String hint) {
     String messageTopic = youTubeSearchService.extractQuery(message);
-    String contextTopic = resolveTopicFromContext(userId, sessionId);
+    String contextTopic = sessionTopicStore.getTopic(sessionId);
+    if (contextTopic == null || contextTopic.isBlank()) {
+      contextTopic = resolveTopicFromContext(userId, sessionId);
+    }
     if (contextTopic == null || contextTopic.isBlank()) {
       contextTopic = lastUserTopicFromMemory(sessionId);
     }

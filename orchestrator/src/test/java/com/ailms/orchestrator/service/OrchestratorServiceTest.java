@@ -63,6 +63,7 @@ class OrchestratorServiceTest {
   @Mock YouTubeLinkValidator youTubeLinkValidator;
   @Mock YouTubeSearchService youTubeSearchService;
   @Mock RedisChatMemoryStore chatMemoryStore;
+  @Mock SessionTopicStore sessionTopicStore;
   @Mock ExecutorService executor;
   @Mock AsyncJobRunner asyncJobRunner;
 
@@ -873,6 +874,7 @@ class OrchestratorServiceTest {
     assertEquals("VIDEO_SEARCH", resp.agentType());
     verify(conversationAgent, never()).process(eq("conversation:sess-1"), anyString());
     verify(profilingAgent).process(eq("profiling:sess-1"), anyString());
+    verify(sessionTopicStore).setTopic("sess-1", "Neural networks by 3b1b");
   }
 
   @Test
@@ -894,6 +896,31 @@ class OrchestratorServiceTest {
     assertTrue(resp.message().contains("couldn't find any YouTube videos"));
     assertEquals("VIDEO_SEARCH", resp.agentType());
     verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_videoSearch_topiclessRequest_searchesSessionTopic() {
+    when(intentClassifier.classify(eq("list videos"), anyString())).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery("list videos")).thenReturn("");
+    when(sessionTopicStore.getTopic("sess-1")).thenReturn("sarcasm detection in nlp");
+    when(youTubeSearchService.search("sarcasm detection in nlp"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult("Sarcasm detection", "abc12345678")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("list videos", "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=abc12345678"));
+    verify(youTubeSearchService).search("sarcasm detection in nlp");
+    verify(sessionTopicStore, never()).setTopic(anyString(), anyString());
   }
 
   @Test
@@ -1993,6 +2020,7 @@ class OrchestratorServiceTest {
     svc.kafkaEventPublisher = kafkaEventPublisher;
     svc.youTubeLinkValidator = youTubeLinkValidator;
     svc.youTubeSearchService = youTubeSearchService;
+    svc.sessionTopicStore = sessionTopicStore;
     svc.chatMemoryStore = chatMemoryStore;
     svc.executor = executor;
     svc.asyncJobRunner = asyncJobRunner;
