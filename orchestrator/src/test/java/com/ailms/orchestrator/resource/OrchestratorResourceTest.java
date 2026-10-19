@@ -106,7 +106,7 @@ class OrchestratorResourceTest {
   @Test
   void getProactive_parsesSinceAndReturnsMessages() {
     ProactiveMessage msg =
-        new ProactiveMessage("id-1", "Ready to continue learning?", "FOLLOW_UP", Instant.now());
+        new ProactiveMessage("id-1", "sess-1", "Ready to continue learning?", "FOLLOW_UP", Instant.now());
     when(conversationRepository.listProactiveSince(eq("user-1"), any(Instant.class)))
         .thenReturn(List.of(msg));
 

@@ -276,6 +276,7 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
             entry ->
                 new ProactiveMessage(
                     entry.id,
+                    entry.sessionId,
                     entry.assistantMessage != null ? entry.assistantMessage : entry.message,
                     entry.agentType,
                     entry.timestamp))

@@ -492,7 +492,7 @@ class ResourceUnitTest {
     var messages =
         java.util.List.of(
             new com.ailms.common.dto.ProactiveMessage(
-                "id-1", "Ready to continue?", "FOLLOW_UP", java.time.Instant.now()));
+                "id-1", "sess-1", "Ready to continue?", "FOLLOW_UP", java.time.Instant.now()));
     when(orchestrator.getProactiveSince("2026-10-19T00:00:00Z", "user-1")).thenReturn(messages);
 
     ChatResource resource = new ChatResource();
