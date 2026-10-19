@@ -618,6 +618,15 @@ let sseController = null;
 let sseBackoffMs = 1000;
 let sseConnectedOnce = false;
 
+// Diagnostic tracing for the proactive-event stream. Set to false to silence.
+const SSE_DEBUG = true;
+function sseLog(...args) {
+  if (SSE_DEBUG) console.log("%c[SSE]", "color:#0a0", ...args);
+}
+function sseWarn(...args) {
+  if (SSE_DEBUG) console.warn("[SSE]", ...args);
+}
+
 // Raw content of the last rendered message (text or quiz JSON), used to
 // dedupe SSE re-deliveries regardless of DOM timestamps.
 let lastRenderedMessage = "";
@@ -710,12 +719,14 @@ function formatTimestamp(date) {
 }
 
 function startSSE() {
+  sseLog("startSSE()", { currentThreadId });
   stopSSE();
   connectSSE();
 }
 
 function stopSSE() {
   if (sseController) {
+    sseLog("aborting existing SSE connection");
     try {
       sseController.abort();
     } catch { /* ignore */ }
@@ -726,38 +737,154 @@ function stopSSE() {
 function scheduleSSEReconnect() {
   const delay = sseBackoffMs;
   sseBackoffMs = Math.min(sseBackoffMs * 2, 30000);
-  console.warn(`SSE disconnected, reconnecting in ${delay / 1000}s`);
+  sseWarn(`disconnected, reconnecting in ${delay / 1000}s`);
   setTimeout(connectSSE, delay);
 }
 
 function handleSSEFrame(frame, currentUsername) {
+  sseLog("frame received:\n" + frame);
   // Per the SSE spec a frame's data is every "data:" line joined by newlines.
   const dataLines = [];
   for (const line of frame.split("\n")) {
     if (line.startsWith("data:")) dataLines.push(line.slice(5).replace(/^ /, ""));
   }
-  if (!dataLines.length) return;
+  if (!dataLines.length) {
+    sseLog("frame had no data: lines (comment/event/retry only)");
+    return;
+  }
 
   let data;
   try {
     data = JSON.parse(dataLines.join("\n"));
   } catch (error) {
-    console.warn("Failed to parse SSE message:", error);
+    sseWarn("failed to parse SSE data:", error, dataLines.join("\n"));
     return;
   }
+  sseLog("parsed event:", data);
 
-  if (data.ping) return;
+  if (data.ping) {
+    sseLog("ping frame, ignored");
+    return;
+  }
   if (data.user_id === currentUsername && data.response) {
     const trimmed = String(data.response).trim();
     // Follow-ups use a constant generic nudge that can legitimately repeat
     // (e.g. after a failed send was retried), so never drop them on text dedupe.
     const isFollowUp = data.event_type === "FOLLOW_UP";
     if (isFollowUp || trimmed !== lastRenderedMessage) {
+      sseLog("delivering proactive message event_type=", data.event_type);
       appendMessage("bot", data.response, data.timestamp, {
         eventType: data.event_type,
       });
+    } else {
+      sseLog("suppressed duplicate proactive message text");
     }
+  } else {
+    sseLog(
+      "event ignored: user_id=",
+      data.user_id,
+      "currentUser=",
+      currentUsername,
+      "hasResponse=",
+      Boolean(data.response),
+    );
   }
+}
+
+async function connectSSE() {
+  try {
+    await keycloak.updateToken(5);
+  } catch (error) {
+    sseWarn("token refresh before connect failed:", error);
+  }
+
+  const parsed = keycloak.tokenParsed;
+  const currentUsername = parsed?.sub || "";
+  sseLog("connecting as sub=", currentUsername);
+
+  // EventSource cannot send an Authorization header, so consume the SSE
+  // stream with fetch() and read the body manually. The gateway authenticates
+  // the request from the bearer header, exactly like every other endpoint.
+  const controller = new AbortController();
+  sseController = controller;
+
+  let response;
+  try {
+    sseLog("GET", `${API_BASE_URL}/updates`);
+    response = await fetch(`${API_BASE_URL}/updates`, {
+      headers: {
+        Authorization: `Bearer ${keycloak.token}`,
+        Accept: "text/event-stream",
+      },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      sseLog("fetch aborted");
+      return;
+    }
+    sseWarn("fetch failed:", error);
+    scheduleSSEReconnect();
+    return;
+  }
+
+  if (!response.ok || !response.body) {
+    if (controller.signal.aborted) return;
+    sseWarn(
+      "connection failed: HTTP",
+      response.status,
+      "content-type=",
+      response.headers.get("content-type"),
+    );
+    scheduleSSEReconnect();
+    return;
+  }
+
+  sseLog(
+    "connected: HTTP",
+    response.status,
+    "content-type=",
+    response.headers.get("content-type"),
+  );
+  sseBackoffMs = 1000;
+  // A follow-up can be fired while the SSE stream was down (e.g. the tab was
+  // in the background); it is persisted in history, so reload the current
+  // thread on reconnect to surface it without a manual refresh.
+  if (sseConnectedOnce && currentThreadId) {
+    await loadHistory(currentThreadId);
+  }
+  sseConnectedOnce = true;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) {
+        sseLog("stream closed by server");
+        break;
+      }
+      const chunk = decoder.decode(value, { stream: true });
+      sseLog("chunk received:", JSON.stringify(chunk));
+      buffer += chunk.replace(/\r\n/g, "\n");
+      let separator;
+      while ((separator = buffer.indexOf("\n\n")) !== -1) {
+        handleSSEFrame(buffer.slice(0, separator), currentUsername);
+        buffer = buffer.slice(separator + 2);
+      }
+    }
+  } catch (error) {
+    if (controller.signal.aborted) {
+      sseLog("stream aborted");
+      return;
+    }
+    sseWarn("stream error:", error);
+  }
+
+  if (controller.signal.aborted) return;
+  scheduleSSEReconnect();
 }
 
 async function connectSSE() {
