@@ -814,12 +814,16 @@ async function pollProactive() {
     const items = await res.json();
     if (!Array.isArray(items) || items.length === 0) return;
     for (const item of items) {
-      if (!item || !item.response) continue;
+      if (!item) continue;
       if (item.id && proactiveSeenIds.has(item.id)) continue;
       if (item.id) proactiveSeenIds.add(item.id);
       if (item.timestamp && item.timestamp > proactivePollSince) {
         proactivePollSince = item.timestamp;
       }
+      // Follow-ups belong to the thread they were generated in. Only surface one
+      // live when that thread is open; otherwise it appears via history when opened.
+      if (item.sessionId && item.sessionId !== currentThreadId) continue;
+      if (!item.response) continue;
       if (String(item.response).trim() === lastRenderedMessage) continue;
       sseLog("polled proactive message", item.eventType, item.timestamp);
       appendMessage("bot", item.response, item.timestamp, {
