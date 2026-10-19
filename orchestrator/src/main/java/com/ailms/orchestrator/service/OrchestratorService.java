@@ -21,6 +21,7 @@ import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
+import com.ailms.orchestrator.agent.QuizVerifierAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.TitleGenerator;
@@ -93,6 +94,8 @@ public class OrchestratorService {
   @Inject TitleGenerator titleGenerator;
 
   @Inject ResponseVerifierAgent responseVerifierAgent;
+
+  @Inject QuizVerifierAgent quizVerifierAgent;
 
   @Inject VideoAnswerWriterAgent videoAnswerWriterAgent;
 
@@ -1090,11 +1093,14 @@ public class OrchestratorService {
       String userId) {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
     if (INTENT_CONVERSATION.equals(intent)) return agentResponse;
-    // Assessment is artifact generation, not QA: the verifier's sufficiency rubric keeps
-    // inventing requirements the student never asked for ("explain every command", "add a
-    // summary/next steps") and rejecting valid quizzes. enforceStructuredQuiz already
-    // validates structure (parseable JSON) and grounds via strict regeneration.
-    if (INTENT_ASSESSMENT.equals(intent)) return agentResponse;
+    // Assessment is artifact generation, not QA, so the sufficiency verifier (whose rubric
+    // invents requirements the student never asked for) is not used. A dedicated fact-checker
+    // verifies the answer key against the source context instead; a rejected quiz is
+    // regenerated once, but a structurally valid quiz is never dropped.
+    if (INTENT_ASSESSMENT.equals(intent)) {
+      return factCheckAssessment(
+          intent, sessionId, message, enrichedMessage, analysisCtx, agentResponse, userId);
+    }
     // Upload analysis is system-triggered ("Analyze the uploaded file: <id>") — there is
     // no real student question for the verifier to judge against, and it routinely rejects
     // the conversational analysis summary. Deliver it as-is.
@@ -1118,6 +1124,53 @@ public class OrchestratorService {
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
     return lastUsableAnswer(intent, retried);
+  }
+
+  /**
+   * Fact-checks a structurally valid quiz against the source context via {@link QuizVerifierAgent}.
+   * A rejected quiz is regenerated once; if the retry is not a usable quiz, the original (still
+   * structurally valid) quiz is delivered rather than a generic failure message.
+   */
+  private String factCheckAssessment(
+      String intent,
+      String sessionId,
+      String message,
+      String enrichedMessage,
+      String analysisCtx,
+      String agentResponse,
+      String userId) {
+    // Unparseable output is repaired by enforceStructuredQuiz downstream; only fact-check
+    // quizzes we can actually parse.
+    if (parseQuizItems(agentResponse).isEmpty()) return agentResponse;
+
+    String context = analysisCtx == null || analysisCtx.isBlank() ? enrichedMessage : analysisCtx;
+    Verdict verdict = verifyQuiz(context, agentResponse);
+    if (verdict.accepted()) return agentResponse;
+
+    log.info("Quiz rejected by fact-checker, regenerating once: {}", verdict.reason());
+    String retried =
+        regenerate(
+            intent, sessionId, message, enrichedMessage, analysisCtx, userId, verdict.reason());
+    if (retried != null && !retried.isBlank()) {
+      retried = youTubeLinkValidator.sanitize(retried);
+      retried = TextUtils.stripThinking(retried);
+      String json = TextUtils.extractJsonArray(retried);
+      if (json != null && !parseQuizItems(json).isEmpty()) return json;
+    }
+    log.warn("Quiz regeneration unusable for session={}, delivering original quiz", sessionId);
+    return agentResponse;
+  }
+
+  private Verdict verifyQuiz(String context, String quizJson) {
+    try {
+      return parseVerdict(quizVerifierAgent.verify(context, quizJson));
+    } catch (Exception e) {
+      // A fact-checker outage is not evidence the quiz is wrong: keep the quiz rather than
+      // churn on infrastructure errors.
+      log.warn(
+          "Quiz fact-checker raised an error, delivering quiz unverified: {}", e.getMessage());
+      return new Verdict(true, "fact-checker error");
+    }
   }
 
   private String enforceStructuredQuiz(

@@ -16,6 +16,7 @@ import com.ailms.orchestrator.agent.InsightAgent;
 import com.ailms.orchestrator.agent.IntentClassifier;
 import com.ailms.orchestrator.agent.ProfilingAgent;
 import com.ailms.orchestrator.agent.QuestionGenerationAgent;
+import com.ailms.orchestrator.agent.QuizVerifierAgent;
 import com.ailms.orchestrator.agent.ResponseComposer;
 import com.ailms.orchestrator.agent.ResponseVerifierAgent;
 import com.ailms.orchestrator.agent.VideoAnswerWriterAgent;
@@ -46,6 +47,7 @@ class OrchestratorServiceTest {
   @Mock ContentAnalysisAgent contentAnalysisAgent;
   @Mock QuestionGenerationAgent questionGenerationAgent;
   @Mock ResponseVerifierAgent responseVerifierAgent;
+  @Mock QuizVerifierAgent quizVerifierAgent;
   @Mock VideoAnswerWriterAgent videoAnswerWriterAgent;
   @Mock InsightAgent insightAgent;
   @Mock ProfilingService profilingService;
@@ -69,6 +71,9 @@ class OrchestratorServiceTest {
     lenient()
         .when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
         .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"ok\"}");
+    lenient()
+        .when(quizVerifierAgent.verify(anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"ACCEPT\", \"reason\": \"grounded\"}");
     lenient()
         .when(youTubeLinkValidator.sanitize(any()))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -1685,10 +1690,9 @@ class OrchestratorServiceTest {
   }
 
   @Test
-  void route_verifier_skippedForAssessment_quizDelivered() {
-    // ASSESSMENT is artifact generation: the sufficiency verifier is skipped so it cannot
-    // invent rubric requirements and reject a valid quiz. enforceStructuredQuiz still
-    // validates structure downstream.
+  void route_assessment_factChecksQuizAndDeliversIt() {
+    // ASSESSMENT uses the dedicated fact-checker, not the sufficiency verifier. An accepted
+    // quiz is delivered as generated, with no extra regeneration.
     String quiz =
         "[{\"question\":\"What is the primary use of Emacs?\",\"type\":\"multiple_choice\","
             + "\"options\":[\"Editing text\",\"Compiling code only\"],\"answer\":\"Editing"
@@ -1710,9 +1714,72 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
 
     assertEquals(quiz, resp.message());
+    verify(quizVerifierAgent, times(1)).verify(anyString(), eq(quiz));
     verify(responseVerifierAgent, never()).verify(anyString(), anyString(), anyString());
-    // Single generation — no verifier-driven regeneration.
     verify(questionGenerationAgent, times(1))
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
+  }
+
+  @Test
+  void route_assessment_rejectedQuiz_regeneratesOnceAndDeliversFix() {
+    String bad =
+        "[{\"question\":\"What is the default mode of Vim?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"normal\",\"insert\",\"visual\"],\"answer\":\"insert\","
+            + "\"explanation\":\"Vim starts in insert mode.\"}]";
+    String good =
+        "[{\"question\":\"What is the default mode of Vim?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"normal\",\"insert\",\"visual\"],\"answer\":\"normal\","
+            + "\"explanation\":\"Vim starts in normal mode.\"}]";
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
+        .thenReturn(bad, good);
+    when(quizVerifierAgent.verify(anyString(), eq(bad)))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"answer key contradicts content\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "ASSESSMENT");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertEquals(good, resp.message());
+    verify(quizVerifierAgent, times(1)).verify(anyString(), eq(bad));
+    verify(questionGenerationAgent, times(2))
+        .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
+  }
+
+  @Test
+  void route_assessment_rejectedQuizWithUnusableRegen_deliversOriginal() {
+    String bad =
+        "[{\"question\":\"What is the default mode of Vim?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"normal\",\"insert\",\"visual\"],\"answer\":\"insert\","
+            + "\"explanation\":\"Vim starts in insert mode.\"}]";
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
+        .thenReturn(bad, "I cannot generate that right now.");
+    when(quizVerifierAgent.verify(anyString(), eq(bad)))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"answer key contradicts content\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg = scope.readState("response", "");
+              return new ChatResponse(msg, "sess-1", "ASSESSMENT");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest("quiz me", "sess-1"), "user-1");
+
+    assertEquals(bad, resp.message());
+    verify(questionGenerationAgent, times(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
   }
 
@@ -1913,6 +1980,7 @@ class OrchestratorServiceTest {
     svc.contentAnalysisAgent = contentAnalysisAgent;
     svc.questionGenerationAgent = questionGenerationAgent;
     svc.responseVerifierAgent = responseVerifierAgent;
+    svc.quizVerifierAgent = quizVerifierAgent;
     svc.videoAnswerWriterAgent = videoAnswerWriterAgent;
     svc.insightAgent = insightAgent;
     svc.profilingService = profilingService;
