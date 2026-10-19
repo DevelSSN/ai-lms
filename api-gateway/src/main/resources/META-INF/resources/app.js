@@ -1279,15 +1279,18 @@ function appendMessage(sender, text, timestamp, options) {
 
 function appendAssistantContent(data) {
   const metadata = data?.metadata;
+  // Prefer the structured quiz payload: the raw message is the quiz JSON, and
+  // rendering it as chat text would show raw JSON and strip anything that looks
+  // like an HTML tag (e.g. "<Enter>") during markdown sanitization. Rendering
+  // the card from metadata instead keeps the questions intact.
+  if (Array.isArray(metadata?.items) && metadata.items.length) {
+    lastRenderedMessage = String(data?.message ?? "").trim();
+    renderQuizCard(metadata, data?.timestamp);
+    return;
+  }
   const msgEl = appendMessage("bot", data?.message || "", data?.timestamp);
   if (msgEl && Array.isArray(metadata?.citations) && metadata.citations.length) {
     attachCitations(msgEl, metadata.citations);
-  }
-  // appendMessage already rendered the quiz card when the message text is quiz
-  // JSON (it returns null in that case), so the metadata branch must not render
-  // a second, identical card.
-  if (msgEl !== null && metadata?.items && Array.isArray(metadata.items)) {
-    renderQuizCard(metadata, data?.timestamp);
   }
 }
 
@@ -1361,25 +1364,28 @@ function highlightCitationMarkers(root, numbers) {
 
 function tryParseQuizJson(text) {
   if (text == null) return null;
-  let body = text.trim();
-  const fenced = body.match(/^\s*```(?:json)?\s*\n?([\s\S]*?)\s*```\s*$/);
-  if (fenced) {
-    body = fenced[1].trim();
-  } else {
-    body = body.replace(/^json\b/i, "").trim();
-  }
-  if (!body.startsWith("[")) return null;
+  const raw = String(text).trim();
+  // The model may wrap the array in a code fence or surround it with prose;
+  // extract the array itself (mirrors the backend's parseQuizItems) so a quiz
+  // with stray prose still renders as a card instead of raw JSON.
+  const fenced = raw.match(/```(?:json)?\s*\n?([\s\S]*?)```/i);
+  const body = (fenced ? fenced[1] : raw).replace(/^json\b/i, "").trim();
+  const start = body.indexOf("[");
+  const end = body.lastIndexOf("]");
+  if (start === -1 || end <= start) return null;
+  let parsed;
   try {
-    const parsed = JSON.parse(body);
-    if (
-      Array.isArray(parsed) &&
-      parsed.length > 0 &&
-      parsed.every((item) => item && typeof item.question === "string")
-    ) {
-      return parsed;
-    }
+    parsed = JSON.parse(body.slice(start, end + 1));
   } catch {
     /* not quiz json */
+    return null;
+  }
+  if (
+    Array.isArray(parsed) &&
+    parsed.length > 0 &&
+    parsed.every((item) => item && typeof item.question === "string")
+  ) {
+    return parsed;
   }
   return null;
 }
