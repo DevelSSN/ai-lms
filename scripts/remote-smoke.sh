@@ -332,10 +332,10 @@ else
 fi
 
 # 8. SSE stream -----------------------------------------------------------------
-say "8. SSE /api/updates?token=..."
+say "8. SSE /api/updates (bearer header)"
 if [[ -n "$TOKEN" ]] && ! skipflag sse; then
   SSE=$(curl -s --max-time 6 -N -H "Authorization: Bearer $TOKEN" \
-        "$GATEWAY_URL/api/updates?token=$TOKEN" | head -c 400 || true)
+        "$GATEWAY_URL/api/updates" | head -c 400 || true)
   [[ -n "$SSE" ]] && ok "SSE connected (stream data received)" \
                    || skip "SSE connected but idle in 6s window (no proactive event fired)"
 else
