@@ -28,6 +28,7 @@ import com.ailms.orchestrator.agent.VideoAnswerWriterAgent;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.QuizResultRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
+import com.ailms.orchestrator.util.AgenticScopes;
 import com.ailms.orchestrator.util.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1324,7 +1325,7 @@ public class OrchestratorService {
       if (first == null) return;
       String title = null;
       try {
-        title = titleGenerator.generate(first.message);
+        title = AgenticScopes.callWithScope(() -> titleGenerator.generate(first.message));
       } catch (Exception e) {
         log.warn("LLM title generation failed for session={}: {}", sessionId, e.getMessage());
       }

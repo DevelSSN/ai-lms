@@ -6,6 +6,7 @@ import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.enums.ChatRole;
 import com.ailms.orchestrator.repository.ConversationRepository;
 import com.ailms.orchestrator.repository.UserProfileRepository;
+import com.ailms.orchestrator.util.AgenticScopes;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -94,6 +95,6 @@ public class ProactiveAgent {
       return GENERIC_FOLLOW_UP;
     }
 
-    return proactiveFollowUpAgent.generate(context);
+    return AgenticScopes.callWithScope(() -> proactiveFollowUpAgent.generate(context));
   }
 }
