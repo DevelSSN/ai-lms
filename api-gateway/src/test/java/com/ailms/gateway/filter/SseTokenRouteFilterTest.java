@@ -69,6 +69,7 @@ class SseTokenRouteFilterTest {
     filter.copyQueryToken(rc);
 
     verify(headers).set("Authorization", "Bearer abc.def");
+    verify(rc).put("quarkus.oidc.extracted-bearer-token", "abc.def");
     verify(rc).next();
     verify(rc, never()).response();
   }

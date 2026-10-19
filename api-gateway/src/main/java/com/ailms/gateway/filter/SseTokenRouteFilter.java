@@ -22,6 +22,10 @@ public class SseTokenRouteFilter {
 
   static final String UPDATES_PATH = "api/updates";
   private static final String AUTHORIZATION = "Authorization";
+  // Checked first by io.quarkus.oidc.runtime.OidcUtils.extractBearerToken(RoutingContext, ...)
+  // before it falls back to the Authorization header; lets us hand OIDC a token that was
+  // not present on the original request.
+  private static final String EXTRACTED_BEARER_TOKEN_ATTR = "quarkus.oidc.extracted-bearer-token";
   private static final Pattern SAFE_TOKEN = Pattern.compile("[A-Za-z0-9._\\-]+");
 
   enum Action {
@@ -40,6 +44,7 @@ public class SseTokenRouteFilter {
       case PASS -> rc.next();
       case SET_AUTH -> {
         rc.request().headers().set(AUTHORIZATION, "Bearer " + token);
+        rc.put(EXTRACTED_BEARER_TOKEN_ATTR, token);
         log.debug("Extracted auth token from query string for path={}", path);
         rc.next();
       }
