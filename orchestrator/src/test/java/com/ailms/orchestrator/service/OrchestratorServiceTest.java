@@ -174,7 +174,7 @@ class OrchestratorServiceTest {
   @Test
   void routeAsync_jobSuccessMarksDocumentIndexed() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
-    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(uploadMsg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveContent("doc-1"))
         .thenReturn("File: notes.pdf\n\nContent:\nsample text");
     when(contentDocumentService.resolveFileName("doc-1")).thenReturn("notes.pdf");
@@ -248,7 +248,7 @@ class OrchestratorServiceTest {
     assertEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
     assertEquals("CONVERSATION", resp.agentType());
     verify(profilingService).ensureProfile("user-1");
-    verify(intentClassifier, never()).classify(anyString());
+    verify(intentClassifier, never()).classify(anyString(), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
     verify(profilingAgent, never()).process(anyString(), anyString());
     verify(responseVerifierAgent, never()).verify(anyString(), anyString(), anyString());
@@ -257,7 +257,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_bypassRoutes_forcesPureClassifierOnShortCircuitableMessage() {
-    when(intentClassifier.classify("hello")).thenReturn("CONVERSATION");
+    when(intentClassifier.classify(eq("hello"), anyString())).thenReturn("CONVERSATION");
     when(conversationAgent.process(anyString(), eq("hello"))).thenReturn("classifier-routed reply");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(
@@ -273,7 +273,7 @@ class OrchestratorServiceTest {
     assertNotEquals("Hello! I'm your AI tutor. What would you like to learn today?", resp.message());
     assertEquals("classifier-routed reply", resp.message());
     assertEquals("CONVERSATION", resp.agentType());
-    verify(intentClassifier).classify("hello");
+    verify(intentClassifier).classify(eq("hello"), anyString());
     verify(conversationAgent).process(anyString(), eq("hello"));
   }
 
@@ -299,7 +299,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_normalizesClassifierOutput() {
-    when(intentClassifier.classify("what is a neural network")).thenReturn("\nconversation. ");
+    when(intentClassifier.classify(eq("what is a neural network"), anyString())).thenReturn("\nconversation. ");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -314,7 +314,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_defaultsUnrecognizedIntentToConversation() {
-    when(intentClassifier.classify("huh")).thenReturn("SOMETHING_ELSE");
+    when(intentClassifier.classify(eq("huh"), anyString())).thenReturn("SOMETHING_ELSE");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Hello there!");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -329,7 +329,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_contentAnalysisIntent_withoutDocument_reclassifiesToConversation() {
-    when(intentClassifier.classify("analyze this")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("analyze this"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Explain result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -350,9 +350,214 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_conversationIntent_strongDocMatch_upgradesToContentAnalysis() {
+    String msg = "how do I exit insert mode";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONVERSATION");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(chunks("vim insert mode escape to normal mode"));
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
+        .thenReturn("Press Esc to leave insert mode.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("CONTENT_ANALYSIS", resp.agentType());
+    verify(contentAnalysisAgent)
+        .process(eq(ChatMemoryKeys.analysis("sess-1")), contains("vim insert mode escape"));
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_contentAnalysis_offDocumentNoMatch_forcesConversation() {
+    String msg = "what causes inflation";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(List.of());
+    when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
+        .thenReturn("Inflation explainer.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("CONVERSATION", resp.agentType());
+    verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
+    verify(contentAnalysisAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_contentAnalysis_explicitMaterialReference_keepsIntentWithNoMatchMarker() {
+    String msg = "What does the document say about black holes?";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(List.of());
+    when(contentAnalysisAgent.process(
+            eq(ChatMemoryKeys.analysis("sess-1")), contains("no content in the document matches")))
+        .thenReturn("The document does not cover black holes.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("CONTENT_ANALYSIS", resp.agentType());
+    verify(contentAnalysisAgent)
+        .process(
+            eq(ChatMemoryKeys.analysis("sess-1")),
+            contains("no content in the document matches"));
+  }
+
+  @Test
+  void route_contentAnalysis_recentDocTurnInHistory_keepsIntentWithoutMatch() {
+    String msg = "What is ^C then?";
+    ChatHistory history =
+        new ChatHistory(
+            "sess-1",
+            List.of(
+                new ChatHistory.ChatMessage(
+                    ChatRole.USER.key(),
+                    "Summarize the document",
+                    null,
+                    java.time.Instant.now()),
+                new ChatHistory.ChatMessage(
+                    ChatRole.ASSISTANT.key(),
+                    "The document covers vim modes.",
+                    "CONTENT_ANALYSIS",
+                    java.time.Instant.now())));
+    when(conversationRepository.getHistory("user-1", "sess-1")).thenReturn(history);
+    when(intentClassifier.classify(eq(msg), contains("Summarize the document")))
+        .thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(List.of());
+    when(contentAnalysisAgent.process(
+            eq(ChatMemoryKeys.analysis("sess-1")), contains("no content in the document matches")))
+        .thenReturn("^C is the interrupt key.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals("CONTENT_ANALYSIS", resp.agentType());
+    verify(intentClassifier).classify(eq(msg), contains("Summarize the document"));
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void route_bypassRoutes_skipsGatesAndHistory() {
+    String msg = "analyze this";
+    when(intentClassifier.classify(eq(msg), eq(""))).thenReturn("CONTENT_ANALYSIS");
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
+        .thenReturn("Analysis without a document.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1", true), "user-1");
+
+    assertEquals("CONTENT_ANALYSIS", resp.agentType());
+    verify(intentClassifier).classify(eq(msg), eq(""));
+    verify(conversationRepository, never()).getHistory(anyString(), anyString());
+    verify(conversationAgent, never()).process(anyString(), anyString());
+  }
+
+  @Test
+  void formatHistory_truncatesTurnsAndCollapsesUploads() {
+    ChatHistory history =
+        new ChatHistory(
+            "sess-1",
+            List.of(
+                new ChatHistory.ChatMessage(
+                    ChatRole.USER.key(),
+                    com.ailms.common.constants.PromptPrefixes.UPLOAD_ANALYSIS + "doc-1",
+                    null,
+                    null),
+                new ChatHistory.ChatMessage(
+                    ChatRole.ASSISTANT.key(), "a".repeat(500), "CONTENT_ANALYSIS", null),
+                new ChatHistory.ChatMessage(ChatRole.USER.key(), "ok", null, null)));
+
+    String out = OrchestratorService.formatHistory(history);
+
+    assertTrue(out.contains("User: [uploaded a document]"));
+    assertTrue(out.contains("Assistant: " + "a".repeat(200)));
+    assertFalse(out.contains("a".repeat(201)));
+    assertTrue(out.endsWith("User: ok"));
+    assertTrue(out.length() <= 1200);
+  }
+
+  @Test
+  void formatHistory_returnsEmptyForMissingHistory() {
+    assertEquals("", OrchestratorService.formatHistory(null));
+    assertEquals("", OrchestratorService.formatHistory(new ChatHistory("s", List.of())));
+  }
+
+  @Test
+  void docContextActive_requiresRecentContentAnalysisTurn() {
+    assertFalse(OrchestratorService.docContextActive(null));
+    assertFalse(OrchestratorService.docContextActive(new ChatHistory("s", List.of())));
+    assertFalse(
+        OrchestratorService.docContextActive(
+            new ChatHistory(
+                "s",
+                List.of(
+                    new ChatHistory.ChatMessage(ChatRole.USER.key(), "hi", null, null),
+                    new ChatHistory.ChatMessage(
+                        ChatRole.ASSISTANT.key(), "hello", "CONVERSATION", null)))));
+    assertTrue(
+        OrchestratorService.docContextActive(
+            new ChatHistory(
+                "s",
+                List.of(
+                    new ChatHistory.ChatMessage(ChatRole.USER.key(), "hi", null, null),
+                    new ChatHistory.ChatMessage(
+                        ChatRole.ASSISTANT.key(), "analysis", "CONTENT_ANALYSIS", null)))));
+
+    // A CONTENT_ANALYSIS turn older than the last-6-message window must not keep the gate open.
+    List<ChatHistory.ChatMessage> stale = new java.util.ArrayList<>();
+    stale.add(
+        new ChatHistory.ChatMessage(ChatRole.ASSISTANT.key(), "old analysis", "CONTENT_ANALYSIS", null));
+    for (int i = 0; i < 8; i++) {
+      stale.add(new ChatHistory.ChatMessage(ChatRole.USER.key(), "u" + i, null, null));
+      stale.add(new ChatHistory.ChatMessage(ChatRole.ASSISTANT.key(), "a" + i, "CONVERSATION", null));
+    }
+    assertFalse(OrchestratorService.docContextActive(new ChatHistory("s", stale)));
+  }
+
+  @Test
   void route_assessmentIntent_enrichesWithContext() {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("context from qdrant"));
     when(questionGenerationAgent.process(
@@ -371,7 +576,7 @@ class OrchestratorServiceTest {
   @Test
   void route_assessmentIntent_scopesToExplicitContentId() {
     String msg = "Generate assessment for content doc-9";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("rome content"));
     when(questionGenerationAgent.process(
@@ -392,7 +597,7 @@ class OrchestratorServiceTest {
   @Test
   void route_assessment_includesCAAAnalysisFromMemory() {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("chunk from vector db"));
     ChatMessage caaAnalysis = AiMessage.from("Topics: Photosynthesis\nKey concepts: chlorophyll");
@@ -424,7 +629,7 @@ class OrchestratorServiceTest {
   @Test
   void route_assessment_parsesDifficultyAndCountFromFreeText() {
     String msg = "Generate 10 hard questions about the document";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("context from qdrant"));
@@ -447,7 +652,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_assessment_defaultsDifficultyAndCount() {
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("context from qdrant"));
@@ -476,7 +681,7 @@ class OrchestratorServiceTest {
   @Test
   void route_assessment_parsesStructuredParamSuffix() {
     String msg = "Generate assessment for content doc-9 | questions=3 | difficulty=easy";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("rome content"));
     when(questionGenerationAgent.process(
@@ -503,7 +708,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_assessment_fallsBackToCAAFromUploadSession() {
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(chatMemoryStore.getMessages(ChatMemoryKeys.analysis("sess-1")))
         .thenReturn(java.util.List.of());
@@ -540,7 +745,7 @@ class OrchestratorServiceTest {
         "[{\"question\":\"What is 2+2?\",\"type\":\"multiple_choice\","
             + "\"options\":[\"3\",\"4\",\"5\"],\"answer\":\"4\","
             + "\"explanation\":\"Basic addition\"}]";
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("context from qdrant"));
@@ -574,7 +779,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_assessment_unparseableOutput_hasNoMetadata() {
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
         .thenReturn(chunks("context from qdrant"));
@@ -601,7 +806,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_insightIntent_feedsRealAnalytics() {
-    when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
+    when(intentClassifier.classify(eq("my progress"), anyString())).thenReturn("INSIGHT");
     when(insightDataService.buildContext("user-1", "sess-1"))
         .thenReturn("- Messages in this session: 12");
     when(insightAgent.process(
@@ -621,7 +826,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_insightIntent() {
-    when(intentClassifier.classify("my progress")).thenReturn("INSIGHT");
+    when(intentClassifier.classify(eq("my progress"), anyString())).thenReturn("INSIGHT");
     when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString()))
         .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -636,7 +841,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearchIntent_returnsRealLinksWithoutRouter() {
-    when(intentClassifier.classify("Give me a youtube link to Neural networks by 3b1b"))
+    when(intentClassifier.classify(eq("Give me a youtube link to Neural networks by 3b1b"), anyString()))
         .thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
         .thenReturn("Neural networks by 3b1b");
@@ -667,7 +872,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearchIntent_emptyResults_returnsCannedMessage() {
-    when(intentClassifier.classify("video please")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("video please"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("video please")).thenReturn("video please");
     when(youTubeSearchService.search("video please")).thenReturn(java.util.List.of());
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -688,7 +893,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearch_writerProseRejectedTwice_deliversLinksNotFallback() {
-    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Emacs video"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
     when(youTubeSearchService.search("Emacs video"))
         .thenReturn(
@@ -721,7 +926,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearch_writerThrows_deliversPlainList() {
-    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Emacs video"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
     when(youTubeSearchService.search("Emacs video"))
         .thenReturn(
@@ -747,7 +952,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearch_writerProseAccepted_containsAllLinksAndGroundedMetadata() {
-    when(intentClassifier.classify("Emacs video")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Emacs video"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");
     when(youTubeSearchService.search("Emacs video"))
         .thenReturn(
@@ -778,7 +983,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoKeywordUsesClassifier() {
-    when(intentClassifier.classify("Give youtube videos")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Give youtube videos"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Give youtube videos")).thenReturn("");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenAnswer(
@@ -793,7 +998,7 @@ class OrchestratorServiceTest {
 
     assertTrue(resp.message().contains("couldn't find any YouTube videos"));
     assertEquals("VIDEO_SEARCH", resp.agentType());
-    verify(intentClassifier).classify("Give youtube videos");
+    verify(intentClassifier).classify(eq("Give youtube videos"), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
@@ -813,7 +1018,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
     assertEquals("VIDEO_SEARCH", resp.agentType());
-    verify(intentClassifier, never()).classify(anyString());
+    verify(intentClassifier, never()).classify(anyString(), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
@@ -833,13 +1038,13 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
     assertEquals("VIDEO_SEARCH", resp.agentType());
-    verify(intentClassifier, never()).classify(anyString());
+    verify(intentClassifier, never()).classify(anyString(), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
   @Test
   void route_mentionsYoutubeWithoutLink_UsesClassifier() {
-    when(intentClassifier.classify("Tell me about youtube ads")).thenReturn("CONVERSATION");
+    when(intentClassifier.classify(eq("Tell me about youtube ads"), anyString())).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString()))
         .thenReturn("Here's an explanation of YouTube ads.");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
@@ -854,13 +1059,13 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("Tell me about youtube ads", "sess-1"), "user-1");
 
     assertEquals("CONVERSATION", resp.agentType());
-    verify(intentClassifier).classify("Tell me about youtube ads");
+    verify(intentClassifier).classify(eq("Tell me about youtube ads"), anyString());
     verify(youTubeSearchService, never()).search(anyString());
   }
 
   @Test
   void route_videoKeyword_usesHistoryTopicWhenNoExplicitTopic() {
-    when(intentClassifier.classify("Ok\nGive youtube videos")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Ok\nGive youtube videos"), anyString())).thenReturn("VIDEO_SEARCH");
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenReturn(
             new ChatHistory(
@@ -887,13 +1092,13 @@ class OrchestratorServiceTest {
 
     assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
     verify(youTubeSearchService).search("git");
-    verify(intentClassifier).classify("Ok\nGive youtube videos");
+    verify(intentClassifier).classify(eq("Ok\nGive youtube videos"), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
   @Test
   void route_videoKeyword_usesMemoryTopicWhenNoExplicitTopic() {
-    when(intentClassifier.classify("Ok\nGive youtube videos")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Ok\nGive youtube videos"), anyString())).thenReturn("VIDEO_SEARCH");
     when(chatMemoryStore.getMessages(ChatMemoryKeys.conversation("sess-1")))
         .thenReturn(java.util.List.of(UserMessage.from("Learn about git")));
     when(youTubeSearchService.extractQuery("Ok\nGive youtube videos")).thenReturn("");
@@ -914,13 +1119,13 @@ class OrchestratorServiceTest {
 
     assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
     verify(youTubeSearchService).search("git");
-    verify(intentClassifier).classify("Ok\nGive youtube videos");
+    verify(intentClassifier).classify(eq("Ok\nGive youtube videos"), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
   @Test
   void route_classifiedVideoSearch_bareRequest_usesHistoryTopic() {
-    when(intentClassifier.classify("Give me videos")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Give me videos"), anyString())).thenReturn("VIDEO_SEARCH");
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenReturn(
             new ChatHistory(
@@ -945,14 +1150,14 @@ class OrchestratorServiceTest {
 
     assertTrue(resp.message().contains("watch?v=dG2kXvT4vX4"));
     assertEquals("VIDEO_SEARCH", resp.agentType());
-    verify(intentClassifier).classify("Give me videos");
+    verify(intentClassifier).classify(eq("Give me videos"), anyString());
     verify(youTubeSearchService).search("git");
     verify(conversationAgent, never()).process(anyString(), anyString());
   }
 
   @Test
   void route_classifiedVideoSearch_withTopicAndHistory_mergesContext() {
-    when(intentClassifier.classify("Give me videos on branch management"))
+    when(intentClassifier.classify(eq("Give me videos on branch management"), anyString()))
         .thenReturn("VIDEO_SEARCH");
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenReturn(
@@ -986,7 +1191,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_videoSearch_noTopicInContext_returnsCannedMessage() {
-    when(intentClassifier.classify("Give youtube videos")).thenReturn("VIDEO_SEARCH");
+    when(intentClassifier.classify(eq("Give youtube videos"), anyString())).thenReturn("VIDEO_SEARCH");
     when(conversationRepository.getHistory("user-1", "sess-1"))
         .thenReturn(new ChatHistory("sess-1", java.util.List.of()));
     when(youTubeSearchService.extractQuery("Give youtube videos")).thenReturn("");
@@ -1002,13 +1207,13 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest("Give youtube videos", "sess-1"), "user-1");
 
     assertTrue(resp.message().contains("couldn't find any YouTube videos"));
-    verify(intentClassifier).classify("Give youtube videos");
+    verify(intentClassifier).classify(eq("Give youtube videos"), anyString());
     verify(youTubeSearchService, never()).search(anyString());
   }
 
   @Test
   void route_videoSearch_intentIsVerifiedAndResearchesWhenRejected() {
-    when(intentClassifier.classify("Give me a youtube link to Neural networks by 3b1b"))
+    when(intentClassifier.classify(eq("Give me a youtube link to Neural networks by 3b1b"), anyString()))
         .thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Give me a youtube link to Neural networks by 3b1b"))
         .thenReturn("Neural networks by 3b1b");
@@ -1045,7 +1250,7 @@ class OrchestratorServiceTest {
   @Test
   void route_sanitizesAgentResponseLinks() {
     String raw = "Here: https://www.youtube.com/watch?v=your_video_ done";
-    when(intentClassifier.classify("link please")).thenReturn("CONVERSATION");
+    when(intentClassifier.classify(eq("link please"), anyString())).thenReturn("CONVERSATION");
     when(conversationAgent.process(eq("conversation:sess-1"), anyString())).thenReturn(raw);
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse(raw, "sess-1", "CONVERSATION"));
@@ -1058,10 +1263,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_acceptedResponseIsPassedThrough() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("neural network context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1086,10 +1290,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_rejectedResponseRegeneratesOnceAndSends() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("neural network context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1122,10 +1325,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_nullVerdict_failsClosedReturnsFallback() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("neural network context"));
     when(responseVerifierAgent.verify(eq("summarize the document"), anyString(), anyString()))
@@ -1153,10 +1355,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_malformedJson_failsClosedReturnsFallback() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("neural network context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1182,10 +1383,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_throws_failsClosedReturnsFallback() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("neural network context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1212,7 +1412,7 @@ class OrchestratorServiceTest {
   @Test
   void route_handlesVectorDbFailureGracefully() {
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
-    when(intentClassifier.classify("analyze")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("analyze"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenThrow(new RuntimeException("Qdrant down"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1230,7 +1430,7 @@ class OrchestratorServiceTest {
   @Test
   void route_uploadFile_resolvesContent() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
-    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(uploadMsg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveContent("doc-1"))
         .thenReturn("File: notes.pdf\n\nContent:\nsample text");
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("upload-user-1")), anyString()))
@@ -1249,7 +1449,7 @@ class OrchestratorServiceTest {
   @Test
   void route_uploadFile_marksDocumentIndexedAfterIngest() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
-    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(uploadMsg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.chunkContent(eq("doc-1"), anyInt(), anyInt()))
         .thenReturn(List.of("chunk one", "chunk two"));
     when(contentDocumentService.resolveContent("doc-1"))
@@ -1269,7 +1469,7 @@ class OrchestratorServiceTest {
   @Test
   void route_uploadFile_logsFriendlyUserMessage() {
     String uploadMsg = "Analyze the uploaded file: doc-1";
-    when(intentClassifier.classify(uploadMsg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(uploadMsg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveContent("doc-1"))
         .thenReturn("File: emacs.pdf\n\nContent:\nmanual excerpt");
     when(contentDocumentService.resolveFileName("doc-1")).thenReturn("emacs.pdf");
@@ -1297,7 +1497,7 @@ class OrchestratorServiceTest {
   @Test
   void route_docReference_question_routesToAssessmentWithContext() {
     String msg = "Questions based on the document";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
@@ -1314,7 +1514,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Rome questions", resp.message());
     assertEquals("ASSESSMENT", resp.agentType());
-    verify(intentClassifier).classify(msg);
+    verify(intentClassifier).classify(eq(msg), anyString());
     verify(conversationAgent, never()).process(anyString(), anyString());
     verify(questionGenerationAgent, atMost(2))
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5));
@@ -1323,7 +1523,7 @@ class OrchestratorServiceTest {
   @Test
   void route_assessment_proseOutput_triggersStrictJsonRegen() {
     String msg = "Questions based on the document";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
@@ -1371,7 +1571,7 @@ class OrchestratorServiceTest {
     // Doc exists user-wide (uploaded in some other thread) but not in this session:
     // the gate must not bleed it in — no session doc means CONVERSATION.
     String msg = "Questions based on the document";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn(null);
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
@@ -1400,10 +1600,9 @@ class OrchestratorServiceTest {
   @Test
   void route_docReference_summarize_routesToContentAnalysis() {
     String msg = "Summarize the uploaded document";
-    when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("rome context"));
     when(contentAnalysisAgent.process(
@@ -1416,14 +1615,14 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
     assertEquals("CONTENT_ANALYSIS", resp.agentType());
-    verify(intentClassifier).classify(msg);
+    verify(intentClassifier).classify(eq(msg), anyString());
     verify(contentAnalysisAgent).process(eq(ChatMemoryKeys.analysis("sess-1")), anyString());
   }
 
   @Test
   void route_classifiedAssessment_withoutAnyDocument_reclassifiesToConversation() {
     String msg = "Questions based on the document";
-    when(intentClassifier.classify(msg)).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn(null);
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn(null);
@@ -1443,7 +1642,7 @@ class OrchestratorServiceTest {
 
     assertEquals("Let me help you with that.", resp.message());
     assertEquals("CONVERSATION", resp.agentType());
-    verify(intentClassifier).classify(msg);
+    verify(intentClassifier).classify(eq(msg), anyString());
     verify(conversationAgent).process(eq("conversation:sess-1"), anyString());
     verify(questionGenerationAgent, never()).process(anyString(), anyString(), anyString(), anyString(), anyInt());
   }
@@ -1493,7 +1692,7 @@ class OrchestratorServiceTest {
         "[{\"question\":\"What is the primary use of Emacs?\",\"type\":\"multiple_choice\","
             + "\"options\":[\"Editing text\",\"Compiling code only\"],\"answer\":\"Editing"
             + " text\",\"explanation\":\"Emacs is primarily a text editor.\"}]";
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(questionGenerationAgent.process(
             eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(5)))
@@ -1518,10 +1717,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_doubleRejection_returnsFallback() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("some context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1553,10 +1751,9 @@ class OrchestratorServiceTest {
 
   @Test
   void route_verifier_retryBlank_returnsFallback() {
-    when(intentClassifier.classify("summarize the document")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("summarize the document"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("some context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1588,10 +1785,9 @@ class OrchestratorServiceTest {
         "Version control systems such as Git, CVS, and Bazaar track file history. Emacs, a"
             + " programmable editor, also ships built-in version control integration and many"
             + " extensions for browsing change sets across large projects over time.";
-    when(intentClassifier.classify("What is neovim?")).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq("What is neovim?"), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("emacs manual context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1620,7 +1816,7 @@ class OrchestratorServiceTest {
 
   @Test
   void route_profilingAgent_receivesRawMessage_notEnriched() {
-    when(intentClassifier.classify("quiz me")).thenReturn("ASSESSMENT");
+    when(intentClassifier.classify(eq("quiz me"), anyString())).thenReturn("ASSESSMENT");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
@@ -1642,7 +1838,7 @@ class OrchestratorServiceTest {
   @Test
   void route_questionGenerationMessage_overridesClassifierToAssessment() {
     String msg = "Generate 10 questions on Emacs commands";
-    when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
@@ -1660,7 +1856,7 @@ class OrchestratorServiceTest {
     ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
 
     assertEquals("ASSESSMENT", resp.agentType());
-    verify(intentClassifier).classify(msg);
+    verify(intentClassifier).classify(eq(msg), anyString());
     verify(questionGenerationAgent, atLeastOnce())
         .process(eq(ChatMemoryKeys.assessment("sess-1")), anyString(), anyString(), eq("medium"), eq(10));
     verify(contentAnalysisAgent, never()).process(anyString(), anyString());
@@ -1669,10 +1865,9 @@ class OrchestratorServiceTest {
   @Test
   void route_verifier_rejectionFeedback_includedInRegeneration() {
     String msg = "summarize the document";
-    when(intentClassifier.classify(msg)).thenReturn("CONTENT_ANALYSIS");
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
     when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
         .thenReturn("doc-9");
-    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1")).thenReturn("doc-9");
     when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
         .thenReturn(chunks("some context"));
     when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
@@ -1712,6 +1907,7 @@ class OrchestratorServiceTest {
   private OrchestratorService buildService() {
     OrchestratorService svc = new OrchestratorService();
     svc.intentClassifier = intentClassifier;
+    svc.upgradeMinScore = 0.65;
     svc.profilingAgent = profilingAgent;
     svc.responseComposer = responseComposer;
     svc.conversationAgent = conversationAgent;

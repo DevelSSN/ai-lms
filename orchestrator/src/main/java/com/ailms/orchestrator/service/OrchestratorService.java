@@ -51,6 +51,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Slf4j
 @ApplicationScoped
@@ -122,6 +123,15 @@ public class OrchestratorService {
 
   private static final String VERIFIER_FALLBACK =
       "I'm sorry, I couldn't generate a good answer. Could you rephrase?";
+
+  /**
+   * Injected when a CONTENT_ANALYSIS turn survives the relevance gate but retrieval found no
+   * chunk above the score floor: the analysis agent must say the document does not cover the
+   * query instead of fabricating a template answer from parametric knowledge.
+   */
+  private static final String NO_MATCH_CONTEXT =
+      "Relevant context from your uploaded document: no content in the document matches this"
+          + " query.";
 
   private static final String VIDEO_REGENERATION_HINT =
       "The previous answer was rejected because it did not explain how each video "
@@ -203,6 +213,21 @@ public class OrchestratorService {
 
   private static final int ANALYSIS_TOP_K = 8;
 
+  /**
+   * Similarity floor for the relevance gate's upgrade direction: a CONVERSATION-classified turn
+   * whose retrieval against the session document scores at least this high is treated as a
+   * document follow-up and routed to CONTENT_ANALYSIS. Must sit above {@code ailms.rag.min-score}
+   * so the keep/downgrade band stays conservative.
+   */
+  @ConfigProperty(name = "ailms.routing.relevance.upgrade-min-score", defaultValue = "0.65")
+  double upgradeMinScore;
+
+  private static final int HISTORY_MAX_TURNS = 6;
+
+  private static final int HISTORY_TURN_CHARS = 200;
+
+  private static final int HISTORY_TOTAL_CHARS = 1200;
+
   @Inject KafkaEventPublisher kafkaEventPublisher;
 
   @Inject AsyncJobRunner asyncJobRunner;
@@ -232,10 +257,11 @@ public class OrchestratorService {
       boolean bypassDeterminism =
           request.bypassRoutes() != null && request.bypassRoutes().booleanValue();
       if (bypassDeterminism) {
-        intent = normalizeIntent(intentClassifier.classify(message));
-        intent = applyDocumentGate(intent, message, sessionId, userId);
+        // Pure classifier path: no history, no document/relevance gates — the monolithic
+        // baseline measures the classifier alone (baseline_sweep.py contract).
+        intent = normalizeIntent(intentClassifier.classify(message, ""));
         log.info("Intent={} (bypassRoutes) for user={} message={}", intent, userId, message);
-        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
+        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope, null);
       } else if (greetingResponse != null) {
         intent = INTENT_CONVERSATION;
         enrichedMessage = message;
@@ -262,7 +288,8 @@ public class OrchestratorService {
             userId,
             message);
       } else {
-        intent = normalizeIntent(intentClassifier.classify(message));
+        ChatHistory chatHistory = loadHistory(userId, sessionId);
+        intent = normalizeIntent(intentClassifier.classify(message, formatHistory(chatHistory)));
         if (TextUtils.isQuestionGenerationRequest(message)
             && !INTENT_ASSESSMENT.equals(intent)) {
           log.info(
@@ -273,9 +300,10 @@ public class OrchestratorService {
               message);
           intent = INTENT_ASSESSMENT;
         }
-        intent = applyDocumentGate(intent, message, sessionId, userId);
+        GateDecision gate = applyDocumentGate(intent, message, sessionId, userId, chatHistory);
+        intent = gate.intent();
         log.info("Intent={} for user={} message={}", intent, userId, message);
-        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope);
+        enrichedMessage = enrichWithContext(intent, message, sessionId, userId, scope, gate);
       }
 
       if (INTENT_INSIGHT.equals(intent)) {
@@ -441,13 +469,43 @@ public class OrchestratorService {
     return normalized;
   }
 
-  private String applyDocumentGate(
-      String intent, String message, String sessionId, String userId) {
-    if (INTENT_CONVERSATION.equals(intent)) return intent;
-    // Video search and insight are doc-independent (exempt by design).
-    if (INTENT_VIDEO_SEARCH.equals(intent) || INTENT_INSIGHT.equals(intent)) return intent;
+  /**
+   * Outcome of the document/relevance gate: the routed intent plus the document context resolved
+   * while gating, so enrichment reuses the gate's retrieval instead of searching the vector store
+   * a second time. {@code chunks} is null when the gate did not retrieve (intent exempt, no
+   * session document, or the upload pipeline owns retrieval).
+   */
+  private record GateDecision(String intent, String docId, List<RetrievedChunk> chunks) {
+    static GateDecision of(String intent) {
+      return new GateDecision(intent, null, null);
+    }
+  }
+
+  /**
+   * Document-existence and relevance gate. Two directions, both session-scoped:
+   *
+   * <ul>
+   *   <li>downgrade: CONTENT_ANALYSIS with no retrieved chunk above the RAG score floor, no
+   *       explicit material reference, and no recent document-analysis turn → CONVERSATION, so
+   *       off-document questions get a general-knowledge answer instead of a fabricated analysis;
+   *   <li>upgrade: CONVERSATION whose retrieval against the session document clears {@link
+   *       #upgradeMinScore} → CONTENT_ANALYSIS, so ambiguous follow-ups ("What is ^C then?")
+   *       inside a document discussion stay grounded in the material.
+   * </ul>
+   */
+  private GateDecision applyDocumentGate(
+      String intent, String message, String sessionId, String userId, ChatHistory history) {
     // Upload/assessment messages carry their own target document reference.
-    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) return intent;
+    if (message.startsWith(UPLOAD_PREFIX) || message.startsWith(ASSESS_PREFIX)) {
+      return GateDecision.of(intent);
+    }
+    if (INTENT_CONVERSATION.equals(intent)) {
+      return maybeUpgradeToContentAnalysis(message, sessionId, userId);
+    }
+    // Video search and insight are doc-independent (exempt by design).
+    if (INTENT_VIDEO_SEARCH.equals(intent) || INTENT_INSIGHT.equals(intent)) {
+      return GateDecision.of(intent);
+    }
     String activeDocId = resolveSessionDocumentId(sessionId, userId);
     if (activeDocId == null) {
       log.info(
@@ -455,9 +513,148 @@ public class OrchestratorService {
           intent,
           userId,
           sessionId);
-      return INTENT_CONVERSATION;
+      return GateDecision.of(INTENT_CONVERSATION);
     }
-    return intent;
+    if (!INTENT_CONTENT_ANALYSIS.equals(intent)) {
+      return new GateDecision(intent, activeDocId, null);
+    }
+    List<RetrievedChunk> chunks =
+        retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
+    if (chunks == null) {
+      log.warn(
+          "Relevance gate: retrieval failed for docId={}, keeping intent={} for user={} session={}",
+          activeDocId,
+          intent,
+          userId,
+          sessionId);
+      return new GateDecision(intent, activeDocId, null);
+    }
+    if (!chunks.isEmpty()) {
+      return new GateDecision(intent, activeDocId, chunks);
+    }
+    if (TextUtils.referencesMaterial(message)) {
+      log.info(
+          "Relevance gate: keeping {} on explicit material reference for user={} session={}",
+          intent,
+          userId,
+          sessionId);
+      return new GateDecision(intent, activeDocId, List.of());
+    }
+    if (docContextActive(history)) {
+      log.info(
+          "Relevance gate: keeping {} — recent turn was document analysis, for user={} session={}",
+          intent,
+          userId,
+          sessionId);
+      return new GateDecision(intent, activeDocId, List.of());
+    }
+    log.info(
+        "Relevance gate: no document match for intent={}, forcing CONVERSATION for user={}"
+            + " session={} message={}",
+        intent,
+        userId,
+        sessionId,
+        message);
+    return GateDecision.of(INTENT_CONVERSATION);
+  }
+
+  private GateDecision maybeUpgradeToContentAnalysis(
+      String message, String sessionId, String userId) {
+    String activeDocId = resolveSessionDocumentId(sessionId, userId);
+    if (activeDocId == null) return GateDecision.of(INTENT_CONVERSATION);
+    List<RetrievedChunk> chunks =
+        retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
+    if (chunks == null || chunks.isEmpty()) return GateDecision.of(INTENT_CONVERSATION);
+    double top = topScore(chunks);
+    if (top >= upgradeMinScore) {
+      log.info(
+          "Relevance gate: upgrading CONVERSATION to CONTENT_ANALYSIS (topScore={} >= {})"
+              + " for user={} session={}",
+          top,
+          upgradeMinScore,
+          userId,
+          sessionId);
+      return new GateDecision(INTENT_CONTENT_ANALYSIS, activeDocId, chunks);
+    }
+    return GateDecision.of(INTENT_CONVERSATION);
+  }
+
+  private static double topScore(List<RetrievedChunk> chunks) {
+    if (chunks == null || chunks.isEmpty()) return -1;
+    double top = -1;
+    for (RetrievedChunk chunk : chunks) {
+      if (chunk != null && chunk.score() > top) top = chunk.score();
+    }
+    return top;
+  }
+
+  private ChatHistory loadHistory(String userId, String sessionId) {
+    try {
+      ChatHistory history = conversationRepository.getHistory(userId, sessionId);
+      return history == null ? new ChatHistory(sessionId, List.of()) : history;
+    } catch (Exception e) {
+      log.warn(
+          "Failed to load chat history for session={} user={}: {}",
+          sessionId,
+          userId,
+          e.getMessage());
+      return new ChatHistory(sessionId, List.of());
+    }
+  }
+
+  private static List<ChatHistory.ChatMessage> historyTail(ChatHistory history) {
+    if (history == null || history.messages() == null || history.messages().isEmpty()) {
+      return List.of();
+    }
+    List<ChatHistory.ChatMessage> messages = history.messages();
+    return messages.subList(Math.max(0, messages.size() - HISTORY_MAX_TURNS), messages.size());
+  }
+
+  /**
+   * Formats the tail of the chat history for the intent classifier: truncated per turn so a long
+   * thread cannot crowd the prompt, with system upload jobs collapsed to a marker. Empty for
+   * fresh threads, which classifies each message exactly as before (the RQ1 isolation contract).
+   */
+  static String formatHistory(ChatHistory history) {
+    StringBuilder sb = new StringBuilder();
+    for (ChatHistory.ChatMessage message : historyTail(history)) {
+      if (message == null
+          || message.content() == null
+          || message.content().isBlank()
+          || sb.length() >= HISTORY_TOTAL_CHARS) {
+        continue;
+      }
+      boolean user = ChatRole.isUser(message.role());
+      String content = message.content();
+      if (user && content.startsWith(UPLOAD_PREFIX)) {
+        content = "[uploaded a document]";
+      }
+      if (content.length() > HISTORY_TURN_CHARS) {
+        content = content.substring(0, HISTORY_TURN_CHARS) + "…";
+      }
+      if (sb.length() > 0) sb.append('\n');
+      sb.append(user ? "User: " : "Assistant: ").append(content);
+    }
+    String formatted = sb.toString();
+    return formatted.length() > HISTORY_TOTAL_CHARS
+        ? formatted.substring(0, HISTORY_TOTAL_CHARS)
+        : formatted;
+  }
+
+  /**
+   * True when a document-analysis turn sits in the same history window the classifier saw — the
+   * gate then trusts a CONTENT_ANALYSIS verdict for follow-ups whose retrieval may be weak
+   * (short questions like "What is ^C then?" often match no single chunk above the floor).
+   */
+  static boolean docContextActive(ChatHistory history) {
+    for (ChatHistory.ChatMessage message : historyTail(history)) {
+      if (message != null
+          && ChatRole.isAssistant(message.role())
+          && INTENT_CONTENT_ANALYSIS.equals(message.agentType())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -616,17 +813,38 @@ public class OrchestratorService {
   }
 
   private String enrichWithContext(
-    String intent, String message, String sessionId, String userId, AgenticScope scope) {
+      String intent,
+      String message,
+      String sessionId,
+      String userId,
+      AgenticScope scope,
+      GateDecision gate) {
     if (!IntentType.isAnalysis(intent)) return message;
 
     if (INTENT_CONTENT_ANALYSIS.equals(intent)) {
       if (message.startsWith(UPLOAD_PREFIX)) return enrichUploadAnalysis(message, userId);
-      String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
+      if (gate != null && gate.docId() != null && gate.chunks() == null) {
+        // The gate already attempted retrieval and it failed — deliver without context rather
+        // than hammering the vector store a second time.
+        return message;
+      }
+      String activeDocId =
+          gate != null && gate.docId() != null
+              ? gate.docId()
+              : resolveActiveDocumentId(message, sessionId, userId);
       List<RetrievedChunk> context =
-          retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
-      if (!context.isEmpty()) {
+          gate != null && gate.chunks() != null
+              ? gate.chunks()
+              : retrieveScopedContext(userId, sessionId, message, activeDocId, ANALYSIS_TOP_K);
+      if (context != null && !context.isEmpty()) {
         writeChunkContext(scope, activeDocId, context);
         return numberedContext(context) + "\n\nUser message: " + message;
+      }
+      if (context == null) {
+        return message;
+      }
+      if (activeDocId != null) {
+        return NO_MATCH_CONTEXT + "\n\nUser message: " + message;
       }
       return message;
     }
@@ -634,7 +852,7 @@ public class OrchestratorService {
     String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
     List<RetrievedChunk> context =
         retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
-    if (!context.isEmpty()) {
+    if (context != null && !context.isEmpty()) {
       writeChunkContext(scope, activeDocId, context);
       return numberedContext(context) + "\n\nUser message: " + message;
     }
@@ -724,7 +942,7 @@ public class OrchestratorService {
     }
     String activeDocId = resolveActiveDocumentId(message, sessionId, userId);
     List<RetrievedChunk> chunks = retrieveScopedContext(userId, sessionId, message, activeDocId, 3);
-    if (!chunks.isEmpty()) {
+    if (chunks != null && !chunks.isEmpty()) {
       ctx.append(String.join("\n---\n", chunks.stream().map(RetrievedChunk::text).toList()));
     }
     return ctx.toString();
@@ -770,19 +988,26 @@ public class OrchestratorService {
     return null;
   }
 
+  /**
+   * Scoped vector retrieval. Returns an empty list when nothing scores above the RAG floor (a
+   * real "no match" result) and {@code null} when retrieval itself failed, so callers can tell
+   * an infrastructure error apart from an irrelevant document.
+   */
   private List<RetrievedChunk> retrieveScopedContext(
       String userId, String sessionId, String message, String activeDocId, int topK) {
     if (activeDocId == null) return List.of();
     try {
-      return vectorDBService.retrieveRelevantContext(
-          message, topK, VectorSourceKeys.document(activeDocId));
+      List<RetrievedChunk> chunks =
+          vectorDBService.retrieveRelevantContext(
+              message, topK, VectorSourceKeys.document(activeDocId));
+      return chunks == null ? List.of() : chunks;
     } catch (Exception e) {
       log.warn(
           "Scoped context retrieval failed for user={} session={}: {}",
           userId,
           sessionId,
           e.getMessage());
-      return List.of();
+      return null;
     }
   }
 

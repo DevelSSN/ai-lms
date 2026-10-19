@@ -46,6 +46,24 @@ public final class TextUtils {
               + ".{0,40}\\b(?:quiz|quizzes|questions?)\\b"
               + "|^\\s*quiz\\s+me\\b");
 
+  /**
+   * Explicit references to the uploaded material: a material noun ("the document", "this file",
+   * "my notes") or a material noun as the subject of a content verb ("the chapter says"). Used by
+   * the relevance gate — an explicit pointer keeps CONTENT_ANALYSIS even when retrieval finds no
+   * matching chunk, so the agent can state the document does not cover the query instead of the
+   * router silently falling back to general conversation. Deliberately does NOT match bare
+   * "summarize X" (which may be about any topic), only references to the material itself.
+   */
+  private static final Pattern MATERIAL_POINTER =
+      Pattern.compile(
+          "(?i)\\b(?:the|this|that|my|your|uploaded|attached|original|provided|above)\\s+"
+              + "(?:document|file|pdf|paper|chapter|article|slide|slides|material|text|book|notes?)"
+              + "|\\b(?:document|file|pdf|paper|chapter|article|slide|material|text)s?\\s+"
+              + "(?:itself|say|says|said|mention|mentions|contain|contains|cover|covers|"
+              + "discuss|discusses|state|states|teach|teaches)"
+              + "|\\bsummar(?:y|ize|ise)\\s+(?:it|this|that|these|the\\s+(?:document|file|"
+              + "material|paper|chapter|article|text|slides?|notes?))\\b");
+
   private TextUtils() {}
 
   public static boolean isBareGreeting(String message) {
@@ -61,6 +79,10 @@ public final class TextUtils {
 
   public static boolean isQuestionGenerationRequest(String message) {
     return message != null && QUESTION_GENERATION.matcher(message).find();
+  }
+
+  public static boolean referencesMaterial(String message) {
+    return message != null && MATERIAL_POINTER.matcher(message).find();
   }
 
   public static String stripThinking(String text) {

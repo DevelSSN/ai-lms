@@ -72,8 +72,9 @@ public interface IntentClassifier {
           "Where do I stand in Linear Algebra?"         -> INSIGHT
           "What's my level in Data Structures?"         -> INSIGHT
 
-      CONVERSATION: the message has no learning task — a greeting, small talk, or a
-      question about the assistant itself.
+      CONVERSATION: the message has no learning task — a greeting, small talk, a question
+      about the assistant itself, or a general-knowledge question unrelated to the
+      uploaded material.
           "Hi"                                          -> CONVERSATION
           "What can you do?"                            -> CONVERSATION
           "I'm new here"                                -> CONVERSATION
@@ -83,18 +84,32 @@ public interface IntentClassifier {
         it is phrased as a question or a request.
       - Asking what the material, file, document, or slide says about a topic is
         CONTENT_ANALYSIS.
+      - When the conversation history shows the discussion is about uploaded material, a
+        short follow-up that continues that discussion ("What is ^C then?", "explain that",
+        "why?") is CONTENT_ANALYSIS even without explicit document wording — judge it
+        against the topic visible in history.
+      - When history is empty or the discussion is not about uploaded material, judge the
+        message on its own; a general-knowledge question is not CONTENT_ANALYSIS.
       - A request for a test, a video, or info about their learning is that intent.
         Never use CONVERSATION for these.
-      - Use CONVERSATION only for greetings, small talk, or meta questions about the
-        assistant — never as the general default.
+      - Use CONVERSATION only for greetings, small talk, meta questions about the
+        assistant, or general-knowledge questions unrelated to the material — never as
+        the general default.
       Output only the label.
       """)
   @Agent(
       name = "IntentClassifier",
       description = "Classifies user messages into learning intents",
       outputKey = "intent")
-  @UserMessage("Message: {{message}}\nLabel:")
-  String classify(@V("message") String message);
+  @UserMessage(
+      """
+      Conversation history (may be empty):
+      {{history}}
+
+      Message: {{message}}
+      Label:
+      """)
+  String classify(@V("message") String message, @V("history") String history);
 
   @ErrorHandler
   static ErrorRecoveryResult onError(ErrorContext ctx) {
