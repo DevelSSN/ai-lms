@@ -128,6 +128,8 @@ class YouTubeSearchServiceTest {
     assertEquals("", service.extractQuery("Give me youtube videos"));
     assertEquals("", service.extractQuery("Show me some videos"));
     assertEquals("", service.extractQuery("videos please"));
+    assertEquals("", service.extractQuery("List videos"));
+    assertEquals("", service.extractQuery("list some videos"));
   }
 
   @Test

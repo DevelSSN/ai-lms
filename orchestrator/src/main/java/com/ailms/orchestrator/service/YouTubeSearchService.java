@@ -79,6 +79,7 @@ public class YouTubeSearchService {
           "show",
           "find",
           "recommend",
+          "list",
           "send",
           "share",
           "want",
