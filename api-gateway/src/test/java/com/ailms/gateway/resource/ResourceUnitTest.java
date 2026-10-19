@@ -485,4 +485,37 @@ class ResourceUnitTest {
     Response resp = resource.submitQuiz(request);
     assertEquals(500, resp.getStatus());
   }
+
+  @Test
+  void chatResource_getProactive_success() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    var messages =
+        java.util.List.of(
+            new com.ailms.common.dto.ProactiveMessage(
+                "id-1", "Ready to continue?", "FOLLOW_UP", java.time.Instant.now()));
+    when(orchestrator.getProactiveSince("2026-10-19T00:00:00Z", "user-1")).thenReturn(messages);
+
+    ChatResource resource = new ChatResource();
+    resource.jwt = jwt;
+    resource.orchestrator = orchestrator;
+
+    Response resp = resource.getProactive("2026-10-19T00:00:00Z");
+    assertEquals(200, resp.getStatus());
+    assertEquals(messages, resp.getEntity());
+    verify(orchestrator).getProactiveSince("2026-10-19T00:00:00Z", "user-1");
+  }
+
+  @Test
+  void chatResource_getProactive_orchestratorDown() {
+    when(jwt.getSubject()).thenReturn("user-1");
+    when(orchestrator.getProactiveSince(any(), anyString()))
+        .thenThrow(new RuntimeException("Down"));
+
+    ChatResource resource = new ChatResource();
+    resource.jwt = jwt;
+    resource.orchestrator = orchestrator;
+
+    Response resp = resource.getProactive(null);
+    assertEquals(500, resp.getStatus());
+  }
 }

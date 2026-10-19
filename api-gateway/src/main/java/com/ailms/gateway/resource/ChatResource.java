@@ -15,6 +15,7 @@ import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -77,6 +78,22 @@ public class ChatResource {
       return Response.ok(orchestrator.getThreads(jwt.getSubject())).build();
     } catch (Exception e) {
       log.error("Failed to fetch threads: {}", e.getMessage());
+      return Response.serverError().build();
+    }
+  }
+
+  // Polling fallback for proactive follow-ups. Used by the client when the SSE
+  // stream is buffered end-to-end (e.g. behind a Cloudflare quick tunnel) and
+  // therefore never delivers live events.
+  @GET
+  @Path("/proactive")
+  public Response getProactive(@QueryParam("since") String since) {
+    String userId = jwt.getSubject();
+    log.debug("Proactive poll request from user={} since={}", userId, since);
+    try {
+      return Response.ok(orchestrator.getProactiveSince(since, userId)).build();
+    } catch (Exception e) {
+      log.error("Failed to fetch proactive messages for user={}: {}", userId, e.getMessage());
       return Response.serverError().build();
     }
   }
