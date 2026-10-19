@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.junit.jupiter.api.Test;
@@ -336,7 +337,7 @@ class ResourceUnitTest {
   }
 
   @Test
-  void contentResource_upload_withoutThreadIdFallsBackToUploadSession(@TempDir Path tempDir)
+  void contentResource_upload_withoutThreadIdUsesFreshSession(@TempDir Path tempDir)
       throws Exception {
     when(jwt.getSubject()).thenReturn("user-1");
     when(orchestrator.analyzeAsync(any(ChatRequest.class), anyString()))
@@ -368,10 +369,13 @@ class ResourceUnitTest {
 
     assertEquals(Response.Status.ACCEPTED.getStatusCode(), resp.getStatus());
     Map<?, ?> body = (Map<?, ?>) resp.getEntity();
-    assertEquals("upload:1", body.get("sessionId"));
+    String sessionId = (String) body.get("sessionId");
+    assertNotNull(sessionId);
+    assertFalse(sessionId.isBlank());
+    assertNotEquals("upload:1", sessionId);
+    assertDoesNotThrow(() -> UUID.fromString(sessionId));
     verify(orchestrator)
-        .analyzeAsync(
-            argThat(r -> r.sessionId().equals("upload:1")), anyString());
+        .analyzeAsync(argThat(r -> r.sessionId().equals(sessionId)), anyString());
   }
 
   @Test
