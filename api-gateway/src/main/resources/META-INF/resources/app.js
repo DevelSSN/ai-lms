@@ -753,18 +753,24 @@ async function sendVideoHeartbeat() {
 
 function toDate(value) {
   if (!value) return new Date();
-  const d = new Date(value);
+  // Server Instants carry nanosecond precision, which some engines (e.g.
+  // Firefox) reject as Invalid Date; trim the fraction to milliseconds so the
+  // server timestamp is parsed instead of silently falling back to "now".
+  const normalized = typeof value === "string" ? value.replace(/(\.\d{3})\d+/, "$1") : value;
+  const d = new Date(normalized);
   return isNaN(d.getTime()) ? new Date() : d;
 }
 
 function formatTimestamp(date) {
   const d = date instanceof Date ? date : toDate(date);
   if (isNaN(d.getTime())) return "";
-  const now = new Date();
-  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  if (d.toDateString() === now.toDateString()) return time;
-  const datePart = d.toLocaleDateString([], { month: "short", day: "numeric" });
-  return `${datePart}, ${time}`;
+  return d.toLocaleString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function startSSE() {
