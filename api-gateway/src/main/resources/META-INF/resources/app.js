@@ -45,6 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initKeycloak() {
+  // Surface errors that would otherwise reject silently (e.g. inside the async
+  // SSE connector) so a stalled/uncaught failure is visible in the console.
+  window.addEventListener("unhandledrejection", (event) =>
+    sseWarn("unhandled promise rejection:", event.reason),
+  );
+  window.addEventListener("error", (event) =>
+    sseWarn("uncaught error:", event.message, event.error),
+  );
+
   keycloak = new Keycloak({
     url: KEYCLOAK_URL,
     realm: "ailms",
@@ -792,8 +801,11 @@ function handleSSEFrame(frame, currentUsername) {
 }
 
 async function connectSSE() {
+  sseLog("connectSSE() entered");
   try {
+    sseLog("awaiting keycloak.updateToken(5)");
     await keycloak.updateToken(5);
+    sseLog("token ready");
   } catch (error) {
     sseWarn("token refresh before connect failed:", error);
   }
