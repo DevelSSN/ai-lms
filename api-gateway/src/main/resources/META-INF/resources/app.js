@@ -343,6 +343,14 @@ async function loadHistory(threadId) {
     messages.sort(
       (a, b) => new Date(a?.timestamp ?? 0).getTime() - new Date(b?.timestamp ?? 0).getTime(),
     );
+    const newest = messages[messages.length - 1];
+    if (
+      newest?.timestamp &&
+      (!lastServerTimestamp ||
+        new Date(newest.timestamp).getTime() > new Date(lastServerTimestamp).getTime())
+    ) {
+      lastServerTimestamp = newest.timestamp;
+    }
     lastRenderedMessage = "";
     for (const message of messages) {
       if (message.role === "user") appendMessage("user", message.content, message.timestamp);
@@ -637,6 +645,9 @@ let sseSawData = false;
 let sseLivenessTimer = null;
 let proactivePollTimer = null;
 let proactivePollSince = null;
+// Newest timestamp seen from the backend (history messages). Used to anchor the
+// poll clock to server time so client/server clock skew cannot hide follow-ups.
+let lastServerTimestamp = null;
 const proactiveSeenIds = new Set();
 
 // Diagnostic tracing for the proactive-event stream. Set to false to silence.
@@ -788,7 +799,11 @@ function armSSELiveness() {
 
 function startProactivePolling() {
   if (proactivePollTimer) return;
-  if (!proactivePollSince) proactivePollSince = new Date().toISOString();
+  if (!proactivePollSince) {
+    // Anchor to the backend's clock (newest server message) rather than the
+    // browser clock, so skew cannot make the poll `since` skip a follow-up.
+    proactivePollSince = lastServerTimestamp || new Date().toISOString();
+  }
   sseLog("proactive polling started since", proactivePollSince);
   proactivePollTimer = setInterval(pollProactive, PROACTIVE_POLL_MS);
   pollProactive();
