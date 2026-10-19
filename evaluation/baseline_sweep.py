@@ -8,7 +8,8 @@ Resume-capable. Progressively flushes CSVs so a poll shows live progress.
 
 Isolation mirrors rq1_sweep.py: every row runs as a FRESH user (zero history)
 so rows cannot contaminate each other. Doc-intent rows (CONTENT_ANALYSIS,
-ASSESSMENT) get a per-user Science.pdf seed; all other rows run doc-less.
+ASSESSMENT) get a per-user Science.pdf seed inserted under that row's own
+session; all other rows run doc-less.
 
 Usage:
   python3 evaluation/baseline_sweep.py [--fresh]
@@ -34,12 +35,19 @@ TIMEOUT_S = 600
 RETRIES = 3
 
 
+def session_for(user):
+    """Deterministic session shared by the row's doc seed and its POST, so
+    session-scoped document lookup finds Science.pdf in the session that
+    asks about it."""
+    return f"rq1-mono-seed-{user}"
+
+
 def seed_doc_for_user(user):
     """Insert a ContentDocument row pointing at the shared MinIO seed object."""
     sql = (
         "INSERT INTO content_documents (id, userid, sessionid, filename, filetype,"
         f" filesize, storagepath, status, uploadedat) VALUES ('rq1-mono-doc-{user}',"
-        f" '{user}', 'rq1-mono-seed', 'Science.pdf', 'application/pdf',"
+        f" '{user}', '{session_for(user)}', 'Science.pdf', 'application/pdf',"
         f" (SELECT filesize FROM content_documents WHERE id='rq1-science-doc'),"
         f" '{SEED_KEY}', 'UPLOADED', now()) ON CONFLICT (id) DO NOTHING;"
     )
@@ -54,7 +62,7 @@ def seed_doc_for_user(user):
 
 def post(message, user):
     body = json.dumps(
-        {"message": message, "sessionId": str(uuid.uuid4()), "bypassRoutes": True}
+        {"message": message, "sessionId": session_for(user), "bypassRoutes": True}
     ).encode()
     last_err = None
     for attempt in range(RETRIES):
