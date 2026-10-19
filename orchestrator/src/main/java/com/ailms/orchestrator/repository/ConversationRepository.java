@@ -1,8 +1,10 @@
 package com.ailms.orchestrator.repository;
 
 import com.ailms.common.constants.ChatMemoryKeys;
+import com.ailms.common.constants.EventTypeKeys;
 import com.ailms.common.constants.PromptPrefixes;
 import com.ailms.common.dto.ChatHistory;
+import com.ailms.common.dto.ProactiveMessage;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.enums.ChatRole;
@@ -254,6 +256,30 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
             "userId = ?1 AND (deleted IS NULL OR deleted = false) ORDER BY timestamp DESC", userId)
         .page(0, limit)
         .list();
+  }
+
+  /**
+   * Proactive follow-ups persisted for the user after {@code since}. Powers the client polling
+   * fallback used when the SSE stream is buffered by an intermediary (e.g. a Cloudflare quick
+   * tunnel) and therefore never delivers live events.
+   */
+  public List<ProactiveMessage> listProactiveSince(String userId, Instant since) {
+    return find(
+            "userId = ?1 AND agentType = ?2 AND timestamp > ?3 "
+                + "AND (deleted IS NULL OR deleted = false) ORDER BY timestamp ASC",
+            userId,
+            EventTypeKeys.FOLLOW_UP,
+            since)
+        .list()
+        .stream()
+        .map(
+            entry ->
+                new ProactiveMessage(
+                    entry.id,
+                    entry.assistantMessage != null ? entry.assistantMessage : entry.message,
+                    entry.agentType,
+                    entry.timestamp))
+        .toList();
   }
 
   public String resolveLastSessionId(String userId) {

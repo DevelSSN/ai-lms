@@ -4,6 +4,7 @@ import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
 import com.ailms.common.dto.ClassAnalytics;
+import com.ailms.common.dto.ProactiveMessage;
 import com.ailms.common.dto.QuizResultRequest;
 import com.ailms.common.dto.StudentAnalytics;
 import com.ailms.common.dto.ThreadRenameRequest;
@@ -20,8 +21,12 @@ import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -110,6 +115,25 @@ public class OrchestratorResource {
   public Response getThreads(@HeaderParam("X-User-Id") String userId) {
     log.info("Thread list request for user={}", userId);
     return Response.ok(conversationRepository.listThreads(userId)).build();
+  }
+
+  @GET
+  @Path("/proactive")
+  public Response getProactive(
+      @QueryParam("since") String since, @HeaderParam("X-User-Id") String userId) {
+    final Instant sinceInstant;
+    try {
+      sinceInstant =
+          (since == null || since.isBlank()) ? Instant.EPOCH : Instant.parse(since);
+    } catch (DateTimeParseException e) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(Map.of("error", "since must be an ISO-8601 instant"))
+          .build();
+    }
+    List<ProactiveMessage> messages =
+        conversationRepository.listProactiveSince(userId, sinceInstant);
+    log.debug("Proactive poll from user={} since={} -> {} message(s)", userId, since, messages.size());
+    return Response.ok(messages).build();
   }
 
   @PATCH

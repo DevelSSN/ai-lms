@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.ailms.common.dto.ChatHistory;
 import com.ailms.common.dto.ChatRequest;
 import com.ailms.common.dto.ChatResponse;
+import com.ailms.common.dto.ProactiveMessage;
 import com.ailms.common.dto.ThreadRenameRequest;
 import com.ailms.common.dto.ThreadSummary;
 import com.ailms.orchestrator.repository.ConversationRepository;
@@ -100,5 +101,49 @@ class OrchestratorResourceTest {
     Response resp = resource.deleteThread("sess-1", "user-1");
     assertEquals(204, resp.getStatus());
     verify(conversationRepository).deleteThread("user-1", "sess-1");
+  }
+
+  @Test
+  void getProactive_parsesSinceAndReturnsMessages() {
+    ProactiveMessage msg =
+        new ProactiveMessage("id-1", "Ready to continue learning?", "FOLLOW_UP", Instant.now());
+    when(conversationRepository.listProactiveSince(eq("user-1"), any(Instant.class)))
+        .thenReturn(List.of(msg));
+
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.conversationRepository = conversationRepository;
+
+    Response resp = resource.getProactive("2026-10-19T00:00:00Z", "user-1");
+    assertEquals(200, resp.getStatus());
+    @SuppressWarnings("unchecked")
+    List<ProactiveMessage> body = (List<ProactiveMessage>) resp.getEntity();
+    assertEquals(1, body.size());
+    assertEquals("id-1", body.get(0).id());
+    assertEquals("FOLLOW_UP", body.get(0).eventType());
+    verify(conversationRepository)
+        .listProactiveSince("user-1", Instant.parse("2026-10-19T00:00:00Z"));
+  }
+
+  @Test
+  void getProactive_defaultsToEpochWhenSinceMissing() {
+    when(conversationRepository.listProactiveSince(eq("user-1"), any(Instant.class)))
+        .thenReturn(List.of());
+
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.conversationRepository = conversationRepository;
+
+    Response resp = resource.getProactive(null, "user-1");
+    assertEquals(200, resp.getStatus());
+    verify(conversationRepository).listProactiveSince("user-1", Instant.EPOCH);
+  }
+
+  @Test
+  void getProactive_rejectsMalformedSince() {
+    OrchestratorResource resource = new OrchestratorResource();
+    resource.conversationRepository = conversationRepository;
+
+    Response resp = resource.getProactive("not-a-date", "user-1");
+    assertEquals(400, resp.getStatus());
+    verifyNoInteractions(conversationRepository);
   }
 }
