@@ -2,10 +2,28 @@ package com.ailms.orchestrator.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ailms.common.entity.ContentDocument;
+import com.ailms.common.enums.ContentStatus;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ContentDocumentServiceTest {
+
+  @Test
+  void hasExtractedText_trueForIndexedDocWithText() {
+    ContentDocument doc = new ContentDocument();
+    doc.extractedText = "body";
+    doc.status = ContentStatus.INDEXED;
+    assertTrue(ContentDocumentService.hasExtractedText(doc));
+  }
+
+  @Test
+  void hasExtractedText_falseWhenTextMissing() {
+    ContentDocument doc = new ContentDocument();
+    doc.status = ContentStatus.INDEXED;
+    assertFalse(ContentDocumentService.hasExtractedText(doc));
+    assertFalse(ContentDocumentService.hasExtractedText(null));
+  }
 
   @Test
   void chunkText_blankContentReturnsEmpty() {

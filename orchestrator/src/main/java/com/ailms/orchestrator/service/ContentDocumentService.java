@@ -170,10 +170,19 @@ public class ContentDocumentService {
     return end;
   }
 
+  /**
+   * Extracted text is reusable for every processed status, not just PARSED. After ingest the doc
+   * is INDEXED, and requiring PARSED defeated the cache: each upload analysis re-read S3 and ran
+   * Tika again, and the re-parse then downgraded INDEXED back to PARSED.
+   */
+  static boolean hasExtractedText(ContentDocument doc) {
+    return doc != null && doc.extractedText != null;
+  }
+
   private String extractContent(String docId) {
     ContentDocument doc = Panache.getEntityManager().find(ContentDocument.class, docId);
     if (doc == null || doc.storagePath == null) return null;
-    if (doc.extractedText != null && doc.status == ContentStatus.PARSED) return doc.extractedText;
+    if (hasExtractedText(doc)) return doc.extractedText;
 
     byte[] fileBytes = objectStorage.readFile(doc.storagePath);
     if (fileBytes == null) return null;
@@ -185,7 +194,9 @@ public class ContentDocumentService {
       if (result.isSuccess()) {
         content = result.text();
         doc.extractedText = content;
-        doc.status = ContentStatus.PARSED;
+        if (doc.status != ContentStatus.INDEXED) {
+          doc.status = ContentStatus.PARSED;
+        }
         doc.processedAt = Instant.now();
         Panache.getEntityManager().merge(doc);
         log.info(
