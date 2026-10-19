@@ -34,9 +34,12 @@ public interface ResponseVerifierAgent {
         meaningfully answers the user_question. Structured answers (e.g. a quiz with a
         list of questions, or a summary broken into sections) are fine and should be
         accepted when they are grounded in the context.
-      - NEEDS_REWRITE only if the answer is off-topic, empty, hallucinates facts NOT
-        supported by the context, merely repeats the question without answering, or
-        ignores a clear requirement of the user_question.
+      - NEEDS_REWRITE if the answer is off-topic, empty, hallucinates facts NOT
+        supported by the context, merely repeats the question without answering,
+        ignores a clear requirement of the user_question, or is on-topic yet never
+        actually answers it — sidestepping with generic statements, hedges, or
+        tangents about the document is not an answer. Topically related is not
+        enough; the specific request must be addressed.
 
       If NEEDS_REWRITE, list which non-compliant parts (fragments) should be discarded or
       what is missing, so a regenerated answer can be produced.
