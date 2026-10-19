@@ -682,22 +682,39 @@ function loadYouTubeIframeApi() {
   window.onYouTubeIframeAPIReady = () => {
     ytApiReady = true;
     const queue = ytAttachQueue.splice(0, ytAttachQueue.length);
-    queue.forEach(attachVideoPlayer);
+    queue.forEach((item) => attachVideoPlayer(item.host, item.videoId));
   };
   document.head.appendChild(script);
 }
 
-function attachVideoPlayer(iframe) {
-  if (!iframe || !window.YT || !YT.Player) {
-    if (iframe && ytAttachQueue.length < 50) ytAttachQueue.push(iframe);
+function attachVideoPlayer(host, videoId) {
+  if (!host || !window.YT || !YT.Player) {
+    if (host && ytAttachQueue.length < 50) ytAttachQueue.push({ host, videoId });
     return;
   }
   try {
-    new YT.Player(iframe, {
+    // Let the IFrame API build the frame itself on the privacy-enhanced host so
+    // it owns the postMessage handshake. Handing it a pre-navigated iframe races
+    // the load and throws the cross-origin postMessage error.
+    new YT.Player(host, {
+      videoId,
+      host: "https://www.youtube-nocookie.com",
+      playerVars: {
+        origin: window.location.origin,
+        playsinline: 1,
+      },
       events: {
+        onReady: (event) => {
+          const frame = event.target.getIframe();
+          if (!frame) return;
+          frame.setAttribute("title", "YouTube video player");
+          frame.setAttribute("frameborder", "0");
+          frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+          frame.setAttribute("allowfullscreen", "");
+        },
         onStateChange: (event) => {
-          if (event.data === YT.PlayerState.PLAYING) playingVideoIframes.add(iframe);
-          else playingVideoIframes.delete(iframe);
+          if (event.data === YT.PlayerState.PLAYING) playingVideoIframes.add(host);
+          else playingVideoIframes.delete(host);
           syncVideoHeartbeat();
         },
       },
@@ -1369,6 +1386,7 @@ function enhanceCodeBlocks(container) {
 
 function appendMessage(sender, text, timestamp, options) {
   lastRenderedMessage = String(text ?? "").trim();
+  const videoHosts = [];
   if (sender === "bot") {
     const quizItems = tryParseQuizJson(text);
     if (quizItems) {
@@ -1393,19 +1411,11 @@ function appendMessage(sender, text, timestamp, options) {
       if (token.type === "video") {
         const videoContainer = document.createElement("div");
         videoContainer.classList.add("video-container");
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://www.youtube-nocookie.com/embed/${token.videoId}?enablejsapi=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
-        iframe.title = "YouTube video player";
-        iframe.setAttribute("frameborder", "0");
-        iframe.setAttribute(
-          "allow",
-          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
-        );
-        iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
-        iframe.setAttribute("allowfullscreen", "");
-        videoContainer.appendChild(iframe);
+        // Placeholder the IFrame API replaces with the player <iframe>.
+        const playerHost = document.createElement("div");
+        videoContainer.appendChild(playerHost);
         messageDiv.appendChild(videoContainer);
-        attachVideoPlayer(iframe);
+        videoHosts.push({ host: playerHost, videoId: token.videoId });
         prevWasVideo = true;
       } else if (token.content.trim()) {
         // A trailing "— Title" belongs to the video above: render as caption.
@@ -1444,6 +1454,8 @@ function appendMessage(sender, text, timestamp, options) {
   messageDiv.appendChild(meta);
 
   chatContainer.appendChild(messageDiv);
+  // Attach after insertion so the API-built iframes are in the document.
+  videoHosts.forEach(({ host, videoId }) => attachVideoPlayer(host, videoId));
   requestAnimationFrame(() => {
     chatContainer.scrollTop = chatContainer.scrollHeight;
   });
