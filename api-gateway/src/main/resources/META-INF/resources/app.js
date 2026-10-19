@@ -627,6 +627,18 @@ let sseController = null;
 let sseBackoffMs = 1000;
 let sseConnectedOnce = false;
 
+// Some intermediaries (notably Cloudflare quick tunnels) accept the SSE
+// handshake, return 200 + text/event-stream, then buffer the body forever. The
+// connection looks healthy but no bytes ever arrive. When that happens we fall
+// back to polling the persisted follow-ups so proactive nudges are not lost.
+const SSE_LIVENESS_MS = 8000;
+const PROACTIVE_POLL_MS = 10000;
+let sseSawData = false;
+let sseLivenessTimer = null;
+let proactivePollTimer = null;
+let proactivePollSince = null;
+const proactiveSeenIds = new Set();
+
 // Diagnostic tracing for the proactive-event stream. Set to false to silence.
 const SSE_DEBUG = true;
 function sseLog(...args) {
@@ -734,6 +746,7 @@ function startSSE() {
 }
 
 function stopSSE() {
+  clearSSELiveness();
   if (sseController) {
     sseLog("aborting existing SSE connection");
     try {
@@ -748,6 +761,74 @@ function scheduleSSEReconnect() {
   sseBackoffMs = Math.min(sseBackoffMs * 2, 30000);
   sseWarn(`disconnected, reconnecting in ${delay / 1000}s`);
   setTimeout(connectSSE, delay);
+}
+
+function clearSSELiveness() {
+  if (sseLivenessTimer) {
+    clearTimeout(sseLivenessTimer);
+    sseLivenessTimer = null;
+  }
+}
+
+// Called once the SSE handshake succeeds. A healthy stream emits an immediate
+// keepalive ping, so if no chunk arrives shortly after we assume the body is
+// being buffered and start polling instead.
+function armSSELiveness() {
+  clearSSELiveness();
+  sseSawData = false;
+  sseLivenessTimer = setTimeout(() => {
+    if (!sseSawData) {
+      sseWarn(
+        `no SSE bytes within ${SSE_LIVENESS_MS / 1000}s (stream buffered?) — enabling proactive polling`,
+      );
+      startProactivePolling();
+    }
+  }, SSE_LIVENESS_MS);
+}
+
+function startProactivePolling() {
+  if (proactivePollTimer) return;
+  if (!proactivePollSince) proactivePollSince = new Date().toISOString();
+  sseLog("proactive polling started since", proactivePollSince);
+  proactivePollTimer = setInterval(pollProactive, PROACTIVE_POLL_MS);
+  pollProactive();
+}
+
+function stopProactivePolling() {
+  if (proactivePollTimer) {
+    clearInterval(proactivePollTimer);
+    proactivePollTimer = null;
+  }
+}
+
+async function pollProactive() {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/v1/chat/proactive?since=${encodeURIComponent(proactivePollSince)}`,
+      { headers: { Authorization: `Bearer ${keycloak.token}` } },
+    );
+    if (!res.ok) {
+      sseWarn("proactive poll failed HTTP", res.status);
+      return;
+    }
+    const items = await res.json();
+    if (!Array.isArray(items) || items.length === 0) return;
+    for (const item of items) {
+      if (!item || !item.response) continue;
+      if (item.id && proactiveSeenIds.has(item.id)) continue;
+      if (item.id) proactiveSeenIds.add(item.id);
+      if (item.timestamp && item.timestamp > proactivePollSince) {
+        proactivePollSince = item.timestamp;
+      }
+      if (String(item.response).trim() === lastRenderedMessage) continue;
+      sseLog("polled proactive message", item.eventType, item.timestamp);
+      appendMessage("bot", item.response, item.timestamp, {
+        eventType: item.eventType,
+      });
+    }
+  } catch (error) {
+    sseWarn("proactive poll error:", error);
+  }
 }
 
 function handleSSEFrame(frame, currentUsername) {
@@ -858,6 +939,7 @@ async function connectSSE() {
     "content-type=",
     response.headers.get("content-type"),
   );
+  armSSELiveness();
   sseBackoffMs = 1000;
   // A follow-up can be fired while the SSE stream was down (e.g. the tab was
   // in the background); it is persisted in history, so reload the current
@@ -879,6 +961,8 @@ async function connectSSE() {
         break;
       }
       const chunk = decoder.decode(value, { stream: true });
+      sseSawData = true;
+      clearSSELiveness();
       sseLog("chunk received:", JSON.stringify(chunk));
       buffer += chunk.replace(/\r\n/g, "\n");
       let separator;
