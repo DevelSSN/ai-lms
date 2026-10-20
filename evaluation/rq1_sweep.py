@@ -6,7 +6,7 @@ Progressively flushes CSVs so a poll shows live progress.
 Isolation: every row runs as a FRESH user (zero history) so rows cannot
 contaminate each other (late INSIGHT rows 500 when user history bloats the
 analytics context). Doc-intent rows (CONTENT_ANALYSIS, ASSESSMENT) get a
-per-user Science.pdf seed inserted under that row's own session; all other
+per-user SeedHandbook.pdf seed inserted under that row's own session; all other
 rows run doc-less.
 
 Usage:
@@ -26,19 +26,23 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ENDPOINT = "http://localhost:10082/api/v1/orchestrate"
-# Rows whose truth needs an uploaded file get a per-user Science.pdf seed
+# Rows whose truth needs an uploaded file get a per-user SeedHandbook.pdf seed
 # placed in the same session the row's POST will use (document lookup is
 # session-scoped); all other rows run doc-less, so doc-gating only affects
-# doc-dependent intents.
+# doc-dependent intents. The handbook covers every topic in utterances.csv, so
+# retrieval legitimately clears applyDocumentGate instead of the gate depending
+# on MATERIAL_POINTER matching the user's phrasing.
 DOC_INTENTS = {"CONTENT_ANALYSIS", "ASSESSMENT"}
-SEED_KEY = "uploads/rq1-seeded/science.pdf"
+SEED_KEY = "uploads/rq1-seeded/seed-handbook.pdf"
+SEED_DOC_ID = "rq1-handbook-doc"
+SEED_FILENAME = "SeedHandbook.pdf"
 TIMEOUT_S = 600
 RETRIES = 3
 
 
 def session_for(user):
     """Deterministic session shared by the row's doc seed and its POST, so
-    session-scoped document lookup finds Science.pdf in the session that
+    session-scoped document lookup finds SeedHandbook.pdf in the session that
     asks about it."""
     return f"rq1-seed-{user}"
 
@@ -48,8 +52,8 @@ def seed_doc_for_user(user):
     sql = (
         "INSERT INTO content_documents (id, userid, sessionid, filename, filetype,"
         f" filesize, storagepath, status, uploadedat) VALUES ('rq1-doc-{user}',"
-        f" '{user}', '{session_for(user)}', 'Science.pdf', 'application/pdf',"
-        f" (SELECT filesize FROM content_documents WHERE id='rq1-science-doc'),"
+        f" '{user}', '{session_for(user)}', '{SEED_FILENAME}', 'application/pdf',"
+        f" (SELECT filesize FROM content_documents WHERE id='{SEED_DOC_ID}'),"
         f" '{SEED_KEY}', 'UPLOADED', now()) ON CONFLICT (id) DO NOTHING;"
     )
     r = subprocess.run(
@@ -110,7 +114,7 @@ def main():
     lat_csv = HERE / f"{args.out_prefix}-latencies.csv"
 
     # Ensure master seed is present in MinIO and DB
-    subprocess.run([sys.executable, str(HERE / "seed_science.py")], check=True)
+    subprocess.run([sys.executable, str(HERE / "seed_handbook.py")], check=True)
 
     if args.fresh:
         for p in (pred_csv, lat_csv):

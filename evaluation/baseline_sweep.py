@@ -8,7 +8,7 @@ Resume-capable. Progressively flushes CSVs so a poll shows live progress.
 
 Isolation mirrors rq1_sweep.py: every row runs as a FRESH user (zero history)
 so rows cannot contaminate each other. Doc-intent rows (CONTENT_ANALYSIS,
-ASSESSMENT) get a per-user Science.pdf seed inserted under that row's own
+ASSESSMENT) get a per-user SeedHandbook.pdf seed inserted under that row's own
 session; all other rows run doc-less.
 
 Usage:
@@ -30,14 +30,16 @@ PRED_CSV = HERE / "rq1-monolithic-predictions.csv"
 LAT_CSV = HERE / "rq1-monolithic-latencies.csv"
 ENDPOINT = "http://localhost:10082/api/v1/orchestrate"
 DOC_INTENTS = {"CONTENT_ANALYSIS", "ASSESSMENT"}
-SEED_KEY = "uploads/rq1-seeded/science.pdf"
+SEED_KEY = "uploads/rq1-seeded/seed-handbook.pdf"
+SEED_DOC_ID = "rq1-handbook-doc"
+SEED_FILENAME = "SeedHandbook.pdf"
 TIMEOUT_S = 600
 RETRIES = 3
 
 
 def session_for(user):
     """Deterministic session shared by the row's doc seed and its POST, so
-    session-scoped document lookup finds Science.pdf in the session that
+    session-scoped document lookup finds SeedHandbook.pdf in the session that
     asks about it."""
     return f"rq1-mono-seed-{user}"
 
@@ -47,8 +49,8 @@ def seed_doc_for_user(user):
     sql = (
         "INSERT INTO content_documents (id, userid, sessionid, filename, filetype,"
         f" filesize, storagepath, status, uploadedat) VALUES ('rq1-mono-doc-{user}',"
-        f" '{user}', '{session_for(user)}', 'Science.pdf', 'application/pdf',"
-        f" (SELECT filesize FROM content_documents WHERE id='rq1-science-doc'),"
+        f" '{user}', '{session_for(user)}', '{SEED_FILENAME}', 'application/pdf',"
+        f" (SELECT filesize FROM content_documents WHERE id='{SEED_DOC_ID}'),"
         f" '{SEED_KEY}', 'UPLOADED', now()) ON CONFLICT (id) DO NOTHING;"
     )
     r = subprocess.run(
@@ -84,7 +86,7 @@ def post(message, user):
 
 
 def main():
-    subprocess.run([sys.executable, str(HERE / "seed_science.py")], check=True)
+    subprocess.run([sys.executable, str(HERE / "seed_handbook.py")], check=True)
 
     fresh = "--fresh" in sys.argv
     if fresh:
