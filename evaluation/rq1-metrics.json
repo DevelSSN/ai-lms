@@ -3,39 +3,39 @@
   "per_label": {
     "CONVERSATION": [
       220,
-      0.9434782608695652,
-      0.9863636363636363,
-      0.9644444444444443
+      0.5472636815920398,
+      1.0,
+      0.7073954983922829
     ],
     "VIDEO_SEARCH": [
       250,
-      0.8710801393728222,
+      0.9615384615384616,
       1.0,
-      0.931098696461825
+      0.9803921568627451
     ],
     "CONTENT_ANALYSIS": [
       260,
       1.0,
-      0.9192307692307692,
-      0.9579158316633267
+      0.7538461538461538,
+      0.8596491228070176
     ],
     "ASSESSMENT": [
       270,
       1.0,
-      0.9074074074074074,
-      0.9514563106796117
+      0.9407407407407408,
+      0.9694656488549619
     ],
     "INSIGHT": [
       200,
-      0.9698492462311558,
-      0.965,
-      0.9674185463659147
+      1.0,
+      0.44,
+      0.6111111111111112
     ]
   },
-  "accuracy": 0.9533333333333334,
-  "macro_precision": 0.9568815292947086,
-  "macro_recall": 0.9556003626003626,
-  "macro_f1": 0.9544667659230246,
+  "accuracy": 0.84,
+  "macro_precision": 0.9017604286261003,
+  "macro_recall": 0.8269173789173789,
+  "macro_f1": 0.8256027076056236,
   "short_circuit_count": 267,
   "short_circuit_greeting": 17,
   "short_circuit_video_link": 0,
@@ -44,7 +44,7 @@
   "false_short_circuits": 0,
   "router_served_frac": 22.25,
   "classifier_observed_count": 933,
-  "classifier_observed_correct": 877,
+  "classifier_observed_correct": 741,
   "median_all_latency_ms": 3349.0,
   "median_classifier_latency_ms": 4159,
   "median_short_latency_ms": 2033,
@@ -53,11 +53,11 @@
   "p99_all_latency_ms": 9346,
   "confusion": {
     "CONVERSATION": {
-      "CONVERSATION": 217,
-      "VIDEO_SEARCH": 2,
+      "CONVERSATION": 220,
+      "VIDEO_SEARCH": 0,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 1
+      "INSIGHT": 0
     },
     "VIDEO_SEARCH": {
       "CONVERSATION": 0,
@@ -67,25 +67,25 @@
       "INSIGHT": 0
     },
     "CONTENT_ANALYSIS": {
-      "CONVERSATION": 7,
-      "VIDEO_SEARCH": 13,
-      "CONTENT_ANALYSIS": 239,
+      "CONVERSATION": 64,
+      "VIDEO_SEARCH": 0,
+      "CONTENT_ANALYSIS": 196,
       "ASSESSMENT": 0,
-      "INSIGHT": 1
+      "INSIGHT": 0
     },
     "ASSESSMENT": {
-      "CONVERSATION": 0,
-      "VIDEO_SEARCH": 21,
+      "CONVERSATION": 6,
+      "VIDEO_SEARCH": 10,
       "CONTENT_ANALYSIS": 0,
-      "ASSESSMENT": 245,
-      "INSIGHT": 4
+      "ASSESSMENT": 254,
+      "INSIGHT": 0
     },
     "INSIGHT": {
-      "CONVERSATION": 6,
-      "VIDEO_SEARCH": 1,
+      "CONVERSATION": 112,
+      "VIDEO_SEARCH": 0,
       "CONTENT_ANALYSIS": 0,
       "ASSESSMENT": 0,
-      "INSIGHT": 193
+      "INSIGHT": 88
     }
   }
 }

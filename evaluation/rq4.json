@@ -11,8 +11,8 @@
       "collection": "ailms-eval-chunk-400-50",
       "qdrant": {
         "precision_at_k": {
-          "mean": 0.6369047619047619,
-          "sd": 0.31850852082254677,
+          "mean": 0.6333333333333334,
+          "sd": 0.3206539100668387,
           "n": 28
         }
       },
@@ -46,18 +46,18 @@
   ],
   "classifier_ablation": {
     "zero_shot": {
-      "correct": 53,
+      "correct": 56,
       "n": 218,
-      "accuracy": 0.24311926605504589,
-      "delta_vs_fewshot": -0.6834862385321101
+      "accuracy": 0.25688073394495414,
+      "delta_vs_fewshot": -0.5504587155963303
     },
     "few_shot_negatives_reused": {
-      "correct": 202,
+      "correct": 176,
       "n": 218,
-      "accuracy": 0.926605504587156
+      "accuracy": 0.8073394495412844
     }
   },
   "deterministic_off": {
-    "accuracy": 0.9408333333333333
+    "accuracy": 0.8766666666666667
   }
 }

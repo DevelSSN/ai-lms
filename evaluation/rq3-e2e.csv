@@ -1,126 +1,126 @@
 intent,prompt,run,e2e_s
-CONVERSATION,What can you teach me?,0,6.6224587770411745
-CONVERSATION,What can you teach me?,1,6.437539336038753
-CONVERSATION,What can you teach me?,2,6.432994017959572
-CONVERSATION,What can you teach me?,3,6.438514156034216
-CONVERSATION,What can you teach me?,4,6.430277084931731
-CONVERSATION,What can you teach me?,5,6.422779428074136
-CONVERSATION,What can you teach me?,6,6.3919135900214314
-CONVERSATION,What can you teach me?,7,6.382261028047651
-CONVERSATION,What can you teach me?,8,6.394303180044517
-CONVERSATION,What can you teach me?,9,6.400610355078243
-CONVERSATION,What can you teach me?,10,6.412382438080385
-CONVERSATION,What can you teach me?,11,6.45262063795235
-CONVERSATION,What can you teach me?,12,6.4381692910101265
-CONVERSATION,What can you teach me?,13,6.402734466944821
-CONVERSATION,What can you teach me?,14,6.453380431048572
-CONVERSATION,What can you teach me?,15,6.379969277069904
-CONVERSATION,What can you teach me?,16,6.426530560944229
-CONVERSATION,What can you teach me?,17,6.384451188961975
-CONVERSATION,What can you teach me?,18,6.360500063979998
-CONVERSATION,What can you teach me?,19,6.3476694790879264
-CONVERSATION,What can you teach me?,20,6.367613918962888
-CONVERSATION,What can you teach me?,21,6.368782276986167
-CONVERSATION,What can you teach me?,22,6.422281209030189
-CONVERSATION,What can you teach me?,23,6.35264359600842
-CONVERSATION,What can you teach me?,24,6.4019338299985975
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,0,1.7605950699653476
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,1,1.6851607919670641
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,2,1.6992837529396638
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,3,1.7210446120006964
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,4,1.707081714994274
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,5,1.7048002150841057
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,6,1.679155692923814
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,7,1.6722446490311995
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,8,3.21829665300902
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,9,1.6900769990170375
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,10,1.6839190279133618
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,11,1.7220591380028054
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,12,1.6841357810189947
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,13,1.6784286769106984
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,14,1.703758385963738
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,15,1.7003575699636713
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,16,1.6694302380783483
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,17,1.7100130670005456
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,18,3.1805853380355984
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,19,1.6771229659207165
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,20,1.6824390440015122
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,21,1.6808388479985297
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,22,1.6371255890699103
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,23,1.6820728729944676
-VIDEO_SEARCH,I want to watch a video on Computer Architecture,24,1.6950045409612358
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,0,2.4387846019817516
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,1,3.4197880789870396
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,2,3.411322442931123
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,3,3.696193292038515
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,4,2.975272368057631
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,5,2.9857081780210137
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,6,3.017148016951978
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,7,3.0013871459523216
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,8,3.0130804700311273
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,9,3.000510285026394
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,10,3.021384639083408
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,11,3.0146906070876867
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,12,2.987950776005164
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,13,3.0240365610225126
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,14,3.021387208951637
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,15,3.0538272409467027
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,16,3.045644566998817
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,17,3.0238892240449786
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,18,2.9958784440532327
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,19,2.9720096749952063
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,20,3.042078383034095
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,21,3.031181563041173
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,22,2.979974893038161
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,23,3.0518197920173407
-CONTENT_ANALYSIS,Does the section mention Quantum Physics?,24,3.014267014921643
-ASSESSMENT,Test me on Network Security,0,4.981775157968514
-ASSESSMENT,Test me on Network Security,1,4.997777582961135
-ASSESSMENT,Test me on Network Security,2,5.029103136970662
-ASSESSMENT,Test me on Network Security,3,4.975346126011573
-ASSESSMENT,Test me on Network Security,4,4.984045892953873
-ASSESSMENT,Test me on Network Security,5,4.931043584947474
-ASSESSMENT,Test me on Network Security,6,4.969789260998368
-ASSESSMENT,Test me on Network Security,7,5.005548636079766
-ASSESSMENT,Test me on Network Security,8,4.968978249002248
-ASSESSMENT,Test me on Network Security,9,4.997258775983937
-ASSESSMENT,Test me on Network Security,10,5.02413517201785
-ASSESSMENT,Test me on Network Security,11,5.008645011927001
-ASSESSMENT,Test me on Network Security,12,5.06721320701763
-ASSESSMENT,Test me on Network Security,13,5.032982125994749
-ASSESSMENT,Test me on Network Security,14,4.984490795060992
-ASSESSMENT,Test me on Network Security,15,5.046855936991051
-ASSESSMENT,Test me on Network Security,16,5.00094874901697
-ASSESSMENT,Test me on Network Security,17,5.034552008030005
-ASSESSMENT,Test me on Network Security,18,5.06819512299262
-ASSESSMENT,Test me on Network Security,19,5.029530265019275
-ASSESSMENT,Test me on Network Security,20,5.109173887991346
-ASSESSMENT,Test me on Network Security,21,4.9859866900369525
-ASSESSMENT,Test me on Network Security,22,5.040290608070791
-ASSESSMENT,Test me on Network Security,23,5.029416769975796
-ASSESSMENT,Test me on Network Security,24,5.026457310072146
-INSIGHT,What are my weak spots?,0,6.274545831023715
-INSIGHT,What are my weak spots?,1,6.094718495965935
-INSIGHT,What are my weak spots?,2,6.139204222010449
-INSIGHT,What are my weak spots?,3,4.022104157949798
-INSIGHT,What are my weak spots?,4,3.966500178910792
-INSIGHT,What are my weak spots?,5,3.951486637000926
-INSIGHT,What are my weak spots?,6,3.981431193999015
-INSIGHT,What are my weak spots?,7,4.1255388570716605
-INSIGHT,What are my weak spots?,8,6.607361137983389
-INSIGHT,What are my weak spots?,9,4.003148703020997
-INSIGHT,What are my weak spots?,10,3.9499329780228436
-INSIGHT,What are my weak spots?,11,3.970103368978016
-INSIGHT,What are my weak spots?,12,3.992467986070551
-INSIGHT,What are my weak spots?,13,5.536853606929071
-INSIGHT,What are my weak spots?,14,4.009936306974851
-INSIGHT,What are my weak spots?,15,6.559309813077562
-INSIGHT,What are my weak spots?,16,6.488287003012374
-INSIGHT,What are my weak spots?,17,6.195939855999313
-INSIGHT,What are my weak spots?,18,6.249884120072238
-INSIGHT,What are my weak spots?,19,3.9469956719549373
-INSIGHT,What are my weak spots?,20,6.003096873988397
-INSIGHT,What are my weak spots?,21,3.9992502609966323
-INSIGHT,What are my weak spots?,22,6.522340700030327
-INSIGHT,What are my weak spots?,23,6.252734445035458
-INSIGHT,What are my weak spots?,24,4.015048165107146
+CONVERSATION,What can you teach me?,0,3.713249861029908
+CONVERSATION,What can you teach me?,1,3.4698458039201796
+CONVERSATION,What can you teach me?,2,3.5124785490334034
+CONVERSATION,What can you teach me?,3,3.4851224271114916
+CONVERSATION,What can you teach me?,4,3.4980804820079356
+CONVERSATION,What can you teach me?,5,3.4879624859895557
+CONVERSATION,What can you teach me?,6,3.4968843730166554
+CONVERSATION,What can you teach me?,7,3.5016786919441074
+CONVERSATION,What can you teach me?,8,3.4893980589695275
+CONVERSATION,What can you teach me?,9,3.488560474012047
+CONVERSATION,What can you teach me?,10,3.5192884949501604
+CONVERSATION,What can you teach me?,11,3.4970398428849876
+CONVERSATION,What can you teach me?,12,3.5203334619291127
+CONVERSATION,What can you teach me?,13,3.4845940158702433
+CONVERSATION,What can you teach me?,14,3.503150156000629
+CONVERSATION,What can you teach me?,15,3.5009144758805633
+CONVERSATION,What can you teach me?,16,3.493915523868054
+CONVERSATION,What can you teach me?,17,3.494822446955368
+CONVERSATION,What can you teach me?,18,3.4601633050478995
+CONVERSATION,What can you teach me?,19,3.556665835902095
+CONVERSATION,What can you teach me?,20,3.4954101459588856
+CONVERSATION,What can you teach me?,21,3.5291547689121217
+CONVERSATION,What can you teach me?,22,3.4829818981233984
+CONVERSATION,What can you teach me?,23,3.5239072451367974
+CONVERSATION,What can you teach me?,24,3.4769352949224412
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,0,1.714264556998387
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,1,1.6798301280941814
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,2,1.7033523779828101
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,3,1.666115629952401
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,4,1.684005529852584
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,5,1.6634563500992954
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,6,1.6645498618017882
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,7,1.6709755088668317
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,8,1.6775174350477755
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,9,1.6620594419073313
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,10,1.6582205388695002
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,11,1.6333297011442482
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,12,1.662390222074464
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,13,1.6894743030425161
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,14,1.634713645093143
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,15,1.6338243579957634
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,16,1.6523996870964766
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,17,1.653971959836781
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,18,1.6663895940873772
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,19,1.6599733540788293
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,20,1.628852997906506
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,21,1.6383162850979716
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,22,1.6543745889794081
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,23,1.6643165489658713
+VIDEO_SEARCH,I want to watch a video on Computer Architecture,24,1.6373183701653033
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,0,1.4891366672236472
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,1,1.4652788359671831
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,2,1.4738740320317447
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,3,1.4972055510152131
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,4,1.4735951800830662
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,5,1.4677858131472021
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,6,1.4988670118618757
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,7,1.4772269520908594
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,8,1.4950821390375495
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,9,1.4905206058174372
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,10,1.4652324030175805
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,11,1.4697763761505485
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,12,1.4734732620418072
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,13,1.480028992984444
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,14,1.4713892040308565
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,15,1.4919517280068249
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,16,1.5004305220209062
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,17,1.4676091170404106
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,18,1.4897313627880067
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,19,1.4842461668886244
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,20,1.476922248955816
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,21,1.5100255399011075
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,22,1.486669464968145
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,23,1.4999885628931224
+CONTENT_ANALYSIS,Does the section mention Quantum Physics?,24,1.4886744190007448
+ASSESSMENT,Test me on Network Security,0,3.0535398048814386
+ASSESSMENT,Test me on Network Security,1,2.9622389359865338
+ASSESSMENT,Test me on Network Security,2,3.0384771041572094
+ASSESSMENT,Test me on Network Security,3,3.0294797117821872
+ASSESSMENT,Test me on Network Security,4,3.0006909552030265
+ASSESSMENT,Test me on Network Security,5,3.0094805129338056
+ASSESSMENT,Test me on Network Security,6,2.97458215104416
+ASSESSMENT,Test me on Network Security,7,2.981399137992412
+ASSESSMENT,Test me on Network Security,8,2.999673079000786
+ASSESSMENT,Test me on Network Security,9,3.0163077779579908
+ASSESSMENT,Test me on Network Security,10,3.0289526258129627
+ASSESSMENT,Test me on Network Security,11,3.001807098975405
+ASSESSMENT,Test me on Network Security,12,3.067341909976676
+ASSESSMENT,Test me on Network Security,13,3.0048444408457726
+ASSESSMENT,Test me on Network Security,14,2.9902693510521203
+ASSESSMENT,Test me on Network Security,15,3.0031478819437325
+ASSESSMENT,Test me on Network Security,16,3.0049795899540186
+ASSESSMENT,Test me on Network Security,17,2.9795824389439076
+ASSESSMENT,Test me on Network Security,18,2.933832837967202
+ASSESSMENT,Test me on Network Security,19,2.937585751991719
+ASSESSMENT,Test me on Network Security,20,2.9845191300846636
+ASSESSMENT,Test me on Network Security,21,2.972910778829828
+ASSESSMENT,Test me on Network Security,22,2.9588359750341624
+ASSESSMENT,Test me on Network Security,23,2.9790466020349413
+ASSESSMENT,Test me on Network Security,24,2.9799552550539374
+INSIGHT,What are my weak spots?,0,2.500316355843097
+INSIGHT,What are my weak spots?,1,2.555574158905074
+INSIGHT,What are my weak spots?,2,2.551098817959428
+INSIGHT,What are my weak spots?,3,2.5908125119749457
+INSIGHT,What are my weak spots?,4,2.566084399819374
+INSIGHT,What are my weak spots?,5,2.586506670108065
+INSIGHT,What are my weak spots?,6,2.5810188718605787
+INSIGHT,What are my weak spots?,7,2.576483318116516
+INSIGHT,What are my weak spots?,8,2.576368984999135
+INSIGHT,What are my weak spots?,9,2.5466349190101027
+INSIGHT,What are my weak spots?,10,2.551025359192863
+INSIGHT,What are my weak spots?,11,2.583032933063805
+INSIGHT,What are my weak spots?,12,2.5514838551171124
+INSIGHT,What are my weak spots?,13,2.57093244115822
+INSIGHT,What are my weak spots?,14,2.575764106120914
+INSIGHT,What are my weak spots?,15,2.5697670851368457
+INSIGHT,What are my weak spots?,16,2.5491283601149917
+INSIGHT,What are my weak spots?,17,2.5399199661333114
+INSIGHT,What are my weak spots?,18,2.573181739076972
+INSIGHT,What are my weak spots?,19,2.5671572198625654
+INSIGHT,What are my weak spots?,20,2.5516584829892963
+INSIGHT,What are my weak spots?,21,2.5279072378762066
+INSIGHT,What are my weak spots?,22,2.5697762561030686
+INSIGHT,What are my weak spots?,23,2.567749052075669
+INSIGHT,What are my weak spots?,24,2.5860900999978185
