@@ -61,6 +61,8 @@ public interface IntentClassifier {
 
       INSIGHT: the user asks about their own learning state — progress, performance,
       knowledge gaps, what to study next, or a report and feedback on how they are doing.
+      The subject named may be any course topic; the question is always about the
+      learner's own state in it, never about the topic itself.
           "What is my progress?"                        -> INSIGHT
           "Where are my knowledge gaps?"                -> INSIGHT
           "Show my learning report"                     -> INSIGHT
@@ -71,6 +73,15 @@ public interface IntentClassifier {
           "Am I good at Quantum Physics?"               -> INSIGHT
           "Where do I stand in Linear Algebra?"         -> INSIGHT
           "What's my level in Data Structures?"         -> INSIGHT
+          "Are there gaps in my knowledge of Calculus?" -> INSIGHT
+          "What are my weak spots?"                     -> INSIGHT
+          "Show my achievements"                        -> INSIGHT
+          "What have I accomplished?"                   -> INSIGHT
+          "Recommend what to study"                     -> INSIGHT
+          "What should I revise?"                       -> INSIGHT
+          "Give me a learning report"                   -> INSIGHT
+          "What's my learning path?"                    -> INSIGHT
+          "How far along am I in Compiler Design?"      -> INSIGHT
 
       CONVERSATION: the message has no learning task — a greeting, small talk, a question
       about the assistant itself, or a general-knowledge question unrelated to the
