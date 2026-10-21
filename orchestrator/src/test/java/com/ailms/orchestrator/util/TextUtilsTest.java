@@ -119,6 +119,87 @@ class TextUtilsTest {
   }
 
   @Test
+  void recognizesMaterialPointers() {
+    for (String message :
+        new String[] {
+          "Summarize the document",
+          "What does the file say about Calculus?",
+          "Review the slide for me",
+          "Does the handout mention Thermodynamics?",
+          "What does the section say about Linear Algebra?",
+          "What does the report say about Machine Learning?",
+          "Explain the second page of the report",
+          "Compare this with the last chapter",
+          "Break down the key concepts in the handout",
+          "Give me a summary of the notes"
+        }) {
+      assertTrue(
+          TextUtils.referencesMaterial(message), "should reference material: '" + message + "'");
+    }
+  }
+
+  @Test
+  void rejectsNonMaterialPointers() {
+    for (String message :
+        new String[] {
+          "What are the main takeaways?",
+          "Give me the key points",
+          "Are the findings consistent?",
+          "Summarize recursion",
+          "Explain the capital of France",
+          "Find a video on Calculus",
+          "",
+          null
+        }) {
+      assertFalse(
+          TextUtils.referencesMaterial(message), "should NOT reference material: '" + message + "'");
+    }
+  }
+
+  @Test
+  void recognizesSelfReportRequests() {
+    for (String message :
+        new String[] {
+          "Where do I stand in Molecular Biology?",
+          "Am I good at Quantum Physics?",
+          "Are there gaps in my Psychology knowledge?",
+          "What are my weak spots?",
+          "What's my level in Data Structures?",
+          "Show my achievements",
+          "What should I revise?",
+          "Recommend what to study",
+          "Give me a learning report",
+          "What have I accomplished?",
+          "Progress report",
+          "Feedback on how I'm doing"
+        }) {
+      assertTrue(
+          TextUtils.isSelfReportRequest(message), "should be a self-report: '" + message + "'");
+    }
+  }
+
+  @Test
+  void rejectsNonSelfReportRequests() {
+    for (String message :
+        new String[] {
+          "Test my knowledge on Linear Algebra",
+          "Give me a quiz on Organic Chemistry",
+          "Give me 10 questions on Data Structures",
+          "Evaluate my knowledge of Ethics",
+          "Give me a summary of the document",
+          "Give me a summary of the report",
+          "Find a video on Calculus",
+          "Where is the nearest library?",
+          "",
+          null
+        }) {
+      assertFalse(
+          TextUtils.isSelfReportRequest(message),
+          "should NOT be a self-report: '" + message + "'");
+    }
+  }
+
+  @Test
   void handlesNull() {
     assertNull(TextUtils.stripThinking(null));
   }

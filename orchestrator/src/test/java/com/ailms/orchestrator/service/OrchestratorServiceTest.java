@@ -812,7 +812,8 @@ class OrchestratorServiceTest {
 
   @Test
   void route_insightIntent_feedsRealAnalytics() {
-    when(intentClassifier.classify(eq("my progress"), anyString())).thenReturn("INSIGHT");
+    when(intentClassifier.classify(eq("How is my course going?"), anyString()))
+        .thenReturn("INSIGHT");
     when(insightDataService.buildContext("user-1", "sess-1"))
         .thenReturn("- Messages in this session: 12");
     when(insightAgent.process(
@@ -822,7 +823,7 @@ class OrchestratorServiceTest {
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
 
     OrchestratorService svc = buildService();
-    ChatResponse resp = svc.route(new ChatRequest("my progress", "sess-1"), "user-1");
+    ChatResponse resp = svc.route(new ChatRequest("How is my course going?", "sess-1"), "user-1");
 
     assertEquals("Insight result", resp.message());
     verify(insightAgent)
@@ -832,17 +833,53 @@ class OrchestratorServiceTest {
 
   @Test
   void route_insightIntent() {
-    when(intentClassifier.classify(eq("my progress"), anyString())).thenReturn("INSIGHT");
+    when(intentClassifier.classify(eq("How is my course going?"), anyString()))
+        .thenReturn("INSIGHT");
     when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString()))
         .thenReturn("Insight result");
     when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
         .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
 
     OrchestratorService svc = buildService();
-    ChatResponse resp = svc.route(new ChatRequest("my progress", "sess-1"), "user-1");
+    ChatResponse resp = svc.route(new ChatRequest("How is my course going?", "sess-1"), "user-1");
 
     assertEquals("Insight result", resp.message());
     verify(kafkaEventPublisher).publishInsightGenerated(eq("user-1"), eq("sess-1"), anyString());
+  }
+
+  @Test
+  void route_selfReport_shortCircuitsWithoutClassifier() {
+    when(insightAgent.process(eq(ChatMemoryKeys.insight("sess-1")), anyString()))
+        .thenReturn("Insight result");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("Insight result", "sess-1", "INSIGHT"));
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp =
+        svc.route(new ChatRequest("Where do I stand in Molecular Biology?", "sess-1"), "user-1");
+
+    assertEquals("INSIGHT", resp.agentType());
+    assertEquals("Insight result", resp.message());
+    verify(intentClassifier, never()).classify(anyString(), anyString());
+  }
+
+  @Test
+  void route_selfReportPattern_doesNotStealQuizOrMaterialAsks() {
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenReturn(new ChatResponse("routed", "sess-1", "ASSESSMENT"));
+
+    OrchestratorService svc = buildService();
+    for (String message :
+        new String[] {
+          "Test my knowledge on Linear Algebra",
+          "Give me a quiz on Organic Chemistry",
+          "Give me a summary of the document"
+        }) {
+      when(intentClassifier.classify(eq(message), anyString())).thenReturn("ASSESSMENT");
+      svc.route(new ChatRequest(message, "sess-1"), "user-1");
+      verify(intentClassifier).classify(eq(message), anyString());
+    }
+    verify(insightAgent, never()).process(anyString(), anyString());
   }
 
   @Test

@@ -64,6 +64,40 @@ EXPLICIT_VIDEO_REQUEST = re.compile(
 
 INTENT_NORMALIZER = {label: label for label in LABELS}
 
+# Mirrors TextUtils.SELF_REPORT (self-report frames routed to INSIGHT without the classifier).
+SELF_REPORT = re.compile(
+    r"(?i)"
+    r"\b(?:what(?:'s| is| are)\s+my|where\s+do\s+i\s+stand|where\s+are\s+my|where\s+do\s+i\s+need|"
+    r"how\s+am\s+i\s+doing|how\s+(?:have\s+i|am\s+i|can\s+i|far\s+along\s+am\s+i)|"
+    r"am\s+i\s+(?:good\s+at|falling\s+behind|improving|weak\s+at))\b"
+    r"|\bmy\s+(?:progress|level|knowledge\s+gaps?|weak\s+spots?|strengths?|learning|"
+    r"achievements?|growth|improvement|completed|recent|study\s+habits?|performance)\b"
+    r"|\b(?:are\s+there|what\s+are\s+the|which)\s+gaps?\b"
+    r"|\b(?:which|what)\s+topics?\s+do\s+i\s+(?:struggle|need|review|prioritize)\b"
+    r"|\bwhat\s+have\s+i\s+(?:accomplished|achieved)\b"
+    r"|\bwhat\s+(?:should|can|did)\s+i\s+(?:study|revise|review|learn|work\s+on)\b"
+    r"|\bwhat\s+do\s+i\s+(?:review|study|revise|need|prioritize)\b"
+    r"|\btell\s+me\s+(?:what\s+(?:i\s+should|to\s+study)|about\s+my)\b"
+    r"|\bi\s+need\s+(?:a\s+)?(?:learning\s+)?(?:plan|insights?|feedback)\b"
+    r"|\brecommend\s+what\s+to\s+(?:study|revise|review|learn)\b"
+    r"|\bwhat\s+do\s+you\s+recommend(?:\s+for\s+me)?\b"
+    r"|\bany\s+feedback\s+for\s+me\b"
+    r"|\b(?:show|give|provide|display|summar(?:y|ize)|analyz?e|build|make|plan|tell\s+me)\b"
+    r".{0,25}\b(?:my|me|for\s+me)\b.{0,25}\b(?:report|feedback|insights?|progress|"
+    r"performance|achievements?|milestones?|plan|schedule|growth|improvement|summary|"
+    r"activity|habits?|recommendations?)\b"
+    r"|\bprogress\s+report\b|\bfeedback\s+on\s+how\s+i'?m\s+doing\b|\bplan\s+my\b"
+    r"|\bshow\s+my\s+completed\s+topics\b"
+)
+
+# Mirrors TextUtils.SELF_REPORT_EXCLUDE.
+SELF_REPORT_EXCLUDE = re.compile(
+    r"(?i)\b(?:quiz|quizzes|questions?|test|exam|practice\s+test|"
+    r"(?:test|evaluate|check)\s+my\s+knowledge)\b"
+    r"|\b(?:summary|summar(?:y|ize|ise))\s+(?:of\s+)?(?:the|this|these|a)?\s*"
+    r"(?:paper|notes|material|pdf|document|report|section|chapter|article|slides?|file|text)\b"
+)
+
 
 def normalize_intent(raw: str) -> str:
     if not raw:
@@ -94,7 +128,13 @@ def is_router_servable(msg: str) -> bool:
         is_bare_greeting(msg)
         or is_explicit_video_link(msg)
         or is_explicit_video_request(msg)
+        or is_self_report_request(msg)
     )
+
+
+def is_self_report_request(msg: str) -> bool:
+    """True when the message is deterministically routed to INSIGHT by TextUtils."""
+    return bool(msg) and bool(SELF_REPORT.search(msg)) and not SELF_REPORT_EXCLUDE.search(msg)
 
 
 def load_csv(path: Path) -> list[dict]:
@@ -212,6 +252,7 @@ def main() -> None:
             for _, _, _, msg in sc_rows
             if is_explicit_video_link(msg) or is_explicit_video_request(msg)
         )
+        sc_self = sum(1 for _, _, _, msg in sc_rows if is_self_report_request(msg))
         # A false short-circuit is a router-served row whose fixed intent is wrong
         # for its label (e.g. a greeting regex firing on a non-greeting row).
         false_sc = [
@@ -222,6 +263,7 @@ def main() -> None:
                 (is_explicit_video_link(msg) or is_explicit_video_request(msg))
                 and truth != "VIDEO_SEARCH"
             )
+            or (is_self_report_request(msg) and truth != "INSIGHT")
         ]
 
         scores = scores_for(rows)
@@ -240,6 +282,7 @@ def main() -> None:
             "short_circuit_greeting": sc_greetings,
             "short_circuit_video_link": sc_links,
             "short_circuit_video_request": sc_video - sc_links,
+            "short_circuit_self_report": sc_self,
             "short_circuit_correct": sc_correct,
             "false_short_circuits": len(false_sc),
             "router_served_frac": len(sc_rows) / scores["n"] * 100.0,

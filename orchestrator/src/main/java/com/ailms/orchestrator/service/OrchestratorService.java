@@ -293,6 +293,17 @@ public class OrchestratorService {
             INTENT_VIDEO_SEARCH,
             userId,
             message);
+      } else if (TextUtils.isSelfReportRequest(message)) {
+        // Self-report frames are routed deterministically: the 3B classifier answers the named
+        // topic instead of the learner's standing in it, and failed to do so even with these
+        // frames supplied as few-shot examples.
+        intent = INTENT_INSIGHT;
+        enrichedMessage = message;
+        log.info(
+            "Intent={} (self-report short-circuit) for user={} message={}",
+            INTENT_INSIGHT,
+            userId,
+            message);
       } else {
         ChatHistory chatHistory = loadHistory(userId, sessionId);
         intent = normalizeIntent(intentClassifier.classify(message, formatHistory(chatHistory)));
