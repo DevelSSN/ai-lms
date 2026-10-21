@@ -83,42 +83,42 @@ Summarize the PDF I uploaded.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you explain the main idea of this document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What are the key points in these lecture notes?,CONTENT_ANALYSIS,CONVERSATION
 Break down this chapter into simple terms.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Review my uploaded study material and explain it.,CONTENT_ANALYSIS,CONVERSATION
+Review my uploaded study material and explain it.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What does this paragraph mean?,CONTENT_ANALYSIS,CONVERSATION
 Summarize the important concepts from this chapter.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you analyze these notes for me?,CONTENT_ANALYSIS,CONVERSATION
 Explain the difference between the concepts in this document.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me a concise summary of this lecture.,CONTENT_ANALYSIS,CONVERSATION
+Give me a concise summary of this lecture.,CONTENT_ANALYSIS,INSIGHT
 Can you explain this topic based on my uploaded material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What are the most important ideas in this PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Simplify this section so I can understand it.,CONTENT_ANALYSIS,CONVERSATION
+Simplify this section so I can understand it.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Review this document and point out the major concepts.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you extract the important information from these notes?,CONTENT_ANALYSIS,CONVERSATION
 Explain the uploaded material step by step.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Summarize this article for revision.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What does the uploaded chapter say about neural networks?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Analyze this study material and identify its main themes.,CONTENT_ANALYSIS,CONVERSATION
+Analyze this study material and identify its main themes.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you give me an overview of this document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Explain the difficult parts of these lecture slides.,CONTENT_ANALYSIS,CONVERSATION
 What should I focus on in this uploaded chapter?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you compare the two approaches described in this PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Summarize the section about database normalization.,CONTENT_ANALYSIS,CONVERSATION
+Summarize the section about database normalization.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Explain the example given in my notes.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you review my lecture material for important definitions?,CONTENT_ANALYSIS,CONVERSATION
+Can you review my lecture material for important definitions?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What conclusions does this document reach?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Help me understand the content of this uploaded file.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you identify the key terms in this chapter?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Give me a simplified explanation of these notes.,CONTENT_ANALYSIS,CONVERSATION
 Analyze the uploaded material and organize the concepts.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What is this document mainly about?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Can you explain the diagram described in the study material?,CONTENT_ANALYSIS,CONVERSATION
+Can you explain the diagram described in the study material?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Summarize this content without leaving out the important details.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Review this chapter and highlight confusing concepts.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you explain this passage using the context of the uploaded document?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What are the main arguments in these notes?,CONTENT_ANALYSIS,CONVERSATION
 Turn this lecture content into an easy-to-understand explanation.,CONTENT_ANALYSIS,CONVERSATION
 Can you analyze this document and tell me what I need to learn?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me a revision-friendly summary of the uploaded material.,CONTENT_ANALYSIS,CONTENT_ANALYSIS
+Give me a revision-friendly summary of the uploaded material.,CONTENT_ANALYSIS,INSIGHT
 Give me a quiz on Python basics.,ASSESSMENT,ASSESSMENT
 Test me on SQL joins.,ASSESSMENT,ASSESSMENT
 Create five practice questions on recursion.,ASSESSMENT,ASSESSMENT
@@ -135,7 +135,7 @@ Test me on calculus derivatives.,ASSESSMENT,ASSESSMENT
 Create practice problems for probability.,ASSESSMENT,CONVERSATION
 Give me an assessment on object-oriented programming.,ASSESSMENT,ASSESSMENT
 Can you make a beginner quiz on Java?,ASSESSMENT,ASSESSMENT
-Ask me five questions about SQL.,ASSESSMENT,CONVERSATION
+Ask me five questions about SQL.,ASSESSMENT,VIDEO_SEARCH
 Create an exam-style test from this chapter.,ASSESSMENT,CONTENT_ANALYSIS
 Can you evaluate my understanding of binary search?,ASSESSMENT,ASSESSMENT
 Give me practice questions on data structures.,ASSESSMENT,ASSESSMENT
@@ -163,7 +163,7 @@ How am I doing in my studies?,INSIGHT,INSIGHT
 Can you show me my learning progress?,INSIGHT,INSIGHT
 What topics am I struggling with?,INSIGHT,CONVERSATION
 Which subjects should I focus on next?,INSIGHT,INSIGHT
-Can you analyze my recent performance?,INSIGHT,CONVERSATION
+Can you analyze my recent performance?,INSIGHT,INSIGHT
 What are my biggest knowledge gaps?,INSIGHT,INSIGHT
 Am I improving compared with my previous sessions?,INSIGHT,INSIGHT
 Give me a report on my learning progress.,INSIGHT,INSIGHT
@@ -172,29 +172,29 @@ Can you recommend what I should study next?,INSIGHT,INSIGHT
 Which areas need more revision?,INSIGHT,CONVERSATION
 How consistent has my learning been?,INSIGHT,INSIGHT
 What are my strengths and weaknesses as a learner?,INSIGHT,INSIGHT
-Can you give me personalized study recommendations?,INSIGHT,CONVERSATION
+Can you give me personalized study recommendations?,INSIGHT,INSIGHT
 "Based on my progress, what should I work on?",INSIGHT,INSIGHT
 Have I improved in SQL recently?,INSIGHT,CONVERSATION
 What concepts do I seem to have trouble with?,INSIGHT,CONVERSATION
-Can you analyze my performance across topics?,INSIGHT,CONVERSATION
+Can you analyze my performance across topics?,INSIGHT,INSIGHT
 Give me insights into my learning habits.,INSIGHT,INSIGHT
 Which topic should I revise before moving on?,INSIGHT,INSIGHT
 Can you identify gaps in my understanding from my history?,INSIGHT,INSIGHT
 How well am I progressing toward my learning goals?,INSIGHT,INSIGHT
-What should I prioritize this week based on my performance?,INSIGHT,CONVERSATION
+What should I prioritize this week based on my performance?,INSIGHT,INSIGHT
 Can you generate a progress report for me?,INSIGHT,INSIGHT
 Which subjects am I strongest in?,INSIGHT,CONVERSATION
 Where am I losing marks most often?,INSIGHT,CONVERSATION
 What patterns do you see in my assessment results?,INSIGHT,CONVERSATION
 Can you recommend a personalized learning path?,INSIGHT,INSIGHT
-How has my performance changed over time?,INSIGHT,CONVERSATION
+How has my performance changed over time?,INSIGHT,INSIGHT
 Which concepts should I revisit based on my previous attempts?,INSIGHT,CONVERSATION
 Can you tell me whether my study routine is working?,INSIGHT,CONVERSATION
 What are my current learning gaps?,INSIGHT,INSIGHT
 Give me feedback based on my past activity.,INSIGHT,INSIGHT
 What should I improve to perform better?,INSIGHT,CONVERSATION
 Can you identify the areas where I need extra practice?,INSIGHT,INSIGHT
-How effective has my recent study activity been?,INSIGHT,CONVERSATION
+How effective has my recent study activity been?,INSIGHT,INSIGHT
 What learning recommendations do you have for me?,INSIGHT,CONVERSATION
 Can you compare my current progress with my earlier progress?,INSIGHT,INSIGHT
 Which topics are becoming stronger for me?,INSIGHT,INSIGHT

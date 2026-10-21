@@ -18,7 +18,7 @@ Recommend a YouTube video about Data Structures,VIDEO_SEARCH,VIDEO_SEARCH
 Ask me some questions on Database Systems,ASSESSMENT,VIDEO_SEARCH
 Are you ready?,CONVERSATION,CONVERSATION
 Can you talk to me?,CONVERSATION,CONVERSATION
-Am I good at Quantum Physics?,INSIGHT,ASSESSMENT
+Am I good at Quantum Physics?,INSIGHT,CONVERSATION
 Recommend a book,CONVERSATION,CONVERSATION
 Examine me on Linear Algebra,ASSESSMENT,ASSESSMENT
 Give me a learning report,INSIGHT,INSIGHT
@@ -30,7 +30,7 @@ I'm happy today,CONVERSATION,CONVERSATION
 What are the main takeaways?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Where do I stand in Linear Algebra?,INSIGHT,INSIGHT
 Find some videos about Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
-Are there gaps in my Discrete Math knowledge?,INSIGHT,CONTENT_ANALYSIS
+Are there gaps in my Discrete Math knowledge?,INSIGHT,INSIGHT
 I'm frustrated,CONVERSATION,CONVERSATION
 Start a quiz on Human Anatomy,ASSESSMENT,ASSESSMENT
 Examine me on Thermodynamics,ASSESSMENT,ASSESSMENT
@@ -132,7 +132,7 @@ Extract the main ideas from the section,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What does the text say about Cell Biology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 What is discussed in the slide?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Question me on Data Structures,ASSESSMENT,ASSESSMENT
-Check if I understood Calculus,ASSESSMENT,CONTENT_ANALYSIS
+Check if I understood Calculus,ASSESSMENT,ASSESSMENT
 How am I doing in Linear Algebra?,INSIGHT,INSIGHT
 Question me on Human Anatomy,ASSESSMENT,ASSESSMENT
 How do you work?,CONVERSATION,CONVERSATION
@@ -224,7 +224,7 @@ Does the paper mention Microeconomics?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 I'm bored,CONVERSATION,CONVERSATION
 That's it,CONVERSATION,CONVERSATION
 I want a video on Thermodynamics,VIDEO_SEARCH,VIDEO_SEARCH
-Where do I stand in Psychology?,INSIGHT,CONTENT_ANALYSIS
+Where do I stand in Psychology?,INSIGHT,INSIGHT
 Can you walk me through the PDF?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Summarize this file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Does the file mention Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -318,7 +318,7 @@ Evaluate my understanding of Linear Algebra,ASSESSMENT,ASSESSMENT
 What does the text say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Sounds good,CONVERSATION,CONVERSATION
 Find a video about Statistics,VIDEO_SEARCH,VIDEO_SEARCH
-How am I doing in Game Theory?,INSIGHT,CONTENT_ANALYSIS
+How am I doing in Game Theory?,INSIGHT,ASSESSMENT
 Search for a clip about Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
 Show me a YouTube video about Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
 Explain the second page of the slide,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -354,7 +354,7 @@ Talk later,CONVERSATION,CONVERSATION
 Question me on Organic Chemistry,ASSESSMENT,ASSESSMENT
 Any clips on Linear Programming?,VIDEO_SEARCH,VIDEO_SEARCH
 Where do I stand in Compiler Design?,INSIGHT,INSIGHT
-How am I doing in Cognitive Science?,INSIGHT,CONTENT_ANALYSIS
+How am I doing in Cognitive Science?,INSIGHT,ASSESSMENT
 Am I good at Sociology?,INSIGHT,CONVERSATION
 Break down the key concepts in the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 I'm ready for a test on Cyber Security,ASSESSMENT,ASSESSMENT
@@ -479,7 +479,7 @@ I had a long day,CONVERSATION,CONVERSATION
 Let's move on,CONVERSATION,CONVERSATION
 I want a video on Macroeconomics,VIDEO_SEARCH,VIDEO_SEARCH
 How am I doing in Calculus?,INSIGHT,CONTENT_ANALYSIS
-Ask me some questions on Computer Networks,ASSESSMENT,VIDEO_SEARCH
+Ask me some questions on Computer Networks,ASSESSMENT,ASSESSMENT
 Does the section mention Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Next question,CONVERSATION,CONVERSATION
 Ask me some questions on Molecular Biology,ASSESSMENT,CONTENT_ANALYSIS
@@ -528,7 +528,7 @@ Give me some recommendations,INSIGHT,CONVERSATION
 What does the report say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Let's take a quiz on Calculus,ASSESSMENT,ASSESSMENT
 Summarize this chapter,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Am I good at Microeconomics?,INSIGHT,ASSESSMENT
+Am I good at Microeconomics?,INSIGHT,CONVERSATION
 What's my learning pattern?,INSIGHT,INSIGHT
 Search for tutorials about Calculus,VIDEO_SEARCH,VIDEO_SEARCH
 Does the paper mention Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -634,7 +634,7 @@ Does the slide mention Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Get me a video tutorial on Computer Networks,VIDEO_SEARCH,VIDEO_SEARCH
 Am I good at Network Security?,INSIGHT,CONVERSATION
 Test my knowledge of Big Data,ASSESSMENT,ASSESSMENT
-Ask me 5 questions on Big Data,ASSESSMENT,VIDEO_SEARCH
+Ask me 5 questions on Big Data,ASSESSMENT,ASSESSMENT
 Does the notes mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 How am I doing in Operating Systems?,INSIGHT,CONTENT_ANALYSIS
 What does the section say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -675,7 +675,7 @@ Where do I stand in Machine Learning?,INSIGHT,ASSESSMENT
 Find some videos for Discrete Math,VIDEO_SEARCH,VIDEO_SEARCH
 What's your name?,CONVERSATION,CONVERSATION
 What does the PDF say about Software Engineering?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Generate a quiz about Computer Architecture,ASSESSMENT,VIDEO_SEARCH
+Generate a quiz about Computer Architecture,ASSESSMENT,ASSESSMENT
 Suggest a video for World History,VIDEO_SEARCH,VIDEO_SEARCH
 Are you okay?,CONVERSATION,CONVERSATION
 What does the section say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
@@ -772,9 +772,9 @@ Find a lecture video on Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
 Does the file mention Psychology?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Suggest a video for Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
 Tell me what to study next,INSIGHT,INSIGHT
-Am I good at Classical Mechanics?,INSIGHT,ASSESSMENT
+Am I good at Classical Mechanics?,INSIGHT,CONVERSATION
 I want to learn something new,CONVERSATION,CONVERSATION
-Ask me 5 questions on Network Security,ASSESSMENT,CONTENT_ANALYSIS
+Ask me 5 questions on Network Security,ASSESSMENT,ASSESSMENT
 Show a video demo of Organic Chemistry,VIDEO_SEARCH,VIDEO_SEARCH
 Does the document mention Discrete Math?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Give me 5 questions on Astrophysics,ASSESSMENT,VIDEO_SEARCH
@@ -863,11 +863,11 @@ I want to be tested on Cyber Security,ASSESSMENT,ASSESSMENT
 Generate a quiz about Macroeconomics,ASSESSMENT,ASSESSMENT
 I want a test on Operating Systems,ASSESSMENT,ASSESSMENT
 What does the document say about Database Systems?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Am I good at Linear Algebra?,INSIGHT,ASSESSMENT
+Am I good at Linear Algebra?,INSIGHT,CONVERSATION
 Let's take a quiz on Artificial Intelligence,ASSESSMENT,ASSESSMENT
 Is anyone there?,CONVERSATION,CONVERSATION
 Question me on Software Engineering,ASSESSMENT,VIDEO_SEARCH
-Ask me 5 questions on Classical Mechanics,ASSESSMENT,CONTENT_ANALYSIS
+Ask me 5 questions on Classical Mechanics,ASSESSMENT,ASSESSMENT
 Video examples for Ethics,VIDEO_SEARCH,VIDEO_SEARCH
 Recommend a YouTube video about Molecular Biology,VIDEO_SEARCH,VIDEO_SEARCH
 Can we just chat?,CONVERSATION,CONVERSATION
@@ -937,7 +937,7 @@ Let's take a quiz on Operating Systems,ASSESSMENT,ASSESSMENT
 Am I good at Algorithms?,INSIGHT,CONVERSATION
 What does the document cover?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Appreciate it,CONVERSATION,CONVERSATION
-Tell me about my study habits,INSIGHT,CONTENT_ANALYSIS
+Tell me about my study habits,INSIGHT,CONVERSATION
 What does the slide say about Linear Algebra?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Prepare a quiz for Compiler Design,ASSESSMENT,ASSESSMENT
 Link a video on Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
@@ -947,7 +947,7 @@ What is this chapter about?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Test me on Organic Chemistry,ASSESSMENT,ASSESSMENT
 Help me get started,CONVERSATION,CONVERSATION
 Explain the findings in the file,CONTENT_ANALYSIS,CONTENT_ANALYSIS
-Give me 5 questions on Fluid Dynamics,ASSESSMENT,VIDEO_SEARCH
+Give me 5 questions on Fluid Dynamics,ASSESSMENT,ASSESSMENT
 Can I have a practice test for Compiler Design?,ASSESSMENT,ASSESSMENT
 Show a video demo of Quantum Physics,VIDEO_SEARCH,VIDEO_SEARCH
 Any clips explaining Computer Architecture?,VIDEO_SEARCH,VIDEO_SEARCH
@@ -1010,7 +1010,7 @@ Show a video demo of Cyber Security,VIDEO_SEARCH,VIDEO_SEARCH
 What does the section say about Calculus?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Get me a video tutorial for Compiler Design,VIDEO_SEARCH,VIDEO_SEARCH
 Let me sign up,CONVERSATION,CONVERSATION
-What's my level in Game Theory?,INSIGHT,CONTENT_ANALYSIS
+What's my level in Game Theory?,INSIGHT,INSIGHT
 What's my level in Psychology?,INSIGHT,INSIGHT
 Extract the main ideas from the paper,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Look for educational videos on Classical Mechanics,VIDEO_SEARCH,VIDEO_SEARCH
@@ -1086,7 +1086,7 @@ What is the main point of the text?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Can you walk me through the handout?,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Explain the findings in the text,CONTENT_ANALYSIS,CONTENT_ANALYSIS
 Is there a clip on Computer Architecture?,VIDEO_SEARCH,VIDEO_SEARCH
-Am I good at Calculus?,INSIGHT,CONTENT_ANALYSIS
+Am I good at Calculus?,INSIGHT,ASSESSMENT
 Can I have a practice test on Network Security?,ASSESSMENT,ASSESSMENT
 Probably,CONVERSATION,CONVERSATION
 Am I good at Database Systems?,INSIGHT,CONVERSATION

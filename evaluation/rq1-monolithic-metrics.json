@@ -3,39 +3,39 @@
   "per_label": {
     "CONVERSATION": [
       220,
-      0.8622047244094488,
+      0.8455598455598455,
       0.9954545454545455,
-      0.9240506329113926
+      0.9144050104384133
     ],
     "VIDEO_SEARCH": [
       250,
-      0.929368029739777,
+      0.9433962264150944,
       1.0,
-      0.9633911368015413
+      0.970873786407767
     ],
     "CONTENT_ANALYSIS": [
       260,
-      0.764525993883792,
+      0.7886435331230284,
       0.9615384615384616,
-      0.8517887563884157
+      0.8665511265164645
     ],
     "ASSESSMENT": [
       270,
-      0.9351145038167938,
-      0.9074074074074074,
-      0.9210526315789473
+      0.9402985074626866,
+      0.9333333333333333,
+      0.9368029739776952
     ],
     "INSIGHT": [
       200,
       1.0,
-      0.44,
-      0.6111111111111112
+      0.455,
+      0.6254295532646048
     ]
   },
-  "accuracy": 0.8766666666666667,
-  "macro_precision": 0.8982426503699623,
-  "macro_recall": 0.8608800828800829,
-  "macro_f1": 0.8542788537582815,
+  "accuracy": 0.885,
+  "macro_precision": 0.903579622512131,
+  "macro_recall": 0.8690652680652681,
+  "macro_f1": 0.862812490120989,
   "confusion": {
     "CONVERSATION": {
       "CONVERSATION": 219,
@@ -60,26 +60,26 @@
     },
     "ASSESSMENT": {
       "CONVERSATION": 1,
-      "VIDEO_SEARCH": 19,
-      "CONTENT_ANALYSIS": 5,
-      "ASSESSMENT": 245,
+      "VIDEO_SEARCH": 15,
+      "CONTENT_ANALYSIS": 2,
+      "ASSESSMENT": 252,
       "INSIGHT": 0
     },
     "INSIGHT": {
-      "CONVERSATION": 24,
+      "CONVERSATION": 29,
       "VIDEO_SEARCH": 0,
-      "CONTENT_ANALYSIS": 71,
-      "ASSESSMENT": 17,
-      "INSIGHT": 88
+      "CONTENT_ANALYSIS": 64,
+      "ASSESSMENT": 16,
+      "INSIGHT": 91
     }
   },
-  "median_all_latency_ms": 3345.5,
-  "p95_all_latency_ms": 7633,
-  "p99_all_latency_ms": 10723,
+  "median_all_latency_ms": 3348.5,
+  "p95_all_latency_ms": 7279,
+  "p99_all_latency_ms": 8868,
   "router_servable_subset": {
-    "count": 267,
-    "correct": 267,
-    "accuracy": 1.0,
-    "median_latency_ms": 2510
+    "count": 467,
+    "correct": 358,
+    "accuracy": 0.7665952890792291,
+    "median_latency_ms": 2733
   }
 }
