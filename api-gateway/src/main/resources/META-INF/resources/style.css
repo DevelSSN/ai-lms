@@ -963,6 +963,15 @@ footer {
     color: var(--text-primary);
 }
 
+.quiz-unavailable .quiz-header {
+    color: var(--text-secondary);
+}
+
+.quiz-unavailable .quiz-question-text {
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
 .quiz-badge {
     margin-left: 0.5rem;
     font-weight: 700;

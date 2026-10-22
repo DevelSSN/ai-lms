@@ -13,9 +13,11 @@ import io.quarkus.redis.datasource.list.ListCommands;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -102,6 +104,31 @@ class ChatHistoryCacheServiceTest {
     assertEquals("user", history.messages().get(0).role());
     assertEquals("CONVERSATION", history.messages().get(1).agentType());
     assertEquals(Instant.parse(ts), history.messages().get(1).timestamp());
+  }
+
+  @Test
+  void seedHistory_andGetCachedHistory_roundTripQuizMetadata() {
+    ChatHistoryCacheService cache = new ChatHistoryCacheService(redisDS, objectMapper);
+    Instant ts = Instant.parse("2026-09-05T10:00:00Z");
+    Map<String, Object> metadata =
+        Map.of("contentId", "doc-9", "items", List.of(Map.of("question", "What is 2+2?")));
+    ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
+
+    cache.seedHistory(
+        "user-1",
+        "sess-1",
+        List.of(new ChatHistory.ChatMessage("assistant", "[]", "ASSESSMENT", ts, metadata)));
+    verify(lists).rpush(eq(KEY), payload.capture());
+
+    when(keys.exists(SEEDED_KEY)).thenReturn(true);
+    when(lists.lrange(KEY, 0, -1)).thenReturn(List.of(payload.getValue()));
+
+    ChatHistory history = cache.getCachedHistory("user-1", "sess-1");
+
+    assertNotNull(history);
+    assertEquals("ASSESSMENT", history.messages().get(0).agentType());
+    assertNotNull(history.messages().get(0).metadata());
+    assertTrue(history.messages().get(0).metadata().toString().contains("doc-9"));
   }
 
   @Test

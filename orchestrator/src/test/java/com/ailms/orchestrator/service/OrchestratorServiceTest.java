@@ -811,6 +811,90 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void parseQuizItems_handlesCitationProseAndTrailingSources() {
+    String json =
+        "[{\"question\":\"What is 2+2?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"3\",\"4\",\"5\"],\"answer\":\"4\","
+            + "\"explanation\":\"Based on [1], basic addition\"}]";
+    OrchestratorService svc = buildService();
+
+    List<com.ailms.common.dto.QuizItem> items =
+        svc.parseQuizItems("Based on [1], here is the quiz: " + json + "\nSources: [1]");
+
+    assertEquals(1, items.size());
+    assertEquals("What is 2+2?", items.get(0).question());
+    assertEquals("4", items.get(0).answer());
+  }
+
+  @Test
+  void parseQuizItems_acceptsSingleObjectOutput() {
+    String json =
+        "{\"question\":\"What is 2+2?\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"3\",\"4\"],\"answer\":\"4\",\"explanation\":\"addition\"}";
+    OrchestratorService svc = buildService();
+
+    List<com.ailms.common.dto.QuizItem> items = svc.parseQuizItems(json);
+
+    assertEquals(1, items.size());
+    assertEquals("What is 2+2?", items.get(0).question());
+  }
+
+  @Test
+  void parseQuizItems_ignoresOptionArrayBeforeQuizAndKeepsBracketedStrings() {
+    String quiz =
+        "[{\"question\":\"Pick [A]\",\"type\":\"multiple_choice\","
+            + "\"options\":[\"[A] one\",\"[B] two\"],\"answer\":\"[A] one\","
+            + "\"explanation\":\"use } carefully\"}]";
+    OrchestratorService svc = buildService();
+
+    List<com.ailms.common.dto.QuizItem> items =
+        svc.parseQuizItems("[\"choices\", \"below\"]\n" + quiz);
+
+    assertEquals(1, items.size());
+    assertEquals("Pick [A]", items.get(0).question());
+    assertEquals(List.of("[A] one", "[B] two"), items.get(0).options());
+  }
+
+  @Test
+  void parseQuizItems_rejectsUnrelatedArraysAndMalformedJson() {
+    OrchestratorService svc = buildService();
+
+    assertTrue(svc.parseQuizItems("[\"one\", \"two\"]").isEmpty());
+    assertTrue(svc.parseQuizItems("[{\"question\":\"Q\",\"options\":[\"A\", }").isEmpty());
+    assertTrue(svc.parseQuizItems("no json here").isEmpty());
+  }
+
+  @Test
+  void route_assessment_malformedJsonOutput_returnsQuizUnavailable() {
+    String msg = "quiz me";
+    String malformed = "[{\"question\":\"What is X?\",\"options\":[\"A\", }";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("ASSESSMENT");
+    when(conversationRepository.lastUploadedDocumentId("user-1", "sess-1")).thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(3), eq("doc:doc-9")))
+        .thenReturn(chunks("context from qdrant"));
+    when(questionGenerationAgent.process(
+            eq(ChatMemoryKeys.assessment("sess-1")),
+            anyString(),
+            anyString(),
+            eq("medium"),
+            eq(5)))
+        .thenReturn(malformed, "I cannot generate that right now.");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(
+                  scope.readState("response", ""), "sess-1", "ASSESSMENT");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals(OrchestratorService.QUIZ_UNAVAILABLE, resp.message());
+    assertNull(resp.metadata());
+  }
+
+  @Test
   void route_insightIntent_feedsRealAnalytics() {
     when(intentClassifier.classify(eq("How is my course going?"), anyString()))
         .thenReturn("INSIGHT");

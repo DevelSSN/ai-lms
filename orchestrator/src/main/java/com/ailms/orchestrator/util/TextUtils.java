@@ -1,5 +1,7 @@
 package com.ailms.orchestrator.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public final class TextUtils {
@@ -176,18 +178,51 @@ public final class TextUtils {
     return trimmed;
   }
 
-  public static String extractJsonArray(String text) {
-    if (text == null) return null;
-    String trimmed = text.trim();
-    if (trimmed.startsWith("```")) {
-      trimmed = trimmed.replaceFirst("^```[a-zA-Z]*\\s*", "");
-      trimmed = trimmed.replaceFirst("```\\s*$", "").trim();
+  /**
+   * Returns every balanced JSON object/array slice in {@code text}, in source order. Scanning
+   * each start position (rather than slicing from the first {@code [} to the last {@code ]})
+   * means prose such as "Based on [1], ..." cannot truncate the real payload. Callers validate
+   * candidates, because prose brackets also produce short, non-JSON slices.
+   */
+  public static List<String> jsonCandidates(String text) {
+    if (text == null || text.isBlank()) return List.of();
+    List<String> candidates = new ArrayList<>();
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (c != '[' && c != '{') continue;
+      int end = matchingClose(text, i);
+      if (end > i) candidates.add(text.substring(i, end + 1));
     }
-    int start = trimmed.indexOf('[');
-    int end = trimmed.lastIndexOf(']');
-    if (start >= 0 && end > start) {
-      return trimmed.substring(start, end + 1);
+    return candidates;
+  }
+
+  private static int matchingClose(String text, int start) {
+    char open = text.charAt(start);
+    char close = open == '[' ? ']' : '}';
+    int depth = 0;
+    boolean inString = false;
+    boolean escaped = false;
+    for (int i = start; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+        } else if (c == '\\') {
+          escaped = true;
+        } else if (c == '"') {
+          inString = false;
+        }
+        continue;
+      }
+      if (c == '"') {
+        inString = true;
+      } else if (c == open) {
+        depth++;
+      } else if (c == close) {
+        depth--;
+        if (depth == 0) return i;
+      }
     }
-    return null;
+    return -1;
   }
 }

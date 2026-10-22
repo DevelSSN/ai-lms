@@ -357,6 +357,7 @@ async function loadHistory(threadId) {
       else if (message.role === "assistant")
         appendMessage("bot", message.content, message.timestamp, {
           eventType: message.agentType,
+          metadata: message.metadata,
         });
     }
     const hasContentAnalysis = messages.some(
@@ -1394,9 +1395,17 @@ function appendMessage(sender, text, timestamp, options) {
   lastRenderedMessage = String(text ?? "").trim();
   const videoHosts = [];
   if (sender === "bot") {
+    if (Array.isArray(options?.metadata?.items) && options.metadata.items.length) {
+      renderQuizCard(options.metadata, timestamp);
+      return null;
+    }
     const quizItems = tryParseQuizJson(text);
     if (quizItems) {
       renderQuizCard({ contentId: null, items: quizItems }, timestamp);
+      return null;
+    }
+    if (options?.eventType === "ASSESSMENT" && looksLikeQuizJson(text)) {
+      renderQuizUnavailableCard(timestamp);
       return null;
     }
   }
@@ -1479,7 +1488,9 @@ function appendAssistantContent(data) {
     renderQuizCard(metadata, data?.timestamp);
     return;
   }
-  const msgEl = appendMessage("bot", data?.message || "", data?.timestamp);
+  const msgEl = appendMessage("bot", data?.message || "", data?.timestamp, {
+    eventType: data?.agentType,
+  });
   if (msgEl && Array.isArray(metadata?.citations) && metadata.citations.length) {
     attachCitations(msgEl, metadata.citations);
   }
@@ -1553,32 +1564,123 @@ function highlightCitationMarkers(root, numbers) {
   });
 }
 
+// Returns balanced JSON object/array slices in source order, ignoring brackets
+// inside strings. Mirrors TextUtils.jsonCandidates on the backend so prose such
+// as "Based on [1], ..." or an option containing "[A]" cannot truncate a quiz.
+function jsonCandidates(text) {
+  const out = [];
+  for (let i = 0; i < text.length; i++) {
+    const open = text[i];
+    if (open !== "[" && open !== "{") continue;
+    const close = open === "[" ? "]" : "}";
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let j = i; j < text.length; j++) {
+      const ch = text[j];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (ch === "\\") escaped = true;
+        else if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') {
+        inString = true;
+      } else if (ch === open) {
+        depth++;
+      } else if (ch === close) {
+        depth--;
+        if (depth === 0) {
+          out.push(text.slice(i, j + 1));
+          break;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+function parseQuizArray(json) {
+  try {
+    const parsed = JSON.parse(json);
+    if (
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every(
+        (item) => item && typeof item.question === "string" && item.question.trim(),
+      )
+    ) {
+      return parsed;
+    }
+  } catch {
+    /* not quiz json */
+  }
+  return null;
+}
+
+function parseQuizObject(json) {
+  try {
+    const parsed = JSON.parse(json);
+    if (parsed && typeof parsed.question === "string" && parsed.question.trim()) {
+      return parsed;
+    }
+  } catch {
+    /* not quiz json */
+  }
+  return null;
+}
+
 function tryParseQuizJson(text) {
   if (text == null) return null;
   const raw = String(text).trim();
-  // The model may wrap the array in a code fence or surround it with prose;
-  // extract the array itself (mirrors the backend's parseQuizItems) so a quiz
-  // with stray prose still renders as a card instead of raw JSON.
-  const fenced = raw.match(/```(?:json)?\s*\n?([\s\S]*?)```/i);
-  const body = (fenced ? fenced[1] : raw).replace(/^json\b/i, "").trim();
-  const start = body.indexOf("[");
-  const end = body.lastIndexOf("]");
-  if (start === -1 || end <= start) return null;
-  let parsed;
-  try {
-    parsed = JSON.parse(body.slice(start, end + 1));
-  } catch {
-    /* not quiz json */
-    return null;
+  if (!raw) return null;
+  const candidates = jsonCandidates(raw);
+  for (const candidate of candidates) {
+    if (!candidate.startsWith("[")) continue;
+    const items = parseQuizArray(candidate);
+    if (items) return items;
   }
-  if (
-    Array.isArray(parsed) &&
-    parsed.length > 0 &&
-    parsed.every((item) => item && typeof item.question === "string")
-  ) {
-    return parsed;
+  for (const candidate of candidates) {
+    if (!candidate.startsWith("{")) continue;
+    const item = parseQuizObject(candidate);
+    if (item) return [item];
   }
   return null;
+}
+
+function looksLikeQuizJson(text) {
+  let raw = String(text ?? "").trim();
+  if (!raw) return false;
+  if (raw.startsWith("```")) raw = raw.replace(/^```[a-zA-Z]*\s*/, "").trim();
+  return raw.startsWith("[") || raw.startsWith("{") || /"question"\s*:/.test(raw);
+}
+
+function renderQuizUnavailableCard(timestamp) {
+  const container = document.getElementById("chat-container");
+  const card = document.createElement("div");
+  card.classList.add("quiz-card", "quiz-unavailable");
+
+  const header = document.createElement("div");
+  header.classList.add("quiz-header");
+  header.textContent = "📝 Quiz unavailable";
+  card.appendChild(header);
+
+  const body = document.createElement("div");
+  body.classList.add("quiz-question-text");
+  body.textContent =
+    "This quiz couldn't be displayed because the generated format was invalid. Please generate a new one.";
+  card.appendChild(body);
+
+  const meta = document.createElement("div");
+  meta.classList.add("message-meta");
+  meta.dataset.ts = toDate(timestamp).toISOString();
+  meta.textContent = formatTimestamp(toDate(timestamp));
+  card.appendChild(meta);
+
+  container.appendChild(card);
+  requestAnimationFrame(() => {
+    container.scrollTop = container.scrollHeight;
+  });
 }
 
 function renderQuizCard(meta, timestamp) {

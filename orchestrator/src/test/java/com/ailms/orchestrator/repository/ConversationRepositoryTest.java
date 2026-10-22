@@ -30,7 +30,8 @@ class ConversationRepositoryTest {
 
     repo.logMessage("user-1", "sess-1", "user", "hello");
     verify(historyCache)
-        .cacheMessage("user-1", "sess-1", "user", "hello", null, any(Instant.class));
+        .cacheMessage(
+            "user-1", "sess-1", "user", "hello", null, isNull(), any(Instant.class));
   }
 
   @Test
@@ -42,7 +43,13 @@ class ConversationRepositoryTest {
     repo.logMessage("user-1", "sess-1", "assistant", "Hello!", "CONVERSATION");
     verify(historyCache)
         .cacheMessage(
-            "user-1", "sess-1", "assistant", "Hello!", "CONVERSATION", any(Instant.class));
+            "user-1",
+            "sess-1",
+            "assistant",
+            "Hello!",
+            "CONVERSATION",
+            isNull(),
+            any(Instant.class));
   }
 
   @Test

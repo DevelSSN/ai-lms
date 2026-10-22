@@ -10,6 +10,7 @@ import com.ailms.common.entity.ConversationLog;
 import com.ailms.common.enums.ChatRole;
 import com.ailms.orchestrator.service.ChatHistoryCacheService;
 import com.ailms.orchestrator.service.RedisChatMemoryStore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,11 +20,15 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class ConversationRepository implements PanacheRepository<ConversationLog> {
 
   @Inject EntityManager em;
+
+  @Inject ObjectMapper objectMapper;
 
   @Inject ChatHistoryCacheService historyCache;
 
@@ -37,6 +42,17 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
   @Transactional
   public void logMessage(
       String userId, String sessionId, String role, String message, String agentType) {
+    logMessage(userId, sessionId, role, message, agentType, null);
+  }
+
+  @Transactional
+  public void logMessage(
+      String userId,
+      String sessionId,
+      String role,
+      String message,
+      String agentType,
+      Object metadata) {
     Instant now = Instant.now();
     ConversationLog logEntry = new ConversationLog();
     logEntry.userId = userId;
@@ -45,10 +61,31 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
     logEntry.message = message;
     logEntry.assistantMessage = ChatRole.isAssistant(role) ? message : null;
     logEntry.agentType = agentType;
+    logEntry.metadata = serializeMetadata(metadata);
     logEntry.timestamp = now;
     persist(logEntry);
 
-    historyCache.cacheMessage(userId, sessionId, role, message, agentType, now);
+    historyCache.cacheMessage(userId, sessionId, role, message, agentType, metadata, now);
+  }
+
+  private String serializeMetadata(Object metadata) {
+    if (metadata == null) return null;
+    try {
+      return objectMapper.writeValueAsString(metadata);
+    } catch (Exception e) {
+      log.warn("Failed to serialize conversation metadata: {}", e.getMessage());
+      return null;
+    }
+  }
+
+  private Object deserializeMetadata(String metadata) {
+    if (metadata == null || metadata.isBlank()) return null;
+    try {
+      return objectMapper.readValue(metadata, Object.class);
+    } catch (Exception e) {
+      log.warn("Failed to deserialize conversation metadata: {}", e.getMessage());
+      return null;
+    }
   }
 
   public ChatHistory getHistory(String userId, String sessionId) {
@@ -73,7 +110,8 @@ public class ConversationRepository implements PanacheRepository<ConversationLog
                             ? log.message
                             : log.assistantMessage != null ? log.assistantMessage : log.message,
                         log.agentType,
-                        log.timestamp))
+                        log.timestamp,
+                        deserializeMetadata(log.metadata)))
             .toList();
 
     historyCache.seedHistory(userId, sessionId, messages);

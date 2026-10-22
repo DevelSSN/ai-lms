@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class TextUtilsTest {
@@ -231,5 +232,29 @@ class TextUtilsTest {
   void returnsInputWhenNoJsonObject() {
     assertEquals("not json at all", TextUtils.extractJsonObject("not json at all"));
     assertNull(TextUtils.extractJsonObject(null));
+  }
+
+  @Test
+  void jsonCandidatesKeepBalancedJsonWithBracketsInsideStrings() {
+    String quiz =
+        "[{\"question\":\"Pick [A]\",\"options\":[\"[A] one\",\"[B] two\"],"
+            + "\"answer\":\"[A] one\",\"explanation\":\"braces } and quotes \\\" are fine\"}]";
+    List<String> candidates = TextUtils.jsonCandidates(quiz);
+    assertEquals(quiz, candidates.get(0));
+  }
+
+  @Test
+  void jsonCandidatesFindThePayloadAfterCitationProse() {
+    String json = "[{\"question\":\"What is 2+2?\",\"options\":[\"3\",\"4\"]}]";
+    List<String> candidates =
+        TextUtils.jsonCandidates(
+            "Based on [1], here is your quiz: " + json + " Sources: [1]");
+    assertTrue(candidates.contains(json));
+  }
+
+  @Test
+  void jsonCandidatesNullAndBlank() {
+    assertEquals(List.of(), TextUtils.jsonCandidates(null));
+    assertEquals(List.of(), TextUtils.jsonCandidates("   "));
   }
 }

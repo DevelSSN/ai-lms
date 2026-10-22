@@ -147,6 +147,11 @@ public class OrchestratorService {
       "I couldn't find usable indexed text for that document yet. It may still be processing, "
           + "or the document may not cover this question. Please try again in a moment.";
 
+  /** Shown instead of a malformed quiz payload, which clients would otherwise render verbatim. */
+  static final String QUIZ_UNAVAILABLE =
+      "I couldn't produce a valid quiz from that document. Please try again or ask for a"
+          + " different topic.";
+
   /** Topic words that refer back to the previous turn instead of naming a new subject. */
   private static final Set<String> ANAPHORIC_TOPIC_WORDS =
       Set.of(
@@ -417,7 +422,12 @@ public class OrchestratorService {
       conversationRepository.logMessage(
           userId, sessionId, ChatRole.USER.key(), displayUserMessage(request.message(), userId, sessionId));
       conversationRepository.logMessage(
-          userId, sessionId, ChatRole.ASSISTANT.key(), response.message(), response.agentType());
+          userId,
+          sessionId,
+          ChatRole.ASSISTANT.key(),
+          response.message(),
+          response.agentType(),
+          response.metadata());
 
       if (isNewSession) scheduleTitleGeneration(userId, sessionId);
 
@@ -834,29 +844,69 @@ public class OrchestratorService {
   }
 
   List<QuizItem> parseQuizItems(String output) {
-    if (output == null || output.isBlank()) return List.of();
+    String json = extractQuizJson(output);
+    if (json == null) return List.of();
     try {
-      return objectMapper.readValue(
-          stripCodeFences(output),
-          new com.fasterxml.jackson.core.type.TypeReference<List<QuizItem>>() {});
+      List<QuizItem> items =
+          objectMapper.readValue(
+              json, new com.fasterxml.jackson.core.type.TypeReference<List<QuizItem>>() {});
+      return items == null ? List.of() : items;
     } catch (Exception e) {
       log.debug("Quiz output parse failed: {}", e.getMessage());
       return List.of();
     }
   }
 
-  private static String stripCodeFences(String output) {
+  /**
+   * Finds the first JSON array (or single object, wrapped) that parses into quiz items. Walking
+   * every balanced candidate avoids the old first-{@code [}/last-{@code ]} heuristic, which broke
+   * on prose such as "Based on [1], ..." and on options or explanations containing brackets.
+   */
+  private String extractQuizJson(String output) {
+    if (output == null || output.isBlank()) return null;
+    List<String> candidates = TextUtils.jsonCandidates(output);
+    for (String candidate : candidates) {
+      if (!candidate.startsWith("[")) continue;
+      try {
+        List<QuizItem> items =
+            objectMapper.readValue(
+                candidate, new com.fasterxml.jackson.core.type.TypeReference<List<QuizItem>>() {});
+        if (isQuiz(items)) return candidate;
+      } catch (Exception ignored) {
+        // Not the quiz array; keep scanning.
+      }
+    }
+    for (String candidate : candidates) {
+      if (!candidate.startsWith("{")) continue;
+      try {
+        QuizItem item = objectMapper.readValue(candidate, QuizItem.class);
+        if (isQuizItem(item)) return "[" + candidate + "]";
+      } catch (Exception ignored) {
+        // Not a quiz object; keep scanning.
+      }
+    }
+    return null;
+  }
+
+  private static boolean isQuiz(List<QuizItem> items) {
+    return items != null
+        && !items.isEmpty()
+        && items.stream().allMatch(OrchestratorService::isQuizItem);
+  }
+
+  private static boolean isQuizItem(QuizItem item) {
+    return item != null && item.question() != null && !item.question().isBlank();
+  }
+
+  private static boolean looksLikeQuizJson(String output) {
+    if (output == null) return false;
     String trimmed = output.trim();
     if (trimmed.startsWith("```")) {
-      trimmed = trimmed.replaceFirst("^```[a-zA-Z]*\\s*", "");
-      trimmed = trimmed.replaceFirst("```\\s*$", "").trim();
+      trimmed = trimmed.replaceFirst("^```[a-zA-Z]*\\s*", "").trim();
     }
-    int start = trimmed.indexOf('[');
-    int end = trimmed.lastIndexOf(']');
-    if (start >= 0 && end > start) {
-      trimmed = trimmed.substring(start, end + 1);
-    }
-    return trimmed;
+    return trimmed.startsWith("[")
+        || trimmed.startsWith("{")
+        || trimmed.matches("(?s).*\"question\"\\s*:.*");
   }
 
   private String enrichWithContext(
@@ -1228,8 +1278,8 @@ public class OrchestratorService {
     if (retried != null && !retried.isBlank()) {
       retried = youTubeLinkValidator.sanitize(retried);
       retried = TextUtils.stripThinking(retried);
-      String json = TextUtils.extractJsonArray(retried);
-      if (json != null && !parseQuizItems(json).isEmpty()) return json;
+      String json = extractQuizJson(retried);
+      if (json != null) return json;
     }
     log.warn("Quiz regeneration unusable for session={}, delivering original quiz", sessionId);
     return agentResponse;
@@ -1252,9 +1302,9 @@ public class OrchestratorService {
     if (agentResponse == null || agentResponse.isBlank()) return agentResponse;
     
     // Soft parsing: check if a JSON array exists anywhere in the response
-    String jsonOnly = TextUtils.extractJsonArray(agentResponse);
-    if (jsonOnly != null && !parseQuizItems(jsonOnly).isEmpty()) {
-        return jsonOnly;
+    String jsonOnly = extractQuizJson(agentResponse);
+    if (jsonOnly != null) {
+      return jsonOnly;
     }
 
     log.warn(
@@ -1271,14 +1321,21 @@ public class OrchestratorService {
       strict = youTubeLinkValidator.sanitize(strict);
       strict = TextUtils.stripThinking(strict);
       
-      String strictJson = TextUtils.extractJsonArray(strict);
-      if (strictJson != null && !parseQuizItems(strictJson).isEmpty()) {
+      String strictJson = extractQuizJson(strict);
+      if (strictJson != null) {
         log.info("Strict JSON regeneration produced a parseable quiz for session={}", sessionId);
         return strictJson;
       }
-      log.warn("Strict regeneration still not parseable for session={}, returning original", sessionId);
+      log.warn("Strict regeneration still not parseable for session={}", sessionId);
     } catch (Exception e) {
       log.warn("Strict JSON quiz regeneration failed for session={}: {}", sessionId, e.getMessage());
+    }
+    if (looksLikeQuizJson(agentResponse)) {
+      log.warn(
+          "Assessment output looks like JSON but could not be parsed for session={};"
+              + " returning an actionable message instead",
+          sessionId);
+      return QUIZ_UNAVAILABLE;
     }
     return agentResponse;
   }

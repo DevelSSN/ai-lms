@@ -45,6 +45,17 @@ public class ChatHistoryCacheService {
       String message,
       String agentType,
       Instant timestamp) {
+    cacheMessage(userId, sessionId, role, message, agentType, null, timestamp);
+  }
+
+  public void cacheMessage(
+      String userId,
+      String sessionId,
+      String role,
+      String message,
+      String agentType,
+      Object metadata,
+      Instant timestamp) {
     String key = PREFIX + userId + ":" + sessionId;
     // Only append to a cache that holds the full history. After the key expires,
     // a bare rpush would create a partial list that shadows the database on reads.
@@ -52,7 +63,8 @@ public class ChatHistoryCacheService {
       return;
     }
     CacheEntry entry =
-        new CacheEntry(role, message, agentType, timestamp != null ? timestamp.toString() : null);
+        new CacheEntry(
+            role, message, agentType, timestamp != null ? timestamp.toString() : null, metadata);
     try {
       lists.rpush(key, objectMapper.writeValueAsString(entry));
       keys.expire(key, TTL_SECONDS);
@@ -74,7 +86,8 @@ public class ChatHistoryCacheService {
                 message.role(),
                 message.content(),
                 message.agentType(),
-                message.timestamp() != null ? message.timestamp().toString() : null);
+                message.timestamp() != null ? message.timestamp().toString() : null,
+                message.metadata());
         lists.rpush(key, objectMapper.writeValueAsString(entry));
       }
       values.set(seededKey, "1");
@@ -105,7 +118,8 @@ public class ChatHistoryCacheService {
                         entry.role(),
                         entry.content(),
                         entry.agentType(),
-                        entry.timestamp() != null ? Instant.parse(entry.timestamp()) : null);
+                        entry.timestamp() != null ? Instant.parse(entry.timestamp()) : null,
+                        entry.metadata());
                   } catch (JsonProcessingException ex) {
                     throw new IllegalStateException(
                         "Failed to deserialize cached chat message", ex);
@@ -120,5 +134,6 @@ public class ChatHistoryCacheService {
     keys.del(PREFIX + userId + ":" + sessionId + SEEDED_SUFFIX);
   }
 
-  private record CacheEntry(String role, String content, String agentType, String timestamp) {}
+  private record CacheEntry(
+      String role, String content, String agentType, String timestamp, Object metadata) {}
 }
