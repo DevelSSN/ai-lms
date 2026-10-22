@@ -961,6 +961,93 @@ class OrchestratorServiceTest {
   }
 
   @Test
+  void route_videoSearch_anaphoricFollowUp_usesStoredTopic() {
+    String msg = "extract me videos on the same concept";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("VIDEO_SEARCH");
+    when(youTubeSearchService.extractQuery(msg)).thenReturn("same concept");
+    when(sessionTopicStore.getTopic("sess-1")).thenReturn("git");
+    when(youTubeSearchService.search("git"))
+        .thenReturn(
+            java.util.List.of(
+                new YouTubeSearchService.VideoResult("Git basics", "abc12345678")));
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              String msg2 = scope.readState("response", "");
+              return new ChatResponse(msg2, "sess-1", "VIDEO_SEARCH");
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("https://www.youtube.com/watch?v=abc12345678"));
+    verify(youTubeSearchService).search("git");
+    verify(sessionTopicStore, never()).setTopic("sess-1", "same concept");
+  }
+
+  @Test
+  void route_contentAnalysis_noMatchAndRejectedTwice_returnsIndexingHint() {
+    String msg = "What does the document say about black holes?";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(List.of());
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
+        .thenReturn("The document does not cover black holes.");
+    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"not grounded\"}")
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"still not grounded\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(
+                  scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertTrue(resp.message().contains("couldn't find usable indexed text"));
+    assertFalse(resp.message().contains("I couldn't generate a good answer"));
+  }
+
+  @Test
+  void route_contentAnalysis_groundedProseRejectedTwice_isDelivered() {
+    String msg = "What does the document say about version control?";
+    String answer =
+        "Git is a distributed version control system. It tracks changes in source code, "
+            + "supports branching and merging, and keeps every repository self-contained.";
+    when(intentClassifier.classify(eq(msg), anyString())).thenReturn("CONTENT_ANALYSIS");
+    when(contentDocumentService.resolveRecentDocumentId("user-1", "sess-1", false))
+        .thenReturn("doc-9");
+    when(vectorDBService.retrieveRelevantContext(anyString(), eq(8), eq("doc:doc-9")))
+        .thenReturn(
+            chunks(
+                "Git is a distributed version control system that tracks changes in source code "
+                    + "and enables branching and merging across repositories."));
+    when(contentAnalysisAgent.process(eq(ChatMemoryKeys.analysis("sess-1")), anyString()))
+        .thenReturn(answer);
+    when(responseVerifierAgent.verify(anyString(), anyString(), anyString()))
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"too terse\"}")
+        .thenReturn("{\"verdict\": \"NEEDS_REWRITE\", \"reason\": \"still too terse\"}");
+    when(responseComposer.compose(any(AgenticScope.class), eq("sess-1")))
+        .thenAnswer(
+            inv -> {
+              AgenticScope scope = inv.getArgument(0);
+              return new ChatResponse(
+                  scope.readState("response", ""), "sess-1", scope.readState("intent", ""));
+            });
+
+    OrchestratorService svc = buildService();
+    ChatResponse resp = svc.route(new ChatRequest(msg, "sess-1"), "user-1");
+
+    assertEquals(answer, resp.message());
+  }
+
+  @Test
   void route_videoSearch_writerProseRejectedTwice_deliversLinksNotFallback() {
     when(intentClassifier.classify(eq("Emacs video"), anyString())).thenReturn("VIDEO_SEARCH");
     when(youTubeSearchService.extractQuery("Emacs video")).thenReturn("Emacs video");

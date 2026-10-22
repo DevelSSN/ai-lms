@@ -139,6 +139,32 @@ public class OrchestratorService {
       "Relevant context from your uploaded document: no content in the document matches this"
           + " query.";
 
+  /**
+   * Replaces the generic verifier apology when a content-analysis turn had no usable retrieved
+   * evidence: the document may still be indexing, or may simply not cover the question.
+   */
+  private static final String CONTENT_UNAVAILABLE =
+      "I couldn't find usable indexed text for that document yet. It may still be processing, "
+          + "or the document may not cover this question. Please try again in a moment.";
+
+  /** Topic words that refer back to the previous turn instead of naming a new subject. */
+  private static final Set<String> ANAPHORIC_TOPIC_WORDS =
+      Set.of(
+          "same", "that", "this", "it", "those", "these", "one", "ones", "previous", "above",
+          "concept", "topic", "thing", "stuff", "more", "again", "another", "them");
+
+  private static final Set<String> ANSWER_STOPWORDS =
+      Set.of(
+          "the", "and", "for", "with", "that", "this", "from", "your", "you", "are", "was",
+          "were", "have", "has", "had", "not", "but", "can", "could", "would", "should", "will",
+          "shall", "may", "might", "must", "about", "into", "onto", "over", "under", "between",
+          "among", "they", "them", "their", "there", "here", "what", "when", "where", "which",
+          "who", "whom", "whose", "how", "why", "its", "also", "more", "most", "some", "any",
+          "all", "each", "other", "such", "than", "then", "these", "those", "been", "being",
+          "does", "did", "doing", "done", "just", "like", "used", "using", "one", "two", "first",
+          "second", "document", "uploaded", "relevant", "context", "content", "question", "answer",
+          "user", "message", "please", "information", "following", "provide", "request", "based");
+
   private static final String VIDEO_REGENERATION_HINT =
       "The previous answer was rejected because it did not explain how each video "
           + "relates to the user's request. Make sure every video entry explicitly connects "
@@ -328,7 +354,6 @@ public class OrchestratorService {
       }
 
       scope.writeState("intent", intent);
-      recordSessionTopic(sessionId, message, intent);
 
       String analysisCtx = "";
       if (agentResponse == null) {
@@ -340,6 +365,10 @@ public class OrchestratorService {
           agentResponse = dispatchAgent(intent, sessionId, enrichedMessage, analysisCtx);
         }
       }
+      // Recorded after the answer is built: buildVideoAnswer reads the stored topic as the
+      // previous turn's context, so writing it first would replace that context with the
+      // current (often anaphoric) phrase.
+      recordSessionTopic(sessionId, message, intent);
       agentResponse = youTubeLinkValidator.sanitize(agentResponse);
       agentResponse = TextUtils.stripThinking(agentResponse);
 
@@ -1041,7 +1070,20 @@ public class OrchestratorService {
     if (TextUtils.isBareGreeting(message)) return;
     String topic = youTubeSearchService.extractQuery(message);
     if (topic == null || topic.isBlank()) return;
+    // Do not let "same concept"/"that one" overwrite the real topic they point back to.
+    if (isAnaphoricTopic(topic)) return;
     sessionTopicStore.setTopic(sessionId, topic);
+  }
+
+  private boolean isAnaphoricTopic(String topic) {
+    if (topic == null || topic.isBlank()) return false;
+    boolean any = false;
+    for (String token : topic.toLowerCase(Locale.ROOT).split("[^a-z0-9]+")) {
+      if (token.isEmpty()) continue;
+      if (!ANAPHORIC_TOPIC_WORDS.contains(token)) return false;
+      any = true;
+    }
+    return any;
   }
 
   private String buildVideoAnswer(
@@ -1147,7 +1189,7 @@ public class OrchestratorService {
         regenerate(intent, sessionId, message, enrichedMessage, analysisCtx, userId, first.reason());
     if (retried == null || retried.isBlank()) {
       log.warn("Retry returned blank response for intent={}, returning fallback", intent);
-      return VERIFIER_FALLBACK;
+      return contentFallback(intent, context);
     }
     retried = youTubeLinkValidator.sanitize(retried);
     retried = TextUtils.stripThinking(retried);
@@ -1155,7 +1197,7 @@ public class OrchestratorService {
 
     log.warn(
         "Regenerated response also rejected by verifier for intent={}, returning fallback", intent);
-    return lastUsableAnswer(intent, retried);
+    return lastUsableAnswer(intent, retried, context);
   }
 
   /**
@@ -1241,13 +1283,21 @@ public class OrchestratorService {
     return agentResponse;
   }
 
-  private String lastUsableAnswer(String intent, String answer) {
+  private String lastUsableAnswer(String intent, String answer, String context) {
     if (INTENT_ASSESSMENT.equals(intent) && !parseQuizItems(answer).isEmpty()) {
       log.warn("Verifier rejected assessment but quiz is structurally valid, delivering it");
       return answer;
     }
     if (INTENT_VIDEO_SEARCH.equals(intent) && answer != null && answer.contains(VIDEO_LINK_PREFIX)) {
       log.warn("Verifier rejected video answer but real links are present, delivering them");
+      return answer;
+    }
+    if (INTENT_CONTENT_ANALYSIS.equals(intent) && hasNoMatchMarker(context)) {
+      log.warn("Verifier rejected content-analysis answer without retrieved evidence");
+      return CONTENT_UNAVAILABLE;
+    }
+    if (INTENT_CONTENT_ANALYSIS.equals(intent) && isGroundedProse(answer, context)) {
+      log.warn("Verifier rejected grounded content-analysis prose, delivering it anyway");
       return answer;
     }
     if (INTENT_CONTENT_ANALYSIS.equals(intent)
@@ -1257,6 +1307,44 @@ public class OrchestratorService {
       return answer;
     }
     return VERIFIER_FALLBACK;
+  }
+
+  private String contentFallback(String intent, String context) {
+    if (INTENT_CONTENT_ANALYSIS.equals(intent) && hasNoMatchMarker(context)) {
+      return CONTENT_UNAVAILABLE;
+    }
+    return VERIFIER_FALLBACK;
+  }
+
+  private boolean hasNoMatchMarker(String context) {
+    return context != null && context.contains(NO_MATCH_CONTEXT);
+  }
+
+  /**
+   * A prose content-analysis answer counts as grounded when it is substantive and shares enough
+   * non-trivial vocabulary with the retrieved evidence, so a verifier rejection does not discard
+   * an answer that is actually backed by the document.
+   */
+  private boolean isGroundedProse(String answer, String context) {
+    if (answer == null || answer.trim().length() < 80 || context == null) return false;
+    if (!context.contains("Relevant context from your uploaded document:")) return false;
+    Set<String> contextTokens = contentTokens(context);
+    if (contextTokens.isEmpty()) return false;
+    int shared = 0;
+    for (String token : contentTokens(answer)) {
+      if (contextTokens.contains(token)) shared++;
+    }
+    return shared >= 4;
+  }
+
+  private static Set<String> contentTokens(String text) {
+    Set<String> tokens = new java.util.HashSet<>();
+    if (text == null || text.isBlank()) return tokens;
+    for (String raw : text.toLowerCase(Locale.ROOT).split("[^a-z0-9]+")) {
+      if (raw.length() < 4 || ANSWER_STOPWORDS.contains(raw)) continue;
+      tokens.add(raw);
+    }
+    return tokens;
   }
 
   private static final String VIDEO_LINK_PREFIX = "https://www.youtube.com/watch?v=";
@@ -1339,6 +1427,8 @@ public class OrchestratorService {
     String m = messageTopic == null ? "" : messageTopic.trim();
     String c = contextTopic == null ? "" : contextTopic.trim();
     if (m.isBlank()) return c.isBlank() ? null : c;
+    // "videos on the same concept" names no subject: the stored topic is the real query.
+    if (isAnaphoricTopic(m) && !c.isBlank()) return c;
     if (c.isBlank() || m.equalsIgnoreCase(c)) return m;
     if (containsWord(m, c)) return m;
     if (containsWord(c, m)) return c;
